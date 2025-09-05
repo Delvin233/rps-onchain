@@ -9,11 +9,37 @@ node_modules
 !.yarn/sdks
 !.yarn/versions
 
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Private keys and secrets
+*.key
+*.pem
+private-keys/
+secrets/
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Hardhat
+artifacts/
+cache/
+deployments/localhost/
+typechain-types/
+
 # eslint
 .eslintcache
 
 # misc
 .DS_Store
+*.tsbuildinfo
 
 # IDE
 .vscode
@@ -21,3 +47,8 @@ node_modules
 
 # cli
 dist
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
