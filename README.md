@@ -1,80 +1,176 @@
-# 🏗 Scaffold-ETH 2
+# RPS-ONCHAIN
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+A Rock Paper Scissors game built with scaffold-eth-2, featuring wallet connectivity and room-based multiplayer gameplay.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## 🎮 Game Features
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+- **Wallet Connect**: RainbowKit + Wagmi integration
+- **Room System**: Create/join rooms with 6-character codes
+- **Real-time Gameplay**: Live updates via polling
+- **Play Again System**: Request-based rematch functionality
+- **Auto-tie Reset**: Automatic restart on tie games (3-second countdown)
+- **Leave Protection**: Confirmation dialog when leaving active games
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
-
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
-
-## Requirements
-
-Before you begin, you need to install the following tools:
-
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
-
-## Quickstart
-
-To get started with Scaffold-ETH 2, follow the steps below:
-
-1. Install dependencies if it was skipped in CLI:
+## 🏗 Project Structure
 
 ```
-cd my-dapp-example
-yarn install
+packages/
+├── hardhat/          # Smart contracts & deployment
+│   ├── contracts/    # Solidity contracts
+│   ├── deploy/       # Deployment scripts
+│   └── scripts/      # Utility scripts
+└── nextjs/           # Frontend application
+    ├── app/          # Next.js 13+ app directory
+    ├── lib/          # Game logic (rooms, users)
+    └── components/   # React components
 ```
 
-2. Run a local network in the first terminal:
+## 🚀 Quick Start
 
+### Prerequisites
+- Node.js 18+
+- Yarn or pnpm
+
+### Installation & Setup
+
+1. **Install dependencies**
+   ```bash
+   yarn install
+   ```
+
+2. **Start local blockchain**
+   ```bash
+   yarn chain
+   ```
+   Keep this terminal open - it runs your local Hardhat network.
+
+3. **Deploy contracts** (in a new terminal)
+   ```bash
+   yarn deploy
+   ```
+   This deploys the RPSOnline contract to your local network.
+
+4. **Start frontend** (in a new terminal)
+   ```bash
+   yarn start
+   ```
+   Frontend runs on `http://localhost:3000`
+
+## 🎯 How to Play
+
+### Current Implementation (Local Rooms)
+
+1. **Connect Wallet**: Use any wallet (MetaMask recommended)
+2. **Set Username**: Click the edit button next to your name
+3. **Create Room**: Generate a 6-character room code
+4. **Share Code**: Give the room code to your opponent
+5. **Join Room**: Enter the room code to join
+6. **Play Game**: Make your move (Rock/Paper/Scissors)
+7. **Results**: See winner, play again, or end match
+
+### Game Rules
+- Rock beats Scissors
+- Scissors beats Paper  
+- Paper beats Rock
+- Same moves = Tie (auto-restart after 3 seconds)
+
+## 🔧 Development Commands
+
+```bash
+# Blockchain
+yarn chain          # Start local Hardhat network
+yarn deploy         # Deploy contracts to local network
+yarn deploy:sepolia # Deploy to Base Sepolia testnet
+
+# Frontend
+yarn start          # Start Next.js development server
+yarn build          # Build for production
+yarn lint           # Run ESLint
+
+# Full stack
+yarn dev            # Start frontend (same as yarn start)
 ```
-yarn chain
+
+## 📁 Key Files
+
+### Frontend
+- `app/page.tsx` - Home page with wallet connect
+- `app/play/page.tsx` - Room creation/joining
+- `app/game/[roomId]/page.tsx` - Game interface
+- `lib/roomStore.ts` - Room management logic
+- `lib/userStore.ts` - Username storage
+
+### Smart Contracts
+- `contracts/RPSOnline.sol` - Placeholder contract with MatchCreated event
+- `deploy/00_deploy_rps_online.ts` - Deployment script
+
+### API Routes
+- `app/api/room/route.ts` - Room CRUD operations
+- `app/api/username/route.ts` - Username management
+
+## 🌐 Network Configuration
+
+The project is configured for:
+- **Local**: Hardhat network (default)
+- **Testnet**: Base Sepolia
+- **Mainnet**: Base (ready for production)
+
+Contract addresses are auto-exported to `contracts/deployedContracts.ts` after deployment.
+
+## 🔮 Future Enhancements
+
+### Phase 1: On-chain Integration
+- Replace local room storage with smart contract calls
+- Store game state on-chain
+- Implement commit-reveal scheme for moves
+- Add ETH/token betting functionality
+
+### Phase 2: Advanced Features
+- Tournament brackets
+- Leaderboards & statistics  
+- NFT rewards for winners
+- Multi-round matches
+
+### Phase 3: Scaling
+- Layer 2 optimization
+- Gasless transactions via meta-transactions
+- Mobile app development
+
+## 🛠 Technical Stack
+
+- **Frontend**: Next.js 13+, React, TypeScript, TailwindCSS
+- **Wallet**: RainbowKit, Wagmi, Viem
+- **Blockchain**: Hardhat, Solidity
+- **Deployment**: Vercel (frontend), Base network (contracts)
+
+## 📝 Environment Variables
+
+Create `.env` files in respective packages:
+
+### `packages/hardhat/.env`
+```
+ALCHEMY_API_KEY=your_alchemy_key
+DEPLOYER_PRIVATE_KEY=your_private_key
+ETHERSCAN_API_KEY=your_etherscan_key
 ```
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
-
-3. On a second terminal, deploy the test contract:
-
+### `packages/nextjs/.env.local`
 ```
-yarn deploy
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 ```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+## 🤝 Contributing
 
-4. On a third terminal, start your NextJS app:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-```
-yarn start
-```
+## 📄 License
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+MIT License - see LICENSE file for details.
 
-Run smart contract test with `yarn hardhat:test`
+---
 
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
-
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+**Ready to play?** Run `yarn chain`, `yarn deploy`, `yarn start` and visit `http://localhost:3000`!

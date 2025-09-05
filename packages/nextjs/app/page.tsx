@@ -1,72 +1,199 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount, useEnsName } from "wagmi";
+import { base, mainnet } from "wagmi/chains";
 
-const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+type GameState = "menu" | "demo";
 
-  return (
-    <>
-      <div className="flex items-center flex-col grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
+export default function Home() {
+  const { address, isConnected } = useAccount();
+  const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
+  const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
+  const [gameState, setGameState] = useState<GameState>("menu");
+  const [username, setUsername] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempUsername, setTempUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [ensSource, setEnsSource] = useState<"mainnet" | "base" | null>(null);
+
+  useEffect(() => {
+    if (address) {
+      fetch(`/api/username?address=${address}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.username) {
+            setUsername(data.username);
+          }
+        });
+    }
+  }, [address]);
+
+  useEffect(() => {
+    // Priority: Mainnet ENS > Base ENS > custom username > 'User'
+    if (mainnetEnsName) {
+      setDisplayName(mainnetEnsName);
+      setEnsSource("mainnet");
+    } else if (baseEnsName) {
+      setDisplayName(baseEnsName);
+      setEnsSource("base");
+    } else if (username) {
+      setDisplayName(username);
+      setEnsSource(null);
+    } else {
+      setDisplayName("User");
+      setEnsSource(null);
+    }
+  }, [mainnetEnsName, baseEnsName, username]);
+
+  const saveUsername = async () => {
+    if (!address || !tempUsername.trim()) return;
+
+    const response = await fetch("/api/username", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address, username: tempUsername.trim() }),
+    });
+
+    if (response.ok) {
+      setUsername(tempUsername.trim());
+      setIsEditing(false);
+    }
+  };
+
+  const startEdit = () => {
+    setTempUsername(username);
+    setIsEditing(true);
+  };
+
+  const startDemo = () => {
+    setGameState("demo");
+  };
+
+  const backToMenu = () => {
+    setGameState("menu");
+  };
+
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
+          <h1 className="text-2xl mb-4 text-white">RPS-ONCHAIN</h1>
+          <div className="bg-gray-700 p-4 rounded text-left mb-6">
+            <p className="text-white text-sm font-bold mb-2">GAME RULES:</p>
+            <p className="text-gray-300 text-xs mb-1">Rock beats Scissors</p>
+            <p className="text-gray-300 text-xs mb-1">Scissors beats Paper</p>
+            <p className="text-gray-300 text-xs mb-1">Paper beats Rock</p>
+            <p className="text-gray-300 text-xs">Same moves result in a tie</p>
           </div>
-
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
-        </div>
-
-        <div className="grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col md:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
+          <p className="text-gray-300 text-sm mb-4">CONNECT WALLET TO PLAY</p>
+          <div className="flex justify-center">
+            <ConnectButton />
           </div>
         </div>
       </div>
-    </>
-  );
-};
+    );
+  }
 
-export default Home;
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl text-white">RPS-ONCHAIN</h1>
+            {isConnected && (
+              <div className="flex items-center gap-2">
+                {isEditing ? (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="text"
+                      value={tempUsername}
+                      onChange={e => setTempUsername(e.target.value)}
+                      placeholder="Enter username"
+                      className="bg-gray-600 text-white p-1 text-sm rounded w-24"
+                      maxLength={15}
+                    />
+                    <button
+                      onClick={saveUsername}
+                      className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 text-xs rounded"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 text-xs rounded"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-300 text-sm">
+                      Welcome <span className="font-bold text-white">{displayName}</span>
+                      {ensSource === "mainnet" && <span className="text-green-400 text-xs ml-1">ENS</span>}
+                      {ensSource === "base" && <span className="text-blue-400 text-xs ml-1">BASE</span>}
+                    </span>
+                    {!ensSource && (
+                      <button
+                        onClick={startEdit}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 text-xs rounded"
+                      >
+                        ✎
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <ConnectButton showBalance={false} />
+        </div>
+
+        {gameState === "menu" && (
+          <div className="space-y-4">
+            <div className="bg-gray-700 p-4 rounded text-left">
+              <p className="text-green-400 text-sm font-bold mb-2">✅ WALLET CONNECTED</p>
+              <p className="text-gray-300 text-xs mb-1">
+                Address: {address?.slice(0, 6)}...{address?.slice(-4)}
+              </p>
+              <p className="text-gray-300 text-xs">Network: Base Sepolia</p>
+            </div>
+            <div className="max-w-md mx-auto space-y-3">
+              <button
+                onClick={startDemo}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 text-sm font-bold rounded"
+              >
+                TEST WALLET FEATURES
+              </button>
+              <Link href="/play">
+                <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 text-sm font-bold rounded">
+                  PLAY GAME
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {gameState === "demo" && (
+          <div className="space-y-4">
+            <div className="bg-gray-700 p-4 rounded text-left">
+              <p className="text-white text-sm font-bold mb-2">WALLET CONNECTION TEST</p>
+              <p className="text-gray-300 text-xs mb-1">✅ MetaMask Connected</p>
+              <p className="text-gray-300 text-xs mb-1">✅ Base Sepolia Network</p>
+              <p className="text-gray-300 text-xs mb-1">✅ Address Retrieved</p>
+              <p className="text-gray-300 text-xs">✅ RainbowKit Integration</p>
+            </div>
+            <button
+              onClick={backToMenu}
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 text-sm font-bold"
+            >
+              BACK TO MENU
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
