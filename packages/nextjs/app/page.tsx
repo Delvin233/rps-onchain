@@ -1,72 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount, useEnsName } from "wagmi";
-import { base, mainnet } from "wagmi/chains";
+import { useAccount } from "wagmi";
 
 type GameState = "menu" | "demo";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
-  const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
-  const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
   const [gameState, setGameState] = useState<GameState>("menu");
-  const [username, setUsername] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [tempUsername, setTempUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [ensSource, setEnsSource] = useState<"mainnet" | "base" | null>(null);
 
-  useEffect(() => {
-    if (address) {
-      fetch(`/api/username?address=${address}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.username) {
-            setUsername(data.username);
-          }
-        });
-    }
-  }, [address]);
 
-  useEffect(() => {
-    // Priority: Mainnet ENS > Base ENS > custom username > 'User'
-    if (mainnetEnsName) {
-      setDisplayName(mainnetEnsName);
-      setEnsSource("mainnet");
-    } else if (baseEnsName) {
-      setDisplayName(baseEnsName);
-      setEnsSource("base");
-    } else if (username) {
-      setDisplayName(username);
-      setEnsSource(null);
-    } else {
-      setDisplayName("User");
-      setEnsSource(null);
-    }
-  }, [mainnetEnsName, baseEnsName, username]);
-
-  const saveUsername = async () => {
-    if (!address || !tempUsername.trim()) return;
-
-    const response = await fetch("/api/username", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, username: tempUsername.trim() }),
-    });
-
-    if (response.ok) {
-      setUsername(tempUsername.trim());
-      setIsEditing(false);
-    }
-  };
-
-  const startEdit = () => {
-    setTempUsername(username);
-    setIsEditing(true);
-  };
 
   const startDemo = () => {
     setGameState("demo");
@@ -80,7 +25,6 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
-          <h1 className="text-2xl mb-4 text-white">RPS-ONCHAIN</h1>
           <div className="bg-gray-700 p-4 rounded text-left mb-6">
             <p className="text-white text-sm font-bold mb-2">GAME RULES:</p>
             <p className="text-gray-300 text-xs mb-1">Rock beats Scissors</p>
@@ -100,56 +44,6 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl text-white">RPS-ONCHAIN</h1>
-            {isConnected && (
-              <div className="flex items-center gap-2">
-                {isEditing ? (
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="text"
-                      value={tempUsername}
-                      onChange={e => setTempUsername(e.target.value)}
-                      placeholder="Enter username"
-                      className="bg-gray-600 text-white p-1 text-sm rounded w-24"
-                      maxLength={15}
-                    />
-                    <button
-                      onClick={saveUsername}
-                      className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 text-xs rounded"
-                    >
-                      ✓
-                    </button>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 text-xs rounded"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-300 text-sm">
-                      Welcome <span className="font-bold text-white">{displayName}</span>
-                      {ensSource === "mainnet" && <span className="text-green-400 text-xs ml-1">ENS</span>}
-                      {ensSource === "base" && <span className="text-blue-400 text-xs ml-1">BASE</span>}
-                    </span>
-                    {!ensSource && (
-                      <button
-                        onClick={startEdit}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 text-xs rounded"
-                      >
-                        ✎
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <ConnectButton showBalance={false} />
-        </div>
 
         {gameState === "menu" && (
           <div className="space-y-4">

@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/RPSOnline.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\ncontract RPSOnline {\n    enum GameState { Created, Joined, MovesCommitted, Revealed, Finished }\n    \n    struct Game {\n        address player1;\n        address player2;\n        bytes32 player1Move;\n        bytes32 player2Move;\n        uint8 revealedMove1;\n        uint8 revealedMove2;\n        GameState state;\n        address winner;\n        uint256 betAmount;\n        bool player1Paid;\n        bool player2Paid;\n        uint256 createdAt;\n    }\n    \n    mapping(string => Game) public games;\n    \n    event GameCreated(string indexed roomId, address indexed creator);\n    event GameJoined(string indexed roomId, address indexed joiner);\n    event MoveCommitted(string indexed roomId, address indexed player);\n    event MoveRevealed(string indexed roomId, address indexed player, uint8 move);\n    event GameFinished(string indexed roomId, address indexed winner);\n    event WinningsClaimed(string indexed roomId, address indexed winner, uint256 amount);\n    \n    function createGame(string memory roomId) external payable {\n        require(games[roomId].player1 == address(0), \"Room already exists\");\n        \n        games[roomId] = Game({\n            player1: msg.sender,\n            player2: address(0),\n            player1Move: bytes32(0),\n            player2Move: bytes32(0),\n            revealedMove1: 0,\n            revealedMove2: 0,\n            state: GameState.Created,\n            winner: address(0),\n            betAmount: msg.value,\n            player1Paid: true,\n            player2Paid: false,\n            createdAt: block.timestamp\n        });\n        \n        emit GameCreated(roomId, msg.sender);\n    }\n    \n    function joinGame(string memory roomId) external payable {\n        Game storage game = games[roomId];\n        require(game.player1 != address(0), \"Room does not exist\");\n        require(game.player2 == address(0), \"Room is full\");\n        require(game.player1 != msg.sender, \"Cannot join your own room\");\n        require(game.state == GameState.Created, \"Game not available\");\n        require(msg.value == game.betAmount, \"Incorrect bet amount\");\n        \n        game.player2 = msg.sender;\n        game.player2Paid = true;\n        game.state = GameState.Joined;\n        \n        emit GameJoined(roomId, msg.sender);\n    }\n    \n    function getGame(string memory roomId) external view returns (Game memory) {\n        return games[roomId];\n    }\n    \n    function submitMove(string memory roomId, bytes32 hashedMove) external {\n        Game storage game = games[roomId];\n        require(game.state == GameState.Joined, \"Game not ready for moves\");\n        require(msg.sender == game.player1 || msg.sender == game.player2, \"Not a player\");\n        \n        if (msg.sender == game.player1) {\n            require(game.player1Move == bytes32(0), \"Move already submitted\");\n            game.player1Move = hashedMove;\n        } else {\n            require(game.player2Move == bytes32(0), \"Move already submitted\");\n            game.player2Move = hashedMove;\n        }\n        \n        if (game.player1Move != bytes32(0) && game.player2Move != bytes32(0)) {\n            game.state = GameState.MovesCommitted;\n        }\n        \n        emit MoveCommitted(roomId, msg.sender);\n    }\n    \n    function revealMove(string memory roomId, uint8 move, uint256 nonce) external {\n        Game storage game = games[roomId];\n        require(game.state == GameState.MovesCommitted, \"Moves not committed yet\");\n        require(move >= 1 && move <= 3, \"Invalid move\");\n        require(msg.sender == game.player1 || msg.sender == game.player2, \"Not a player\");\n        \n        bytes32 hash = keccak256(abi.encodePacked(move, nonce, msg.sender));\n        \n        if (msg.sender == game.player1) {\n            require(game.player1Move == hash, \"Invalid reveal\");\n            require(game.revealedMove1 == 0, \"Already revealed\");\n            game.revealedMove1 = move;\n        } else {\n            require(game.player2Move == hash, \"Invalid reveal\");\n            require(game.revealedMove2 == 0, \"Already revealed\");\n            game.revealedMove2 = move;\n        }\n        \n        emit MoveRevealed(roomId, msg.sender, move);\n        \n        if (game.revealedMove1 != 0 && game.revealedMove2 != 0) {\n            game.winner = determineWinner(game.revealedMove1, game.revealedMove2, game.player1, game.player2);\n            game.state = GameState.Finished;\n            emit GameFinished(roomId, game.winner);\n        }\n    }\n    \n    function determineWinner(uint8 move1, uint8 move2, address player1, address player2) private pure returns (address) {\n        if (move1 == move2) return address(0);\n        if ((move1 == 1 && move2 == 3) || (move1 == 2 && move2 == 1) || (move1 == 3 && move2 == 2)) {\n            return player1;\n        }\n        return player2;\n    }\n    \n    function claimWinnings(string memory roomId) external {\n        Game storage game = games[roomId];\n        require(game.state == GameState.Finished, \"Game not finished\");\n        require(game.player1Paid && game.player2Paid, \"Bets not complete\");\n        \n        uint256 totalPot = game.betAmount * 2;\n        \n        if (game.winner == address(0)) {\n            // Tie - refund both players\n            require(msg.sender == game.player1 || msg.sender == game.player2, \"Not a player\");\n            if (msg.sender == game.player1 && game.player1Paid) {\n                payable(game.player1).transfer(game.betAmount);\n                game.player1Paid = false;\n            } else if (msg.sender == game.player2 && game.player2Paid) {\n                payable(game.player2).transfer(game.betAmount);\n                game.player2Paid = false;\n            }\n        } else {\n            // Winner takes all\n            require(msg.sender == game.winner, \"Not the winner\");\n            payable(game.winner).transfer(totalPot);\n            game.player1Paid = false;\n            game.player2Paid = false;\n        }\n        \n        emit WinningsClaimed(roomId, msg.sender, game.winner == address(0) ? game.betAmount : totalPot);\n    }\n    \n    function isRoomAvailable(string memory roomId) external view returns (bool) {\n        Game memory game = games[roomId];\n        return game.player1 != address(0) && game.player2 == address(0) && game.state == GameState.Created;\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
