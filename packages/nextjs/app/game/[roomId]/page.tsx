@@ -105,7 +105,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                 : contractRoom.result.winner === "creator"
                   ? contractRoom.creator
                   : contractRoom.joiner || "",
-            timestamp: new Date().toLocaleString(),
+            timestamp: Date.now(),
           },
           betAmount: contractRoom.betAmount,
         };
