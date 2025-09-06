@@ -16,10 +16,11 @@ export interface MatchRecord {
   betAmount: string;
   txHash?: string;
   ipfsHash?: string;
+  provider?: string;
 }
 
-// Store match record to IPFS/Filecoin via Pinata
-export async function storeMatchRecord(matchData: MatchRecord): Promise<string | null> {
+// Store match record to IPFS/Filecoin via multiple providers
+export async function storeMatchRecord(matchData: MatchRecord): Promise<{ ipfsHash: string; provider: string } | null> {
   try {
     const response = await fetch("/api/store-match", {
       method: "POST",
@@ -28,7 +29,13 @@ export async function storeMatchRecord(matchData: MatchRecord): Promise<string |
     });
 
     const result = await response.json();
-    return result.ipfsHash;
+    if (result.ipfsHash) {
+      return {
+        ipfsHash: result.ipfsHash,
+        provider: result.provider || "unknown",
+      };
+    }
+    return null;
   } catch (error) {
     console.error("Error storing match to Filecoin:", error);
     return null;

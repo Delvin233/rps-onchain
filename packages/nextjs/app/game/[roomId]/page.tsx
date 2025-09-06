@@ -105,17 +105,18 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                 : contractRoom.result.winner === "creator"
                   ? contractRoom.creator
                   : contractRoom.joiner || "",
-            timestamp: Date.now(),
+            timestamp: new Date().toLocaleString(),
           },
           betAmount: contractRoom.betAmount,
         };
 
         // Store to Filecoin and locally
-        storeMatchRecord(matchRecord).then(ipfsHash => {
-          if (ipfsHash) {
-            matchRecord.ipfsHash = ipfsHash;
+        storeMatchRecord(matchRecord).then(result => {
+          if (result) {
+            matchRecord.ipfsHash = result.ipfsHash;
+            matchRecord.provider = result.provider;
             storeMatchLocally(matchRecord);
-            console.log(`Match stored on Filecoin: https://ipfs.io/ipfs/${ipfsHash}`);
+            console.log(`Match stored via ${result.provider}: https://ipfs.io/ipfs/${result.ipfsHash}`);
           }
         });
         localStorage.setItem(`match-stored-${roomId}`, "true");

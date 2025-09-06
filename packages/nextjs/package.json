@@ -24,6 +24,7 @@
     "blo": "~1.2.0",
     "burner-connector": "0.0.18",
     "daisyui": "5.0.9",
+    "ethers": "^6.15.0",
     "ipfs-http-client": "^60.0.1",
     "kubo-rpc-client": "~5.0.2",
     "next": "~15.2.3",

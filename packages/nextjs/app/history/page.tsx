@@ -62,7 +62,7 @@ export default function HistoryPage() {
                     <div className="text-right">
                       <p className="text-white font-bold">{match.betAmount} ETH</p>
                       <p
-                        className={`text-sm ${
+                        className={`text-sm font-bold ${
                           match.result.winner === address
                             ? "text-green-400"
                             : match.result.winner === "tie"
@@ -70,7 +70,11 @@ export default function HistoryPage() {
                               : "text-red-400"
                         }`}
                       >
-                        {match.result.winner === address ? "WON" : match.result.winner === "tie" ? "TIE" : "LOST"}
+                        {match.result.winner === address 
+                          ? `+${(parseFloat(match.betAmount) * 2).toFixed(3)} ETH` 
+                          : match.result.winner === "tie" 
+                            ? `±${match.betAmount} ETH`
+                            : `-${match.betAmount} ETH`}
                       </p>
                     </div>
                   </div>
@@ -91,7 +95,11 @@ export default function HistoryPage() {
                   </div>
 
                   <div className="mt-3 pt-3 border-t border-gray-600 flex justify-between items-center">
-                    <p className="text-gray-400 text-xs">Stored on Filecoin/IPFS • Decentralized record</p>
+                    <p className="text-gray-400 text-xs">
+                      {match.provider === "filecoin" ? "Stored on Filecoin Calibration Testnet" : 
+                       match.provider === "pinata" ? "Stored via Pinata IPFS" : 
+                       "Demo Storage"} • Decentralized record
+                    </p>
                     {match.ipfsHash && (
                       <a
                         href={`https://ipfs.io/ipfs/${match.ipfsHash}`}
@@ -99,7 +107,7 @@ export default function HistoryPage() {
                         rel="noopener noreferrer"
                         className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold"
                       >
-                        VIEW ON FILECOIN
+                        VIEW ON IPFS
                       </a>
                     )}
                   </div>
@@ -109,7 +117,13 @@ export default function HistoryPage() {
           )}
         </div>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-x-4">
+          <button
+            onClick={() => window.history.back()}
+            className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-6 rounded"
+          >
+            ← Back
+          </button>
           <Link href="/play" className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded">
             Play New Game
           </Link>

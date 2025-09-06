@@ -75,7 +75,6 @@ export default function PlayPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
-          <h1 className="text-2xl mb-4 text-white">RPS-ONCHAIN</h1>
           <p className="text-gray-300 text-sm mb-6">CONNECT WALLET TO PLAY</p>
           <div className="flex justify-center">
             <ConnectButton />
@@ -90,7 +89,12 @@ export default function PlayPage() {
       <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
         <div className="space-y-6 max-w-md mx-auto">
           <div className="space-y-4">
-            <h2 className="text-xl text-white">CREATE ROOM</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl text-white">CREATE ROOM</h2>
+              <Link href="/history" className="text-purple-400 hover:text-purple-300 text-sm">
+                View History →
+              </Link>
+            </div>
 
             {!roomId ? (
               <div className="space-y-3">
