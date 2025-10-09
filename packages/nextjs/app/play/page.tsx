@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
 export default function PlayPage() {
+  const router = useRouter();
   const { isConnected } = useAccount();
   const { createRoom: createContractRoom, joinRoom: joinContractRoom } = useRPSContract();
   const [roomId, setRoomId] = useState("");
@@ -46,7 +48,7 @@ export default function PlayPage() {
       const result = await joinContractRoom(joinRoomId, joinBetAmount);
       if (result.success) {
         console.log("Joined room successfully on blockchain");
-        window.location.href = `/game/${joinRoomId}`;
+        router.push(`/game/${joinRoomId}`);
       } else {
         console.error("Failed to join room:", result.error);
         const requiredBet = joinGameData ? (Number(joinGameData.betAmount) / 1e18).toFixed(4) : "unknown";
@@ -66,7 +68,7 @@ export default function PlayPage() {
       // For now, redirect after 3 seconds to allow for blockchain confirmation
       setTimeout(() => {
         clearInterval(interval);
-        window.location.href = `/game/${roomId}`;
+        router.push(`/game/${roomId}`);
       }, 3000);
     }, 1000);
   };

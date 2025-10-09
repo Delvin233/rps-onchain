@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  42220: {
     RPSOnline: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x17f238a671CEEa5b6ac9b44E280a42a2Bb080feC",
       abi: [
         {
           anonymous: false,
@@ -391,10 +391,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 1,
+      deployedOnBlock: 48147208,
     },
     YourContract: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0x573b8dAA397Ba6Ce0203205BB031951A2483Bf35",
       abi: [
         {
           inputs: [
@@ -535,7 +535,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 3,
+      deployedOnBlock: 48147215,
     },
   },
   11155111: {

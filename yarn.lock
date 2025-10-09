@@ -243,14 +243,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@divvi/referral-sdk@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@divvi/referral-sdk@npm:1.0.0"
-  checksum: 4a87198677de7faae2e95cd1199df11aeab5221e71aac0138ed025a75a5a1327b247b02045f634bb22885f9ed6a6b14adb91f9e8503355a3404064f28b088a26
-  languageName: node
-  linkType: hard
-
-"@divvi/referral-sdk@npm:^2.3.0":
+"@divvi/referral-sdk@npm:^2.0.0, @divvi/referral-sdk@npm:^2.3.0":
   version: 2.3.0
   resolution: "@divvi/referral-sdk@npm:2.3.0"
   checksum: 521432e6aab60ee0388b67588c6bf9ef1abaeb03675baff61084d8ea203da53f018cdf6e80d8aca29bbbb450e60b07368ea8cc53c6b3e7637749b0ea56db425b
@@ -3623,7 +3616,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
-    "@divvi/referral-sdk": ^1.0.0
+    "@divvi/referral-sdk": ^2.0.0
     "@heroicons/react": ~2.1.5
     "@rainbow-me/rainbowkit": 2.2.8
     "@tailwindcss/postcss": 4.0.15
@@ -4206,6 +4199,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 38fb5512e51edd8386d560ac60d9489014cfcea41d8c383ec9070b176f8ea640189afc1b57fe8cbbe570dec8909d8e05fa129097f0dd4e2a34ebdd69cec4b790
+  languageName: node
+  linkType: hard
+
+"@types/caniuse-lite@npm:^1":
+  version: 1.0.5
+  resolution: "@types/caniuse-lite@npm:1.0.5"
+  checksum: c559eea1aa1200e2b878f215c433ceb315aa4f7e050078929cd98bec01bc34d0a4cc6da3ab8d589a318b0946db7fcb5cb0962fa3e6d6317b2670ab920d64ca4f
   languageName: node
   linkType: hard
 
@@ -6766,7 +6766,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001579, caniuse-lite@npm:^1.0.30001702, caniuse-lite@npm:^1.0.30001746":
+"caniuse-lite@npm:^1.0.30001579, caniuse-lite@npm:^1.0.30001702, caniuse-lite@npm:^1.0.30001746, caniuse-lite@npm:^1.0.30001749":
   version: 1.0.30001749
   resolution: "caniuse-lite@npm:1.0.30001749"
   checksum: 0a2692a7d51e4f4cecd2e8714e1d3d9982479fb59fa2fc8d6a462844bb7f5243ffe0bc94b25a1ff944f63bb2372ff5f6d01ef422729ca3c262975f1b91d78c07
@@ -15317,6 +15317,8 @@ __metadata:
   resolution: "se-2@workspace:."
   dependencies:
     "@divvi/referral-sdk": ^2.3.0
+    "@types/caniuse-lite": ^1
+    caniuse-lite: ^1.0.30001749
     husky: ~9.1.6
     lint-staged: ~13.2.2
   languageName: unknown

@@ -23,7 +23,7 @@ export function useRPSContract() {
         functionName: "createGame",
         args: [roomId],
         value: betAmount ? parseEther(betAmount) : parseEther("0"),
-        dataSuffix: referralTag,
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
       
       if (referralTag && txHash) {
@@ -44,7 +44,7 @@ export function useRPSContract() {
         functionName: "joinGame",
         args: [roomId],
         value: betAmount ? parseEther(betAmount) : parseEther("0"),
-        dataSuffix: referralTag,
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
       
       if (referralTag && txHash) {
@@ -64,7 +64,7 @@ export function useRPSContract() {
       const txHash = await submitMove({
         functionName: "submitMove",
         args: [roomId, hashedMove],
-        dataSuffix: referralTag,
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
       
       if (referralTag && txHash) {
@@ -84,7 +84,7 @@ export function useRPSContract() {
       const txHash = await revealMove({
         functionName: "revealMove",
         args: [roomId, move, nonce],
-        dataSuffix: referralTag,
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
       
       if (referralTag && txHash) {
@@ -104,7 +104,7 @@ export function useRPSContract() {
       const txHash = await claimWinnings({
         functionName: "claimWinnings",
         args: [roomId],
-        dataSuffix: referralTag,
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
       
       if (referralTag && txHash) {
