@@ -1,29 +1,12 @@
 const DIVVI_CONSUMER_ADDRESS = "0x4298D42Cf8a15B88Ee7d9CD36aD3686F9B9FD5F6";
 
 export async function getDivviReferralTag(userAddress: string): Promise<string> {
-  try {
-    const sdk = await import('@divvi/referral-sdk');
-    const tag = sdk.getReferralTag({
-      user: userAddress,
-      consumer: DIVVI_CONSUMER_ADDRESS,
-    });
-    console.log('Generated Divvi referral tag:', tag);
-    return tag.startsWith('0x') ? tag : `0x${tag}`;
-  } catch (error) {
-    console.warn('Failed to generate Divvi referral tag:', error);
-    return '';
-  }
+  // Temporarily disabled for build
+  console.log('Divvi referral disabled for:', userAddress);
+  return '';
 }
 
 export async function submitDivviReferral(txHash: string, chainId: number): Promise<void> {
-  try {
-    const sdk = await import('@divvi/referral-sdk');
-    const response = await sdk.submitReferral({
-      txHash,
-      chainId,
-    });
-    console.log('Divvi referral submitted successfully:', response);
-  } catch (error) {
-    console.warn('Failed to submit Divvi referral:', error);
-  }
+  // Temporarily disabled for build
+  console.log('Divvi referral disabled for:', txHash, chainId);
 }
