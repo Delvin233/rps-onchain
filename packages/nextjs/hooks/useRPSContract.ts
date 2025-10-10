@@ -15,10 +15,11 @@ export function useRPSContract() {
   const { writeContractAsync: submitMove } = useScaffoldWriteContract("RPSOnline");
   const { writeContractAsync: revealMove } = useScaffoldWriteContract("RPSOnline");
   const { writeContractAsync: claimWinnings } = useScaffoldWriteContract("RPSOnline");
+  const { writeContractAsync: cancelGame } = useScaffoldWriteContract("RPSOnline");
 
   const createRoom = async (roomId: string, betAmount?: string) => {
     try {
-      const referralTag = address ? getDivviReferralTag(address) : '';
+      const referralTag = address ? await getDivviReferralTag(address) : '';
       const txHash = await createGame({
         functionName: "createGame",
         args: [roomId],
@@ -39,7 +40,7 @@ export function useRPSContract() {
 
   const joinRoom = async (roomId: string, betAmount?: string) => {
     try {
-      const referralTag = address ? getDivviReferralTag(address) : '';
+      const referralTag = address ? await getDivviReferralTag(address) : '';
       const txHash = await joinGame({
         functionName: "joinGame",
         args: [roomId],
@@ -60,7 +61,7 @@ export function useRPSContract() {
 
   const commitMove = async (roomId: string, hashedMove: `0x${string}`) => {
     try {
-      const referralTag = address ? getDivviReferralTag(address) : '';
+      const referralTag = address ? await getDivviReferralTag(address) : '';
       const txHash = await submitMove({
         functionName: "submitMove",
         args: [roomId, hashedMove],
@@ -80,7 +81,7 @@ export function useRPSContract() {
 
   const revealPlayerMove = async (roomId: string, move: number, nonce: bigint) => {
     try {
-      const referralTag = address ? getDivviReferralTag(address) : '';
+      const referralTag = address ? await getDivviReferralTag(address) : '';
       const txHash = await revealMove({
         functionName: "revealMove",
         args: [roomId, move, nonce],
@@ -100,7 +101,7 @@ export function useRPSContract() {
 
   const claimPrize = async (roomId: string) => {
     try {
-      const referralTag = address ? getDivviReferralTag(address) : '';
+      const referralTag = address ? await getDivviReferralTag(address) : '';
       const txHash = await claimWinnings({
         functionName: "claimWinnings",
         args: [roomId],
@@ -118,6 +119,26 @@ export function useRPSContract() {
     }
   };
 
+  const cancelRoom = async (roomId: string) => {
+    try {
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await cancelGame({
+        functionName: "cancelGame",
+        args: [roomId],
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
+      });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Error cancelling game:", error);
+      return { success: false, error };
+    }
+  };
+
   return {
     contract,
     createRoom,
@@ -125,6 +146,7 @@ export function useRPSContract() {
     commitMove,
     revealPlayerMove,
     claimPrize,
+    cancelRoom,
   };
 }
 
