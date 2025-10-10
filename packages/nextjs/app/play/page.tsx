@@ -2,19 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
 export default function PlayPage() {
+  const router = useRouter();
   const { isConnected } = useAccount();
-  const { createRoom: createContractRoom, joinRoom: joinContractRoom } = useRPSContract();
+  const { createRoom: createContractRoom, joinRoom: joinContractRoom, cancelRoom: cancelContractRoom } = useRPSContract();
   const [roomId, setRoomId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [joinRoomId, setJoinRoomId] = useState("");
   const [isJoining, setIsJoining] = useState(false);
   const [betAmount, setBetAmount] = useState("0.01");
   const [joinBetAmount, setJoinBetAmount] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
   const { gameData: joinGameData } = useGameData(joinRoomId);
 
   const createRoom = async () => {
@@ -40,35 +43,62 @@ export default function PlayPage() {
 
   const joinRoom = async () => {
     if (!joinRoomId.trim()) return;
+    
+    // Warning if user has active room
+    if (roomId) {
+      const confirmed = confirm(
+        `⚠️ WARNING: You have an active room (${roomId}) with ${betAmount} CELO staked.\n\n` +
+        `Joining another room will stake additional ${joinBetAmount} CELO.\n\n` +
+        `Consider cancelling your current room first to avoid locking multiple funds.\n\n` +
+        `Continue anyway?`
+      );
+      if (!confirmed) return;
+    }
+    
     setIsJoining(true);
 
     try {
       const result = await joinContractRoom(joinRoomId, joinBetAmount);
       if (result.success) {
         console.log("Joined room successfully on blockchain");
-        window.location.href = `/game/${joinRoomId}`;
+        router.push(`/game/${joinRoomId}`);
       } else {
         console.error("Failed to join room:", result.error);
         const requiredBet = joinGameData ? (Number(joinGameData.betAmount) / 1e18).toFixed(4) : "unknown";
-        alert(`Failed to join room. Required bet: ${requiredBet} ETH`);
+        alert(`Failed to join room. Required bet: ${requiredBet} CELO`);
       }
     } catch (error) {
       console.error("Error joining room:", error);
       const requiredBet = joinGameData ? (Number(joinGameData.betAmount) / 1e18).toFixed(4) : "unknown";
-      alert(`Error joining room. Required bet: ${requiredBet} ETH`);
+      alert(`Error joining room. Required bet: ${requiredBet} CELO`);
     }
     setIsJoining(false);
   };
 
   const startPolling = (roomId: string) => {
-    const interval = setInterval(async () => {
-      // Poll contract for game state changes
-      // For now, redirect after 3 seconds to allow for blockchain confirmation
-      setTimeout(() => {
-        clearInterval(interval);
-        window.location.href = `/game/${roomId}`;
-      }, 3000);
-    }, 1000);
+    // Don't auto-redirect - let user manually go to game or cancel
+    console.log(`Room ${roomId} created, waiting for opponent...`);
+  };
+
+  const cancelRoom = async () => {
+    if (!roomId) return;
+    setIsCancelling(true);
+    
+    try {
+      const result = await cancelContractRoom(roomId);
+      if (result.success) {
+        console.log("Room cancelled successfully");
+        setRoomId("");
+        alert("Room cancelled and bet refunded!");
+      } else {
+        console.error("Failed to cancel room:", result.error);
+        alert("Failed to cancel room");
+      }
+    } catch (error) {
+      console.error("Error cancelling room:", error);
+      alert("Error cancelling room");
+    }
+    setIsCancelling(false);
   };
 
   if (!isConnected) {
@@ -100,7 +130,7 @@ export default function PlayPage() {
               <div className="space-y-3">
                 <p className="text-gray-300 text-sm">Create a room and share the Room ID with your opponent</p>
                 <div className="space-y-2">
-                  <label className="text-gray-300 text-xs">Bet Amount (ETH)</label>
+                  <label className="text-gray-300 text-xs">Bet Amount (CELO)</label>
                   <input
                     type="number"
                     step="0.001"
@@ -116,7 +146,7 @@ export default function PlayPage() {
                   disabled={isCreating}
                   className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-2 px-4 text-sm font-bold rounded"
                 >
-                  {isCreating ? "CREATING..." : `CREATE ROOM (${betAmount} ETH)`}
+                  {isCreating ? "CREATING..." : `CREATE ROOM (${betAmount} CELO)`}
                 </button>
               </div>
             ) : (
@@ -133,10 +163,11 @@ export default function PlayPage() {
                 </div>
 
                 <button
-                  onClick={() => setRoomId("")}
-                  className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
+                  onClick={cancelRoom}
+                  disabled={isCancelling}
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white py-2 px-4 text-sm font-bold rounded"
                 >
-                  CREATE NEW ROOM
+                  {isCancelling ? "CANCELLING..." : "CANCEL ROOM & GET REFUND"}
                 </button>
               </div>
             )}
@@ -170,7 +201,7 @@ export default function PlayPage() {
                 <div className="bg-blue-600 p-3 rounded">
                   <p className="text-white text-sm font-bold">Room Found!</p>
                   <p className="text-white text-xs">
-                    Required Bet: {(Number(joinGameData.betAmount) / 1e18).toFixed(4)} ETH
+                    Required Bet: {(Number(joinGameData.betAmount) / 1e18).toFixed(4)} CELO
                   </p>
                   <p className="text-white text-xs">
                     Creator: {joinGameData.player1.slice(0, 6)}...{joinGameData.player1.slice(-4)}
@@ -186,7 +217,7 @@ export default function PlayPage() {
                   </div>
                 )}
               <div className="space-y-2">
-                <label className="text-gray-300 text-xs">Match Bet Amount (ETH)</label>
+                <label className="text-gray-300 text-xs">Match Bet Amount (CELO)</label>
                 <input
                   type="number"
                   step="0.001"
@@ -202,7 +233,7 @@ export default function PlayPage() {
                 disabled={isJoining || !joinRoomId.trim() || !joinBetAmount}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 px-4 text-sm font-bold rounded"
               >
-                {isJoining ? "JOINING..." : `JOIN ROOM (${joinBetAmount || "0"} ETH)`}
+                {isJoining ? "JOINING..." : `JOIN ROOM (${joinBetAmount || "0"} CELO)`}
               </button>
             </div>
           </div>

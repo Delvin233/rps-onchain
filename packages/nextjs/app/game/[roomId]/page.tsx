@@ -221,7 +221,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
               <div className="bg-yellow-600 p-4 rounded">
                 <h2 className="text-white text-xl font-bold mb-2">WAITING FOR PLAYER</h2>
                 <p className="text-white text-sm">Room ID: {roomId}</p>
-                <p className="text-white text-xs mt-1">Bet Required: {room.betAmount} ETH</p>
+                <p className="text-white text-xs mt-1">Bet Required: {room.betAmount} CELO</p>
               </div>
 
               <div className="bg-gray-700 p-4 rounded text-left">
@@ -244,7 +244,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                 <h2 className="text-white text-xl font-bold mb-2">ROOM READY!</h2>
                 <p className="text-white text-sm">Room ID: {roomId}</p>
                 <p className="text-white text-xs mt-1">
-                  Bet: {room.betAmount} ETH • Total Pot: {room.totalPot} ETH
+                  Bet: {room.betAmount} CELO • Total Pot: {room.totalPot} CELO
                 </p>
               </div>
 
@@ -332,8 +332,8 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 text-sm font-bold rounded"
                 >
                   {room.result?.winner === "tie"
-                    ? `CLAIM REFUND (${room.betAmount} ETH)`
-                    : `CLAIM WINNINGS (${room.totalPot} ETH)`}
+                    ? `CLAIM REFUND (${room.betAmount} CELO)`
+                    : `CLAIM WINNINGS (${room.totalPot} CELO)`}
                 </button>
               )}
             </>
@@ -342,7 +342,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
               <div className="bg-purple-600 p-4 rounded">
                 <h2 className="text-white text-xl font-bold mb-2">REVEAL YOUR MOVE</h2>
                 <p className="text-white text-sm">Click to reveal your committed move</p>
-                <p className="text-white text-xs mt-1">Prize Pool: {room.totalPot} ETH</p>
+                <p className="text-white text-xs mt-1">Prize Pool: {room.totalPot} CELO</p>
               </div>
 
               {pendingMove ? (
@@ -368,7 +368,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
               <div className="bg-blue-600 p-4 rounded">
                 <h2 className="text-white text-xl font-bold mb-2">COMMIT YOUR MOVE</h2>
                 <p className="text-white text-sm">Choose Rock, Paper, or Scissors</p>
-                <p className="text-white text-xs mt-1">Prize Pool: {room.totalPot} ETH</p>
+                <p className="text-white text-xs mt-1">Prize Pool: {room.totalPot} CELO</p>
               </div>
 
               {selectedMove ? (

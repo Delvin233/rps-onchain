@@ -1,7 +1,11 @@
 import { parseEther } from "viem";
+import { useAccount, useChainId } from "wagmi";
 import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { getDivviReferralTag, submitDivviReferral } from "~~/utils/divviUtils";
 
 export function useRPSContract() {
+  const { address } = useAccount();
+  const chainId = useChainId();
   const { data: contract } = useScaffoldContract({
     contractName: "RPSOnline",
   });
@@ -11,14 +15,22 @@ export function useRPSContract() {
   const { writeContractAsync: submitMove } = useScaffoldWriteContract("RPSOnline");
   const { writeContractAsync: revealMove } = useScaffoldWriteContract("RPSOnline");
   const { writeContractAsync: claimWinnings } = useScaffoldWriteContract("RPSOnline");
+  const { writeContractAsync: cancelGame } = useScaffoldWriteContract("RPSOnline");
 
   const createRoom = async (roomId: string, betAmount?: string) => {
     try {
-      await createGame({
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await createGame({
         functionName: "createGame",
         args: [roomId],
         value: betAmount ? parseEther(betAmount) : parseEther("0"),
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error("Error creating room:", error);
@@ -28,11 +40,18 @@ export function useRPSContract() {
 
   const joinRoom = async (roomId: string, betAmount?: string) => {
     try {
-      await joinGame({
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await joinGame({
         functionName: "joinGame",
         args: [roomId],
         value: betAmount ? parseEther(betAmount) : parseEther("0"),
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error("Error joining room:", error);
@@ -42,10 +61,17 @@ export function useRPSContract() {
 
   const commitMove = async (roomId: string, hashedMove: `0x${string}`) => {
     try {
-      await submitMove({
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await submitMove({
         functionName: "submitMove",
         args: [roomId, hashedMove],
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error("Error submitting move:", error);
@@ -55,10 +81,17 @@ export function useRPSContract() {
 
   const revealPlayerMove = async (roomId: string, move: number, nonce: bigint) => {
     try {
-      await revealMove({
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await revealMove({
         functionName: "revealMove",
         args: [roomId, move, nonce],
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error("Error revealing move:", error);
@@ -68,13 +101,40 @@ export function useRPSContract() {
 
   const claimPrize = async (roomId: string) => {
     try {
-      await claimWinnings({
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await claimWinnings({
         functionName: "claimWinnings",
         args: [roomId],
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
       });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error("Error claiming winnings:", error);
+      return { success: false, error };
+    }
+  };
+
+  const cancelRoom = async (roomId: string) => {
+    try {
+      const referralTag = address ? await getDivviReferralTag(address) : '';
+      const txHash = await cancelGame({
+        functionName: "cancelGame",
+        args: [roomId],
+        dataSuffix: referralTag ? referralTag as `0x${string}` : undefined,
+      });
+      
+      if (referralTag && txHash) {
+        await submitDivviReferral(txHash, chainId);
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Error cancelling game:", error);
       return { success: false, error };
     }
   };
@@ -86,6 +146,7 @@ export function useRPSContract() {
     commitMove,
     revealPlayerMove,
     claimPrize,
+    cancelRoom,
   };
 }
 

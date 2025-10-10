@@ -27,6 +27,7 @@ contract RPSOnline {
     event MoveRevealed(string indexed roomId, address indexed player, uint8 move);
     event GameFinished(string indexed roomId, address indexed winner);
     event WinningsClaimed(string indexed roomId, address indexed winner, uint256 amount);
+    event GameCancelled(string indexed roomId, address indexed creator);
     
     function createGame(string memory roomId) external payable {
         require(games[roomId].player1 == address(0), "Room already exists");
@@ -149,6 +150,19 @@ contract RPSOnline {
         }
         
         emit WinningsClaimed(roomId, msg.sender, game.winner == address(0) ? game.betAmount : totalPot);
+    }
+    
+    function cancelGame(string memory roomId) external {
+        Game storage game = games[roomId];
+        require(game.player1 == msg.sender, "Not the creator");
+        require(game.state == GameState.Created, "Game already started");
+        require(game.player2 == address(0), "Player already joined");
+        
+        uint256 refundAmount = game.betAmount;
+        delete games[roomId];
+        payable(msg.sender).transfer(refundAmount);
+        
+        emit GameCancelled(roomId, msg.sender);
     }
     
     function isRoomAvailable(string memory roomId) external view returns (bool) {
