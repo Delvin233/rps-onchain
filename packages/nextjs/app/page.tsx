@@ -49,10 +49,9 @@ export default function Home() {
           <div className="space-y-4">
             <div className="bg-gray-700 p-4 rounded text-left">
               <p className="text-green-400 text-sm font-bold mb-2">✅ WALLET CONNECTED</p>
-              <p className="text-gray-300 text-xs mb-1">
+              <p className="text-gray-300 text-xs">
                 Address: {address?.slice(0, 6)}...{address?.slice(-4)}
               </p>
-              <p className="text-gray-300 text-xs">Network: Base Sepolia</p>
             </div>
             <div className="max-w-md mx-auto space-y-3">
               <button
@@ -75,7 +74,6 @@ export default function Home() {
             <div className="bg-gray-700 p-4 rounded text-left">
               <p className="text-white text-sm font-bold mb-2">WALLET CONNECTION TEST</p>
               <p className="text-gray-300 text-xs mb-1">✅ MetaMask Connected</p>
-              <p className="text-gray-300 text-xs mb-1">✅ Base Sepolia Network</p>
               <p className="text-gray-300 text-xs mb-1">✅ Address Retrieved</p>
               <p className="text-gray-300 text-xs">✅ RainbowKit Integration</p>
             </div>
