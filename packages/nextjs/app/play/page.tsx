@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -10,7 +10,11 @@ import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 export default function PlayPage() {
   const router = useRouter();
   const { isConnected } = useAccount();
-  const { createRoom: createContractRoom, joinRoom: joinContractRoom, cancelRoom: cancelContractRoom } = useRPSContract();
+  const {
+    createRoom: createContractRoom,
+    joinRoom: joinContractRoom,
+    cancelRoom: cancelContractRoom,
+  } = useRPSContract();
   const [roomId, setRoomId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -19,6 +23,7 @@ export default function PlayPage() {
   const [joinBetAmount, setJoinBetAmount] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
   const { gameData: joinGameData } = useGameData(joinRoomId);
+  const { gameData: createdGameData, refetch: refetchCreatedGame } = useGameData(roomId);
 
   const createRoom = async () => {
     setIsCreating(true);
@@ -43,18 +48,18 @@ export default function PlayPage() {
 
   const joinRoom = async () => {
     if (!joinRoomId.trim()) return;
-    
+
     // Warning if user has active room
     if (roomId) {
       const confirmed = confirm(
         `⚠️ WARNING: You have an active room (${roomId}) with ${betAmount} CELO staked.\n\n` +
-        `Joining another room will stake additional ${joinBetAmount} CELO.\n\n` +
-        `Consider cancelling your current room first to avoid locking multiple funds.\n\n` +
-        `Continue anyway?`
+          `Joining another room will stake additional ${joinBetAmount} CELO.\n\n` +
+          `Consider cancelling your current room first to avoid locking multiple funds.\n\n` +
+          `Continue anyway?`,
       );
       if (!confirmed) return;
     }
-    
+
     setIsJoining(true);
 
     try {
@@ -76,14 +81,29 @@ export default function PlayPage() {
   };
 
   const startPolling = (roomId: string) => {
-    // Don't auto-redirect - let user manually go to game or cancel
     console.log(`Room ${roomId} created, waiting for opponent...`);
   };
+
+  // Poll for opponent joining
+  useEffect(() => {
+    if (!roomId) return;
+
+    const interval = setInterval(async () => {
+      await refetchCreatedGame();
+      if (createdGameData && createdGameData.player2 !== "0x0000000000000000000000000000000000000000") {
+        console.log("Opponent joined! Redirecting to game...");
+        clearInterval(interval);
+        router.push(`/game/${roomId}`);
+      }
+    }, 2000); // Check every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [roomId, createdGameData, refetchCreatedGame, router]);
 
   const cancelRoom = async () => {
     if (!roomId) return;
     setIsCancelling(true);
-    
+
     try {
       const result = await cancelContractRoom(roomId);
       if (result.success) {
