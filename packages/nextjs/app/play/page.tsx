@@ -211,6 +211,8 @@ export default function PlayPage() {
                         setJoinBetAmount(requiredBet);
                       }
                     }, 1000);
+                  } else {
+                    setJoinBetAmount("");
                   }
                 }}
                 placeholder="Enter Room ID"
@@ -236,25 +238,35 @@ export default function PlayPage() {
                     <p className="text-white text-xs">Check the Room ID and try again</p>
                   </div>
                 )}
-              <div className="space-y-2">
-                <label className="text-gray-300 text-xs">Match Bet Amount (CELO)</label>
-                <input
-                  type="number"
-                  step="0.001"
-                  min="0"
-                  value={joinBetAmount}
-                  onChange={e => setJoinBetAmount(e.target.value)}
-                  className="w-full bg-gray-600 text-white p-2 text-sm rounded"
-                  placeholder="Enter bet amount"
-                />
-              </div>
-              <button
-                onClick={joinRoom}
-                disabled={isJoining || !joinRoomId.trim() || !joinBetAmount}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 px-4 text-sm font-bold rounded"
-              >
-                {isJoining ? "JOINING..." : `JOIN ROOM (${joinBetAmount || "0"} CELO)`}
-              </button>
+              {joinGameData &&
+                joinGameData.player1 !== "0x0000000000000000000000000000000000000000" &&
+                joinBetAmount && (
+                  <div className="bg-green-600 p-4 rounded">
+                    <p className="text-white text-sm font-bold mb-2">Ready to Join!</p>
+                    <p className="text-white text-xs mb-2">
+                      You will stake: <span className="font-bold">{joinBetAmount} CELO</span>
+                    </p>
+                    <p className="text-white text-xs mb-3">
+                      Winner takes: <span className="font-bold">{(parseFloat(joinBetAmount) * 2).toFixed(4)} CELO</span>
+                    </p>
+                    <button
+                      onClick={joinRoom}
+                      disabled={isJoining}
+                      className="w-full bg-white text-green-600 hover:bg-gray-100 disabled:opacity-50 py-2 px-4 text-sm font-bold rounded"
+                    >
+                      {isJoining ? "JOINING..." : "CONFIRM & JOIN MATCH"}
+                    </button>
+                  </div>
+                )}
+
+              {joinRoomId.length === 6 &&
+                joinGameData &&
+                joinGameData.player1 !== "0x0000000000000000000000000000000000000000" &&
+                !joinBetAmount && (
+                  <div className="bg-yellow-600 p-3 rounded">
+                    <p className="text-white text-sm font-bold">Loading bet amount...</p>
+                  </div>
+                )}
             </div>
           </div>
 
