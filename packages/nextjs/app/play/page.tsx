@@ -84,6 +84,14 @@ export default function PlayPage() {
     console.log(`Room ${roomId} created, waiting for opponent...`);
   };
 
+  // Auto-populate bet amount when room data loads
+  useEffect(() => {
+    if (joinGameData && joinGameData.betAmount && joinRoomId.length === 6) {
+      const requiredBet = (Number(joinGameData.betAmount) / 1e18).toString();
+      setJoinBetAmount(requiredBet);
+    }
+  }, [joinGameData, joinRoomId]);
+
   // Poll for opponent joining
   useEffect(() => {
     if (!roomId) return;
@@ -203,15 +211,7 @@ export default function PlayPage() {
                 onChange={e => {
                   const roomId = e.target.value.toUpperCase();
                   setJoinRoomId(roomId);
-                  if (roomId.length === 6) {
-                    // Auto-fill bet amount when room is found
-                    setTimeout(() => {
-                      if (joinGameData && joinGameData.betAmount) {
-                        const requiredBet = (Number(joinGameData.betAmount) / 1e18).toString();
-                        setJoinBetAmount(requiredBet);
-                      }
-                    }, 1000);
-                  } else {
+                  if (roomId.length !== 6) {
                     setJoinBetAmount("");
                   }
                 }}
