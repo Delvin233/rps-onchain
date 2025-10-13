@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
@@ -22,6 +23,7 @@ export default function PlayPage() {
   const [betAmount, setBetAmount] = useState("0.01");
   const [joinBetAmount, setJoinBetAmount] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { gameData: joinGameData } = useGameData(joinRoomId);
   const { gameData: createdGameData, refetch: refetchCreatedGame } = useGameData(roomId);
 
@@ -202,7 +204,12 @@ export default function PlayPage() {
                   <label className="text-gray-300 text-xs">
                     Bet Amount (CELO) - Max: {isHumanVerified ? "1000" : "20"} CELO
                     {!isHumanVerified && (
-                      <span className="text-purple-400 ml-1">(Verify identity for higher limits)</span>
+                      <span
+                        className="text-purple-400 ml-1 cursor-pointer hover:text-purple-300 underline"
+                        onClick={() => setShowVerificationModal(true)}
+                      >
+                        (Verify identity for higher limits)
+                      </span>
                     )}
                   </label>
                   <input
@@ -323,6 +330,8 @@ export default function PlayPage() {
             </button>
           </Link>
         </div>
+
+        <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
       </div>
     </div>
   );
