@@ -39,6 +39,9 @@ export default function PlayPage() {
     }
 
     setIsCreating(true);
+    // Let UI update before heavy blockchain operation
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     try {
