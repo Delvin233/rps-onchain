@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useAuth } from "~~/contexts/AuthContext";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
 export default function PlayPage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isAuthenticated, isHumanVerified, verifySelf } = useAuth();
   const {
     createRoom: createContractRoom,
     joinRoom: joinContractRoom,
@@ -26,6 +26,16 @@ export default function PlayPage() {
   const { gameData: createdGameData, refetch: refetchCreatedGame } = useGameData(roomId);
 
   const createRoom = async () => {
+    const betAmountNum = parseFloat(betAmount);
+    const maxBet = isHumanVerified ? 1000 : 50; // 50 USDT limit for unverified, 1000 for verified
+
+    if (betAmountNum > maxBet) {
+      alert(
+        `Bet limit: ${maxBet} CELO. ${!isHumanVerified ? "Verify your identity with Self Protocol to bet more." : ""}`,
+      );
+      return;
+    }
+
     setIsCreating(true);
     const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -129,13 +139,44 @@ export default function PlayPage() {
     setIsCancelling(false);
   };
 
-  if (!isConnected) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
-          <p className="text-gray-300 text-sm mb-6">CONNECT WALLET TO PLAY</p>
-          <div className="flex justify-center">
-            <ConnectButton />
+          <p className="text-gray-300 text-sm mb-6">SIGN IN TO PLAY</p>
+          <div className="space-y-3 max-w-sm mx-auto">
+            <ConnectButton.Custom>
+              {({ account, chain, openConnectModal, mounted }) => {
+                const ready = mounted;
+                const connected = ready && account && chain;
+
+                return (
+                  <div>
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <div className="space-y-3">
+                            <button
+                              onClick={openConnectModal}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 text-sm font-bold rounded"
+                            >
+                              Sign In with Wallet
+                            </button>
+                            <button
+                              onClick={verifySelf}
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 text-sm font-bold rounded"
+                            >
+                              Verify Human Identity
+                            </button>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
           </div>
         </div>
       </div>
@@ -146,6 +187,12 @@ export default function PlayPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
         <div className="space-y-6 max-w-md mx-auto">
+          {isHumanVerified && (
+            <div className="bg-purple-600 p-3 rounded text-center">
+              <p className="text-white text-sm font-bold">✅ Human Verified</p>
+              <p className="text-white text-xs">Higher betting limits unlocked</p>
+            </div>
+          )}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl text-white">CREATE ROOM</h2>
@@ -158,11 +205,17 @@ export default function PlayPage() {
               <div className="space-y-3">
                 <p className="text-gray-300 text-sm">Create a room and share the Room ID with your opponent</p>
                 <div className="space-y-2">
-                  <label className="text-gray-300 text-xs">Bet Amount (CELO)</label>
+                  <label className="text-gray-300 text-xs">
+                    Bet Amount (CELO) - Max: {isHumanVerified ? "1000" : "50"} CELO
+                    {!isHumanVerified && (
+                      <span className="text-purple-400 ml-1">(Verify identity for higher limits)</span>
+                    )}
+                  </label>
                   <input
                     type="number"
                     step="0.001"
                     min="0"
+                    max={isHumanVerified ? 1000 : 50}
                     value={betAmount}
                     onChange={e => setBetAmount(e.target.value)}
                     className="w-full bg-gray-600 text-white p-2 text-sm rounded"

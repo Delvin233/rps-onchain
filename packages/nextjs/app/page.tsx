@@ -3,15 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useAuth } from "~~/contexts/AuthContext";
 
 type GameState = "menu" | "demo";
 
 export default function Home() {
-  const { address, isConnected } = useAccount();
+  const { address, isAuthenticated, verifySelf } = useAuth();
   const [gameState, setGameState] = useState<GameState>("menu");
-
-
 
   const startDemo = () => {
     setGameState("demo");
@@ -21,7 +19,7 @@ export default function Home() {
     setGameState("menu");
   };
 
-  if (!isConnected) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
@@ -32,9 +30,40 @@ export default function Home() {
             <p className="text-gray-300 text-xs mb-1">Paper beats Rock</p>
             <p className="text-gray-300 text-xs">Same moves result in a tie</p>
           </div>
-          <p className="text-gray-300 text-sm mb-4">CONNECT WALLET TO PLAY</p>
-          <div className="flex justify-center">
-            <ConnectButton />
+          <p className="text-gray-300 text-sm mb-4">SIGN IN TO PLAY</p>
+          <div className="space-y-3 max-w-sm mx-auto">
+            <ConnectButton.Custom>
+              {({ account, chain, openConnectModal, mounted }) => {
+                const ready = mounted;
+                const connected = ready && account && chain;
+
+                return (
+                  <div>
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <div className="space-y-3">
+                            <button
+                              onClick={openConnectModal}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 text-sm font-bold rounded"
+                            >
+                              Sign In with Wallet
+                            </button>
+                            <button
+                              onClick={verifySelf}
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 text-sm font-bold rounded"
+                            >
+                              Verify Human Identity
+                            </button>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
           </div>
         </div>
       </div>
@@ -44,7 +73,6 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
-
         {gameState === "menu" && (
           <div className="space-y-4">
             <div className="bg-gray-700 p-4 rounded text-left">

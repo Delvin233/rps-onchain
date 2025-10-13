@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther } from "viem";
-import { useAccount } from "wagmi";
+import { useAuth } from "~~/contexts/AuthContext";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 import { MatchRecord, storeMatchLocally, storeMatchRecord } from "~~/lib/filecoinStorage";
 import { generateNonce, hashMove, moveToNumber, numberToMove } from "~~/utils/gameUtils";
 
 export default function GamePage({ params }: { params: Promise<{ roomId: string }> }) {
-  const { address, isConnected } = useAccount();
+  const { address, isAuthenticated, verifySelf } = useAuth();
   const { commitMove, revealPlayerMove, claimPrize } = useRPSContract();
   const [pendingMove, setPendingMove] = useState<{ move: string; nonce: bigint } | null>(null);
   const [gamePhase, setGamePhase] = useState<"commit" | "reveal" | "finished">("commit");
@@ -178,14 +178,45 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
   };
 
   // Show loading for room or wallet initialization
-  if (!isConnected) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
           <h1 className="text-2xl mb-4 text-white">RPS-ONCHAIN</h1>
-          <p className="text-gray-300 text-sm mb-6">CONNECT WALLET TO PLAY</p>
-          <div className="flex justify-center">
-            <ConnectButton />
+          <p className="text-gray-300 text-sm mb-6">SIGN IN TO PLAY</p>
+          <div className="space-y-3 max-w-sm mx-auto">
+            <ConnectButton.Custom>
+              {({ account, chain, openConnectModal, mounted }) => {
+                const ready = mounted;
+                const connected = ready && account && chain;
+
+                return (
+                  <div>
+                    {(() => {
+                      if (!connected) {
+                        return (
+                          <div className="space-y-3">
+                            <button
+                              onClick={openConnectModal}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 text-sm font-bold rounded"
+                            >
+                              Sign In with Wallet
+                            </button>
+                            <button
+                              onClick={verifySelf}
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 text-sm font-bold rounded"
+                            >
+                              Verify Human Identity
+                            </button>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                );
+              }}
+            </ConnectButton.Custom>
           </div>
         </div>
       </div>
@@ -202,7 +233,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
               ? `Loading room ${roomId}...`
               : !room
                 ? "Loading..."
-                : !isConnected
+                : !isAuthenticated
                   ? "Connecting wallet..."
                   : "Initializing game..."}
           </p>
