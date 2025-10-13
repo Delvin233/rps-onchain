@@ -27,7 +27,7 @@ export default function PlayPage() {
 
   const createRoom = async () => {
     const betAmountNum = parseFloat(betAmount);
-    const maxBet = isHumanVerified ? 1000 : 50; // 50 USDT limit for unverified, 1000 for verified
+    const maxBet = isHumanVerified ? 1000 : 20; // 20 CELO limit for unverified, 1000 for verified
 
     if (betAmountNum > maxBet) {
       alert(
@@ -200,7 +200,7 @@ export default function PlayPage() {
                 <p className="text-gray-300 text-sm">Create a room and share the Room ID with your opponent</p>
                 <div className="space-y-2">
                   <label className="text-gray-300 text-xs">
-                    Bet Amount (CELO) - Max: {isHumanVerified ? "1000" : "50"} CELO
+                    Bet Amount (CELO) - Max: {isHumanVerified ? "1000" : "20"} CELO
                     {!isHumanVerified && (
                       <span className="text-purple-400 ml-1">(Verify identity for higher limits)</span>
                     )}
@@ -209,7 +209,7 @@ export default function PlayPage() {
                     type="number"
                     step="0.001"
                     min="0"
-                    max={isHumanVerified ? 1000 : 50}
+                    max={isHumanVerified ? 1000 : 20}
                     value={betAmount}
                     onChange={e => setBetAmount(e.target.value)}
                     className="w-full bg-gray-600 text-white p-2 text-sm rounded"
