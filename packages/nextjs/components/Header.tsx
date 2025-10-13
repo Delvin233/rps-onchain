@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { useAccount, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
+import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useAuth } from "~~/contexts/AuthContext";
+import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -64,6 +65,7 @@ export const HeaderMenuLinks = () => {
 
 const UsernameDisplay = () => {
   const { address, isConnected } = useAccount();
+  const { isHumanVerified, verifySelf } = useAuth();
   const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
   const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
   const [username, setUsername] = useState("");
@@ -129,32 +131,30 @@ const UsernameDisplay = () => {
             className="bg-base-200 text-base-content p-1 text-sm rounded w-24"
             maxLength={15}
           />
-          <button
-            onClick={saveUsername}
-            className="btn btn-xs btn-success"
-          >
+          <button onClick={saveUsername} className="btn btn-xs btn-success">
             ✓
           </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            className="btn btn-xs btn-ghost"
-          >
+          <button onClick={() => setIsEditing(false)} className="btn btn-xs btn-ghost">
             ✕
           </button>
         </div>
       ) : (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
             {mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
             {baseEnsName && !mainnetEnsName && <span className="text-info text-xs ml-1">BASE</span>}
           </span>
           {!mainnetEnsName && !baseEnsName && (
-            <button
-              onClick={startEdit}
-              className="btn btn-xs btn-ghost"
-            >
+            <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
+            </button>
+          )}
+          {isHumanVerified ? (
+            <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">✅ Verified</span>
+          ) : (
+            <button onClick={verifySelf} className="btn btn-xs btn-outline btn-purple">
+              Verify Identity
             </button>
           )}
         </div>

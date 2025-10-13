@@ -9,7 +9,7 @@ import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
 export default function PlayPage() {
   const router = useRouter();
-  const { isAuthenticated, isHumanVerified, verifySelf } = useAuth();
+  const { isAuthenticated, isHumanVerified } = useAuth();
   const {
     createRoom: createContractRoom,
     joinRoom: joinContractRoom,
@@ -160,13 +160,7 @@ export default function PlayPage() {
                               onClick={openConnectModal}
                               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 text-sm font-bold rounded"
                             >
-                              Sign In with Wallet
-                            </button>
-                            <button
-                              onClick={verifySelf}
-                              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 text-sm font-bold rounded"
-                            >
-                              Verify Human Identity
+                              Sign In
                             </button>
                           </div>
                         );

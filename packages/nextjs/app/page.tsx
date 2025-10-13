@@ -8,7 +8,7 @@ import { useAuth } from "~~/contexts/AuthContext";
 type GameState = "menu" | "demo";
 
 export default function Home() {
-  const { address, isAuthenticated, verifySelf } = useAuth();
+  const { address, isAuthenticated } = useAuth();
   const [gameState, setGameState] = useState<GameState>("menu");
 
   const startDemo = () => {
@@ -47,13 +47,7 @@ export default function Home() {
                               onClick={openConnectModal}
                               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 text-sm font-bold rounded"
                             >
-                              Sign In with Wallet
-                            </button>
-                            <button
-                              onClick={verifySelf}
-                              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 text-sm font-bold rounded"
-                            >
-                              Verify Human Identity
+                              Sign In
                             </button>
                           </div>
                         );
