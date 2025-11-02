@@ -154,6 +154,15 @@ export default function PlayPage() {
               </Link>
             </div>
 
+            {roomId && (
+              <div className="bg-yellow-600 p-3 rounded mb-4">
+                <p className="text-white text-sm font-bold">⚠️ Active Room: {roomId}</p>
+                <p className="text-white text-xs">
+                  You have {betAmount} CELO staked. Cancel to get refund or wait for opponent.
+                </p>
+              </div>
+            )}
+
             {!roomId ? (
               <div className="space-y-3">
                 <p className="text-gray-300 text-sm">Create a room and share the Room ID with your opponent</p>
@@ -270,11 +279,13 @@ export default function PlayPage() {
             </div>
           </div>
 
-          <Link href="/">
-            <button className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded">
-              BACK TO MENU
-            </button>
-          </Link>
+          {!roomId && (
+            <Link href="/">
+              <button className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded">
+                BACK TO MENU
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </div>
