@@ -392,7 +392,16 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
             </>
           )}
 
-          {(room?.status === "waiting" || room?.status === "finished" || room?.status === "ended") && (
+          {room?.status === "waiting" && (
+            <button
+              onClick={handleBackToLobby}
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
+            >
+              BACK TO LOBBY
+            </button>
+          )}
+
+          {room?.status === "ended" && (
             <div className="space-y-2">
               <button
                 onClick={handleBackToLobby}
@@ -408,6 +417,30 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
               </Link>
             </div>
           )}
+
+          {room?.status === "finished" &&
+            !(
+              (room.result?.winner === "creator" && address === room.creator && gameData?.player1Paid) ||
+              (room.result?.winner === "joiner" && address === room.joiner && gameData?.player2Paid) ||
+              (room.result?.winner === "tie" &&
+                ((address === room.creator && gameData?.player1Paid) ||
+                  (address === room.joiner && gameData?.player2Paid)))
+            ) && (
+              <div className="space-y-2">
+                <button
+                  onClick={handleBackToLobby}
+                  className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
+                >
+                  BACK TO LOBBY
+                </button>
+                <Link
+                  href="/history"
+                  className="block w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 text-sm rounded text-center"
+                >
+                  VIEW MATCH HISTORY
+                </Link>
+              </div>
+            )}
         </div>
       </div>
     </div>
