@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { get } from "@vercel/edge-config";
+import { updateEdgeConfig } from "~~/lib/edgeConfigClient";
 
-// In-memory storage for demo (use proper database in production)
 const verificationStore = new Map<string, { verified: boolean; proof?: any }>();
 
 export async function POST(request: NextRequest) {
@@ -9,10 +10,15 @@ export async function POST(request: NextRequest) {
 
     // Verify the Self Protocol callback
     if (body.status === "verified" && body.proof && body.sessionId) {
-      verificationStore.set(body.sessionId, {
-        verified: true,
-        proof: body.proof,
-      });
+      const data = { verified: true, proof: body.proof, timestamp: Date.now() };
+
+      verificationStore.set(body.sessionId, data);
+
+      if (body.address) {
+        verificationStore.set(`addr:${body.address}`, data);
+        // Persist to Edge Config
+        await updateEdgeConfig(`verified:${body.address}`, data);
+      }
 
       return NextResponse.json({
         success: true,
@@ -40,17 +46,30 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("sessionId");
+    const address = searchParams.get("address");
 
-    if (!sessionId) {
-      return NextResponse.json({ verified: false });
+    if (address) {
+      // Check memory first
+      let verification = verificationStore.get(`addr:${address}`);
+
+      // Fallback to Edge Config
+      if (!verification) {
+        verification = await get(`verified:${address}`);
+      }
+
+      if (verification) {
+        return NextResponse.json(verification);
+      }
     }
 
-    const verification = verificationStore.get(sessionId);
+    if (sessionId) {
+      const verification = verificationStore.get(sessionId);
+      if (verification) {
+        return NextResponse.json(verification);
+      }
+    }
 
-    return NextResponse.json({
-      verified: verification?.verified || false,
-      proof: verification?.proof,
-    });
+    return NextResponse.json({ verified: false });
   } catch {
     return NextResponse.json(
       {

@@ -2,13 +2,30 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getUniversalLink } from "@selfxyz/core";
+import { useAccount } from "wagmi";
 
 export const useSelfProtocol = () => {
+  const { address } = useAccount();
   const [isVerified, setIsVerified] = useState(false);
   const [userProof, setUserProof] = useState<any>(null);
   const [qrCode, setQrCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
+
+  // Load verification from Vercel KV
+  useEffect(() => {
+    if (address) {
+      fetch(`/api/self-callback?address=${address}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.verified) {
+            setIsVerified(true);
+            setUserProof(data.proof);
+          }
+        })
+        .catch(err => console.error("Error loading verification:", err));
+    }
+  }, [address]);
 
   const verify = useCallback(async () => {
     try {

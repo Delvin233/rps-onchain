@@ -5,11 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { useAuth } from "~~/contexts/AuthContext";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
 export default function PlayPage() {
   const router = useRouter();
   const { isConnected } = useAccount();
+  const { isHumanVerified } = useAuth();
   const {
     createRoom: createContractRoom,
     joinRoom: joinContractRoom,
@@ -22,11 +25,23 @@ export default function PlayPage() {
   const [betAmount, setBetAmount] = useState("0.01");
   const [joinBetAmount, setJoinBetAmount] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { gameData: joinGameData } = useGameData(joinRoomId);
   const { gameData: createdGameData, refetch: refetchCreatedGame } = useGameData(roomId);
 
   const createRoom = async () => {
+    const betAmountNum = parseFloat(betAmount);
+    const maxBet = isHumanVerified ? 1000 : 20;
+
+    if (betAmountNum > maxBet) {
+      alert(
+        `Bet limit: ${maxBet} CELO. ${!isHumanVerified ? "Verify your identity with Self Protocol to bet more." : ""}`,
+      );
+      return;
+    }
+
     setIsCreating(true);
+    await new Promise(resolve => setTimeout(resolve, 0));
     const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     try {
@@ -174,11 +189,22 @@ export default function PlayPage() {
               <div className="space-y-3">
                 <p className="text-gray-300 text-sm">Create a room and share the Room ID with your opponent</p>
                 <div className="space-y-2">
-                  <label className="text-gray-300 text-xs">Bet Amount (CELO)</label>
+                  <label className="text-gray-300 text-xs">
+                    Bet Amount (CELO) - Max: {isHumanVerified ? "1000" : "20"} CELO
+                    {!isHumanVerified && (
+                      <span
+                        className="text-neon-purple ml-1 cursor-pointer hover:text-neon-blue underline transition-colors duration-300"
+                        onClick={() => setShowVerificationModal(true)}
+                      >
+                        (Verify identity for higher limits)
+                      </span>
+                    )}
+                  </label>
                   <input
                     type="number"
                     step="0.001"
                     min="0"
+                    max={isHumanVerified ? 1000 : 20}
                     value={betAmount}
                     onChange={e => setBetAmount(e.target.value)}
                     className="w-full bg-gray-600 text-white p-2 text-sm rounded"
@@ -299,6 +325,8 @@ export default function PlayPage() {
             </Link>
           )}
         </div>
+
+        <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
       </div>
     </div>
   );
