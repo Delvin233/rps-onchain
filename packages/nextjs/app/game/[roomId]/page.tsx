@@ -6,7 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
-import { MatchRecord, storeMatchLocally, storeMatchRecord } from "~~/lib/filecoinStorage";
+import { MatchRecord, storeMatchLocally, storeMatchRecord } from "~~/lib/pinataStorage";
 import { generateNonce, hashMove, moveToNumber, numberToMove } from "~~/utils/gameUtils";
 
 export default function GamePage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -86,7 +86,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
     else if (gameData.state === 4) {
       setGamePhase("finished");
 
-      // Store match record to Filecoin when game finishes
+      // Store match record to IPFS when game finishes
       if (contractRoom.result && !localStorage.getItem(`match-stored-${roomId}`)) {
         const matchRecord: MatchRecord = {
           roomId,
@@ -110,7 +110,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
           betAmount: contractRoom.betAmount,
         };
 
-        // Store to Filecoin and locally
+        // Store to Pinata and locally
         storeMatchRecord(matchRecord).then(result => {
           if (result) {
             matchRecord.ipfsHash = result.ipfsHash;

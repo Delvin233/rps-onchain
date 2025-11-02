@@ -4,12 +4,15 @@ export async function POST(request: NextRequest) {
   try {
     const matchData = await request.json();
 
-    // For hackathon demo - using public IPFS gateway
-    // In production, use Pinata API key or web3.storage
+    // Store match data to IPFS via Pinata
     const formData = new FormData();
-    formData.append("file", new Blob([JSON.stringify(matchData)], { type: "application/json" }));
+    const blob = new Blob([JSON.stringify(matchData)], { type: "application/json" });
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}_${String(now.getHours()).padStart(2, "0")}-${String(now.getMinutes()).padStart(2, "0")}`;
+    const filename = `match-${matchData.roomId}-${dateStr}.json`;
+    formData.append("file", blob, filename);
 
-    // Using public IPFS node for demo (replace with Pinata/web3.storage for production)
+    // Upload to Pinata IPFS
     const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {

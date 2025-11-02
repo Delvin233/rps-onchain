@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { MatchRecord, getLocalMatches } from "~~/lib/filecoinStorage";
+import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
   const { address, isConnected } = useAccount();
@@ -70,9 +70,9 @@ export default function HistoryPage() {
                               : "text-red-400"
                         }`}
                       >
-                        {match.result.winner === address 
-                          ? `+${(parseFloat(match.betAmount) * 2).toFixed(3)} ETH` 
-                          : match.result.winner === "tie" 
+                        {match.result.winner === address
+                          ? `+${(parseFloat(match.betAmount) * 2).toFixed(3)} ETH`
+                          : match.result.winner === "tie"
                             ? `±${match.betAmount} ETH`
                             : `-${match.betAmount} ETH`}
                       </p>
@@ -95,11 +95,7 @@ export default function HistoryPage() {
                   </div>
 
                   <div className="mt-3 pt-3 border-t border-gray-600 flex justify-between items-center">
-                    <p className="text-gray-400 text-xs">
-                      {match.provider === "filecoin" ? "Stored on Filecoin Calibration Testnet" : 
-                       match.provider === "pinata" ? "Stored via Pinata IPFS" : 
-                       "Demo Storage"} • Decentralized record
-                    </p>
+                    <p className="text-gray-400 text-xs">Stored on IPFS via Pinata • Decentralized record</p>
                     {match.ipfsHash && (
                       <a
                         href={`https://ipfs.io/ipfs/${match.ipfsHash}`}
