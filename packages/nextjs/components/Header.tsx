@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { useAccount, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -28,11 +28,6 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "History",
     href: "/history",
-  },
-  {
-    label: "Debug",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
   },
 ];
 
@@ -129,16 +124,10 @@ const UsernameDisplay = () => {
             className="bg-base-200 text-base-content p-1 text-sm rounded w-24"
             maxLength={15}
           />
-          <button
-            onClick={saveUsername}
-            className="btn btn-xs btn-success"
-          >
+          <button onClick={saveUsername} className="btn btn-xs btn-success">
             ✓
           </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            className="btn btn-xs btn-ghost"
-          >
+          <button onClick={() => setIsEditing(false)} className="btn btn-xs btn-ghost">
             ✕
           </button>
         </div>
@@ -150,10 +139,7 @@ const UsernameDisplay = () => {
             {baseEnsName && !mainnetEnsName && <span className="text-info text-xs ml-1">BASE</span>}
           </span>
           {!mainnetEnsName && !baseEnsName && (
-            <button
-              onClick={startEdit}
-              className="btn btn-xs btn-ghost"
-            >
+            <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
             </button>
           )}

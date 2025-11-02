@@ -3,7 +3,7 @@
 ![RPS-ONCHAIN](rps-onchain.jpg)
 A Rock Paper Scissors game built with scaffold-eth-2, featuring wallet connectivity and room-based multiplayer gameplay.
 
-## 🎮 Game Features
+## Game Features
 
 - **Wallet Connect**: RainbowKit + Wagmi integration
 - **Smart Contract Gameplay**: Commit-reveal scheme on Base Sepolia
