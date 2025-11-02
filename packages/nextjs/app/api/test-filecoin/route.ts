@@ -31,7 +31,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Filecoin integration test successful",
+      message: "IPFS integration test successful",
       ipfsHash: result.ipfsHash,
       provider: result.provider,
       ipfsUrl: `https://ipfs.io/ipfs/${result.ipfsHash}`,
@@ -40,9 +40,8 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json({
       success: false,
-      error: "Filecoin integration test failed",
+      error: "IPFS integration test failed",
       details: error instanceof Error ? error.message : "Unknown error",
     });
-
   }
 }

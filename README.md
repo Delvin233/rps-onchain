@@ -3,7 +3,7 @@
 ![RPS-ONCHAIN](rps-onchain.jpg)
 A Rock Paper Scissors game built with scaffold-eth-2, featuring wallet connectivity and room-based multiplayer gameplay.
 
-## 🎮 Game Features
+## Game Features
 
 - **Wallet Connect**: RainbowKit + Wagmi integration
 - **Smart Contract Gameplay**: Commit-reveal scheme on Celo Mainnet
@@ -12,7 +12,8 @@ A Rock Paper Scissors game built with scaffold-eth-2, featuring wallet connectiv
 - **Room Cancellation**: Cancel unjoined rooms and get full refund
 - **Smart UX**: Auto-populated bet amounts and confirmation flows
 - **Multi-Room Protection**: Warnings when joining multiple rooms
-- **Match History**: Decentralized storage via IPFS
+- **Match History**: Decentralized storage via IPFS (Pinata)
+- **Self Protocol**: Human verification for higher betting limits (20 CELO → 1000 CELO)
 - **Anti-Cheat**: On-chain move commitment prevents cheating
 - **Divvi Integration**: Referral tracking and rewards
 
@@ -140,12 +141,13 @@ yarn dev            # Start frontend (same as yarn start)
 ### API Routes
 
 - `app/api/username/route.ts` - Username management
-- `app/api/store-match/route.ts` - IPFS match storage
+- `app/api/store-match/route.ts` - IPFS match storage via Pinata
+- `app/api/self-callback/route.ts` - Self Protocol verification callback
 
 ### Utilities
 
 - `utils/gameUtils.ts` - Move hashing and game logic
-- `lib/filecoinStorage.ts` - IPFS storage utilities
+- `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
 
 ## 🌐 Network Configuration
 
@@ -172,11 +174,11 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - Gasless transactions via meta-transactions
 - Mobile app development
 
-### Phase 3: Filecoin Integration
+### Phase 3: Enhanced Features
 
-- FVM smart contracts for programmable storage
-- SynapseSDK for decentralized file storage
-- FilecoinPay for crypto-native payments
+- Tournament mode with brackets
+- Real-time multiplayer lobbies
+- Advanced analytics dashboard
 
 ## 🛠 Technical Stack
 
@@ -184,9 +186,10 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
 - **Network**: Celo Mainnet
-- **Referrals**: Divvi SDK integration
 - **Storage**: IPFS via Pinata
-- **Deployment**: Vercel (frontend), Celo (contracts)
+- **Identity**: Self Protocol for human verification
+- **Referrals**: Divvi SDK integration
+- **Deployment**: Vercel (frontend), Multi-chain (contracts)
 
 ## 📝 Environment Variables
 

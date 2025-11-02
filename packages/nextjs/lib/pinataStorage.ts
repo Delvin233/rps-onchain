@@ -1,4 +1,4 @@
-// Filecoin storage for match records
+// IPFS storage for match records via Pinata
 export interface MatchRecord {
   roomId: string;
   players: {
@@ -19,7 +19,7 @@ export interface MatchRecord {
   provider?: string;
 }
 
-// Store match record to IPFS/Filecoin via multiple providers
+// Store match record to IPFS via Pinata
 export async function storeMatchRecord(matchData: MatchRecord): Promise<{ ipfsHash: string; provider: string } | null> {
   try {
     const response = await fetch("/api/store-match", {
@@ -37,7 +37,7 @@ export async function storeMatchRecord(matchData: MatchRecord): Promise<{ ipfsHa
     }
     return null;
   } catch (error) {
-    console.error("Error storing match to Filecoin:", error);
+    console.error("Error storing match to IPFS:", error);
     return null;
   }
 }

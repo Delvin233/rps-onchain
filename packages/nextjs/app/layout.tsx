@@ -6,7 +6,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
   title: "RPS-ONCHAIN",
-  description: "Rock Paper Scissors on-chain game with Filecoin storage",
+  description: "Rock Paper Scissors on-chain game with Pinata storage",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
