@@ -1,21 +1,23 @@
 # RPS-ONCHAIN
 
 ![RPS-ONCHAIN](rps-onchain.jpg)
-A Rock Paper Scissors game built with scaffold-eth-2, featuring wallet connectivity and room-based multiplayer gameplay.
+A decentralized Rock Paper Scissors game with real money betting, human verification, and gaming aesthetics. Built with scaffold-eth-2 on Celo Mainnet.
 
 ## Game Features
 
-- **Wallet Connect**: RainbowKit + Wagmi integration
-- **Smart Contract Gameplay**: Commit-reveal scheme on Celo Mainnet
+- **Wallet Authentication**: RainbowKit + Wagmi integration with "Sign In" flow
+- **Smart Contract Gameplay**: Commit-reveal scheme prevents cheating
 - **Room System**: Create/join rooms with 6-character codes
-- **CELO Betting**: Real money wagering with winner-takes-all
-- **Room Cancellation**: Cancel unjoined rooms and get full refund
-- **Smart UX**: Auto-populated bet amounts and confirmation flows
-- **Multi-Room Protection**: Warnings when joining multiple rooms
-- **Match History**: Decentralized storage via IPFS (Pinata)
-- **Self Protocol**: Human verification for higher betting limits (20 CELO → 1000 CELO)
-- **Anti-Cheat**: On-chain move commitment prevents cheating
-- **Divvi Integration**: Referral tracking and rewards
+- **Real Money Betting**: CELO wagering with winner-takes-all payouts
+- **Room Cancellation**: Cancel unjoined rooms for full refund
+- **Self Protocol Verification**: Human verification unlocks higher betting limits
+  - Unverified: 20 CELO max bet
+  - Verified: 1000 CELO max bet
+- **Match History**: Decentralized storage via IPFS (Pinata) with timestamped filenames
+- **Gaming UI**: Neon aesthetics with smooth animations and gradient backgrounds
+- **Multi-Room Protection**: Warnings when joining multiple active rooms
+- **Divvi Integration**: Referral tracking and rewards on all transactions
+- **Edge Config**: Persistent verification storage across devices
 
 ## 🏗 Project Structure
 
@@ -142,54 +144,56 @@ yarn dev            # Start frontend (same as yarn start)
 
 - `app/api/username/route.ts` - Username management
 - `app/api/store-match/route.ts` - IPFS match storage via Pinata
-- `app/api/self-callback/route.ts` - Self Protocol verification callback
+- `app/api/self-callback/route.ts` - Self Protocol verification callback with Edge Config storage
 
-### Utilities
+### Utilities & Libraries
 
 - `utils/gameUtils.ts` - Move hashing and game logic
 - `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
+- `lib/edgeConfigClient.ts` - Edge Config client for verification persistence
+- `contexts/AuthContext.tsx` - Unified authentication context
+- `hooks/useSelfProtocol.ts` - Self Protocol integration with QR code generation
 
 ## 🌐 Network Configuration
 
-The project is configured for:
-
-- **Local**: Hardhat network (default)
-- **Mainnet**: Celo (production)
+- **Network**: Celo Mainnet
 - **Contract Address**: `0xE6D3cb78A795a49E4AF320282d7cD5117931f6B0`
+- **RPC Endpoint**: Celo Forno (public RPC)
+- **Local Development**: Hardhat network
 
 Contract addresses are auto-exported to `contracts/deployedContracts.ts` after deployment.
 
+## ✨ Recent Updates
+
+- ✅ Self Protocol integration for human verification
+- ✅ Gaming UI with neon aesthetics and animations
+- ✅ Edge Config for persistent verification storage
+- ✅ Pinata IPFS integration with timestamped filenames
+- ✅ Divvi referral tracking on all transactions
+- ✅ Celo Forno RPC to avoid rate limits
+- ✅ Dynamic betting limits based on verification status
+- ✅ Forced claim flow before navigation
+
 ## 🔮 Future Enhancements
 
-### Phase 1: Advanced Features
-
-- Tournament brackets
-- Leaderboards & statistics
+- Tournament brackets with multi-round matches
+- Leaderboards & player statistics
 - NFT rewards for winners
-- Multi-round matches
-
-### Phase 2: Scaling
-
-- Layer 2 optimization
+- Real-time multiplayer lobbies
 - Gasless transactions via meta-transactions
 - Mobile app development
-
-### Phase 3: Enhanced Features
-
-- Tournament mode with brackets
-- Real-time multiplayer lobbies
-- Advanced analytics dashboard
 
 ## 🛠 Technical Stack
 
 - **Frontend**: Next.js 13+, React, TypeScript, TailwindCSS
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
-- **Network**: Celo Mainnet
+- **Network**: Celo Mainnet (Forno RPC)
 - **Storage**: IPFS via Pinata
-- **Identity**: Self Protocol for human verification
-- **Referrals**: Divvi SDK integration
-- **Deployment**: Vercel (frontend), Multi-chain (contracts)
+- **Persistence**: Vercel Edge Config
+- **Identity**: Self Protocol (@selfxyz/core)
+- **Referrals**: Divvi SDK
+- **Deployment**: Vercel
 
 ## 📝 Environment Variables
 
@@ -206,6 +210,15 @@ DEPLOYER_PRIVATE_KEY=your_private_key
 ```
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 PINATA_JWT=your_pinata_jwt_token
+NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
+
+# Edge Config (Auto-populated by Vercel)
+EDGE_CONFIG=
+EDGE_CONFIG_ID=
+VERCEL_API_TOKEN=
+
+# Optional: Bypass Self Protocol for testing
+NEXT_PUBLIC_BYPASS_SELF_VERIFICATION=false
 ```
 
 ## 🤝 Contributing
