@@ -240,7 +240,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
       <div className="card-gaming max-w-2xl w-full text-center animate-scale-in">
-        <div className="space-y-6 max-w-md mx-auto">
+        <div className="space-y-6 max-w-md mx-auto p-6">
           {room?.status === "waiting" ? (
             <>
               <div className="bg-gradient-to-r from-yellow-600 to-orange-600 p-6 rounded-lg shadow-neon-orange animate-pulse-soft">
@@ -354,7 +354,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                   className="btn-gaming-primary w-full py-4 text-lg animate-pulse-soft"
                 >
                   {room.result?.winner === "tie"
-                    ? `💰 CLAIM REFUND (${room.betAmount} CELO)`
+                    ? ` CLAIM REFUND (${room.betAmount} CELO)`
                     : `🏆 CLAIM WINNINGS (${room.totalPot} CELO)`}
                 </button>
               )}
@@ -407,7 +407,7 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                       className="btn-gaming-primary w-full py-4 text-lg uppercase"
                       style={{ animationDelay: `${idx * 0.1}s` }}
                     >
-                      {move === "rock" ? "✊" : move === "paper" ? "✋" : "✌️"} {move}
+                      {move === "rock" ? "" : move === "paper" ? "" : ""} {move}
                     </button>
                   ))}
                 </div>
