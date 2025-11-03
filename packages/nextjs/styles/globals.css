@@ -7,6 +7,30 @@
 @theme {
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  /* Gaming Neon Colors */
+  --neon-green: 142 71% 45%;
+  --neon-purple: 271 76% 53%;
+  --neon-blue: 199 89% 48%;
+  --neon-orange: 25 95% 53%;
+  
+  /* Gaming State Colors */
+  --win-color: 142 71% 45%;
+  --lose-color: 0 84% 60%;
+  --tie-color: 45 93% 47%;
+  
+  /* Gaming Shadows */
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.5);
+  --shadow-neon: 0 0 30px rgba(139, 92, 246, 0.6);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  
+  /* Animations */
+  --animate-bounce-subtle: bounceSubtle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --animate-pulse-soft: pulseSoft 2s ease-in-out infinite;
+  --animate-scale-in: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --animate-slide-in-up: slideInUp 0.5s ease-out;
+  --animate-fade-in-up: fadeInUp 0.6s ease-out;
 }
 
 @plugin "daisyui" {
@@ -121,3 +145,76 @@
 .link:hover {
   opacity: 80%;
 }
+
+/* Gaming Animations */
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Gaming Utility Classes */
+.animate-bounce-subtle { animation: bounceSubtle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.animate-pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
+.animate-scale-in { animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.animate-slide-in-up { animation: slideInUp 0.5s ease-out; }
+.animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+
+.shadow-glow { box-shadow: var(--shadow-glow); }
+.shadow-neon { box-shadow: var(--shadow-neon); }
+.shadow-gaming { box-shadow: var(--shadow-card); }
+.shadow-gaming-hover { box-shadow: var(--shadow-card-hover); }
+
+/* Gaming Buttons */
+.btn-gaming-primary {
+  background: linear-gradient(to right, rgb(59 130 246), rgb(147 51 234));
+  box-shadow: var(--shadow-glow);
+  transition: all 0.3s;
+}
+
+.btn-gaming-primary:hover {
+  background: linear-gradient(to right, rgb(37 99 235), rgb(126 34 206));
+}
+
+.card-gaming {
+  background-color: rgb(31 41 55 / 0.5);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgb(55 65 81);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s;
+}
+
+.card-gaming:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Neon Text Colors */
+.text-neon-green { color: hsl(var(--neon-green)); }
+.text-neon-purple { color: hsl(var(--neon-purple)); }
+.text-neon-blue { color: hsl(var(--neon-blue)); }
+.text-neon-orange { color: hsl(var(--neon-orange)); }
+
+/* Neon Background Colors */
+.bg-neon-green { background-color: hsl(var(--neon-green)); }
+.bg-neon-purple { background-color: hsl(var(--neon-purple)); }
+.bg-neon-blue { background-color: hsl(var(--neon-blue)); }
+.bg-neon-orange { background-color: hsl(var(--neon-orange)); }

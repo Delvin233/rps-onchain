@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { useAccount, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useSelfProtocol } from "~~/hooks/useSelfProtocol";
 
 type HeaderMenuLink = {
   label: string;
@@ -28,11 +30,6 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "History",
     href: "/history",
-  },
-  {
-    label: "Debug",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
   },
 ];
 
@@ -66,10 +63,12 @@ const UsernameDisplay = () => {
   const { address, isConnected } = useAccount();
   const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
   const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
+  const { isVerified } = useSelfProtocol();
   const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   useEffect(() => {
     if (address) {
@@ -129,16 +128,10 @@ const UsernameDisplay = () => {
             className="bg-base-200 text-base-content p-1 text-sm rounded w-24"
             maxLength={15}
           />
-          <button
-            onClick={saveUsername}
-            className="btn btn-xs btn-success"
-          >
+          <button onClick={saveUsername} className="btn btn-xs btn-success">
             ✓
           </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            className="btn btn-xs btn-ghost"
-          >
+          <button onClick={() => setIsEditing(false)} className="btn btn-xs btn-ghost">
             ✕
           </button>
         </div>
@@ -150,15 +143,20 @@ const UsernameDisplay = () => {
             {baseEnsName && !mainnetEnsName && <span className="text-info text-xs ml-1">BASE</span>}
           </span>
           {!mainnetEnsName && !baseEnsName && (
-            <button
-              onClick={startEdit}
-              className="btn btn-xs btn-ghost"
-            >
+            <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
+            </button>
+          )}
+          {isVerified ? (
+            <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">✅ Verified</span>
+          ) : (
+            <button onClick={() => setShowVerificationModal(true)} className="btn btn-xs btn-outline btn-purple">
+              Verify Identity
             </button>
           )}
         </div>
       )}
+      <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
     </div>
   );
 };

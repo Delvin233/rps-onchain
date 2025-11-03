@@ -5,11 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { useAuth } from "~~/contexts/AuthContext";
 import { useGameData, useRPSContract } from "~~/hooks/useRPSContract";
 
 export default function PlayPage() {
   const router = useRouter();
   const { isConnected } = useAccount();
+  const { isHumanVerified } = useAuth();
   const {
     createRoom: createContractRoom,
     joinRoom: joinContractRoom,
@@ -22,11 +25,23 @@ export default function PlayPage() {
   const [betAmount, setBetAmount] = useState("0.01");
   const [joinBetAmount, setJoinBetAmount] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { gameData: joinGameData } = useGameData(joinRoomId);
   const { gameData: createdGameData, refetch: refetchCreatedGame } = useGameData(roomId);
 
   const createRoom = async () => {
+    const betAmountNum = parseFloat(betAmount);
+    const maxBet = isHumanVerified ? 1000 : 20;
+
+    if (betAmountNum > maxBet) {
+      alert(
+        `Bet limit: ${maxBet} CELO. ${!isHumanVerified ? "Verify your identity with Self Protocol to bet more." : ""}`,
+      );
+      return;
+    }
+
     setIsCreating(true);
+    await new Promise(resolve => setTimeout(resolve, 0));
     const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     try {
@@ -131,8 +146,8 @@ export default function PlayPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="card-gaming rounded-2xl p-8 max-w-2xl w-full text-center animate-fade-in-up">
           <p className="text-gray-300 text-sm mb-6">CONNECT WALLET TO PLAY</p>
           <div className="flex justify-center">
             <ConnectButton />
@@ -143,21 +158,28 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+      <div className="card-gaming rounded-2xl p-8 max-w-2xl w-full text-center animate-fade-in-up">
         <div className="space-y-6 max-w-md mx-auto">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl text-white">CREATE ROOM</h2>
-              <Link href="/history" className="text-purple-400 hover:text-purple-300 text-sm">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
+                CREATE ROOM
+              </h2>
+              <Link
+                href="/history"
+                className="text-neon-purple hover:text-neon-blue text-sm transition-colors duration-300"
+              >
                 View History →
               </Link>
             </div>
 
             {roomId && (
-              <div className="bg-yellow-600 p-3 rounded mb-4">
-                <p className="text-white text-sm font-bold">⚠️ Active Room: {roomId}</p>
-                <p className="text-white text-xs">
+              <div className="card-gaming bg-yellow-600/20 border-yellow-500 p-4 rounded-xl mb-4 animate-pulse-soft">
+                <p className="text-yellow-400 text-sm font-bold flex items-center">
+                  <span className="mr-2">⚠️</span> Active Room: {roomId}
+                </p>
+                <p className="text-yellow-200 text-xs mt-1">
                   You have {betAmount} CELO staked. Cancel to get refund or wait for opponent.
                 </p>
               </div>
@@ -167,11 +189,22 @@ export default function PlayPage() {
               <div className="space-y-3">
                 <p className="text-gray-300 text-sm">Create a room and share the Room ID with your opponent</p>
                 <div className="space-y-2">
-                  <label className="text-gray-300 text-xs">Bet Amount (CELO)</label>
+                  <label className="text-gray-300 text-xs">
+                    Bet Amount (CELO) - Max: {isHumanVerified ? "1000" : "20"} CELO
+                    {!isHumanVerified && (
+                      <span
+                        className="text-neon-purple ml-1 cursor-pointer hover:text-neon-blue underline transition-colors duration-300"
+                        onClick={() => setShowVerificationModal(true)}
+                      >
+                        (Verify identity for higher limits)
+                      </span>
+                    )}
+                  </label>
                   <input
                     type="number"
                     step="0.001"
                     min="0"
+                    max={isHumanVerified ? 1000 : 20}
                     value={betAmount}
                     onChange={e => setBetAmount(e.target.value)}
                     className="w-full bg-gray-600 text-white p-2 text-sm rounded"
@@ -181,37 +214,42 @@ export default function PlayPage() {
                 <button
                   onClick={createRoom}
                   disabled={isCreating}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-2 px-4 text-sm font-bold rounded"
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50 text-white py-3 px-6 text-sm font-bold rounded-xl shadow-glow transition-all duration-300 hover:scale-105 active:scale-95"
                 >
                   {isCreating ? "CREATING..." : `CREATE ROOM (${betAmount} CELO)`}
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="bg-gray-700 p-4 rounded">
-                  <p className="text-white text-sm font-bold mb-2">ROOM CREATED!</p>
-                  <p className="text-gray-300 text-xs mb-2">Room ID:</p>
-                  <p className="text-white text-lg font-mono bg-gray-600 p-2 rounded">{roomId}</p>
-                  <p className="text-gray-300 text-xs mt-2">Share this Room ID with your opponent</p>
+                <div className="card-gaming p-6 rounded-xl animate-scale-in">
+                  <p className="text-neon-green text-sm font-bold mb-3 flex items-center justify-center">
+                    <span className="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse-soft"></span>
+                    ROOM CREATED!
+                  </p>
+                  <p className="text-gray-400 text-xs mb-2">Room ID:</p>
+                  <p className="text-white text-2xl font-mono bg-gray-900/50 p-3 rounded-lg shadow-glow">{roomId}</p>
+                  <p className="text-gray-400 text-xs mt-3">Share this Room ID with your opponent</p>
                 </div>
 
-                <div className="bg-yellow-600 p-3 rounded">
-                  <p className="text-white text-sm font-bold">WAITING FOR OPPONENT...</p>
+                <div className="card-gaming bg-yellow-600/20 border-yellow-500 p-4 rounded-xl animate-pulse-soft">
+                  <p className="text-yellow-400 text-sm font-bold"> WAITING FOR OPPONENT...</p>
                 </div>
 
                 <button
                   onClick={cancelRoom}
                   disabled={isCancelling}
-                  className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white py-2 px-4 text-sm font-bold rounded"
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:opacity-50 text-white py-3 px-6 text-sm font-bold rounded-xl transition-all duration-300 hover:scale-105"
                 >
-                  {isCancelling ? "CANCELLING..." : "CANCEL ROOM & GET REFUND"}
+                  {isCancelling ? "CANCELLING..." : "❌ CANCEL ROOM & GET REFUND"}
                 </button>
               </div>
             )}
           </div>
 
           <div className="border-t border-gray-600 pt-4">
-            <h2 className="text-xl text-white mb-4">JOIN ROOM</h2>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent mb-4">
+              JOIN ROOM
+            </h2>
             <div className="space-y-3">
               <p className="text-gray-300 text-sm">Enter Room ID to join an existing game</p>
               <input
@@ -229,8 +267,8 @@ export default function PlayPage() {
                 maxLength={6}
               />
               {joinGameData && joinGameData.player1 !== "0x0000000000000000000000000000000000000000" && (
-                <div className="bg-blue-600 p-3 rounded">
-                  <p className="text-white text-sm font-bold">Room Found!</p>
+                <div className="card-gaming bg-blue-600/20 border-blue-500 p-4 rounded-xl animate-scale-in">
+                  <p className="text-blue-400 text-sm font-bold">✓ Room Found!</p>
                   <p className="text-white text-xs">
                     Required Bet: {(Number(joinGameData.betAmount) / 1e18).toFixed(4)} CELO
                   </p>
@@ -242,15 +280,15 @@ export default function PlayPage() {
               {joinRoomId.length === 6 &&
                 joinGameData &&
                 joinGameData.player1 === "0x0000000000000000000000000000000000000000" && (
-                  <div className="bg-red-600 p-3 rounded">
-                    <p className="text-white text-sm font-bold">Room Not Found</p>
+                  <div className="card-gaming bg-red-600/20 border-red-500 p-4 rounded-xl">
+                    <p className="text-red-400 text-sm font-bold">✗ Room Not Found</p>
                     <p className="text-white text-xs">Check the Room ID and try again</p>
                   </div>
                 )}
               {joinGameData &&
                 joinGameData.player1 !== "0x0000000000000000000000000000000000000000" &&
                 joinBetAmount && (
-                  <div className="bg-green-600 p-4 rounded">
+                  <div className="card-gaming bg-green-600/20 border-green-500 p-6 rounded-xl animate-scale-in">
                     <p className="text-white text-sm font-bold mb-2">Ready to Join!</p>
                     <p className="text-white text-xs mb-2">
                       You will stake: <span className="font-bold">{joinBetAmount} CELO</span>
@@ -261,9 +299,9 @@ export default function PlayPage() {
                     <button
                       onClick={joinRoom}
                       disabled={isJoining}
-                      className="w-full bg-white text-green-600 hover:bg-gray-100 disabled:opacity-50 py-2 px-4 text-sm font-bold rounded"
+                      className="w-full btn-gaming-primary disabled:opacity-50 py-3 px-6 text-white text-sm font-bold rounded-xl transition-all duration-300 hover:scale-105 active:scale-95"
                     >
-                      {isJoining ? "JOINING..." : "CONFIRM & JOIN MATCH"}
+                      {isJoining ? "JOINING..." : "✓ CONFIRM & JOIN MATCH"}
                     </button>
                   </div>
                 )}
@@ -272,8 +310,8 @@ export default function PlayPage() {
                 joinGameData &&
                 joinGameData.player1 !== "0x0000000000000000000000000000000000000000" &&
                 !joinBetAmount && (
-                  <div className="bg-yellow-600 p-3 rounded">
-                    <p className="text-white text-sm font-bold">Loading bet amount...</p>
+                  <div className="card-gaming bg-yellow-600/20 border-yellow-500 p-4 rounded-xl animate-pulse-soft">
+                    <p className="text-yellow-400 text-sm font-bold"> Loading bet amount...</p>
                   </div>
                 )}
             </div>
@@ -281,12 +319,14 @@ export default function PlayPage() {
 
           {!roomId && (
             <Link href="/">
-              <button className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded">
-                BACK TO MENU
+              <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 text-sm font-bold rounded-xl border border-gray-600 transition-all duration-300 hover:scale-105">
+                ← BACK TO MENU
               </button>
             </Link>
           )}
         </div>
+
+        <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
       </div>
     </div>
   );
