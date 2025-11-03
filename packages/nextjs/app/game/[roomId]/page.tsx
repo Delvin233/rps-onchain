@@ -238,19 +238,19 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 max-w-2xl w-full text-center">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+      <div className="card-gaming max-w-2xl w-full text-center animate-scale-in">
         <div className="space-y-6 max-w-md mx-auto">
           {room?.status === "waiting" ? (
             <>
-              <div className="bg-yellow-600 p-4 rounded">
-                <h2 className="text-white text-xl font-bold mb-2">WAITING FOR PLAYER</h2>
+              <div className="bg-gradient-to-r from-yellow-600 to-orange-600 p-6 rounded-lg shadow-neon-orange animate-pulse-soft">
+                <h2 className="text-white text-2xl font-bold mb-2 animate-bounce-subtle"> WAITING FOR PLAYER</h2>
                 <p className="text-white text-sm">Room ID: {roomId}</p>
                 <p className="text-white text-xs mt-1">Bet Required: {room.betAmount} CELO</p>
               </div>
 
-              <div className="bg-gray-700 p-4 rounded text-left">
-                <h3 className="text-white text-sm font-bold mb-3">PLAYERS:</h3>
+              <div className="bg-gray-800/80 backdrop-blur-sm p-5 rounded-lg border border-purple-500/30 text-left">
+                <h3 className="text-purple-400 text-sm font-bold mb-3 uppercase tracking-wider">Players:</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-300 text-sm">Creator:</span>
@@ -265,16 +265,16 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
             </>
           ) : !gameStarted && room?.status === "ready" ? (
             <>
-              <div className="bg-green-600 p-4 rounded">
-                <h2 className="text-white text-xl font-bold mb-2">ROOM READY!</h2>
+              <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 rounded-lg shadow-neon-green animate-pulse-soft">
+                <h2 className="text-white text-2xl font-bold mb-2 animate-bounce-subtle">✅ ROOM READY!</h2>
                 <p className="text-white text-sm">Room ID: {roomId}</p>
                 <p className="text-white text-xs mt-1">
                   Bet: {room.betAmount} CELO • Total Pot: {room.totalPot} CELO
                 </p>
               </div>
 
-              <div className="bg-gray-700 p-4 rounded text-left">
-                <h3 className="text-white text-sm font-bold mb-3">PLAYERS:</h3>
+              <div className="bg-gray-800/80 backdrop-blur-sm p-5 rounded-lg border border-purple-500/30 text-left">
+                <h3 className="text-purple-400 text-sm font-bold mb-3 uppercase tracking-wider">Players:</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-300 text-sm">Creator:</span>
@@ -287,22 +287,19 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                 </div>
               </div>
 
-              <div className="bg-orange-600 p-3 rounded mb-4">
-                <p className="text-white text-xs">
+              <div className="bg-orange-600/20 border border-orange-500 p-4 rounded-lg mb-4">
+                <p className="text-orange-300 text-xs">
                   ⚠️ Once started, you must complete the game. Leaving will forfeit your bet.
                 </p>
               </div>
-              <button
-                onClick={startGame}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 text-sm font-bold rounded"
-              >
+              <button onClick={startGame} className="btn-gaming-primary w-full py-4 text-lg">
                 START GAME
               </button>
             </>
           ) : room?.status === "ended" ? (
             <>
-              <div className="bg-red-600 p-4 rounded">
-                <h2 className="text-white text-xl font-bold mb-2">MATCH ENDED</h2>
+              <div className="bg-gradient-to-r from-red-600 to-pink-600 p-6 rounded-lg shadow-neon-orange">
+                <h2 className="text-white text-2xl font-bold mb-2">❌ MATCH ENDED</h2>
                 <p className="text-white text-sm">Your opponent left the match</p>
               </div>
 
@@ -314,16 +311,16 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
           ) : room?.status === "finished" ? (
             <>
               <div
-                className={`p-4 rounded ${
+                className={`p-6 rounded-lg shadow-glow animate-scale-in ${
                   room.result?.winner === "tie"
-                    ? "bg-yellow-600"
+                    ? "bg-gradient-to-r from-yellow-600 to-orange-600 shadow-neon-orange"
                     : (room.result?.winner === "creator" && address === room.creator) ||
                         (room.result?.winner === "joiner" && address === room.joiner)
-                      ? "bg-green-600"
-                      : "bg-red-600"
+                      ? "bg-gradient-to-r from-green-600 to-emerald-600 shadow-neon-green"
+                      : "bg-gradient-to-r from-red-600 to-pink-600 shadow-neon-orange"
                 }`}
               >
-                <h2 className="text-white text-xl font-bold mb-2">
+                <h2 className="text-white text-3xl font-bold mb-2 animate-bounce-subtle">
                   {room.result?.winner === "tie"
                     ? "TIE!"
                     : (room.result?.winner === "creator" && address === room.creator) ||
@@ -333,8 +330,8 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                 </h2>
               </div>
 
-              <div className="bg-gray-700 p-4 rounded">
-                <h3 className="text-white text-sm font-bold mb-3">MOVES:</h3>
+              <div className="bg-gray-800/80 backdrop-blur-sm p-5 rounded-lg border border-purple-500/30">
+                <h3 className="text-purple-400 text-sm font-bold mb-3 uppercase tracking-wider">Moves:</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-300 text-sm">{room.creatorUsername}:</span>
@@ -354,32 +351,32 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
                     (address === room.joiner && gameData?.player2Paid)))) && (
                 <button
                   onClick={() => claimPrize(roomId)}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 text-sm font-bold rounded"
+                  className="btn-gaming-primary w-full py-4 text-lg animate-pulse-soft"
                 >
                   {room.result?.winner === "tie"
-                    ? `CLAIM REFUND (${room.betAmount} CELO)`
-                    : `CLAIM WINNINGS (${room.totalPot} CELO)`}
+                    ? `💰 CLAIM REFUND (${room.betAmount} CELO)`
+                    : `🏆 CLAIM WINNINGS (${room.totalPot} CELO)`}
                 </button>
               )}
             </>
           ) : gamePhase === "reveal" ? (
             <>
-              <div className="bg-purple-600 p-4 rounded">
-                <h2 className="text-white text-xl font-bold mb-2">REVEAL YOUR MOVE</h2>
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-lg shadow-neon-purple animate-pulse-soft">
+                <h2 className="text-white text-2xl font-bold mb-2 animate-bounce-subtle">🎭 REVEAL YOUR MOVE</h2>
                 <p className="text-white text-sm">Click to reveal your committed move</p>
                 <p className="text-white text-xs mt-1">Prize Pool: {room.totalPot} CELO</p>
               </div>
 
               {pendingMove ? (
                 <div className="space-y-3">
-                  <div className="bg-yellow-600 p-4 rounded">
-                    <p className="text-white text-sm font-bold">YOUR MOVE: {pendingMove.move.toUpperCase()}</p>
+                  <div className="bg-gradient-to-r from-yellow-600 to-orange-600 p-5 rounded-lg shadow-neon-orange">
+                    <p className="text-white text-lg font-bold">YOUR MOVE: {pendingMove.move.toUpperCase()}</p>
                   </div>
                   <button
                     onClick={() => makeMove(pendingMove.move as "rock" | "paper" | "scissors")}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 text-lg font-bold rounded"
+                    className="btn-gaming-primary w-full py-4 text-lg"
                   >
-                    REVEAL MOVE
+                    ✨ REVEAL MOVE
                   </button>
                 </div>
               ) : (
@@ -390,26 +387,27 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
             </>
           ) : (
             <>
-              <div className="bg-blue-600 p-4 rounded">
-                <h2 className="text-white text-xl font-bold mb-2">COMMIT YOUR MOVE</h2>
+              <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 rounded-lg shadow-neon-blue animate-pulse-soft">
+                <h2 className="text-white text-2xl font-bold mb-2 animate-bounce-subtle">🎯 COMMIT YOUR MOVE</h2>
                 <p className="text-white text-sm">Choose Rock, Paper, or Scissors</p>
                 <p className="text-white text-xs mt-1">Prize Pool: {room.totalPot} CELO</p>
               </div>
 
               {selectedMove ? (
-                <div className="bg-yellow-600 p-4 rounded">
-                  <p className="text-white text-sm font-bold">MOVE COMMITTED: {selectedMove.toUpperCase()}</p>
-                  <p className="text-white text-xs mt-1">Waiting for opponent...</p>
+                <div className="bg-gradient-to-r from-yellow-600 to-orange-600 p-5 rounded-lg shadow-neon-orange animate-pulse-soft">
+                  <p className="text-white text-lg font-bold">✅ MOVE COMMITTED: {selectedMove.toUpperCase()}</p>
+                  <p className="text-white text-sm mt-2 animate-bounce-subtle"> Waiting for opponent...</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {["rock", "paper", "scissors"].map(move => (
+                  {["rock", "paper", "scissors"].map((move, idx) => (
                     <button
                       key={move}
                       onClick={() => makeMove(move as "rock" | "paper" | "scissors")}
-                      className="w-full bg-gray-600 hover:bg-gray-500 text-white py-4 px-6 text-lg font-bold rounded uppercase"
+                      className="btn-gaming-primary w-full py-4 text-lg uppercase"
+                      style={{ animationDelay: `${idx * 0.1}s` }}
                     >
-                      {move}
+                      {move === "rock" ? "✊" : move === "paper" ? "✋" : "✌️"} {move}
                     </button>
                   ))}
                 </div>
@@ -420,9 +418,9 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
           {room?.status === "waiting" && (
             <button
               onClick={handleBackToLobby}
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
+              className="w-full bg-gray-700/50 hover:bg-gray-600 border border-gray-500 text-white py-3 px-4 text-sm rounded-lg transition-all"
             >
-              BACK TO LOBBY
+              ← BACK TO LOBBY
             </button>
           )}
 
@@ -454,15 +452,15 @@ export default function GamePage({ params }: { params: Promise<{ roomId: string 
               <div className="space-y-2">
                 <button
                   onClick={handleBackToLobby}
-                  className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
+                  className="w-full bg-gray-700/50 hover:bg-gray-600 border border-gray-500 text-white py-3 px-4 text-sm rounded-lg transition-all"
                 >
-                  BACK TO LOBBY
+                  ← BACK TO LOBBY
                 </button>
                 <Link
                   href="/history"
-                  className="block w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 text-sm rounded text-center"
+                  className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 px-4 text-sm rounded-lg text-center shadow-neon-purple transition-all"
                 >
-                  VIEW MATCH HISTORY
+                  📜 VIEW MATCH HISTORY
                 </Link>
               </div>
             )}
