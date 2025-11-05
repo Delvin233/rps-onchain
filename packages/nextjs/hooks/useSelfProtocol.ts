@@ -31,12 +31,16 @@ export const useSelfProtocol = () => {
     try {
       setIsLoading(true);
 
+      if (!address) {
+        throw new Error("No wallet address");
+      }
+
       const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setSessionId(newSessionId);
 
       // Generate Self Protocol universal link for identity verification
       const universalLink = getUniversalLink({
-        callback: `${window.location.origin}/api/self-callback?sessionId=${newSessionId}`,
+        callback: `${window.location.origin}/api/self-callback?sessionId=${newSessionId}&address=${address}`,
       } as any);
 
       setQrCode(universalLink);
@@ -48,7 +52,7 @@ export const useSelfProtocol = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [address]);
 
   // Poll for verification status
   useEffect(() => {
