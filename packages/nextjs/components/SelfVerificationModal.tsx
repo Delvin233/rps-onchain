@@ -72,18 +72,34 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
           </div>
         ) : qrCode ? (
           <div className="space-y-4">
-            <div className="flex justify-center">
-              <div className="bg-white p-4 rounded-lg">
-                <QRCodeSVG value={qrCode} size={200} />
+            {/* Mobile: Direct link button */}
+            <div className="block md:hidden">
+              <a
+                href={qrCode}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 px-4 text-center font-bold rounded-lg shadow-neon-purple"
+              >
+                🔐 Open Self App
+              </a>
+              <p className="text-gray-300 text-xs text-center mt-3">Tap to verify your identity in the Self app</p>
+              <p className="text-yellow-400 text-xs text-center mt-2">Waiting for verification...</p>
+            </div>
+
+            {/* Desktop: QR Code */}
+            <div className="hidden md:block">
+              <div className="flex justify-center">
+                <div className="bg-white p-4 rounded-lg">
+                  <QRCodeSVG value={qrCode} size={200} />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-white text-sm font-bold">Scan with Self App</p>
+                <p className="text-gray-300 text-xs">Download the Self app on your phone and scan this QR code</p>
+                <p className="text-yellow-400 text-xs mt-2">Waiting for verification...</p>
               </div>
             </div>
-            <div className="text-center">
-              <p className="text-white text-sm font-bold">Scan with Self App</p>
-              <p className="text-gray-300 text-xs">
-                Download the Self app and scan this QR code to verify your identity
-              </p>
-              <p className="text-yellow-400 text-xs mt-2">Waiting for verification...</p>
-            </div>
+
             <button
               onClick={handleClose}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
