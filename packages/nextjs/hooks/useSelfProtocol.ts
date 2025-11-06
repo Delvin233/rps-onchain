@@ -38,7 +38,7 @@ export const useSelfProtocol = () => {
         endpoint: `${window.location.origin}/api/verify`,
         logoBase64: `${window.location.origin}/logo.svg`,
         userId: address,
-        endpointType: "celo",
+        endpointType: "https",
         userIdType: "hex",
         disclosures: {
           minimumAge: 18,
