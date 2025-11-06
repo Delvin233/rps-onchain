@@ -1,3 +1,14 @@
 {
-  "installCommand": "yarn install"
+  "installCommand": "yarn install",
+  "headers": [
+    {
+      "source": "/api/verify",
+      "headers": [
+        {
+          "key": "x-vercel-protection-bypass",
+          "value": "public"
+        }
+      ]
+    }
+  ]
 }
