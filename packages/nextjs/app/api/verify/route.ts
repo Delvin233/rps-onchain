@@ -56,12 +56,16 @@ export async function POST(request: NextRequest) {
 
     try {
       await updateEdgeConfig(`verified:${address}`, verificationData);
+      console.log(`✅ Verification stored for ${address}`);
     } catch (error) {
-      console.error("Failed to store verification:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error("❌ Failed to store verification:", errorMsg);
+      console.error("Edge Config ID:", process.env.EDGE_CONFIG_ID ? "Set" : "Missing");
+      console.error("Vercel API Token:", process.env.VERCEL_API_TOKEN ? "Set" : "Missing");
       return NextResponse.json({
         status: "error",
         result: false,
-        reason: "Failed to store verification. Please try again.",
+        reason: `Storage failed: ${errorMsg}`,
       });
     }
 
