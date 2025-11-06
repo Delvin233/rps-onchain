@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     const normalizedAddress = address.toLowerCase();
-    const verification = await get(`verified:${normalizedAddress}`);
+    const verification = await get(`verified_${normalizedAddress}`);
 
     if (verification) {
       return NextResponse.json(verification);

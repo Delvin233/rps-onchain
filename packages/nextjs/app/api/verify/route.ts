@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     };
 
     try {
-      await updateEdgeConfig(`verified:${address}`, verificationData);
+      await updateEdgeConfig(`verified_${address}`, verificationData);
       console.log(`✅ Verification stored for ${address}`);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);

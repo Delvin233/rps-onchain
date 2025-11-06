@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
   try {
     if (address) {
       const normalizedAddress = address.toLowerCase();
-      const data = await get(`verified:${normalizedAddress}`);
+      const data = await get(`verified_${normalizedAddress}`);
       return NextResponse.json({
-        key: `verified:${normalizedAddress}`,
+        key: `verified_${normalizedAddress}`,
         data,
         found: !!data,
       });
