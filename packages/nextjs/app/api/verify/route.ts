@@ -48,15 +48,18 @@ export async function POST(request: NextRequest) {
 
     // Store verification in Edge Config
     const address = result.userData.userIdentifier;
-    await updateEdgeConfig(`verified:${address}`, {
+    const verificationData = {
       verified: true,
       proof: result,
       timestamp: Date.now(),
-    });
+    };
+    await updateEdgeConfig(`verified:${address}`, verificationData);
 
     return NextResponse.json({
       status: "success",
       result: true,
+      address,
+      ...verificationData,
     });
   } catch (error) {
     console.error("Verification error:", error);

@@ -57,13 +57,14 @@ export const useSelfProtocol = () => {
           setUserProof(data.proof);
           setIsLoading(false);
           clearInterval(pollInterval);
+          window.location.reload();
         }
       }, 3000);
 
       setTimeout(() => {
         clearInterval(pollInterval);
         setIsLoading(false);
-      }, 300000);
+      }, 120000);
 
       return { success: true };
     } catch (error) {
