@@ -1,25 +1,35 @@
 // Edge Config client for verification storage
-export async function updateEdgeConfig(key: string, value: any) {
-  if (!process.env.EDGE_CONFIG_ID || !process.env.VERCEL_API_TOKEN) {
-    console.warn("Edge Config not configured, skipping update");
-    return false;
+export async function updateEdgeConfig(key: string, value: any, retries = 3) {
+  const edgeConfigId = process.env.EDGE_CONFIG_ID || process.env.EDGE_CONFIG?.match(/ecfg_[a-zA-Z0-9]+/)?.[0];
+
+  if (!edgeConfigId || !process.env.VERCEL_API_TOKEN) {
+    throw new Error(`Edge Config not configured: ID=${!!edgeConfigId}, Token=${!!process.env.VERCEL_API_TOKEN}`);
   }
 
-  try {
-    const response = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        items: [{ operation: "upsert", key, value }],
-      }),
-    });
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(`https://api.vercel.com/v1/edge-config/${edgeConfigId}/items`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: [{ operation: "upsert", key, value }],
+        }),
+      });
 
-    return response.ok;
-  } catch (error) {
-    console.error("Edge Config update failed:", error);
-    return false;
+      if (response.ok) return true;
+
+      const errorBody = await response.text();
+      console.error(`Edge Config API error (${response.status}):`, errorBody);
+
+      if (i < retries - 1) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+    } catch (error) {
+      console.error(`Edge Config update attempt ${i + 1} failed:`, error);
+      if (i === retries - 1) throw error;
+    }
   }
+
+  throw new Error("Edge Config update failed after retries");
 }
