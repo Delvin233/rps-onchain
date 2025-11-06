@@ -21,6 +21,9 @@ export async function updateEdgeConfig(key: string, value: any, retries = 3) {
 
       if (response.ok) return true;
 
+      const errorBody = await response.text();
+      console.error(`Edge Config API error (${response.status}):`, errorBody);
+
       if (i < retries - 1) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
     } catch (error) {
       console.error(`Edge Config update attempt ${i + 1} failed:`, error);
