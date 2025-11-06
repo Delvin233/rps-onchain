@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ verified: false });
     }
 
-    const verification = await get(`verified:${address}`);
+    const normalizedAddress = address.toLowerCase();
+    const verification = await get(`verified:${normalizedAddress}`);
 
     if (verification) {
       return NextResponse.json(verification);

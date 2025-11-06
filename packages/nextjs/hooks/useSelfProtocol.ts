@@ -10,6 +10,8 @@ export const useSelfProtocol = () => {
   const [userProof, setUserProof] = useState<any>(null);
   const [selfApp, setSelfApp] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
+  const [pollTimeout, setPollTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (address) {
@@ -24,6 +26,13 @@ export const useSelfProtocol = () => {
         .catch(err => console.error("Error checking verification:", err));
     }
   }, [address]);
+
+  useEffect(() => {
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+      if (pollTimeout) clearTimeout(pollTimeout);
+    };
+  }, [pollInterval, pollTimeout]);
 
   const verify = useCallback(async () => {
     if (!address) return { success: false, error: "No wallet address" };
@@ -48,7 +57,7 @@ export const useSelfProtocol = () => {
 
       setSelfApp(app);
 
-      const pollInterval = setInterval(async () => {
+      const interval = setInterval(async () => {
         const res = await fetch(`/api/check-verification?address=${address}`);
         const data = await res.json();
 
@@ -56,15 +65,18 @@ export const useSelfProtocol = () => {
           setIsVerified(true);
           setUserProof(data.proof);
           setIsLoading(false);
-          clearInterval(pollInterval);
+          clearInterval(interval);
+          if (pollTimeout) clearTimeout(pollTimeout);
           window.location.reload();
         }
       }, 3000);
+      setPollInterval(interval);
 
-      setTimeout(() => {
-        clearInterval(pollInterval);
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
         setIsLoading(false);
       }, 120000);
+      setPollTimeout(timeout);
 
       return { success: true };
     } catch (error) {

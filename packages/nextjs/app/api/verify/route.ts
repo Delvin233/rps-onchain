@@ -47,13 +47,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Store verification in Edge Config
-    const address = result.userData.userIdentifier;
+    const address = result.userData.userIdentifier.toLowerCase();
     const verificationData = {
       verified: true,
       proof: result,
       timestamp: Date.now(),
     };
-    await updateEdgeConfig(`verified:${address}`, verificationData);
+
+    try {
+      await updateEdgeConfig(`verified:${address}`, verificationData);
+    } catch (error) {
+      console.error("Failed to store verification:", error);
+      return NextResponse.json({
+        status: "error",
+        result: false,
+        reason: "Failed to store verification. Please try again.",
+      });
+    }
 
     return NextResponse.json({
       status: "success",
