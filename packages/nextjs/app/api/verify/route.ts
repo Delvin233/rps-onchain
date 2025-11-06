@@ -3,12 +3,14 @@ import { AllIds, DefaultConfigStore, SelfBackendVerifier } from "@selfxyz/core";
 import { updateEdgeConfig } from "~~/lib/edgeConfigClient";
 
 const SCOPE = "rps-onchain";
-const ENDPOINT = `${process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000"}/api/verify`;
+const ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/verify`
+  : "http://localhost:3000/api/verify";
 
 const selfBackendVerifier = new SelfBackendVerifier(
   SCOPE,
   ENDPOINT,
-  false, // false = mainnet, true = testnet
+  false, // false = mainnet
   AllIds,
   new DefaultConfigStore({
     minimumAge: 18,
@@ -30,6 +32,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    console.log("Verifying with scope:", SCOPE, "endpoint:", ENDPOINT);
     const result = await selfBackendVerifier.verify(attestationId, proof, publicSignals, userContextData);
 
     const { isValid, isMinimumAgeValid, isOfacValid } = result.isValidDetails;
