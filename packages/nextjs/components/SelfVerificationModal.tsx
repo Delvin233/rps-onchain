@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
+import { SelfQRcodeWrapper, getUniversalLink } from "@selfxyz/qrcode";
 import { useSelfProtocol } from "~~/hooks/useSelfProtocol";
 
 interface SelfVerificationModalProps {
@@ -10,7 +10,7 @@ interface SelfVerificationModalProps {
 }
 
 export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModalProps) => {
-  const { qrCode, isLoading, verify, disconnect, isVerified } = useSelfProtocol();
+  const { selfApp, verify, disconnect, isVerified } = useSelfProtocol();
   const [hasStarted, setHasStarted] = useState(false);
 
   const handleStart = async () => {
@@ -24,7 +24,6 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
     onClose();
   };
 
-  // Auto-close modal when verification is successful
   useEffect(() => {
     if (isVerified) {
       setTimeout(() => {
@@ -66,16 +65,15 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
               Start Verification
             </button>
           </div>
-        ) : isLoading ? (
+        ) : !selfApp ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-white text-sm">Generating QR Code...</div>
           </div>
-        ) : qrCode ? (
+        ) : (
           <div className="space-y-4">
-            {/* Mobile: Direct link button */}
             <div className="block md:hidden">
               <a
-                href={qrCode}
+                href={getUniversalLink(selfApp)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 px-4 text-center font-bold rounded-lg shadow-neon-purple"
@@ -86,14 +84,16 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
               <p className="text-yellow-400 text-xs text-center mt-2">Waiting for verification...</p>
             </div>
 
-            {/* Desktop: QR Code */}
             <div className="hidden md:block">
               <div className="flex justify-center">
-                <div className="bg-white p-4 rounded-lg">
-                  <QRCodeSVG value={qrCode} size={200} />
-                </div>
+                <SelfQRcodeWrapper
+                  selfApp={selfApp}
+                  onSuccess={() => {}}
+                  onError={error => console.error("QR Error:", error)}
+                  size={200}
+                />
               </div>
-              <div className="text-center">
+              <div className="text-center mt-4">
                 <p className="text-white text-sm font-bold">Scan with Self App</p>
                 <p className="text-gray-300 text-xs">Download the Self app on your phone and scan this QR code</p>
                 <p className="text-yellow-400 text-xs mt-2">Waiting for verification...</p>
@@ -105,16 +105,6 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
             >
               Cancel
-            </button>
-          </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-red-400 text-sm">Failed to generate QR code</p>
-            <button
-              onClick={handleClose}
-              className="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
-            >
-              Close
             </button>
           </div>
         )}
