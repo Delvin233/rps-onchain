@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { SelfAppBuilder } from "@selfxyz/qrcode";
 import { useAccount } from "wagmi";
 
 export const useSelfProtocol = () => {
@@ -12,9 +11,16 @@ export const useSelfProtocol = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
   const [pollTimeout, setPollTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (address) {
+    if (typeof window !== 'undefined') {
+      setMounted(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (address && mounted && typeof window !== 'undefined') {
       fetch(`/api/check-verification?address=${address}`)
         .then(res => res.json())
         .then(data => {
@@ -25,7 +31,7 @@ export const useSelfProtocol = () => {
         })
         .catch(err => console.error("Error checking verification:", err));
     }
-  }, [address]);
+  }, [address, mounted]);
 
   useEffect(() => {
     return () => {
@@ -35,11 +41,12 @@ export const useSelfProtocol = () => {
   }, [pollInterval, pollTimeout]);
 
   const verify = useCallback(async () => {
-    if (!address) return { success: false, error: "No wallet address" };
+    if (!address || !mounted || typeof window === 'undefined') return { success: false, error: "Not ready" };
 
     setIsLoading(true);
 
     try {
+      const { SelfAppBuilder } = await import("@selfxyz/qrcode");
       const app = new SelfAppBuilder({
         version: 2,
         appName: "RPS OnChain",
@@ -84,7 +91,7 @@ export const useSelfProtocol = () => {
       setIsLoading(false);
       return { success: false, error };
     }
-  }, [address]);
+  }, [address, mounted, pollTimeout]);
 
   const disconnect = useCallback(() => {
     setIsVerified(false);

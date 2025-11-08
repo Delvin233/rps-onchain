@@ -1,22 +1,28 @@
 // IPFS storage for match records via Pinata
 export interface MatchRecord {
-  roomId: string;
-  players: {
+  roomId?: string;
+  players?: {
     creator: string;
     joiner: string;
   };
-  moves: {
+  moves?: {
     creatorMove: string;
     joinerMove: string;
   };
-  result: {
+  result?: {
     winner: string;
     timestamp: number;
-  };
-  betAmount: string;
+  } | string;
+  betAmount?: string;
   txHash?: string;
   ipfsHash?: string;
   provider?: string;
+  // AI match fields
+  player?: string;
+  opponent?: string;
+  playerMove?: string;
+  opponentMove?: string;
+  timestamp?: number;
 }
 
 // Store match record to IPFS via Pinata

@@ -7,7 +7,6 @@ import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
-import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
@@ -18,10 +17,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <div className={`flex flex-col min-h-screen `}>
-        <Header />
-        <main className="relative flex flex-col flex-1">{children}</main>
-      </div>
+      <main className="relative flex flex-col min-h-screen">{children}</main>
       <Toaster />
     </>
   );

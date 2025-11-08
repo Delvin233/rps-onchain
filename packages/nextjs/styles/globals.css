@@ -5,32 +5,39 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
-  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* Noah AI Dark Theme */
+  --background: 222 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 11%;
+  --card-foreground: 210 40% 98%;
+  --primary: 142 76% 36%;
+  --primary-foreground: 222 84% 4.9%;
+  --secondary: 217 91% 60%;
+  --secondary-foreground: 222 84% 4.9%;
+  --muted: 217 32% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 271 91% 65%;
+  --accent-foreground: 210 40% 98%;
+  --border: 217 32% 17%;
+  --input: 217 32% 17%;
+  --ring: 142 76% 36%;
+  --radius: 0.75rem;
   
-  /* Gaming Neon Colors */
-  --neon-green: 142 71% 45%;
-  --neon-purple: 271 76% 53%;
-  --neon-blue: 199 89% 48%;
-  --neon-orange: 25 95% 53%;
+  /* Game Colors */
+  --rock: 25 95% 53%;
+  --paper: 47 96% 53%;
+  --scissors: 0 84% 60%;
+  --success: 142 76% 36%;
+  --warning: 47 96% 53%;
+  --error: 0 84% 60%;
+  --info: 217 91% 60%;
   
-  /* Gaming State Colors */
-  --win-color: 142 71% 45%;
-  --lose-color: 0 84% 60%;
-  --tie-color: 45 93% 47%;
-  
-  /* Gaming Shadows */
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.5);
-  --shadow-neon: 0 0 30px rgba(139, 92, 246, 0.6);
+  /* Shadows */
+  --shadow-glow: 0 0 20px rgba(52, 211, 153, 0.3);
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
   
-  /* Animations */
-  --animate-bounce-subtle: bounceSubtle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --animate-pulse-soft: pulseSoft 2s ease-in-out infinite;
-  --animate-scale-in: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --animate-slide-in-up: slideInUp 0.5s ease-out;
-  --animate-fade-in-up: fadeInUp 0.6s ease-out;
+  /* Touch Target */
+  --touch-target-min: 48px;
 }
 
 @plugin "daisyui" {
@@ -67,25 +74,25 @@
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #212638;
-  --color-primary-content: #f9fbff;
-  --color-secondary: #323f61;
-  --color-secondary-content: #f9fbff;
-  --color-accent: #4969a6;
-  --color-accent-content: #f9fbff;
-  --color-neutral: #f9fbff;
-  --color-neutral-content: #385183;
-  --color-base-100: #385183;
-  --color-base-200: #2a3655;
-  --color-base-300: #212638;
-  --color-base-content: #f9fbff;
-  --color-info: #385183;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-primary: #34d399;
+  --color-primary-content: #0c0a09;
+  --color-secondary: #60a5fa;
+  --color-secondary-content: #0c0a09;
+  --color-accent: #a78bfa;
+  --color-accent-content: #f5f5f4;
+  --color-neutral: #f5f5f4;
+  --color-neutral-content: #1e293b;
+  --color-base-100: #1e293b;
+  --color-base-200: #0f172a;
+  --color-base-300: #0c0a09;
+  --color-base-content: #f5f5f4;
+  --color-info: #60a5fa;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #ef4444;
 
-  --radius-field: 9999rem;
-  --radius-box: 1rem;
+  --radius-field: 0.75rem;
+  --radius-box: 0.75rem;
 
   --tt-tailw: 6px;
   --tt-bg: var(--color-primary);
@@ -218,3 +225,43 @@
 .bg-neon-purple { background-color: hsl(var(--neon-purple)); }
 .bg-neon-blue { background-color: hsl(var(--neon-blue)); }
 .bg-neon-orange { background-color: hsl(var(--neon-orange)); }
+
+/* Mobile UI Utilities */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+.bg-rock { background-color: hsl(var(--rock)); }
+.bg-paper { background-color: hsl(var(--paper)); }
+.bg-scissors { background-color: hsl(var(--scissors)); }
+.text-success { color: hsl(var(--success)); }
+.text-warning { color: hsl(var(--warning)); }
+.text-error { color: hsl(var(--error)); }
+.text-info { color: hsl(var(--info)); }
+.bg-success { background-color: hsl(var(--success)); }
+.bg-warning { background-color: hsl(var(--warning)); }
+.bg-error { background-color: hsl(var(--error)); }
+.bg-info { background-color: hsl(var(--info)); }
+
+.text-glow-primary { text-shadow: 0 0 10px hsl(var(--primary) / 0.5); }
+.text-glow-secondary { text-shadow: 0 0 10px hsl(var(--secondary) / 0.5); }
+.text-glow-accent { text-shadow: 0 0 10px hsl(var(--accent) / 0.5); }
+.shadow-glow-primary { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
+.shadow-glow-secondary { box-shadow: 0 0 20px hsl(var(--secondary) / 0.3); }
+.shadow-glow-accent { box-shadow: 0 0 20px hsl(var(--accent) / 0.3); }
+.border-glow-primary { border-color: hsl(var(--primary)); box-shadow: 0 0 10px hsl(var(--primary) / 0.3); }
+.border-glow-secondary { border-color: hsl(var(--secondary)); box-shadow: 0 0 10px hsl(var(--secondary) / 0.3); }
+
+.bg-gradient-primary { background: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(158 64% 52%) 100%); }
+.bg-gradient-secondary { background: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(271 91% 65%) 100%); }
+
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 10px hsl(var(--primary) / 0.3); }
+  50% { text-shadow: 0 0 20px hsl(var(--primary) / 0.8), 0 0 30px hsl(var(--primary) / 0.6); }
+}
+
+.animate-glow { animation: glow 2s ease-in-out infinite; }
+.animate-pulse-glow { animation: glow 2s ease-in-out infinite; }
