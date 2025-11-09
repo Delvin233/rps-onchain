@@ -1,6 +1,8 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { MobileLayout } from "~~/components/MobileLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
+import { OverlayProvider } from "~~/components/overlays/OverlayManager";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
@@ -15,9 +17,17 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <html suppressHydrationWarning className={``}>
       <body>
         <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>
-            <AuthProvider>{children}</AuthProvider>
-          </ScaffoldEthAppWithProviders>
+          <div className="flex justify-center h-screen bg-base-300 overflow-hidden">
+            <div className="w-full max-w-md h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
+              <ScaffoldEthAppWithProviders>
+                <AuthProvider>
+                  <OverlayProvider>
+                    <MobileLayout>{children}</MobileLayout>
+                  </OverlayProvider>
+                </AuthProvider>
+              </ScaffoldEthAppWithProviders>
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

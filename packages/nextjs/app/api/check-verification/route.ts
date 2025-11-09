@@ -10,6 +10,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ verified: false });
     }
 
+    if (!process.env.EDGE_CONFIG) {
+      return NextResponse.json({ verified: false });
+    }
+
     const normalizedAddress = address.toLowerCase();
     const verification = await get(`verified_${normalizedAddress}`);
 
@@ -18,8 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ verified: false });
-  } catch (error) {
-    console.error("Error checking verification:", error);
+  } catch {
     return NextResponse.json({ verified: false });
   }
 }

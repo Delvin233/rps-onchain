@@ -1,110 +1,100 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
-
-type GameState = "menu" | "demo";
+import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
-  const { address, isConnected } = useAccount();
-  const [gameState, setGameState] = useState<GameState>("menu");
+  const { address } = useAccount();
+  const router = useRouter();
+  const stats = usePlayerStats(address);
 
-  const startDemo = () => {
-    setGameState("demo");
-  };
-
-  const backToMenu = () => {
-    setGameState("menu");
-  };
-
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <div className="card-gaming rounded-2xl p-8 max-w-2xl w-full text-center animate-fade-in-up backdrop-blur-sm">
-          <div className="card-gaming rounded-xl p-6 mb-6 text-left">
-            <p className="text-white text-sm font-bold mb-3">GAME RULES:</p>
-            <div className="space-y-2">
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-green mr-2">✓</span> Rock beats Scissors
-              </p>
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-green mr-2">✓</span> Scissors beats Paper
-              </p>
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-green mr-2">✓</span> Paper beats Rock
-              </p>
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-orange mr-2"></span> Same moves result in a tie
-              </p>
-            </div>
-          </div>
-
-          <p className="text-gray-300 text-sm mb-6">CONNECT WALLET TO START PLAYING</p>
-          <div className="flex justify-center">
-            <ConnectButton />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const statsData = [
+    { title: "Total Games", value: stats.totalGames.toString(), icon: Target },
+    { title: "Win Rate", value: `${stats.winRate}%`, icon: TrendingUp },
+    { title: "Total Wagered", value: `${stats.totalWagered.toFixed(2)} CELO`, icon: Coins },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      <div className="card-gaming rounded-2xl p-8 max-w-2xl w-full text-center animate-fade-in-up">
-        {gameState === "menu" && (
-          <div className="space-y-6">
-            <div className="card-gaming rounded-xl p-6 text-left animate-slide-in-up">
-              <p className="text-neon-green text-sm font-bold mb-2 flex items-center">
-                <span className="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse-soft"></span>
-                WALLET CONNECTED
-              </p>
-              <p className="text-gray-300 text-xs">
-                Address: {address?.slice(0, 6)}...{address?.slice(-4)}
-              </p>
-            </div>
-            <div className="max-w-md mx-auto space-y-3">
-              <button
-                onClick={startDemo}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-6 text-sm font-bold rounded-xl shadow-glow transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                TEST WALLET FEATURES
-              </button>
-              <Link href="/play">
-                <button className="w-full btn-gaming-primary py-4 px-6 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 active:scale-95">
-                  PLAY GAME
-                </button>
-              </Link>
-            </div>
+    <div className="bg-base-200">
+      <div className="px-6 pt-8 pb-4">
+        {!address && (
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold text-glow-primary mb-1 animate-glow">RPS Battle</h1>
+            <p className="text-base-content/60 text-sm">Rock Paper Scissors on the blockchain</p>
           </div>
         )}
 
-        {gameState === "demo" && (
-          <div className="space-y-6 animate-fade-in-up">
-            <div className="card-gaming rounded-xl p-6 text-left">
-              <p className="text-white text-sm font-bold mb-4">WALLET CONNECTION TEST</p>
-              <div className="space-y-2">
-                <p className="text-gray-300 text-xs flex items-center">
-                  <span className="text-neon-green mr-2">✓</span> MetaMask Connected
-                </p>
-                <p className="text-gray-300 text-xs flex items-center">
-                  <span className="text-neon-green mr-2">✓</span> Address Retrieved
-                </p>
-                <p className="text-gray-300 text-xs flex items-center">
-                  <span className="text-neon-green mr-2">✓</span> RainbowKit Integration
-                </p>
-              </div>
+        <div className="mb-6">
+          {!address ? (
+            <div className="w-full flex justify-center">
+              <ConnectButton />
             </div>
-            <button
-              onClick={backToMenu}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 text-sm font-bold rounded-xl border border-gray-600 transition-all duration-300 hover:scale-105"
-            >
-              ← BACK TO MENU
-            </button>
-          </div>
+          ) : (
+            <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-3 text-center">
+              <p className="text-xs text-base-content/60 mb-1">Connected</p>
+              <p className="font-mono text-xs">
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {address && (
+          <button
+            onClick={() => router.push("/play")}
+            className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 touch-target text-base font-semibold shadow-glow-primary rounded-xl py-3 flex items-center justify-center space-x-2"
+          >
+            <Play size={20} />
+            <span>Play Now</span>
+          </button>
         )}
       </div>
+
+      {address && (
+        <div className="px-6">
+          <h2 className="text-lg font-semibold mb-3 text-glow-secondary">Your Stats</h2>
+          <div className="grid grid-cols-1 gap-3 mb-4">
+            {statsData.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.title}
+                  className="bg-card/50 backdrop-blur border border-border rounded-xl p-3 hover:border-primary/50 transition-all duration-200 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
+                      <p className="text-xl font-bold">{stat.value}</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Icon className="text-primary" size={20} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {!address && (
+        <div className="px-6 pb-6">
+          <div className="bg-gradient-to-br from-muted/10 to-accent/5 border border-accent/20 rounded-xl p-4">
+            <h3 className="text-base font-semibold mb-2 text-accent">How to Play</h3>
+            <div className="space-y-1 text-xs text-base-content/60">
+              <p>1. Connect your wallet and verify identity</p>
+              <p>2. Create or join a game room</p>
+              <p>3. Choose your move and place your bet</p>
+              <p>4. Wait for opponent and reveal moves</p>
+              <p>5. Winner takes the pot!</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

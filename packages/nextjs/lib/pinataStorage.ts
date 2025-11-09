@@ -1,22 +1,38 @@
 // IPFS storage for match records via Pinata
 export interface MatchRecord {
-  roomId: string;
-  players: {
+  roomId?: string;
+  players?: {
     creator: string;
     joiner: string;
   };
-  moves: {
+  moves?: {
     creatorMove: string;
     joinerMove: string;
   };
-  result: {
-    winner: string;
-    timestamp: number;
-  };
-  betAmount: string;
+  result?:
+    | {
+        winner: string;
+        timestamp: number;
+      }
+    | string;
+  betAmount?: string;
   txHash?: string;
   ipfsHash?: string;
   provider?: string;
+  // AI match fields
+  player?: string;
+  opponent?: string;
+  playerMove?: string;
+  opponentMove?: string;
+  timestamp?: number;
+  // Multiplayer games array
+  games?: Array<{
+    creatorMove: string;
+    joinerMove: string;
+    winner: string;
+    timestamp: number;
+    ipfsHash?: string;
+  }>;
 }
 
 // Store match record to IPFS via Pinata
@@ -57,12 +73,22 @@ export async function getMatchRecord(ipfsHash: string): Promise<MatchRecord | nu
 export function storeMatchLocally(matchData: MatchRecord) {
   const matches = getLocalMatches();
   matches.unshift(matchData);
-  localStorage.setItem("rps-matches", JSON.stringify(matches.slice(0, 50))); // Keep last 50
+  localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50))); // Keep last 50
 }
 
 export function getLocalMatches(): MatchRecord[] {
   try {
-    return JSON.parse(localStorage.getItem("rps-matches") || "[]");
+    // Merge both old and new localStorage keys
+    const oldMatches = JSON.parse(localStorage.getItem("rps-matches") || "[]");
+    const newMatches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
+    const allMatches = [...newMatches, ...oldMatches];
+
+    // Sort by timestamp (newest first)
+    return allMatches.sort((a, b) => {
+      const timeA = typeof a.result === "object" ? a.result.timestamp : a.timestamp || a.games?.[0]?.timestamp || 0;
+      const timeB = typeof b.result === "object" ? b.result.timestamp : b.timestamp || b.games?.[0]?.timestamp || 0;
+      return timeB - timeA;
+    });
   } catch {
     return [];
   }
