@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
 import { ArrowLeft } from "lucide-react";
+import { useAccount } from "wagmi";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -36,18 +36,18 @@ export default function SinglePlayerPage() {
     setResult(data.result);
 
     // Store to localStorage
-    if (typeof window !== 'undefined' && data.ipfsHash) {
-      const matches = JSON.parse(localStorage.getItem('rps-matches') || '[]');
+    if (typeof window !== "undefined" && data.ipfsHash) {
+      const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
       matches.unshift({
         player: address,
-        opponent: 'AI',
+        opponent: "AI",
         playerMove: move,
         opponentMove: data.aiMove,
         result: data.result,
         timestamp: Date.now(),
         ipfsHash: data.ipfsHash,
       });
-      localStorage.setItem('rps-matches', JSON.stringify(matches.slice(0, 50)));
+      localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
     }
 
     setIsPlaying(false);
@@ -110,9 +110,14 @@ export default function SinglePlayerPage() {
           </div>
 
           {result && (
-            <button onClick={playAgain} className="btn btn-primary w-full">
-              Play Again
-            </button>
+            <div className="space-y-3">
+              <button onClick={playAgain} className="btn btn-primary w-full">
+                Play Again
+              </button>
+              <button onClick={() => router.push("/play")} className="btn btn-outline w-full">
+                Back to Play
+              </button>
+            </div>
           )}
         </div>
       )}

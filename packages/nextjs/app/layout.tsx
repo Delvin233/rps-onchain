@@ -1,7 +1,8 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { MobileLayout } from "~~/components/MobileLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
-import { MobileLayout } from "~~/components/MobileLayout";
+import { OverlayProvider } from "~~/components/overlays/OverlayManager";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
@@ -20,7 +21,9 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             <div className="w-full max-w-md h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
               <ScaffoldEthAppWithProviders>
                 <AuthProvider>
-                  <MobileLayout>{children}</MobileLayout>
+                  <OverlayProvider>
+                    <MobileLayout>{children}</MobileLayout>
+                  </OverlayProvider>
                 </AuthProvider>
               </ScaffoldEthAppWithProviders>
             </div>

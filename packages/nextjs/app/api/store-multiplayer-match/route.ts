@@ -4,7 +4,6 @@ export async function POST(request: NextRequest) {
   try {
     const matchData = await request.json();
 
-    // Store to IPFS via Pinata
     if (process.env.PINATA_JWT) {
       const timestamp = new Date();
       const dateStr = timestamp.toISOString().slice(0, 19).replace("T", "-").replace(/:/g, "-");
@@ -18,7 +17,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           pinataContent: matchData,
           pinataMetadata: {
-            name: `ai-match-vs-${matchData.player}-${dateStr}.json`,
+            name: `${matchData.isFree ? "free" : "paid"}-match-${matchData.roomId}-${dateStr}.json`,
           },
         }),
       });
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error storing single match:", error);
+    console.error("Error storing multiplayer match:", error);
     return NextResponse.json({ success: false, error: "Failed to store match" }, { status: 500 });
   }
 }

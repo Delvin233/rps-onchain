@@ -130,6 +130,19 @@
     margin-bottom: 0.5rem;
     line-height: 1;
   }
+
+  /* Cursor styles */
+  button, a, [role="button"], .btn, [onclick] {
+    cursor: pointer;
+  }
+
+  input, textarea, select {
+    cursor: text;
+  }
+
+  input[type="checkbox"], input[type="radio"] {
+    cursor: pointer;
+  }
 }
 
 :root,
