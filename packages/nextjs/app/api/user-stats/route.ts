@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMatchRecord, storeMatchRecord } from "~~/lib/pinataStorage";
+import { getMatchRecord } from "~~/lib/pinataStorage";
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,24 +40,39 @@ export async function POST(req: NextRequest) {
     const winRate = userMatches.length > 0 ? Math.round((wins / userMatches.length) * 100) : 0;
     const totalWagered = userMatches.reduce((sum: number, match: any) => sum + parseFloat(match.betAmount || "0"), 0);
 
-    // Store updated data to IPFS
-    const ipfsResult = await storeMatchRecord({
-      address,
-      matches: limitedMatches,
-      stats: {
-        totalGames: userMatches.length,
-        wins,
-        losses,
-        ties,
-        winRate,
-        totalWagered,
+    // Store updated data to IPFS directly via Pinata
+    const pinataResponse = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.PINATA_JWT}`,
       },
-      updatedAt: Date.now(),
+      body: JSON.stringify({
+        pinataContent: {
+          address,
+          matches: limitedMatches,
+          stats: {
+            totalGames: userMatches.length,
+            wins,
+            losses,
+            ties,
+            winRate,
+            totalWagered,
+          },
+          updatedAt: Date.now(),
+        },
+        pinataMetadata: {
+          name: `user-stats-${address}-${Date.now()}.json`,
+        },
+      }),
     });
 
-    if (!ipfsResult?.ipfsHash) {
+    if (!pinataResponse.ok) {
       throw new Error("Failed to store to IPFS");
     }
+
+    const pinataData = await pinataResponse.json();
+    const ipfsHash = pinataData.IpfsHash;
 
     // Update Edge Config with new hash
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -66,10 +81,10 @@ export async function POST(req: NextRequest) {
     await fetch(`${baseUrl}/api/user-matches`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, ipfsHash: ipfsResult.ipfsHash }),
+      body: JSON.stringify({ address, ipfsHash }),
     });
 
-    return NextResponse.json({ success: true, ipfsHash: ipfsResult.ipfsHash });
+    return NextResponse.json({ success: true, ipfsHash });
   } catch (error: any) {
     console.error("Error updating user stats:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
