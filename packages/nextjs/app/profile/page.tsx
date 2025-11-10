@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, LogOut, Shield, Wallet } from "lucide-react";
-import { useAccount, useBalance, useDisconnect } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { Balance } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 
 export default function ProfilePage() {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const { isHumanVerified } = useAuth();
-  const { data: balance } = useBalance({ address });
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -60,9 +60,9 @@ export default function ProfilePage() {
             </div>
             <div>
               <p className="text-sm text-base-content/60">Balance</p>
-              <p className="text-2xl font-bold">
-                {balance ? parseFloat(balance.formatted).toFixed(4) : "0.0000"} {balance?.symbol || "CELO"}
-              </p>
+              <div className="text-2xl font-bold">
+                <Balance address={address} className="!btn-ghost !p-0 !min-h-0 !h-auto" />
+              </div>
             </div>
           </div>
         </div>
