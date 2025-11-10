@@ -525,8 +525,24 @@ const deployedContracts = {
   },
   42220: {
     RPSOnline: {
-      address: "0xE6D3cb78A795a49E4AF320282d7cD5117931f6B0",
+      address: "0xC0e5810C477E0BD84067b0A386ee643C6283445C",
       abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_backend",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_feeCollector",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
         {
           anonymous: false,
           inputs: [
@@ -560,6 +576,12 @@ const deployedContracts = {
               internalType: "address",
               name: "creator",
               type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "betAmount",
+              type: "uint256",
             },
           ],
           name: "GameCreated",
@@ -599,6 +621,12 @@ const deployedContracts = {
               name: "joiner",
               type: "address",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "betAmount",
+              type: "uint256",
+            },
           ],
           name: "GameJoined",
           type: "event",
@@ -615,51 +643,7 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "player",
-              type: "address",
-            },
-          ],
-          name: "MoveCommitted",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "player",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint8",
-              name: "move",
-              type: "uint8",
-            },
-          ],
-          name: "MoveRevealed",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "winner",
+              name: "claimer",
               type: "address",
             },
             {
@@ -671,6 +655,45 @@ const deployedContracts = {
           ],
           name: "WinningsClaimed",
           type: "event",
+        },
+        {
+          inputs: [],
+          name: "FEE_PERCENTAGE",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MIN_BET",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "backend",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
         },
         {
           inputs: [
@@ -693,7 +716,7 @@ const deployedContracts = {
               type: "string",
             },
           ],
-          name: "claimWinnings",
+          name: "claimTimeout",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -709,6 +732,37 @@ const deployedContracts = {
           name: "createGame",
           outputs: [],
           stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "feeCollector",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "winner",
+              type: "address",
+            },
+          ],
+          name: "finishGameAndPayout",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -732,26 +786,6 @@ const deployedContracts = {
               type: "address",
             },
             {
-              internalType: "bytes32",
-              name: "player1Move",
-              type: "bytes32",
-            },
-            {
-              internalType: "bytes32",
-              name: "player2Move",
-              type: "bytes32",
-            },
-            {
-              internalType: "uint8",
-              name: "revealedMove1",
-              type: "uint8",
-            },
-            {
-              internalType: "uint8",
-              name: "revealedMove2",
-              type: "uint8",
-            },
-            {
               internalType: "enum RPSOnline.GameState",
               name: "state",
               type: "uint8",
@@ -765,16 +799,6 @@ const deployedContracts = {
               internalType: "uint256",
               name: "betAmount",
               type: "uint256",
-            },
-            {
-              internalType: "bool",
-              name: "player1Paid",
-              type: "bool",
-            },
-            {
-              internalType: "bool",
-              name: "player2Paid",
-              type: "bool",
             },
             {
               internalType: "uint256",
@@ -808,26 +832,6 @@ const deployedContracts = {
                   type: "address",
                 },
                 {
-                  internalType: "bytes32",
-                  name: "player1Move",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "bytes32",
-                  name: "player2Move",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "uint8",
-                  name: "revealedMove1",
-                  type: "uint8",
-                },
-                {
-                  internalType: "uint8",
-                  name: "revealedMove2",
-                  type: "uint8",
-                },
-                {
                   internalType: "enum RPSOnline.GameState",
                   name: "state",
                   type: "uint8",
@@ -841,16 +845,6 @@ const deployedContracts = {
                   internalType: "uint256",
                   name: "betAmount",
                   type: "uint256",
-                },
-                {
-                  internalType: "bool",
-                  name: "player1Paid",
-                  type: "bool",
-                },
-                {
-                  internalType: "bool",
-                  name: "player2Paid",
-                  type: "bool",
                 },
                 {
                   internalType: "uint256",
@@ -898,50 +892,9 @@ const deployedContracts = {
           stateMutability: "payable",
           type: "function",
         },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-            {
-              internalType: "uint8",
-              name: "move",
-              type: "uint8",
-            },
-            {
-              internalType: "uint256",
-              name: "nonce",
-              type: "uint256",
-            },
-          ],
-          name: "revealMove",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-            {
-              internalType: "bytes32",
-              name: "hashedMove",
-              type: "bytes32",
-            },
-          ],
-          name: "submitMove",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 48157648,
+      deployedOnBlock: 50900369,
     },
     YourContract: {
       address: "0x573b8dAA397Ba6Ce0203205BB031951A2483Bf35",
