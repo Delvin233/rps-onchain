@@ -45,13 +45,28 @@ export default function PaidGamePage() {
       const response = await fetch("/api/room/paid/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, player: address, move }),
+        body: JSON.stringify({
+          roomId,
+          player: address,
+          move,
+          betAmount: game ? (Number(game.betAmount) / 1e18).toString() : "0",
+        }),
       });
 
       const data = await response.json();
       if (data.finished && game) {
         setOpponentMove(data.opponentMove);
         setResult(data.result);
+
+        // Sync matches from IPFS to localStorage
+        const hashResponse = await fetch(`/api/user-matches?address=${address}`);
+        const { ipfsHash } = await hashResponse.json();
+        if (ipfsHash) {
+          const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
+          if (userData.matches) {
+            localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+          }
+        }
 
         if (data.ipfsHash) {
           const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
@@ -79,6 +94,16 @@ export default function PaidGamePage() {
           if (pollData.finished && game) {
             setOpponentMove(pollData.opponentMove);
             setResult(pollData.result);
+
+            // Sync matches from IPFS to localStorage
+            const hashResponse = await fetch(`/api/user-matches?address=${address}`);
+            const { ipfsHash } = await hashResponse.json();
+            if (ipfsHash) {
+              const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
+              if (userData.matches) {
+                localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+              }
+            }
 
             if (pollData.ipfsHash) {
               const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");

@@ -36,19 +36,16 @@ export default function SinglePlayerPage() {
     setAiMove(data.aiMove);
     setResult(data.result);
 
-    // Store to localStorage
-    if (typeof window !== "undefined" && data.ipfsHash) {
-      const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
-      matches.unshift({
-        player: address,
-        opponent: "AI",
-        playerMove: move,
-        opponentMove: data.aiMove,
-        result: data.result,
-        timestamp: Date.now(),
-        ipfsHash: data.ipfsHash,
-      });
-      localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
+    // Sync matches from IPFS to localStorage
+    if (typeof window !== "undefined") {
+      const hashResponse = await fetch(`/api/user-matches?address=${address}`);
+      const { ipfsHash } = await hashResponse.json();
+      if (ipfsHash) {
+        const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
+        if (userData.matches) {
+          localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+        }
+      }
     }
 
     setIsPlaying(false);

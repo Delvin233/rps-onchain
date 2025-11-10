@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storeMatchRecord } from "~~/lib/pinataStorage";
 
 const games = new Map<string, { creatorMove?: string; joinerMove?: string; creator: string; joiner: string }>();
 
@@ -17,7 +16,7 @@ function determineWinner(move1: string, move2: string): "creator" | "joiner" | "
 
 export async function POST(req: NextRequest) {
   try {
-    const { roomId, player, move } = await req.json();
+    const { roomId, player, move, betAmount } = await req.json();
 
     let game = games.get(roomId);
     if (!game) {
@@ -64,37 +63,51 @@ export async function POST(req: NextRequest) {
             ? "tie"
             : "lose";
 
-      const ipfsResult = await storeMatchRecord({
+      const matchData = {
         roomId,
         players: { creator: game.creator, joiner: game.joiner },
         moves: { creatorMove: game.creatorMove, joinerMove: game.joinerMove },
         result: { winner: winnerAddress, timestamp: Date.now() },
-        betAmount: "paid",
-      });
-      const ipfsHash = ipfsResult?.ipfsHash || "";
+        betAmount: betAmount || "0",
+      };
 
-      // Store IPFS hash for both players
-      if (ipfsHash) {
-        await Promise.all([
-          fetch(`${baseUrl}/api/user-matches`, {
+      // Update stats for both players
+      await Promise.all([
+        // Creator stats
+        (async () => {
+          const creatorHashRes = await fetch(`${baseUrl}/api/user-matches?address=${game.creator}`);
+          const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
+          await fetch(`${baseUrl}/api/user-stats`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address: game.creator, ipfsHash }),
-          }),
-          fetch(`${baseUrl}/api/user-matches`, {
+            body: JSON.stringify({
+              address: game.creator,
+              currentHash: creatorCurrentHash,
+              newMatch: matchData,
+            }),
+          });
+        })(),
+        // Joiner stats
+        (async () => {
+          const joinerHashRes = await fetch(`${baseUrl}/api/user-matches?address=${game.joiner}`);
+          const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
+          await fetch(`${baseUrl}/api/user-stats`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address: game.joiner, ipfsHash }),
-          }),
-        ]);
-      }
+            body: JSON.stringify({
+              address: game.joiner,
+              currentHash: joinerCurrentHash,
+              newMatch: matchData,
+            }),
+          });
+        })(),
+      ]);
 
       return NextResponse.json({
         finished: true,
         opponentMove: isCreator ? game.joinerMove : game.creatorMove,
         result,
         winner: winnerAddress,
-        ipfsHash,
       });
     }
 
