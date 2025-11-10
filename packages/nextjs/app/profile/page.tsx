@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Copy, LogOut, Shield } from "lucide-react";
-import { useAccount, useDisconnect } from "wagmi";
+import { Copy, LogOut, Shield, Wallet } from "lucide-react";
+import { useAccount, useBalance, useDisconnect } from "wagmi";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { useAuth } from "~~/contexts/AuthContext";
 
@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const { isHumanVerified } = useAuth();
+  const { data: balance } = useBalance({ address });
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -49,6 +50,23 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
+
+      {/* Balance */}
+      <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-3 rounded-lg bg-primary/20">
+              <Wallet className="text-primary" size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-base-content/60">Balance</p>
+              <p className="text-2xl font-bold">
+                {balance ? parseFloat(balance.formatted).toFixed(4) : "0.0000"} {balance?.symbol || "CELO"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Wallet Info */}
       <div className="card-gaming p-6 mb-4">

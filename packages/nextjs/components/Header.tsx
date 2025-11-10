@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { useAccount, useEnsName } from "wagmi";
+import { useAccount, useBalance, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -54,6 +54,27 @@ export const HeaderMenuLinks = () => {
         );
       })}
     </>
+  );
+};
+
+const BalanceDisplay = () => {
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({ address });
+
+  if (!isConnected || !balance) return null;
+
+  return (
+    <Link
+      href="/profile"
+      className="bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg px-3 py-1.5 transition-all"
+    >
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-base-content/60">Balance:</span>
+        <span className="text-sm font-bold">
+          {parseFloat(balance.formatted).toFixed(2)} {balance.symbol}
+        </span>
+      </div>
+    </Link>
   );
 };
 
@@ -188,6 +209,7 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end grow mr-4 flex items-center gap-4">
+        <BalanceDisplay />
         <UsernameDisplay />
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}
