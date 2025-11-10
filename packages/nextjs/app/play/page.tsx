@@ -11,18 +11,31 @@ export default function PlayModePage() {
 
   if (!isConnected) {
     return (
-      <div className="flex items-center justify-center p-6 py-20">
-        <div className="text-center">
-          <p className="text-base-content/60 mb-6">Connect wallet to play</p>
-          <ConnectButton />
+      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Ready to Play?</h1>
+          </div>
+          <div className="w-full">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 pt-12 pb-24">
-      <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Game Mode</h1>
+    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+      <h1 className="text-3xl font-bold text-glow-primary mb-8 text-center">Choose Game Mode</h1>
 
       <div className="space-y-4">
         <button

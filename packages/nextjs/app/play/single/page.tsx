@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
 
@@ -9,7 +10,7 @@ type Move = "rock" | "paper" | "scissors";
 
 export default function SinglePlayerPage() {
   const router = useRouter();
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const [playerMove, setPlayerMove] = useState<Move | null>(null);
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
@@ -59,8 +60,33 @@ export default function SinglePlayerPage() {
     setResult(null);
   };
 
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Single Player</h1>
+            <p className="text-base-content/70">Connect Wallet</p>
+          </div>
+          <div className="w-full">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
       <div className="flex items-center mb-6">
         <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
           <ArrowLeft size={20} />
