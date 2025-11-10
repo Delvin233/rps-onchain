@@ -7,7 +7,8 @@ import { hardhat } from "viem/chains";
 import { useAccount, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import { Balance, FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -54,21 +55,6 @@ export const HeaderMenuLinks = () => {
         );
       })}
     </>
-  );
-};
-
-const BalanceDisplay = () => {
-  const { address, isConnected } = useAccount();
-
-  if (!isConnected) return null;
-
-  return (
-    <Link
-      href="/profile"
-      className="bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg px-2 py-1 transition-all"
-    >
-      <Balance address={address} className="!btn-ghost !p-0 !min-h-0 !h-auto !text-sm" />
-    </Link>
   );
 };
 
@@ -168,6 +154,7 @@ const UsernameDisplay = () => {
  * Site header
  */
 export const Header = () => {
+  const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -203,7 +190,7 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end grow mr-4 flex items-center gap-4">
-        <BalanceDisplay />
+        <BalanceDisplay address={address} />
         <UsernameDisplay />
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}

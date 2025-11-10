@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { storeMatchRecord } from "~~/lib/pinataStorage";
 
 const games = new Map<string, { creatorMove?: string; joinerMove?: string; creator: string; joiner: string }>();
 
@@ -63,10 +64,21 @@ export async function POST(req: NextRequest) {
             ? "tie"
             : "lose";
 
+      const ipfsResult = await storeMatchRecord({
+        roomId,
+        players: { creator: game.creator, joiner: game.joiner },
+        moves: { creatorMove: game.creatorMove, joinerMove: game.joinerMove },
+        result: { winner: winnerAddress, timestamp: Date.now() },
+        betAmount: "paid",
+      });
+      const ipfsHash = ipfsResult?.ipfsHash || "";
+
       return NextResponse.json({
         finished: true,
         opponentMove: isCreator ? game.joinerMove : game.creatorMove,
         result,
+        winner: winnerAddress,
+        ipfsHash,
       });
     }
 

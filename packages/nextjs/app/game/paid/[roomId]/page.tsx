@@ -49,17 +49,56 @@ export default function PaidGamePage() {
       });
 
       const data = await response.json();
-      if (data.finished) {
+      if (data.finished && game) {
         setOpponentMove(data.opponentMove);
         setResult(data.result);
+
+        if (data.ipfsHash) {
+          const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
+          matches.unshift({
+            roomId,
+            players: { creator: game.player1, joiner: game.player2 },
+            betAmount: (Number(game.betAmount) / 1e18).toString(),
+            games: [
+              {
+                creatorMove: game.player1 === address ? move : data.opponentMove,
+                joinerMove: game.player2 === address ? move : data.opponentMove,
+                winner: data.winner,
+                timestamp: Date.now(),
+                ipfsHash: data.ipfsHash,
+              },
+            ],
+          });
+          localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
+        }
       } else {
         const pollInterval = setInterval(async () => {
           const pollResponse = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
           const pollData = await pollResponse.json();
 
-          if (pollData.finished) {
+          if (pollData.finished && game) {
             setOpponentMove(pollData.opponentMove);
             setResult(pollData.result);
+
+            if (pollData.ipfsHash) {
+              const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
+              matches.unshift({
+                roomId,
+                players: { creator: game.player1, joiner: game.player2 },
+                betAmount: (Number(game.betAmount) / 1e18).toString(),
+                games: [
+                  {
+                    creatorMove: game.player1 === address ? move : pollData.opponentMove,
+                    joinerMove: game.player2 === address ? move : pollData.opponentMove,
+                    winner: pollData.winner,
+                    timestamp: Date.now(),
+                    ipfsHash: pollData.ipfsHash,
+                  },
+                ],
+              });
+              localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
+            }
+
             clearInterval(pollInterval);
           }
         }, 1000);
