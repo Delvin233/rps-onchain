@@ -189,7 +189,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4 flex items-center gap-4">
+      <div className="navbar-end grow mr-4 flex items-center gap-2">
         <BalanceDisplay address={address} />
         <UsernameDisplay />
         <RainbowKitCustomConnectButton />

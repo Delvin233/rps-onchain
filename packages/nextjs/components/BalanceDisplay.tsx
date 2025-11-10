@@ -23,19 +23,21 @@ export const BalanceDisplay = ({ address }: BalanceDisplayProps) => {
   const formattedBalance = balance ? Number(formatEther(balance.value)) : 0;
 
   return (
-    <div className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg px-3 py-1.5 transition-all">
-      <Link href="/profile" className="flex items-center gap-2">
-        <span className="text-xs text-base-content/60">Balance:</span>
+    <div className="flex items-center gap-1 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg px-2 py-1 transition-all">
+      <Link href="/profile" className="flex items-center gap-1">
         <span className="text-sm font-bold">
-          {isHidden ? "****" : formattedBalance.toFixed(4)} {!isHidden && targetNetwork.nativeCurrency.symbol}
+          {isHidden ? "****" : formattedBalance.toFixed(2)} {!isHidden && targetNetwork.nativeCurrency.symbol}
         </span>
       </Link>
       <button
-        onClick={() => setIsHidden(!isHidden)}
+        onClick={e => {
+          e.preventDefault();
+          setIsHidden(!isHidden);
+        }}
         className="p-1 hover:bg-primary/20 rounded transition-all"
         type="button"
       >
-        {isHidden ? <Eye size={14} /> : <EyeOff size={14} />}
+        {isHidden ? <Eye size={12} /> : <EyeOff size={12} />}
       </button>
     </div>
   );

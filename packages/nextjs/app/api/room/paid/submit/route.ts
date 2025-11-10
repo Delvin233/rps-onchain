@@ -73,6 +73,22 @@ export async function POST(req: NextRequest) {
       });
       const ipfsHash = ipfsResult?.ipfsHash || "";
 
+      // Store IPFS hash for both players
+      if (ipfsHash) {
+        await Promise.all([
+          fetch(`${baseUrl}/api/user-matches`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address: game.creator, ipfsHash }),
+          }),
+          fetch(`${baseUrl}/api/user-matches`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address: game.joiner, ipfsHash }),
+          }),
+        ]);
+      }
+
       return NextResponse.json({
         finished: true,
         opponentMove: isCreator ? game.joinerMove : game.creatorMove,
