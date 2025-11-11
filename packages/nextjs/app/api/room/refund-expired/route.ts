@@ -10,7 +10,13 @@ export async function POST(req: NextRequest) {
   try {
     const { roomId } = await req.json();
 
-    const account = privateKeyToAccount(process.env.BACKEND_PRIVATE_KEY as `0x${string}`);
+    const privateKey = process.env.BACKEND_PRIVATE_KEY;
+    if (!privateKey) {
+      throw new Error("BACKEND_PRIVATE_KEY not configured");
+    }
+
+    const formattedKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
+    const account = privateKeyToAccount(formattedKey as `0x${string}`);
     const client = createWalletClient({
       account,
       chain: celo,
