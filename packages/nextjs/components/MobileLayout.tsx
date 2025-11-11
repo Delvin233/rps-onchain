@@ -27,7 +27,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
 
     const handleSwipe = () => {
       const swipeDistance = touchStartX.current - touchEndX.current;
-      const minSwipeDistance = 50;
+      const minSwipeDistance = 80;
 
       if (Math.abs(swipeDistance) < minSwipeDistance) return;
 
@@ -59,7 +59,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
     <>
       <div
         ref={containerRef}
-        className="h-full bg-base-200 pb-20 overflow-y-auto transition-transform duration-300 ease-out"
+        className="h-full bg-base-200 pb-20 overflow-y-auto transition-transform duration-200 ease-in-out"
       >
         {children}
       </div>
