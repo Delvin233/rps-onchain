@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { User, Users } from "lucide-react";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 
 export default function PlayModePage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
 
   if (!isConnected) {
     return (
@@ -35,7 +36,10 @@ export default function PlayModePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
-      <h1 className="text-3xl font-bold text-glow-primary mb-8 text-center">Choose Game Mode</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-glow-primary">Choose Game Mode</h1>
+        <BalanceDisplay address={address} format="full" />
+      </div>
 
       <div className="space-y-4">
         <button

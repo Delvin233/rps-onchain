@@ -7,9 +7,10 @@ import { useWatchBalance } from "~~/hooks/scaffold-eth/useWatchBalance";
 
 type BalanceDisplayProps = {
   address?: Address;
+  format?: "compact" | "full";
 };
 
-export const BalanceDisplay = ({ address }: BalanceDisplayProps) => {
+export const BalanceDisplay = ({ address, format = "compact" }: BalanceDisplayProps) => {
   const [isHidden, setIsHidden] = useState(false);
   const { targetNetwork } = useTargetNetwork();
   const { data: balance, isLoading } = useWatchBalance({ address });
@@ -19,6 +20,21 @@ export const BalanceDisplay = ({ address }: BalanceDisplayProps) => {
   }
 
   const formattedBalance = balance ? Number(formatEther(balance.value)) : 0;
+
+  if (format === "full") {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-base-content/60">Bal:</span>
+        <button
+          onClick={() => setIsHidden(!isHidden)}
+          className="text-sm font-bold hover:text-primary transition-colors"
+          type="button"
+        >
+          {isHidden ? "****" : `${formattedBalance.toFixed(2)} ${targetNetwork.nativeCurrency.symbol}`}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <button

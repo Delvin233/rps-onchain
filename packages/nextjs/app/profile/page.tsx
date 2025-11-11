@@ -4,8 +4,8 @@ import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, LogOut, Shield, Wallet } from "lucide-react";
 import { useAccount, useDisconnect } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
-import { Balance } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 
 export default function ProfilePage() {
@@ -61,7 +61,7 @@ export default function ProfilePage() {
             <div>
               <p className="text-sm text-base-content/60">Balance</p>
               <div className="text-2xl font-bold">
-                <Balance address={address} className="!btn-ghost !p-0 !min-h-0 !h-auto" />
+                <BalanceDisplay address={address} />
               </div>
             </div>
           </div>

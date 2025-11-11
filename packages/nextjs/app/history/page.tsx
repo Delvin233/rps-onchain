@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
@@ -47,7 +48,10 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
-      <h1 className="text-2xl font-bold text-glow-primary mb-6">Match History</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
+        <BalanceDisplay address={address} format="full" />
+      </div>
 
       {matches.length === 0 ? (
         <div className="text-center py-12">

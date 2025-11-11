@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -86,11 +87,14 @@ export default function SinglePlayerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
-      <div className="flex items-center mb-6">
-        <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
+        </div>
+        <BalanceDisplay address={address} format="full" />
       </div>
 
       {!playerMove ? (
