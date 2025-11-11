@@ -164,17 +164,40 @@ export default function PaidGamePage() {
   const hasOpponent = game.player2 !== "0x0000000000000000000000000000000000000000";
 
   if (!hasOpponent) {
+    const roomAge = Date.now() - Number(game.createdAt) * 1000;
+    const isExpired = roomAge > 10 * 60 * 1000; // 10 minutes
+
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60 mb-4">Share this code with your opponent</p>
           <p className="text-primary font-semibold">Bet: {Number(game.betAmount) / 1e18} CELO</p>
+          {isExpired && <p className="text-warning text-sm mt-4">Room expired - You can claim refund</p>}
         </div>
+        {isExpired && (
+          <button
+            onClick={async () => {
+              try {
+                await fetch("/api/room/refund-expired", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ roomId }),
+                });
+                router.push("/play/paid");
+              } catch (error) {
+                console.error("Error claiming refund:", error);
+              }
+            }}
+            className="btn btn-warning w-full mb-2"
+          >
+            Claim Refund
+          </button>
+        )}
       </div>
     );
   }
@@ -247,7 +270,7 @@ export default function PaidGamePage() {
             {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "Tie!"}
           </p>
           {result === "win" && (
-            <p className="text-sm text-base-content/60 mt-2">Winnings sent to your wallet (minus 1.25% fee)</p>
+            <p className="text-sm text-base-content/60 mt-2">Winnings sent to your wallet (minus 0.75% fee)</p>
           )}
           {result === "tie" && <p className="text-sm text-base-content/60 mt-2">Bet refunded to both players</p>}
           {isSaving && (

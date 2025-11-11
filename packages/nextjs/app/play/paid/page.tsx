@@ -131,6 +131,13 @@ export default function PaidMultiplayerPage() {
       </div>
 
       <div className="space-y-6">
+        <div className="bg-info/10 border border-info/30 rounded-xl p-4 text-sm">
+          <p className="text-base-content/80">
+            <span className="font-semibold">Fee:</span> 0.75% of winnings •
+            <span className="text-base-content/60">No fee on timeouts or ties</span>
+          </p>
+        </div>
+
         <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6">
           <h2 className="flex items-center space-x-2 text-lg font-semibold mb-4">
             <Plus size={20} />

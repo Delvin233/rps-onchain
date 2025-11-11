@@ -525,7 +525,7 @@ const deployedContracts = {
   },
   42220: {
     RPSOnline: {
-      address: "0xC0e5810C477E0BD84067b0A386ee643C6283445C",
+      address: "0xCb52B69987176bcbF74A475b58b9667334769521",
       abi: [
         {
           inputs: [
@@ -716,19 +716,6 @@ const deployedContracts = {
               type: "string",
             },
           ],
-          name: "claimTimeout",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-          ],
           name: "createGame",
           outputs: [],
           stateMutability: "payable",
@@ -892,9 +879,22 @@ const deployedContracts = {
           stateMutability: "payable",
           type: "function",
         },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "refundExpiredGame",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 50900369,
+      deployedOnBlock: 50928718,
     },
     YourContract: {
       address: "0x573b8dAA397Ba6Ce0203205BB031951A2483Bf35",
