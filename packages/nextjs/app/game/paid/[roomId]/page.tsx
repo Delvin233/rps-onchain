@@ -18,6 +18,7 @@ export default function PaidGamePage() {
   const [opponentMove, setOpponentMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const { data: game, refetch } = useScaffoldReadContract({
     contractName: "RPSOnline",
@@ -57,6 +58,7 @@ export default function PaidGamePage() {
       if (data.finished && game) {
         setOpponentMove(data.opponentMove);
         setResult(data.result);
+        setIsSaving(true);
 
         // Sync matches from IPFS to localStorage
         const hashResponse = await fetch(`/api/user-matches?address=${address}`);
@@ -67,6 +69,7 @@ export default function PaidGamePage() {
             localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
           }
         }
+        setIsSaving(false);
 
         if (data.ipfsHash) {
           const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
@@ -94,6 +97,7 @@ export default function PaidGamePage() {
           if (pollData.finished && game) {
             setOpponentMove(pollData.opponentMove);
             setResult(pollData.result);
+            setIsSaving(true);
 
             // Sync matches from IPFS to localStorage
             const hashResponse = await fetch(`/api/user-matches?address=${address}`);
@@ -104,6 +108,7 @@ export default function PaidGamePage() {
                 localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
               }
             }
+            setIsSaving(false);
 
             if (pollData.ipfsHash) {
               const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
@@ -226,9 +231,15 @@ export default function PaidGamePage() {
             <p className="text-sm text-base-content/60 mt-2">Winnings sent to your wallet (minus 1.25% fee)</p>
           )}
           {result === "tie" && <p className="text-sm text-base-content/60 mt-2">Bet refunded to both players</p>}
+          {isSaving && (
+            <p className="text-sm text-primary mt-2 flex items-center justify-center gap-2">
+              <span className="loading loading-spinner loading-sm"></span>
+              Saving to history...
+            </p>
+          )}
         </div>
 
-        <button onClick={() => router.push("/play")} className="btn btn-primary w-full">
+        <button onClick={() => router.push("/play")} disabled={isSaving} className="btn btn-primary w-full">
           Back to Play
         </button>
       </div>

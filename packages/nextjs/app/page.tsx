@@ -1,15 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
   const { address } = useAccount();
   const router = useRouter();
   const stats = usePlayerStats(address);
+
+  useEffect(() => {
+    if (address) {
+      stats.refetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
   const statsData = [
     { title: "Total Games", value: stats.totalGames.toString(), icon: Target },
@@ -19,6 +28,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300">
+      {address && (
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} />
+        </div>
+      )}
       {!address ? (
         <div className="px-6 pt-16 pb-24">
           <div className="text-center mb-12 animate-fade-in">

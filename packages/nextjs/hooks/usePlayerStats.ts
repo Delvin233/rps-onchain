@@ -14,7 +14,7 @@ export const usePlayerStats = (address: string | undefined) => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const calculateStats = () => {
     if (!address) {
       setIsLoading(false);
       return;
@@ -45,7 +45,12 @@ export const usePlayerStats = (address: string | undefined) => {
       totalWagered,
     });
     setIsLoading(false);
+  };
+
+  useEffect(() => {
+    calculateStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
-  return { ...stats, isLoading };
+  return { ...stats, isLoading, refetch: calculateStats };
 };

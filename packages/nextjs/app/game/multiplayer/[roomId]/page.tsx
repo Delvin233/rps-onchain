@@ -23,6 +23,7 @@ export default function MultiplayerGamePage() {
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [rematchRequested, setRematchRequested] = useState(false);
   const [opponentRequestedRematch, setOpponentRequestedRematch] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const toastShownRef = useRef(false);
   const leftToastShownRef = useRef(false);
 
@@ -73,6 +74,7 @@ export default function MultiplayerGamePage() {
         setOpponentMove(isCreator ? data.joinerMove : data.creatorMove);
         const myResult = isCreator ? data.creatorResult : data.joinerResult;
         setResult(myResult);
+        setIsSaving(true);
 
         // Save to localStorage - add game to room's match history
         const matchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}`;
@@ -104,6 +106,7 @@ export default function MultiplayerGamePage() {
           localStorage.setItem("rps_matches", JSON.stringify(matches));
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
         }
+        setIsSaving(false);
       }
 
       if (data.rematchRequested && data.rematchRequested !== address) {
@@ -330,25 +333,35 @@ export default function MultiplayerGamePage() {
             >
               {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "Tie!"}
             </p>
+            {isSaving && (
+              <p className="text-sm text-primary mt-2 flex items-center justify-center gap-2">
+                <span className="loading loading-spinner loading-sm"></span>
+                Saving to history...
+              </p>
+            )}
           </div>
 
           {isFreeMode && (
             <div className="space-y-3">
               {opponentRequestedRematch ? (
                 <>
-                  <button onClick={acceptRematch} className="btn btn-success w-full">
+                  <button onClick={acceptRematch} disabled={isSaving} className="btn btn-success w-full">
                     Accept Rematch
                   </button>
-                  <button onClick={leaveRoom} className="btn btn-error w-full">
+                  <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Leave Room
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={requestRematch} disabled={rematchRequested} className="btn btn-primary w-full">
+                  <button
+                    onClick={requestRematch}
+                    disabled={rematchRequested || isSaving}
+                    className="btn btn-primary w-full"
+                  >
                     {rematchRequested ? "Waiting for opponent..." : "Play Again"}
                   </button>
-                  <button onClick={leaveRoom} className="btn btn-error w-full">
+                  <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Back to Play
                   </button>
                 </>
@@ -357,7 +370,7 @@ export default function MultiplayerGamePage() {
           )}
 
           {!isFreeMode && (
-            <button onClick={() => router.push("/play")} className="btn btn-primary w-full">
+            <button onClick={() => router.push("/play")} disabled={isSaving} className="btn btn-primary w-full">
               Back to Play
             </button>
           )}
