@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
           updatedAt: Date.now(),
         },
         pinataMetadata: {
-          name: `user-stats-${address}-${Date.now()}.json`,
+          name: `user-${address}-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5)}.json`,
         },
       }),
     });
