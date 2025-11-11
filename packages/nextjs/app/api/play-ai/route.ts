@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
           playerMove,
           opponentMove: aiMove,
           result,
-          timestamp: Date.now(),
+          timestamp: new Date().toISOString(),
           betAmount: "0",
         },
       }),

@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
             winRate,
             totalWagered,
           },
-          updatedAt: Date.now(),
+          updatedAt: new Date().toISOString(),
         },
         pinataMetadata: {
           name: `user-${address}-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5)}.json`,

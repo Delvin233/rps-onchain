@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
           roomId,
           players: { creator: room.creator, joiner: room.joiner },
           moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
-          result: { winner: winnerAddress, timestamp: Date.now() },
+          result: { winner: winnerAddress, timestamp: new Date().toISOString() },
           betAmount: room.betAmount || "0",
         };
 

@@ -87,7 +87,7 @@ export default function MultiplayerGamePage() {
             joinerMove: data.joinerMove,
             winner:
               myResult === "win" ? address : myResult === "lose" ? (isCreator ? data.joiner : data.creator) : "tie",
-            timestamp: Date.now(),
+            timestamp: new Date().toISOString(),
             ipfsHash: data.ipfsHash,
           };
 
