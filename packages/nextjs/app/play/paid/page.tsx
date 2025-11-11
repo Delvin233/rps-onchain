@@ -40,7 +40,13 @@ export default function PaidMultiplayerPage() {
       router.push(`/game/paid/${roomId}`);
     } catch (error) {
       console.error("Error creating room:", error);
-      toast.error("Failed to create room");
+      toast.error("Failed to create room", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #ef4444",
+        },
+      });
     } finally {
       setIsCreating(false);
     }
@@ -60,7 +66,13 @@ export default function PaidMultiplayerPage() {
       router.push(`/game/paid/${roomCode}`);
     } catch (error) {
       console.error("Error joining room:", error);
-      toast.error("Failed to join room");
+      toast.error("Failed to join room", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #ef4444",
+        },
+      });
     } finally {
       setIsJoining(false);
     }

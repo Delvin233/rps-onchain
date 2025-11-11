@@ -205,7 +205,13 @@ export default function MultiplayerGamePage() {
         body: JSON.stringify({ roomId, player: address, action: "request" }),
       });
       setRematchRequested(true);
-      toast.success("Rematch requested!");
+      toast.success("Rematch requested!", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #10b981",
+        },
+      });
     } catch (error) {
       console.error("Error requesting rematch:", error);
     }
@@ -224,7 +230,13 @@ export default function MultiplayerGamePage() {
       setRematchRequested(false);
       setOpponentRequestedRematch(false);
       toastShownRef.current = false;
-      toast.success("Rematch accepted!");
+      toast.success("Rematch accepted!", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #10b981",
+        },
+      });
     } catch (error) {
       console.error("Error accepting rematch:", error);
     }

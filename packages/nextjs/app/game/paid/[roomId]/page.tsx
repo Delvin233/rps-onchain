@@ -136,7 +136,13 @@ export default function PaidGamePage() {
       }
     } catch (error) {
       console.error("Error submitting move:", error);
-      toast.error("Failed to submit move");
+      toast.error("Failed to submit move", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #ef4444",
+        },
+      });
     } finally {
       setIsSubmitting(false);
     }
