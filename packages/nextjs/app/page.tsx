@@ -30,7 +30,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300">
       {address && (
         <div className="fixed top-4 right-4 z-10">
-          <BalanceDisplay address={address} />
+          <BalanceDisplay address={address} format="full" />
         </div>
       )}
       {!address ? (
