@@ -15,6 +15,7 @@ export default function SinglePlayerPage() {
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
@@ -35,8 +36,10 @@ export default function SinglePlayerPage() {
     const data = await response.json();
     setAiMove(data.aiMove);
     setResult(data.result);
+    setIsPlaying(false);
 
     // Sync matches from IPFS to localStorage
+    setIsSaving(true);
     if (typeof window !== "undefined") {
       const hashResponse = await fetch(`/api/user-matches?address=${address}`);
       const { ipfsHash } = await hashResponse.json();
@@ -47,8 +50,7 @@ export default function SinglePlayerPage() {
         }
       }
     }
-
-    setIsPlaying(false);
+    setIsSaving(false);
   };
 
   const playAgain = () => {
@@ -128,11 +130,17 @@ export default function SinglePlayerPage() {
                 >
                   {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "It's a Tie!"}
                 </p>
+                {isSaving && (
+                  <p className="text-sm text-base-content/60 mt-3 flex items-center justify-center gap-2">
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Saving to history...
+                  </p>
+                )}
               </div>
             )}
           </div>
 
-          {result && (
+          {result && !isSaving && (
             <div className="space-y-3">
               <button onClick={playAgain} className="btn btn-primary w-full">
                 Play Again

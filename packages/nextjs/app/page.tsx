@@ -140,28 +140,34 @@ export default function Home() {
       {address && (
         <div className="px-6">
           <h2 className="text-lg font-semibold mb-3 text-glow-secondary">Your Stats</h2>
-          <div className="grid grid-cols-1 gap-3 mb-4">
-            {statsData.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={stat.title}
-                  className="bg-card/50 backdrop-blur border border-border rounded-xl p-3 hover:border-primary/50 transition-all duration-200 animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
-                      <p className="text-xl font-bold">{stat.value}</p>
-                    </div>
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Icon className="text-primary" size={20} />
+          {stats.isLoading ? (
+            <div className="flex justify-center py-8">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              {statsData.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <div
+                    key={stat.title}
+                    className="bg-card/50 backdrop-blur border border-border rounded-xl p-3 hover:border-primary/50 transition-all duration-200 animate-fade-in"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
+                        <p className="text-xl font-bold">{stat.value}</p>
+                      </div>
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Icon className="text-primary" size={20} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
