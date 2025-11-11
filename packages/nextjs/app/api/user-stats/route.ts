@@ -74,6 +74,20 @@ export async function POST(req: NextRequest) {
     const pinataData = await pinataResponse.json();
     const ipfsHash = pinataData.IpfsHash;
 
+    // Unpin old IPFS file if it exists
+    if (currentHash) {
+      try {
+        await fetch(`https://api.pinata.cloud/pinning/unpin/${currentHash}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${process.env.PINATA_JWT}`,
+          },
+        });
+      } catch (error) {
+        console.error("Error unpinning old file:", error);
+      }
+    }
+
     // Update Edge Config with new hash
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
