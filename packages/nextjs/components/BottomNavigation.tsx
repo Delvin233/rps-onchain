@@ -44,7 +44,20 @@ export const BottomNavigation = () => {
         });
       }
     } else {
-      // Not in game - normal navigation
+      // Save current play page before leaving
+      if (pathname.startsWith("/play") && !path.startsWith("/play")) {
+        sessionStorage.setItem("lastPlayPage", pathname);
+      }
+
+      // Restore last play page when clicking Play
+      if (path === "/play") {
+        const lastPlayPage = sessionStorage.getItem("lastPlayPage");
+        if (lastPlayPage && lastPlayPage !== "/play") {
+          router.push(lastPlayPage);
+          return;
+        }
+      }
+
       router.push(path);
     }
   };
