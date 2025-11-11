@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/RPSOnline.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\ncontract RPSOnline {\n    enum GameState { Created, Joined, Finished, Claimed }\n    \n    struct Game {\n        address player1;\n        address player2;\n        GameState state;\n        address winner;\n        uint256 betAmount;\n        uint256 createdAt;\n    }\n    \n    address public backend;\n    address public feeCollector;\n    uint256 public constant FEE_PERCENTAGE = 75; // 0.75% (75/10000)\n    uint256 public constant MIN_BET = 0.01 ether; // Minimum 0.01 CELO\n    \n    mapping(string => Game) public games;\n    \n    event GameCreated(string indexed roomId, address indexed creator, uint256 betAmount);\n    event GameJoined(string indexed roomId, address indexed joiner, uint256 betAmount);\n    event GameFinished(string indexed roomId, address indexed winner);\n    event WinningsClaimed(string indexed roomId, address indexed claimer, uint256 amount);\n    event GameCancelled(string indexed roomId, address indexed creator);\n    \n    constructor(address _backend, address _feeCollector) {\n        backend = _backend;\n        feeCollector = _feeCollector;\n    }\n    \n    function createGame(string memory roomId) external payable {\n        require(games[roomId].player1 == address(0), \"Room already exists\");\n        require(msg.value >= MIN_BET, \"Bet amount must be at least 0.01 CELO\");\n        \n        games[roomId] = Game({\n            player1: msg.sender,\n            player2: address(0),\n            state: GameState.Created,\n            winner: address(0),\n            betAmount: msg.value,\n            createdAt: block.timestamp\n        });\n        \n        emit GameCreated(roomId, msg.sender, msg.value);\n    }\n    \n    function joinGame(string memory roomId) external payable {\n        Game storage game = games[roomId];\n        require(game.player1 != address(0), \"Room does not exist\");\n        require(game.player2 == address(0), \"Room is full\");\n        require(game.player1 != msg.sender, \"Cannot join your own room\");\n        require(game.state == GameState.Created, \"Game not available\");\n        require(msg.value == game.betAmount, \"Incorrect bet amount\");\n        \n        game.player2 = msg.sender;\n        game.state = GameState.Joined;\n        \n        emit GameJoined(roomId, msg.sender, msg.value);\n    }\n    \n    function getGame(string memory roomId) external view returns (Game memory) {\n        return games[roomId];\n    }\n    \n    function finishGameAndPayout(string memory roomId, address winner) external {\n        require(msg.sender == backend, \"Only backend can finish game\");\n        Game storage game = games[roomId];\n        require(game.state == GameState.Joined, \"Game not in progress\");\n        \n        uint256 totalPot = game.betAmount * 2;\n        \n        if (winner == address(0)) {\n            // Tie - refund both (no fee)\n            payable(game.player1).transfer(game.betAmount);\n            payable(game.player2).transfer(game.betAmount);\n            emit WinningsClaimed(roomId, game.player1, game.betAmount);\n            emit WinningsClaimed(roomId, game.player2, game.betAmount);\n        } else {\n            // Winner takes pot minus fee\n            uint256 fee = (totalPot * FEE_PERCENTAGE) / 10000;\n            uint256 payout = totalPot - fee;\n            \n            payable(feeCollector).transfer(fee);\n            payable(winner).transfer(payout);\n            emit WinningsClaimed(roomId, winner, payout);\n        }\n        \n        game.winner = winner;\n        game.state = GameState.Finished;\n        emit GameFinished(roomId, winner);\n    }\n    \n    function refundExpiredGame(string memory roomId) external {\n        Game storage game = games[roomId];\n        require(game.player1 != address(0), \"Room does not exist\");\n        \n        // Unjoined room expired (10 minutes)\n        if (game.state == GameState.Created && block.timestamp >= game.createdAt + 10 minutes) {\n            uint256 refundAmount = game.betAmount;\n            address creator = game.player1;\n            delete games[roomId];\n            payable(creator).transfer(refundAmount);\n            emit GameCancelled(roomId, creator);\n            return;\n        }\n        \n        // Abandoned game expired (10 minutes after join)\n        if (game.state == GameState.Joined && block.timestamp >= game.createdAt + 10 minutes) {\n            payable(game.player1).transfer(game.betAmount);\n            payable(game.player2).transfer(game.betAmount);\n            game.state = GameState.Finished;\n            emit WinningsClaimed(roomId, game.player1, game.betAmount);\n            emit WinningsClaimed(roomId, game.player2, game.betAmount);\n            return;\n        }\n        \n        revert(\"Game not expired\");\n    }\n\n    \n    function cancelGame(string memory roomId) external {\n        Game storage game = games[roomId];\n        require(game.player1 == msg.sender, \"Not the creator\");\n        require(game.state == GameState.Created, \"Game already started\");\n        require(game.player2 == address(0), \"Player already joined\");\n        \n        uint256 refundAmount = game.betAmount;\n        delete games[roomId];\n        payable(msg.sender).transfer(refundAmount);\n        \n        emit GameCancelled(roomId, msg.sender);\n    }\n    \n    function isRoomAvailable(string memory roomId) external view returns (bool) {\n        Game memory game = games[roomId];\n        return game.player1 != address(0) && game.player2 == address(0) && game.state == GameState.Created;\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

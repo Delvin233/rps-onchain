@@ -31,21 +31,29 @@ export async function POST(req: NextRequest) {
     const aiMove = getRandomMove();
     const result = determineWinner(playerMove, aiMove);
 
-    const storeResponse = await fetch(`${req.nextUrl.origin}/api/store-single-match`, {
+    // Get current hash and update stats
+    const hashResponse = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${address}`);
+    const { ipfsHash: currentHash } = await hashResponse.json();
+
+    await fetch(`${req.nextUrl.origin}/api/user-stats`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        player: address,
-        playerMove,
-        aiMove,
-        result,
-        timestamp: Date.now(),
+        address,
+        currentHash,
+        newMatch: {
+          player: address,
+          opponent: "AI",
+          playerMove,
+          opponentMove: aiMove,
+          result,
+          timestamp: new Date().toISOString(),
+          betAmount: "0",
+        },
       }),
     });
 
-    const storeData = await storeResponse.json();
-
-    return NextResponse.json({ aiMove, result, ipfsHash: storeData.ipfsHash });
+    return NextResponse.json({ aiMove, result });
   } catch (error) {
     console.error("Error in play-ai:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

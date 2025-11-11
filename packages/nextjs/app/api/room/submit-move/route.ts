@@ -56,25 +56,38 @@ export async function POST(req: NextRequest) {
 
       // Store to IPFS if free mode
       if (room.isFree) {
-        const winner = room.creatorResult === "win" ? room.creator : room.joinerResult === "win" ? room.joiner : null;
+        const winner = room.creatorResult === "win" ? room.creator : room.joinerResult === "win" ? room.joiner : "tie";
+        const winnerAddress = winner === "tie" ? "tie" : winner;
 
-        const storeResponse = await fetch(`${req.nextUrl.origin}/api/store-multiplayer-match`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            roomId,
-            creator: room.creator,
-            joiner: room.joiner,
-            creatorMove: room.creatorMove,
-            joinerMove: room.joinerMove,
-            winner,
-            betAmount: room.betAmount,
-            isFree: true,
-            timestamp: Date.now(),
-          }),
-        });
-        const storeData = await storeResponse.json();
-        room.ipfsHash = storeData.ipfsHash;
+        const matchData = {
+          roomId,
+          players: { creator: room.creator, joiner: room.joiner },
+          moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
+          result: { winner: winnerAddress, timestamp: new Date().toISOString() },
+          betAmount: room.betAmount || "0",
+        };
+
+        // Update stats for both players
+        await Promise.all([
+          (async () => {
+            const creatorHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.creator}`);
+            const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
+            await fetch(`${req.nextUrl.origin}/api/user-stats`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: room.creator, currentHash: creatorCurrentHash, newMatch: matchData }),
+            });
+          })(),
+          (async () => {
+            const joinerHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.joiner}`);
+            const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
+            await fetch(`${req.nextUrl.origin}/api/user-stats`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: room.joiner, currentHash: joinerCurrentHash, newMatch: matchData }),
+            });
+          })(),
+        ]);
       }
     } else {
       room.status = "playing";

@@ -7,6 +7,7 @@ import { hardhat } from "viem/chains";
 import { useAccount, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
@@ -153,6 +154,7 @@ const UsernameDisplay = () => {
  * Site header
  */
 export const Header = () => {
+  const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -187,7 +189,8 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4 flex items-center gap-4">
+      <div className="navbar-end grow mr-4 flex items-center gap-2">
+        <BalanceDisplay address={address} />
         <UsernameDisplay />
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}

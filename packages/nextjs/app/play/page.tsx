@@ -2,27 +2,44 @@
 
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
 import { User, Users } from "lucide-react";
+import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 
 export default function PlayModePage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
 
   if (!isConnected) {
     return (
-      <div className="flex items-center justify-center p-6 py-20">
-        <div className="text-center">
-          <p className="text-base-content/60 mb-6">Connect wallet to play</p>
-          <ConnectButton />
+      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Ready to Play?</h1>
+          </div>
+          <div className="w-full">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 pt-12 pb-24">
-      <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Game Mode</h1>
+    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-glow-primary">Choose Game Mode</h1>
+        <BalanceDisplay address={address} format="full" />
+      </div>
 
       <div className="space-y-4">
         <button
@@ -42,6 +59,21 @@ export default function PlayModePage() {
 
         <button
           onClick={() => router.push("/play/multiplayer")}
+          className="w-full bg-card/50 backdrop-blur border border-success/20 rounded-xl p-6 hover:border-success/50 transition-all duration-200 text-left"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-3 rounded-lg bg-success/10">
+              <Users className="text-success" size={32} />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold mb-1">Free Mode</h2>
+              <p className="text-sm text-base-content/60">Play with friends - No stakes</p>
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => router.push("/play/paid")}
           className="w-full bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-6 hover:border-secondary/50 transition-all duration-200 text-left"
         >
           <div className="flex items-center space-x-4">
@@ -49,8 +81,8 @@ export default function PlayModePage() {
               <Users className="text-secondary" size={32} />
             </div>
             <div>
-              <h2 className="text-xl font-semibold mb-1">Multiplayer</h2>
-              <p className="text-sm text-base-content/60">Play with friends - Stake CELO</p>
+              <h2 className="text-xl font-semibold mb-1">Paid Mode</h2>
+              <p className="text-sm text-base-content/60">Stake CELO - Winner takes all</p>
             </div>
           </div>
         </button>

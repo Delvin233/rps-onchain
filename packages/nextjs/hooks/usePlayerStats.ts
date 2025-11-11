@@ -12,10 +12,15 @@ export const usePlayerStats = (address: string | undefined) => {
     winRate: 0,
     totalWagered: 0,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (!address) return;
+  const calculateStats = () => {
+    if (!address) {
+      setIsLoading(false);
+      return;
+    }
 
+    setIsLoading(true);
     const matches = getLocalMatches();
     const userMatches = matches.filter(
       match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
@@ -39,7 +44,13 @@ export const usePlayerStats = (address: string | undefined) => {
       winRate,
       totalWagered,
     });
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    calculateStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
-  return stats;
+  return { ...stats, isLoading, refetch: calculateStats };
 };

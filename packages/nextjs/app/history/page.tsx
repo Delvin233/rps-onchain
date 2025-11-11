@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { ArrowUp, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
   const { address, isConnected } = useAccount();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isConnected) {
@@ -21,20 +24,58 @@ export default function HistoryPage() {
     }
   }, [address, isConnected]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrolled = containerRef.current.scrollTop;
+        setShowScrollTop(scrolled > 800);
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
+  const scrollToTop = () => {
+    containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (!isConnected) {
     return (
-      <div className="flex items-center justify-center p-6 py-20">
-        <div className="text-center">
-          <p className="text-base-content/60 mb-6">Connect wallet to view history</p>
-          <ConnectButton />
+      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Match History</h1>
+          </div>
+          <div className="w-full">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 pt-12 pb-24">
-      <h1 className="text-2xl font-bold text-glow-primary mb-6">Match History</h1>
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24 overflow-y-auto"
+    >
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
+        <BalanceDisplay address={address} format="full" />
+      </div>
 
       {matches.length === 0 ? (
         <div className="text-center py-12">
@@ -121,6 +162,16 @@ export default function HistoryPage() {
                       <p className="text-sm text-base-content/60">
                         {match.betAmount === "0" ? "Free" : `${match.betAmount} CELO`}
                       </p>
+                      {match.txHash && (
+                        <a
+                          href={`https://celoscan.io/tx/${match.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 justify-end mt-1"
+                        >
+                          <ExternalLink size={12} /> Tx
+                        </a>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -183,6 +234,16 @@ export default function HistoryPage() {
             return null;
           })}
         </div>
+      )}
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-24 right-6 bg-primary hover:bg-primary/80 text-primary-content rounded-full p-3 shadow-lg transition-all duration-200 z-50"
+          style={{ maxWidth: "448px" }}
+        >
+          <ArrowUp size={24} />
+        </button>
       )}
     </div>
   );

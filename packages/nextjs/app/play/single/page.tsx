@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 
 type Move = "rock" | "paper" | "scissors";
 
 export default function SinglePlayerPage() {
   const router = useRouter();
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const [playerMove, setPlayerMove] = useState<Move | null>(null);
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
@@ -34,23 +37,21 @@ export default function SinglePlayerPage() {
     const data = await response.json();
     setAiMove(data.aiMove);
     setResult(data.result);
-
-    // Store to localStorage
-    if (typeof window !== "undefined" && data.ipfsHash) {
-      const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
-      matches.unshift({
-        player: address,
-        opponent: "AI",
-        playerMove: move,
-        opponentMove: data.aiMove,
-        result: data.result,
-        timestamp: Date.now(),
-        ipfsHash: data.ipfsHash,
-      });
-      localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
-    }
-
     setIsPlaying(false);
+
+    // Sync matches from IPFS to localStorage
+    setIsSaving(true);
+    if (typeof window !== "undefined") {
+      const hashResponse = await fetch(`/api/user-matches?address=${address}`);
+      const { ipfsHash } = await hashResponse.json();
+      if (ipfsHash) {
+        const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
+        if (userData.matches) {
+          localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+        }
+      }
+    }
+    setIsSaving(false);
   };
 
   const playAgain = () => {
@@ -59,13 +60,41 @@ export default function SinglePlayerPage() {
     setResult(null);
   };
 
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Single Player</h1>
+            <p className="text-base-content/70">Connect Wallet</p>
+          </div>
+          <div className="w-full">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 pt-12 pb-24">
-      <div className="flex items-center mb-6">
-        <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
+    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
+        </div>
+        <BalanceDisplay address={address} format="full" />
       </div>
 
       {!playerMove ? (
@@ -105,11 +134,17 @@ export default function SinglePlayerPage() {
                 >
                   {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "It's a Tie!"}
                 </p>
+                {isSaving && (
+                  <p className="text-sm text-base-content/60 mt-3 flex items-center justify-center gap-2">
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Saving to history...
+                  </p>
+                )}
               </div>
             )}
           </div>
 
-          {result && (
+          {result && !isSaving && (
             <div className="space-y-3">
               <button onClick={playAgain} className="btn btn-primary w-full">
                 Play Again

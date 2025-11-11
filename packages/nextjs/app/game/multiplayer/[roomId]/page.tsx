@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -23,6 +24,7 @@ export default function MultiplayerGamePage() {
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [rematchRequested, setRematchRequested] = useState(false);
   const [opponentRequestedRematch, setOpponentRequestedRematch] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const toastShownRef = useRef(false);
   const leftToastShownRef = useRef(false);
 
@@ -73,6 +75,7 @@ export default function MultiplayerGamePage() {
         setOpponentMove(isCreator ? data.joinerMove : data.creatorMove);
         const myResult = isCreator ? data.creatorResult : data.joinerResult;
         setResult(myResult);
+        setIsSaving(true);
 
         // Save to localStorage - add game to room's match history
         const matchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}`;
@@ -85,7 +88,7 @@ export default function MultiplayerGamePage() {
             joinerMove: data.joinerMove,
             winner:
               myResult === "win" ? address : myResult === "lose" ? (isCreator ? data.joiner : data.creator) : "tie",
-            timestamp: Date.now(),
+            timestamp: new Date().toISOString(),
             ipfsHash: data.ipfsHash,
           };
 
@@ -104,6 +107,7 @@ export default function MultiplayerGamePage() {
           localStorage.setItem("rps_matches", JSON.stringify(matches));
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
         }
+        setIsSaving(false);
       }
 
       if (data.rematchRequested && data.rematchRequested !== address) {
@@ -202,7 +206,13 @@ export default function MultiplayerGamePage() {
         body: JSON.stringify({ roomId, player: address, action: "request" }),
       });
       setRematchRequested(true);
-      toast.success("Rematch requested!");
+      toast.success("Rematch requested!", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #10b981",
+        },
+      });
     } catch (error) {
       console.error("Error requesting rematch:", error);
     }
@@ -221,7 +231,13 @@ export default function MultiplayerGamePage() {
       setRematchRequested(false);
       setOpponentRequestedRematch(false);
       toastShownRef.current = false;
-      toast.success("Rematch accepted!");
+      toast.success("Rematch accepted!", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #10b981",
+        },
+      });
     } catch (error) {
       console.error("Error accepting rematch:", error);
     }
@@ -256,6 +272,9 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "waiting") {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
@@ -273,6 +292,9 @@ export default function MultiplayerGamePage() {
   if ((gameStatus === "ready" || gameStatus === "playing") && !selectedMove) {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
         {!isFreeMode && <p className="text-center text-base-content/60 mb-6">Bet: {betAmount} CELO</p>}
         {isFreeMode && <p className="text-center text-success mb-6">Free Mode</p>}
@@ -295,6 +317,9 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "revealing" || (selectedMove && !result)) {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
@@ -309,6 +334,9 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "finished" && result) {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
@@ -330,25 +358,35 @@ export default function MultiplayerGamePage() {
             >
               {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "Tie!"}
             </p>
+            {isSaving && (
+              <p className="text-sm text-primary mt-2 flex items-center justify-center gap-2">
+                <span className="loading loading-spinner loading-sm"></span>
+                Saving to history...
+              </p>
+            )}
           </div>
 
           {isFreeMode && (
             <div className="space-y-3">
               {opponentRequestedRematch ? (
                 <>
-                  <button onClick={acceptRematch} className="btn btn-success w-full">
+                  <button onClick={acceptRematch} disabled={isSaving} className="btn btn-success w-full">
                     Accept Rematch
                   </button>
-                  <button onClick={leaveRoom} className="btn btn-error w-full">
+                  <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Leave Room
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={requestRematch} disabled={rematchRequested} className="btn btn-primary w-full">
+                  <button
+                    onClick={requestRematch}
+                    disabled={rematchRequested || isSaving}
+                    className="btn btn-primary w-full"
+                  >
                     {rematchRequested ? "Waiting for opponent..." : "Play Again"}
                   </button>
-                  <button onClick={leaveRoom} className="btn btn-error w-full">
+                  <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Back to Play
                   </button>
                 </>
@@ -357,7 +395,7 @@ export default function MultiplayerGamePage() {
           )}
 
           {!isFreeMode && (
-            <button onClick={() => router.push("/play")} className="btn btn-primary w-full">
+            <button onClick={() => router.push("/play")} disabled={isSaving} className="btn btn-primary w-full">
               Back to Play
             </button>
           )}

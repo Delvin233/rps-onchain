@@ -1,5 +1,16 @@
 // IPFS storage for match records via Pinata
 export interface MatchRecord {
+  address?: string;
+  matches?: MatchRecord[];
+  stats?: {
+    totalGames: number;
+    wins: number;
+    losses: number;
+    ties: number;
+    winRate: number;
+    totalWagered: number;
+  };
+  updatedAt?: number;
   roomId?: string;
   players?: {
     creator: string;
@@ -25,7 +36,6 @@ export interface MatchRecord {
   playerMove?: string;
   opponentMove?: string;
   timestamp?: number;
-  // Multiplayer games array
   games?: Array<{
     creatorMove: string;
     joinerMove: string;

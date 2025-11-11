@@ -15,7 +15,7 @@ contract RPSOnline {
     
     address public backend;
     address public feeCollector;
-    uint256 public constant FEE_PERCENTAGE = 125; // 1.25% (125/10000)
+    uint256 public constant FEE_PERCENTAGE = 75; // 0.75% (75/10000)
     uint256 public constant MIN_BET = 0.01 ether; // Minimum 0.01 CELO
     
     mapping(string => Game) public games;
@@ -93,17 +93,31 @@ contract RPSOnline {
         emit GameFinished(roomId, winner);
     }
     
-    function claimTimeout(string memory roomId) external {
+    function refundExpiredGame(string memory roomId) external {
         Game storage game = games[roomId];
-        require(game.state == GameState.Joined, "Game not in progress");
-        require(msg.sender == game.player1 || msg.sender == game.player2, "Not a player");
-        require(block.timestamp >= game.createdAt + 7 days, "Timeout not reached");
+        require(game.player1 != address(0), "Room does not exist");
         
-        // Refund both players after timeout
-        game.state = GameState.Finished;
-        payable(msg.sender).transfer(game.betAmount);
+        // Unjoined room expired (10 minutes)
+        if (game.state == GameState.Created && block.timestamp >= game.createdAt + 10 minutes) {
+            uint256 refundAmount = game.betAmount;
+            address creator = game.player1;
+            delete games[roomId];
+            payable(creator).transfer(refundAmount);
+            emit GameCancelled(roomId, creator);
+            return;
+        }
         
-        emit WinningsClaimed(roomId, msg.sender, game.betAmount);
+        // Abandoned game expired (10 minutes after join)
+        if (game.state == GameState.Joined && block.timestamp >= game.createdAt + 10 minutes) {
+            payable(game.player1).transfer(game.betAmount);
+            payable(game.player2).transfer(game.betAmount);
+            game.state = GameState.Finished;
+            emit WinningsClaimed(roomId, game.player1, game.betAmount);
+            emit WinningsClaimed(roomId, game.player2, game.betAmount);
+            return;
+        }
+        
+        revert("Game not expired");
     }
 
     
