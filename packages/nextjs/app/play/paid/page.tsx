@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Users } from "lucide-react";
@@ -19,6 +19,21 @@ export default function PaidMultiplayerPage() {
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+
+  useEffect(() => {
+    const savedBetAmount = sessionStorage.getItem("paidBetAmount");
+    const savedRoomCode = sessionStorage.getItem("paidRoomCode");
+    if (savedBetAmount) setBetAmount(savedBetAmount);
+    if (savedRoomCode) setRoomCode(savedRoomCode);
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("paidBetAmount", betAmount);
+  }, [betAmount]);
+
+  useEffect(() => {
+    sessionStorage.setItem("paidRoomCode", roomCode);
+  }, [roomCode]);
 
   const maxBet = isHumanVerified ? 1000 : 20;
   const { writeContractAsync: createGame } = useScaffoldWriteContract("RPSOnline");

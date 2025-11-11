@@ -15,6 +15,9 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isInGame = pathname.includes("/game/multiplayer/") || pathname === "/play/single";
+  const isInPlayMode = pathname === "/play/paid" || pathname === "/play/multiplayer";
+
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
       touchStartX.current = e.touches[0].clientX;
@@ -30,6 +33,27 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
       const minSwipeDistance = 80;
 
       if (Math.abs(swipeDistance) < minSwipeDistance) return;
+
+      // In active game: only allow swipe right to open history overlay
+      if (isInGame) {
+        if (swipeDistance > 0) {
+          router.push("/history");
+        }
+        return;
+      }
+
+      // Allow swipes in play mode pages
+      if (isInPlayMode) {
+        const currentIndex = mainRoutes.indexOf(pathname);
+        if (currentIndex === -1) return;
+
+        if (swipeDistance > 0 && currentIndex < mainRoutes.length - 1) {
+          router.push(mainRoutes[currentIndex + 1]);
+        } else if (swipeDistance < 0 && currentIndex > 0) {
+          router.push(mainRoutes[currentIndex - 1]);
+        }
+        return;
+      }
 
       const currentIndex = mainRoutes.indexOf(pathname);
       if (currentIndex === -1) return;
@@ -53,7 +77,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
         container.removeEventListener("touchend", handleTouchEnd);
       }
     };
-  }, [pathname, router]);
+  }, [pathname, router, isInGame, isInPlayMode]);
 
   return (
     <>

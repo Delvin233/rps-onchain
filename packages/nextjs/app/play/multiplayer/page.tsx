@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Users } from "lucide-react";
@@ -12,6 +12,15 @@ export default function MultiplayerPage() {
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+
+  useEffect(() => {
+    const savedRoomCode = sessionStorage.getItem("freeRoomCode");
+    if (savedRoomCode) setRoomCode(savedRoomCode);
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("freeRoomCode", roomCode);
+  }, [roomCode]);
 
   const createRoom = async () => {
     if (!address) return;
