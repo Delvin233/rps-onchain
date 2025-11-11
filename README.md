@@ -5,17 +5,17 @@ A decentralized Rock Paper Scissors game with real money betting, human verifica
 
 ## Game Features
 
-- **Wallet Authentication**: RainbowKit + Wagmi integration with "Sign In" flow
+- **Wallet Authentication**: RainbowKit + Wagmi integration
 - **Smart Contract Gameplay**: Commit-reveal scheme prevents cheating
-- **Room System**: Create/join rooms with 6-character codes
-- **Real Money Betting**: CELO wagering with winner-takes-all payouts
+- **Single Player**: Play against AI instantly
+- **Multiplayer**: Create/join rooms with 6-character codes
+- **Flexible Betting**: 0 CELO for free play, or stake up to max limit
 - **Room Cancellation**: Cancel unjoined rooms for full refund
 - **Self Protocol Verification**: Human verification unlocks higher betting limits
   - Unverified: 20 CELO max bet
   - Verified: 1000 CELO max bet
-- **Match History**: Decentralized storage via IPFS (Pinata) with timestamped filenames
-- **Gaming UI**: Neon aesthetics with smooth animations and gradient backgrounds
-- **Multi-Room Protection**: Warnings when joining multiple active rooms
+- **Match History**: Decentralized storage via IPFS (Pinata)
+- **Gaming UI**: Neon aesthetics with smooth animations
 - **Divvi Integration**: Referral tracking and rewards on all transactions
 - **Edge Config**: Persistent verification storage across devices
 
@@ -81,15 +81,13 @@ packages/
 ### Current Implementation (On-Chain)
 
 1. **Connect Wallet**: Use any wallet (MetaMask recommended)
-2. **Set Username**: Edit username in header
-3. **Create Room**: Generate room code with CELO bet amount
+2. **Choose Mode**: Single Player (AI) or Multiplayer (0+ CELO)
+3. **Create Room**: Generate room code with bet amount (0 for free)
 4. **Share Code**: Give the room code to your opponent
-5. **Join Room**: Enter room code - bet amount auto-populates
-6. **Confirm & Join**: Review stake amount and confirm
-7. **Auto-Redirect**: Both players automatically enter game room
-8. **Commit Move**: Submit encrypted move on-chain
-9. **Reveal Move**: Reveal your move to determine winner
-10. **Claim Prize**: Winner claims the full pot
+5. **Join Room**: Enter room code and match bet amount
+6. **Commit Move**: Submit encrypted move on-chain
+7. **Reveal Move**: Reveal your move to determine winner
+8. **Claim Prize**: Winner claims the full pot (or refund if tie)
 
 ### Room Management
 

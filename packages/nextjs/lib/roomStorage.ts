@@ -1,4 +1,7 @@
 // Shared in-memory storage for rooms
+// WARNING: This will NOT work reliably on Vercel serverless functions!
+// Each API route may run on a different serverless instance with separate memory.
+// For production on Vercel, use: Vercel KV, Redis, or a database.
 // Note: This will be lost on server restart. Use database for production.
 
 interface Room {

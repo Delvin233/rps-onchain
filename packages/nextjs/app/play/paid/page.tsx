@@ -15,7 +15,7 @@ export default function PaidMultiplayerPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const { isHumanVerified } = useAuth();
-  const [betAmount, setBetAmount] = useState("0.01");
+  const [betAmount, setBetAmount] = useState("0");
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -40,7 +40,8 @@ export default function PaidMultiplayerPage() {
   const { writeContractAsync: joinGame } = useScaffoldWriteContract("RPSOnline");
 
   const createRoom = async () => {
-    if (!address || parseFloat(betAmount) < 0.01 || parseFloat(betAmount) > maxBet) return;
+    const bet = parseFloat(betAmount);
+    if (!address || bet < 0 || bet > maxBet) return;
 
     setIsCreating(true);
     try {
@@ -98,7 +99,7 @@ export default function PaidMultiplayerPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-secondary mb-3 animate-glow">Paid Mode</h1>
+            <h1 className="text-4xl font-bold text-glow-secondary mb-3 animate-glow">Multiplayer</h1>
             <p className="text-base-content/70">Connect Wallet</p>
           </div>
           <div className="w-full">
@@ -125,7 +126,7 @@ export default function PaidMultiplayerPage() {
           <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-2xl font-bold text-glow-primary ml-2">Paid Mode</h1>
+          <h1 className="text-2xl font-bold text-glow-primary ml-2">Multiplayer</h1>
         </div>
         <BalanceDisplay address={address} format="full" />
       </div>
@@ -145,18 +146,18 @@ export default function PaidMultiplayerPage() {
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-base-content/60 block mb-1">Bet Amount (CELO)</label>
+              <label className="text-sm text-base-content/60 block mb-1">Bet Amount (CELO) - 0 for free</label>
               <input
                 type="number"
                 value={betAmount}
                 onChange={e => setBetAmount(e.target.value)}
-                min={0.01}
+                min={0}
                 max={maxBet}
                 step={0.01}
                 className="input input-bordered w-full"
               />
               <p className="text-xs text-base-content/60 mt-1">
-                Max: {maxBet} CELO {!isHumanVerified && "(Verify to increase)"}
+                0 CELO = Free • Max: {maxBet} CELO {!isHumanVerified && "(Verify to increase)"}
               </p>
             </div>
             <button onClick={createRoom} disabled={isCreating || !address} className="btn btn-primary w-full">

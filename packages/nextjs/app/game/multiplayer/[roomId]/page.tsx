@@ -25,6 +25,7 @@ export default function MultiplayerGamePage() {
   const [rematchRequested, setRematchRequested] = useState(false);
   const [opponentRequestedRematch, setOpponentRequestedRematch] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [errorCount, setErrorCount] = useState(0);
   const toastShownRef = useRef(false);
   const leftToastShownRef = useRef(false);
 
@@ -33,8 +34,36 @@ export default function MultiplayerGamePage() {
   useEffect(() => {
     if (!address) return;
     fetchRoomInfo();
-    const interval = setInterval(pollGameStatus, 500);
-    return () => clearInterval(interval);
+
+    let interval: NodeJS.Timeout | null = null;
+
+    const startPolling = () => {
+      if (interval) return;
+      interval = setInterval(pollGameStatus, 500);
+    };
+
+    const stopPolling = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        startPolling();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    startPolling();
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, address]);
 
@@ -67,6 +96,12 @@ export default function MultiplayerGamePage() {
   const pollGameStatus = async () => {
     try {
       const response = await fetch(`/api/room/status?roomId=${roomId}&player=${address}`);
+      if (!response.ok) {
+        console.error(`Room status API returned ${response.status}`);
+        setErrorCount(prev => prev + 1);
+        return;
+      }
+      setErrorCount(0);
       const data = await response.json();
       setGameStatus(data.status);
 
@@ -151,6 +186,7 @@ export default function MultiplayerGamePage() {
       }
     } catch (error) {
       console.error("Error polling status:", error);
+      setErrorCount(prev => prev + 1);
     }
   };
 
@@ -263,6 +299,22 @@ export default function MultiplayerGamePage() {
           <p className="text-lg mb-4">Please connect your wallet to play</p>
           <button onClick={() => router.push("/")} className="btn btn-primary">
             Go Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorCount > 10) {
+    return (
+      <div className="p-6 pt-12 pb-24">
+        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+          <p className="text-lg text-error mb-4">Room connection lost</p>
+          <p className="text-sm text-base-content/60 mb-6">
+            The room may have expired or the server connection was interrupted.
+          </p>
+          <button onClick={() => router.push("/play/multiplayer")} className="btn btn-primary w-full">
+            Back to Play
           </button>
         </div>
       </div>

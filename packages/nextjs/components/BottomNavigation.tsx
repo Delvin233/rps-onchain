@@ -26,7 +26,7 @@ export const BottomNavigation = () => {
     return pathname.startsWith(path);
   };
 
-  const isInGame = pathname.includes("/game/multiplayer/") || pathname === "/play/single";
+  const isInGame = pathname.includes("/game/paid/") || pathname === "/play/single";
 
   const handleNavigation = (path: string) => {
     if (isInGame) {
@@ -55,14 +55,14 @@ export const BottomNavigation = () => {
       if (path === "/play") {
         const now = Date.now();
         const timeSinceLastTap = now - lastPlayTapRef.current;
+        const isOnPlaySubpage = pathname.startsWith("/play/");
 
-        // Double-tap detected (within 500ms)
+        // Double-tap detected (within 500ms) - reset to root
         if (timeSinceLastTap < 500 && pathname.startsWith("/play")) {
           sessionStorage.removeItem("lastPlayPage");
           sessionStorage.removeItem("paidBetAmount");
           sessionStorage.removeItem("paidRoomCode");
-          sessionStorage.removeItem("freeRoomCode");
-          toast.success("Play section reset", {
+          toast.success("Returned to Play menu", {
             duration: 2000,
             style: {
               background: "#1f2937",
@@ -77,18 +77,20 @@ export const BottomNavigation = () => {
 
         lastPlayTapRef.current = now;
 
-        // Single tap: restore last subpage if coming from other pages
+        // Single tap from non-play page: restore last subpage
         if (!pathname.startsWith("/play")) {
           const lastPlayPage = sessionStorage.getItem("lastPlayPage");
           if (lastPlayPage && lastPlayPage.startsWith("/play/")) {
             router.push(lastPlayPage);
             return;
           }
+          router.push("/play");
+          return;
         }
 
-        // Show hint if on play pages
-        if (pathname.startsWith("/play")) {
-          toast("Double-tap Play to reset", {
+        // Single tap on subpage: show hint
+        if (isOnPlaySubpage) {
+          toast("Tap again to return to Play menu", {
             duration: 2000,
             style: {
               background: "#1f2937",
