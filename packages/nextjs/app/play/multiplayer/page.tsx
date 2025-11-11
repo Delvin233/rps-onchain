@@ -72,7 +72,7 @@ export default function MultiplayerPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Free Mode</h1>
@@ -96,7 +96,7 @@ export default function MultiplayerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="flex items-center mb-6">
         <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
           <ArrowLeft size={20} />

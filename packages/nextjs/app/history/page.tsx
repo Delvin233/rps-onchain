@@ -45,7 +45,7 @@ export default function HistoryPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Match History</h1>
@@ -68,10 +68,7 @@ export default function HistoryPage() {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24 overflow-y-auto"
-    >
+    <div ref={containerRef} className="min-h-screen bg-base-200 p-6 pt-12 pb-24 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
         <BalanceDisplay address={address} format="full" />

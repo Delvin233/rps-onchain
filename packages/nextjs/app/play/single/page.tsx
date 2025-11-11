@@ -62,7 +62,7 @@ export default function SinglePlayerPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Single Player</h1>
@@ -86,7 +86,7 @@ export default function SinglePlayerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
           <button onClick={() => router.back()} className="btn btn-sm btn-ghost">

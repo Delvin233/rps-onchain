@@ -25,7 +25,7 @@ export default function ProfilePage() {
 
   if (!address) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Profile</h1>
@@ -48,7 +48,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
       {/* Balance */}
@@ -69,7 +69,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Wallet Info */}
-      <div className="card-gaming p-6 mb-4">
+      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mb-4">
         <p className="text-sm text-base-content/60 mb-2">Wallet Address</p>
         <div className="flex items-center justify-between">
           <code className="text-sm font-mono">
@@ -82,7 +82,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Username */}
-      <div className="card-gaming p-6 mb-4">
+      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mb-4">
         <label className="text-sm text-base-content/60 mb-2 block">Username</label>
         <input
           type="text"
@@ -94,7 +94,9 @@ export default function ProfilePage() {
       </div>
 
       {/* Verification Status */}
-      <div className={`card-gaming p-6 mb-4 ${isHumanVerified ? "border-success/50" : "border-warning/50"}`}>
+      <div
+        className={`bg-card/50 backdrop-blur border rounded-xl p-6 mb-4 ${isHumanVerified ? "border-success/50" : "border-warning/50"}`}
+      >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Shield className={isHumanVerified ? "text-success" : "text-warning"} size={24} />

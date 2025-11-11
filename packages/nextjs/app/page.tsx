@@ -27,7 +27,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 relative">
+    <div className="min-h-screen bg-base-200 relative">
       {address && (
         <div className="absolute top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
@@ -134,11 +134,22 @@ export default function Home() {
         </div>
       ) : (
         <div className="px-6 pt-8 pb-4">
-          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-3 text-center mb-6 mt-12">
-            <p className="text-xs text-base-content/60 mb-1">Connected</p>
-            <p className="font-mono text-xs">
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </p>
+          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6 mt-12">
+            <p className="text-sm md:text-base text-base-content/60 mb-2">Connected</p>
+            <div className="flex items-center justify-center gap-2">
+              <p className="font-mono text-sm md:text-base">
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </p>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                }}
+                className="btn btn-xs btn-ghost"
+                title="Copy address"
+              >
+                📋
+              </button>
+            </div>
           </div>
 
           <button

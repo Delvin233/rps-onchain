@@ -12,7 +12,7 @@ export default function PlayModePage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Ready to Play?</h1>
@@ -35,7 +35,7 @@ export default function PlayModePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-glow-primary">Choose Game Mode</h1>
         <BalanceDisplay address={address} format="full" />
