@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { History, Home, Play, User } from "lucide-react";
 import toast from "react-hot-toast";
@@ -9,6 +10,7 @@ export const BottomNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { openOverlay, activeOverlay } = useOverlay();
+  const lastPlayTapRef = useRef(0);
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -44,17 +46,56 @@ export const BottomNavigation = () => {
         });
       }
     } else {
-      // Save current play page before leaving
-      if (pathname.startsWith("/play") && !path.startsWith("/play")) {
+      // Save current play subpage before leaving
+      if (pathname.startsWith("/play/") && !path.startsWith("/play")) {
         sessionStorage.setItem("lastPlayPage", pathname);
       }
 
-      // Restore last play page when clicking Play
+      // Handle Play button with double-tap detection
       if (path === "/play") {
-        const lastPlayPage = sessionStorage.getItem("lastPlayPage");
-        if (lastPlayPage && lastPlayPage !== "/play") {
-          router.push(lastPlayPage);
+        const now = Date.now();
+        const timeSinceLastTap = now - lastPlayTapRef.current;
+
+        // Double-tap detected (within 500ms)
+        if (timeSinceLastTap < 500 && pathname.startsWith("/play")) {
+          sessionStorage.removeItem("lastPlayPage");
+          sessionStorage.removeItem("paidBetAmount");
+          sessionStorage.removeItem("paidRoomCode");
+          sessionStorage.removeItem("freeRoomCode");
+          toast.success("Play section reset", {
+            duration: 2000,
+            style: {
+              background: "#1f2937",
+              color: "#fff",
+              border: "1px solid #10b981",
+            },
+          });
+          router.push("/play");
+          lastPlayTapRef.current = 0;
           return;
+        }
+
+        lastPlayTapRef.current = now;
+
+        // Single tap: restore last subpage if coming from other pages
+        if (!pathname.startsWith("/play")) {
+          const lastPlayPage = sessionStorage.getItem("lastPlayPage");
+          if (lastPlayPage && lastPlayPage.startsWith("/play/")) {
+            router.push(lastPlayPage);
+            return;
+          }
+        }
+
+        // Show hint if on play pages
+        if (pathname.startsWith("/play")) {
+          toast("Double-tap Play to reset", {
+            duration: 2000,
+            style: {
+              background: "#1f2937",
+              color: "#fff",
+              border: "1px solid #6366f1",
+            },
+          });
         }
       }
 

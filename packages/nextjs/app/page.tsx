@@ -134,7 +134,7 @@ export default function Home() {
         </div>
       ) : (
         <div className="px-6 pt-8 pb-4">
-          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-3 text-center mb-6">
+          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-3 text-center mb-6 mt-12">
             <p className="text-xs text-base-content/60 mb-1">Connected</p>
             <p className="font-mono text-xs">
               {address.slice(0, 6)}...{address.slice(-4)}

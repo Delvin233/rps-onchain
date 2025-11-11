@@ -166,10 +166,10 @@ export default function PaidGamePage() {
   if (!hasOpponent) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-glow-primary">Waiting for Opponent...</h1>
+        <div className="fixed top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
+        <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60 mb-4">Share this code with your opponent</p>
@@ -182,10 +182,10 @@ export default function PaidGamePage() {
   if (!selectedMove) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-glow-primary">Choose Your Move</h1>
+        <div className="fixed top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
+        <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
         <p className="text-center text-base-content/60 mb-6">Bet: {Number(game.betAmount) / 1e18} CELO</p>
         <div className="space-y-4">
           {moves.map(move => (
@@ -206,10 +206,10 @@ export default function PaidGamePage() {
   if (!result) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-glow-primary">Waiting for Result...</h1>
+        <div className="fixed top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
+        <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Result...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
             Your move: <span className="font-bold uppercase">{selectedMove}</span>
@@ -222,10 +222,10 @@ export default function PaidGamePage() {
 
   return (
     <div className="p-6 pt-12 pb-24">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-glow-primary">Game Over</h1>
+      <div className="fixed top-4 right-4 z-10">
         <BalanceDisplay address={address} format="full" />
       </div>
+      <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
       <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="text-center">

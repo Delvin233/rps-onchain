@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -271,6 +272,9 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "waiting") {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
@@ -288,6 +292,9 @@ export default function MultiplayerGamePage() {
   if ((gameStatus === "ready" || gameStatus === "playing") && !selectedMove) {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
         {!isFreeMode && <p className="text-center text-base-content/60 mb-6">Bet: {betAmount} CELO</p>}
         {isFreeMode && <p className="text-center text-success mb-6">Free Mode</p>}
@@ -310,6 +317,9 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "revealing" || (selectedMove && !result)) {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
@@ -324,6 +334,9 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "finished" && result) {
     return (
       <div className="p-6 pt-12 pb-24">
+        <div className="fixed top-4 right-4 z-10">
+          <BalanceDisplay address={address} format="full" />
+        </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
