@@ -27,9 +27,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300">
+    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 relative">
       {address && (
-        <div className="fixed top-4 right-4 z-10">
+        <div className="absolute top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
       )}
