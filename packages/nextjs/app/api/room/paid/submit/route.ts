@@ -45,11 +45,12 @@ export async function POST(req: NextRequest) {
         ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
         : "http://localhost:3000";
 
-      await fetch(`${baseUrl}/api/room/payout`, {
+      const payoutRes = await fetch(`${baseUrl}/api/room/payout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, winner: winnerAddress }),
       });
+      const { txHash } = await payoutRes.json();
 
       const result = isCreator
         ? winner === "creator"
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
         moves: { creatorMove: game.creatorMove, joinerMove: game.joinerMove },
         result: { winner: winnerAddress, timestamp: Date.now() },
         betAmount: betAmount || "0",
+        txHash,
       };
 
       // Update stats for both players

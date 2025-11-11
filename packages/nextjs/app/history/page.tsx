@@ -134,6 +134,16 @@ export default function HistoryPage() {
                       <p className="text-sm text-base-content/60">
                         {match.betAmount === "0" ? "Free" : `${match.betAmount} CELO`}
                       </p>
+                      {match.txHash && (
+                        <a
+                          href={`https://celoscan.io/tx/${match.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 justify-end mt-1"
+                        >
+                          <ExternalLink size={12} /> Tx
+                        </a>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
