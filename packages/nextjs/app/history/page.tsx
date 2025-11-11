@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { ArrowUp, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
@@ -11,6 +11,8 @@ export default function HistoryPage() {
   const { address, isConnected } = useAccount();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isConnected) {
@@ -21,6 +23,25 @@ export default function HistoryPage() {
       setMatches(userMatches);
     }
   }, [address, isConnected]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrolled = containerRef.current.scrollTop;
+        setShowScrollTop(scrolled > 800);
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
+  const scrollToTop = () => {
+    containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   if (!isConnected) {
     return (
@@ -47,7 +68,10 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24">
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-gradient-to-br from-base-300 via-base-200 to-base-300 p-6 pt-12 pb-24 overflow-y-auto"
+    >
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
         <BalanceDisplay address={address} format="full" />
@@ -210,6 +234,16 @@ export default function HistoryPage() {
             return null;
           })}
         </div>
+      )}
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-24 right-6 bg-primary hover:bg-primary/80 text-primary-content rounded-full p-3 shadow-lg transition-all duration-200 z-50"
+          style={{ maxWidth: "448px" }}
+        >
+          <ArrowUp size={24} />
+        </button>
       )}
     </div>
   );
