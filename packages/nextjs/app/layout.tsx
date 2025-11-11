@@ -19,7 +19,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
       <body>
         <ThemeProvider enableSystem>
           <div className="flex justify-center h-screen bg-base-300 overflow-hidden">
-            <div className="w-full max-w-md h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
+            <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
               <ScaffoldEthAppWithProviders>
                 <AuthProvider>
                   <MatchSyncProvider>

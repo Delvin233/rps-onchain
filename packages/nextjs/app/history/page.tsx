@@ -85,13 +85,13 @@ export default function HistoryPage() {
           </a>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {matches.map((match, index) => {
             const isAiMatch = match.opponent === "AI";
 
             if (isAiMatch) {
               return (
-                <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+                <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <p className="font-semibold">vs AI</p>
@@ -143,7 +143,7 @@ export default function HistoryPage() {
               const displayGames = showExpand && !isExpanded ? games.slice(0, 5) : games;
 
               return (
-                <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+                <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <p className="font-semibold">
