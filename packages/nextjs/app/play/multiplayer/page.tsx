@@ -14,6 +14,8 @@ export default function MultiplayerPage() {
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [showCreateConfirm, setShowCreateConfirm] = useState(false);
+  const [showJoinConfirm, setShowJoinConfirm] = useState(false);
 
   useEffect(() => {
     const savedRoomCode = sessionStorage.getItem("freeRoomCode");
@@ -30,6 +32,7 @@ export default function MultiplayerPage() {
     if (!address) return;
 
     setIsCreating(true);
+    setShowCreateConfirm(false);
     try {
       const response = await fetch("/api/room/create", {
         method: "POST",
@@ -63,6 +66,7 @@ export default function MultiplayerPage() {
     if (!address || !roomCode || roomCode.length !== 6) return;
 
     setIsJoining(true);
+    setShowJoinConfirm(false);
     try {
       const response = await fetch("/api/room/join", {
         method: "POST",
@@ -127,7 +131,11 @@ export default function MultiplayerPage() {
             <span>Create Room</span>
           </h2>
           <div className="space-y-4">
-            <button onClick={createRoom} disabled={isCreating || !address} className="btn btn-primary w-full">
+            <button
+              onClick={() => setShowCreateConfirm(true)}
+              disabled={isCreating || !address}
+              className="btn btn-primary w-full"
+            >
               {isCreating ? "Creating..." : "Create Room"}
             </button>
           </div>
@@ -150,7 +158,7 @@ export default function MultiplayerPage() {
               />
             </div>
             <button
-              onClick={joinRoom}
+              onClick={() => setShowJoinConfirm(true)}
               disabled={isJoining || !address || roomCode.length !== 6}
               className="btn btn-secondary w-full"
             >
@@ -159,6 +167,47 @@ export default function MultiplayerPage() {
           </div>
         </div>
       </div>
+
+      {showCreateConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+            <h3 className="text-xl font-bold mb-4 text-primary">Confirm Room Creation</h3>
+            <p className="text-base-content/80 mb-6">
+              You will be asked to sign a transaction to create your game room on-chain. This is free and only requires
+              gas fees.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowCreateConfirm(false)} className="btn btn-ghost flex-1">
+                Cancel
+              </button>
+              <button onClick={createRoom} className="btn btn-primary flex-1">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showJoinConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-secondary/30 rounded-xl p-6 max-w-md w-full shadow-glow-secondary">
+            <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
+            <p className="text-base-content/80 mb-2">
+              You will be asked to sign a transaction to join room{" "}
+              <span className="font-mono font-bold">{roomCode}</span>.
+            </p>
+            <p className="text-base-content/80 mb-6">This is free and only requires gas fees.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowJoinConfirm(false)} className="btn btn-ghost flex-1">
+                Cancel
+              </button>
+              <button onClick={joinRoom} className="btn btn-secondary flex-1">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
