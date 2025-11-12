@@ -114,12 +114,14 @@ export default function PaidGamePage() {
         if (updatedGame && updatedGame.state === 2) {
           clearInterval(pollInterval);
 
-          // Game finished - show results immediately based on contract winner
-          const isWinner = updatedGame.winner === address;
-          const isTie = updatedGame.winner === "0x0000000000000000000000000000000000000000";
+          // Fetch actual moves from status API
+          const statusRes = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
+          const statusData = await statusRes.json();
 
-          setOpponentMove("rock"); // Placeholder - moves not stored on-chain
-          setResult(isTie ? "tie" : isWinner ? "win" : "lose");
+          if (statusData.finished) {
+            setOpponentMove(statusData.opponentMove);
+            setResult(statusData.result);
+          }
         }
       }, 500);
     } catch (error) {
@@ -171,9 +173,6 @@ export default function PaidGamePage() {
   }
 
   if (!hasOpponent) {
-    const roomAge = Date.now() - Number(game.createdAt) * 1000;
-    const isExpired = roomAge > 10 * 60 * 1000; // 10 minutes
-
     return (
       <div className="p-6 pt-12 pb-24 max-w-2xl mx-auto">
         <div className="absolute top-4 right-4 z-10">
@@ -184,29 +183,31 @@ export default function PaidGamePage() {
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60 mb-4">Share this code with your opponent</p>
           <p className="text-primary font-semibold">Bet: {Number(game.betAmount) / 1e18} CELO</p>
-          {isExpired && <p className="text-warning text-sm mt-4">Room expired - You can claim refund</p>}
+          <p className="text-base-content/60 text-xs mt-4">If no one joins after 10 minutes, you can claim a refund</p>
         </div>
-        {isExpired && (
-          <button
-            onClick={async () => {
-              try {
-                await refundExpired({
-                  functionName: "refundExpiredGame",
-                  args: [roomId],
-                });
-                sessionStorage.removeItem("activeWaitingRoom");
-                toast.success("Refund claimed!");
-                router.push("/play/paid");
-              } catch (error) {
-                console.error("Error claiming refund:", error);
+        <button
+          onClick={async () => {
+            try {
+              await refundExpired({
+                functionName: "refundExpiredGame",
+                args: [roomId],
+              });
+              sessionStorage.removeItem("activeWaitingRoom");
+              toast.success("Refund claimed!");
+              router.push("/play/paid");
+            } catch (error: any) {
+              console.error("Error claiming refund:", error);
+              if (error.message?.includes("not expired")) {
+                toast.error("Room not expired yet. Wait 10 minutes from creation.");
+              } else {
                 toast.error("Failed to claim refund");
               }
-            }}
-            className="btn btn-warning w-full mb-2"
-          >
-            Claim Refund
-          </button>
-        )}
+            }
+          }}
+          className="btn btn-warning btn-sm w-full mb-2"
+        >
+          Claim Refund (if 10+ min)
+        </button>
       </div>
     );
   }
@@ -247,9 +248,6 @@ export default function PaidGamePage() {
   }
 
   if (!result) {
-    const gameAge = game ? Date.now() - Number(game.createdAt) * 1000 : 0;
-    const isAbandoned = gameAge > 10 * 60 * 1000; // 10 minutes
-
     return (
       <div className="p-6 pt-12 pb-24 max-w-2xl mx-auto">
         <div className="absolute top-4 right-4 z-10">
@@ -261,29 +259,33 @@ export default function PaidGamePage() {
             Your move: <span className="font-bold uppercase">{selectedMove}</span>
           </p>
           <p className="text-base-content/60">Waiting for opponent move...</p>
-          {isAbandoned && (
-            <div className="mt-6">
-              <p className="text-warning text-sm mb-3">Game abandoned - Claim your refund</p>
-              <button
-                onClick={async () => {
-                  try {
-                    await refundExpired({
-                      functionName: "refundExpiredGame",
-                      args: [roomId],
-                    });
-                    toast.success("Refund claimed!");
-                    router.push("/play/paid");
-                  } catch (error) {
-                    console.error("Error claiming refund:", error);
+          <div className="mt-6">
+            <p className="text-base-content/60 text-xs mb-3">
+              If opponent doesn&apos;t respond after 10 minutes, you can claim a refund
+            </p>
+            <button
+              onClick={async () => {
+                try {
+                  await refundExpired({
+                    functionName: "refundExpiredGame",
+                    args: [roomId],
+                  });
+                  toast.success("Refund claimed!");
+                  router.push("/play/paid");
+                } catch (error: any) {
+                  console.error("Error claiming refund:", error);
+                  if (error.message?.includes("not expired")) {
+                    toast.error("Game not expired yet. Wait 10 minutes from room creation.");
+                  } else {
                     toast.error("Failed to claim refund");
                   }
-                }}
-                className="btn btn-warning w-full"
-              >
-                Claim Refund
-              </button>
-            </div>
-          )}
+                }
+              }}
+              className="btn btn-warning btn-sm w-full"
+            >
+              Claim Refund (if 10+ min)
+            </button>
+          </div>
         </div>
       </div>
     );
