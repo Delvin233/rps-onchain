@@ -26,14 +26,18 @@ export const BottomNavigation = () => {
     return pathname.startsWith(path);
   };
 
-  const isInGame = pathname.includes("/game/paid/");
+  // Check if in active paid game (both players joined)
+  const isInActivePaidGame =
+    pathname.includes("/game/paid/") &&
+    typeof window !== "undefined" &&
+    sessionStorage.getItem("paidGameActive") === "true";
 
   // Check if in active AI game by checking sessionStorage
   const isInActiveAIGame =
     pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
 
   const handleNavigation = (path: string) => {
-    if (isInGame || isInActiveAIGame) {
+    if (isInActivePaidGame || isInActiveAIGame) {
       // In game - only History opens as overlay
       if (path === "/history") {
         openOverlay("history");
@@ -122,7 +126,7 @@ export const BottomNavigation = () => {
             <button
               key={item.path}
               onClick={() => {
-                if (!active || isInGame || item.path === "/play") {
+                if (!active || isInActivePaidGame || item.path === "/play") {
                   handleNavigation(item.path);
                 }
               }}

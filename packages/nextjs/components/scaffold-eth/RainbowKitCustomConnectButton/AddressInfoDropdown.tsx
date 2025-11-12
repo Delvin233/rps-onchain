@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
+import toast from "react-hot-toast";
 import { getAddress } from "viem";
 import { Address } from "viem";
 import { useAccount, useDisconnect } from "wagmi";
@@ -37,6 +38,27 @@ export const AddressInfoDropdown = ({
   const { disconnect } = useDisconnect();
   const { connector } = useAccount();
   const checkSumAddress = getAddress(address);
+
+  const handleDisconnect = () => {
+    // Check if user has active room waiting
+    const hasActiveRoom = typeof window !== "undefined" && sessionStorage.getItem("paidGameActive") === "true";
+
+    if (hasActiveRoom) {
+      toast.error("You have an active game! Please finish or cancel it before disconnecting.", {
+        duration: 4000,
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #ef4444",
+        },
+      });
+      closeDropdown();
+      return;
+    }
+
+    disconnect();
+    closeDropdown();
+  };
 
   const { copyToClipboard: copyAddressToClipboard, isCopiedToClipboard: isAddressCopiedToClipboard } =
     useCopyToClipboard();
@@ -124,7 +146,7 @@ export const AddressInfoDropdown = ({
             <button
               className="menu-item text-error h-8 btn-sm rounded-xl! flex gap-3 py-3"
               type="button"
-              onClick={() => disconnect()}
+              onClick={handleDisconnect}
             >
               <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
             </button>

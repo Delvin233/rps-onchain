@@ -21,6 +21,7 @@ export default function PaidGamePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRecovering, setIsRecovering] = useState(true);
+  const [hasShownJoinNotification, setHasShownJoinNotification] = useState(false);
 
   const { data: game, refetch } = useScaffoldReadContract({
     contractName: "RPSOnline",
@@ -69,6 +70,29 @@ export default function PaidGamePage() {
 
     return () => clearInterval(interval);
   }, [game, refetch]);
+
+  // Auto-redirect when opponent joins
+  useEffect(() => {
+    if (!game || hasShownJoinNotification) return;
+
+    const hasOpponent = game.player2 !== "0x0000000000000000000000000000000000000000";
+    const isCreator = game.player1 === address;
+
+    if (hasOpponent && isCreator) {
+      setHasShownJoinNotification(true);
+      toast.success("🎮 Opponent joined! Redirecting in 3 seconds...", {
+        duration: 3000,
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #10b981",
+        },
+      });
+      setTimeout(() => {
+        router.push(`/game/paid/${roomId}`);
+      }, 3000);
+    }
+  }, [game, address, hasShownJoinNotification, router, roomId]);
 
   const submitMove = async (move: Move) => {
     setIsSubmitting(true);
@@ -186,6 +210,18 @@ export default function PaidGamePage() {
     }
   };
 
+  const hasOpponent = game?.player2 !== "0x0000000000000000000000000000000000000000";
+
+  // Set game active flag when both players joined
+  useEffect(() => {
+    if (hasOpponent && game?.state === 1) {
+      sessionStorage.setItem("paidGameActive", "true");
+    }
+    if (game?.state === 2) {
+      sessionStorage.removeItem("paidGameActive");
+    }
+  }, [hasOpponent, game?.state]);
+
   if (!game || game.player1 === "0x0000000000000000000000000000000000000000") {
     return (
       <div className="p-6 pt-12 pb-24">
@@ -198,8 +234,6 @@ export default function PaidGamePage() {
       </div>
     );
   }
-
-  const hasOpponent = game.player2 !== "0x0000000000000000000000000000000000000000";
 
   if (!hasOpponent) {
     const roomAge = Date.now() - Number(game.createdAt) * 1000;
@@ -357,7 +391,14 @@ export default function PaidGamePage() {
           )}
         </div>
 
-        <button onClick={() => router.push("/play")} disabled={isSaving} className="btn btn-primary w-full">
+        <button
+          onClick={() => {
+            sessionStorage.removeItem("paidGameActive");
+            router.push("/play");
+          }}
+          disabled={isSaving}
+          className="btn btn-primary w-full"
+        >
           Back to Play
         </button>
       </div>
