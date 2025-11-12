@@ -151,7 +151,7 @@ export default function PaidGamePage() {
             }
           }
         }
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error("Error submitting move:", error);
       toast.error("Failed to submit move", {
