@@ -260,9 +260,17 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, creator: address }),
       });
+      toast.success("Room cancelled", {
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+          border: "1px solid #10b981",
+        },
+      });
       router.push("/play/multiplayer");
     } catch (error) {
       console.error("Error cancelling room:", error);
+      toast.error("Failed to cancel room");
     }
   };
 
