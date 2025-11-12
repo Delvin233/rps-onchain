@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
-import { useAccount } from "wagmi";
+import { base, celo } from "viem/chains";
+import { useAccount, useSwitchChain } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function MultiplayerPage() {
@@ -18,6 +19,7 @@ export default function MultiplayerPage() {
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const [roomInfo, setRoomInfo] = useState<any>(null);
   const [checkingRoom, setCheckingRoom] = useState(false);
+  const [wrongNetwork, setWrongNetwork] = useState<"celo" | "base" | null>(null);
 
   useEffect(() => {
     const savedRoomCode = sessionStorage.getItem("freeRoomCode");
@@ -33,8 +35,11 @@ export default function MultiplayerPage() {
     }
   }, [roomCode]);
 
+  const { switchChain } = useSwitchChain();
+
   const checkRoomInfo = async () => {
     setCheckingRoom(true);
+    setWrongNetwork(null);
     try {
       const response = await fetch(`/api/room/info?roomId=${roomCode}`);
       if (response.ok) {
@@ -44,13 +49,15 @@ export default function MultiplayerPage() {
         setRoomInfo({ ...data, creatorVerified: verifyData.verified });
       } else {
         setRoomInfo(null);
-        toast.error("Room not found", {
-          style: {
-            background: "#1f2937",
-            color: "#fff",
-            border: "1px solid #ef4444",
-          },
-        });
+        // Try to detect which network the room might be on
+        const currentChain = window.ethereum?.chainId;
+        if (currentChain === "0xa4ec" || currentChain === 42220) {
+          // On Celo, room might be on Base
+          setWrongNetwork("base");
+        } else if (currentChain === "0x2105" || currentChain === 8453) {
+          // On Base, room might be on Celo
+          setWrongNetwork("celo");
+        }
       }
     } catch {
       setRoomInfo(null);
@@ -204,6 +211,17 @@ export default function MultiplayerPage() {
                 maxLength={6}
               />
               {checkingRoom && <p className="text-xs text-base-content/60 mt-2">Checking room...</p>}
+              {wrongNetwork && (
+                <div className="mt-3 p-3 bg-error/10 border border-error/30 rounded-lg">
+                  <p className="text-sm text-error mb-2">Room not found on this network</p>
+                  <button
+                    onClick={() => switchChain({ chainId: wrongNetwork === "celo" ? celo.id : base.id })}
+                    className="btn btn-sm btn-error w-full"
+                  >
+                    Switch to {wrongNetwork === "celo" ? "Celo" : "Base"}
+                  </button>
+                </div>
+              )}
               {roomInfo && (
                 <div className="mt-3 p-3 bg-base-200 rounded-lg">
                   <p className="text-sm text-base-content/80 mb-1">
