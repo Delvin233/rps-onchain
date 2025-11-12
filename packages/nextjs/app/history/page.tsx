@@ -28,7 +28,7 @@ export default function HistoryPage() {
     const handleScroll = () => {
       if (containerRef.current) {
         const scrolled = containerRef.current.scrollTop;
-        setShowScrollTop(scrolled > 300);
+        setShowScrollTop(scrolled > 150);
       }
     };
 
