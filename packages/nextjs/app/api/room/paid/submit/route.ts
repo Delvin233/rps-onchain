@@ -45,72 +45,58 @@ export async function POST(req: NextRequest) {
         ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
         : "http://localhost:3000";
 
-      const payoutRes = await fetch(`${baseUrl}/api/room/payout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, winner: winnerAddress }),
-      });
-      const { txHash } = await payoutRes.json();
-
-      const result = isCreator
-        ? winner === "creator"
-          ? "win"
-          : winner === "tie"
-            ? "tie"
-            : "lose"
-        : winner === "joiner"
-          ? "win"
-          : winner === "tie"
-            ? "tie"
-            : "lose";
-
-      const matchData = {
-        roomId,
-        players: { creator: game.creator, joiner: game.joiner },
-        moves: { creatorMove: game.creatorMove, joinerMove: game.joinerMove },
-        result: { winner: winnerAddress, timestamp: new Date().toISOString() },
-        betAmount: betAmount || "0",
-        txHash,
-      };
-
-      // Update stats for both players
-      await Promise.all([
-        // Creator stats
-        (async () => {
-          const creatorHashRes = await fetch(`${baseUrl}/api/user-matches?address=${game.creator}`);
-          const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
-          await fetch(`${baseUrl}/api/user-stats`, {
+      // Trigger payout and stats update in background
+      (async () => {
+        try {
+          const payoutRes = await fetch(`${baseUrl}/api/room/payout`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              address: game.creator,
-              currentHash: creatorCurrentHash,
-              newMatch: matchData,
-            }),
+            body: JSON.stringify({ roomId, winner: winnerAddress }),
           });
-        })(),
-        // Joiner stats
-        (async () => {
-          const joinerHashRes = await fetch(`${baseUrl}/api/user-matches?address=${game.joiner}`);
-          const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
-          await fetch(`${baseUrl}/api/user-stats`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              address: game.joiner,
-              currentHash: joinerCurrentHash,
-              newMatch: matchData,
-            }),
-          });
-        })(),
-      ]);
+          const { txHash } = await payoutRes.json();
 
-      return NextResponse.json({
-        finished: true,
-        opponentMove: isCreator ? game.joinerMove : game.creatorMove,
-        result,
-        winner: winnerAddress,
-      });
+          const matchData = {
+            roomId,
+            players: { creator: game.creator, joiner: game.joiner },
+            moves: { creatorMove: game.creatorMove, joinerMove: game.joinerMove },
+            result: { winner: winnerAddress, timestamp: new Date().toISOString() },
+            betAmount: betAmount || "0",
+            txHash,
+          };
+
+          // Update stats for both players
+          await Promise.all([
+            (async () => {
+              const creatorHashRes = await fetch(`${baseUrl}/api/user-matches?address=${game.creator}`);
+              const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
+              await fetch(`${baseUrl}/api/user-stats`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  address: game.creator,
+                  currentHash: creatorCurrentHash,
+                  newMatch: matchData,
+                }),
+              });
+            })(),
+            (async () => {
+              const joinerHashRes = await fetch(`${baseUrl}/api/user-matches?address=${game.joiner}`);
+              const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
+              await fetch(`${baseUrl}/api/user-stats`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  address: game.joiner,
+                  currentHash: joinerCurrentHash,
+                  newMatch: matchData,
+                }),
+              });
+            })(),
+          ]);
+        } catch (error) {
+          console.error("Background payout error:", error);
+        }
+      })();
     }
 
     return NextResponse.json({ finished: false });

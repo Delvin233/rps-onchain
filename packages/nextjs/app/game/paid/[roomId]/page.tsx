@@ -95,7 +95,7 @@ export default function PaidGamePage() {
     setSelectedMove(move);
 
     try {
-      const response = await fetch("/api/room/paid/submit", {
+      await fetch("/api/room/paid/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -106,92 +106,52 @@ export default function PaidGamePage() {
         }),
       });
 
-      const data = await response.json();
-      if (data.finished && game) {
-        setOpponentMove(data.opponentMove);
-        setResult(data.result);
-        setIsSaving(true);
+      // Always poll contract state for game completion
+      const pollInterval = setInterval(async () => {
+        const { data: updatedGame } = await refetch();
 
-        // Sync matches from IPFS to localStorage
-        const hashResponse = await fetch(`/api/user-matches?address=${address}`);
-        const { ipfsHash } = await hashResponse.json();
-        if (ipfsHash) {
-          const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
-          if (userData.matches) {
-            localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
-          }
-        }
-        setIsSaving(false);
+        if (updatedGame && updatedGame.state === 2) {
+          clearInterval(pollInterval);
 
-        if (data.ipfsHash) {
-          const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
-          matches.unshift({
-            roomId,
-            players: { creator: game.player1, joiner: game.player2 },
-            betAmount: (Number(game.betAmount) / 1e18).toString(),
-            games: [
-              {
-                creatorMove: game.player1 === address ? move : data.opponentMove,
-                joinerMove: game.player2 === address ? move : data.opponentMove,
-                winner: data.winner,
-                timestamp: new Date().toISOString(),
-                ipfsHash: data.ipfsHash,
-              },
-            ],
-          });
-          localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
-        }
-      } else {
-        // Poll contract state for game completion
-        const pollInterval = setInterval(async () => {
-          const { data: updatedGame } = await refetch();
+          const pollResponse = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
+          const pollData = await pollResponse.json();
 
-          if (updatedGame && updatedGame.state === 2) {
-            // Game finished
-            clearInterval(pollInterval);
+          if (pollData.finished) {
+            setOpponentMove(pollData.opponentMove);
+            setResult(pollData.result);
+            setIsSaving(true);
 
-            // Fetch result from API
-            const pollResponse = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
-            const pollData = await pollResponse.json();
-
-            if (pollData.finished) {
-              setOpponentMove(pollData.opponentMove);
-              setResult(pollData.result);
-              setIsSaving(true);
-
-              // Sync matches from IPFS to localStorage
-              const hashResponse = await fetch(`/api/user-matches?address=${address}`);
-              const { ipfsHash } = await hashResponse.json();
-              if (ipfsHash) {
-                const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
-                if (userData.matches) {
-                  localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
-                }
-              }
-              setIsSaving(false);
-
-              if (pollData.ipfsHash) {
-                const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
-                matches.unshift({
-                  roomId,
-                  players: { creator: updatedGame.player1, joiner: updatedGame.player2 },
-                  betAmount: (Number(updatedGame.betAmount) / 1e18).toString(),
-                  games: [
-                    {
-                      creatorMove: updatedGame.player1 === address ? move : pollData.opponentMove,
-                      joinerMove: updatedGame.player2 === address ? move : pollData.opponentMove,
-                      winner: pollData.winner,
-                      timestamp: new Date().toISOString(),
-                      ipfsHash: pollData.ipfsHash,
-                    },
-                  ],
-                });
-                localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
+            const hashResponse = await fetch(`/api/user-matches?address=${address}`);
+            const { ipfsHash } = await hashResponse.json();
+            if (ipfsHash) {
+              const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
+              if (userData.matches) {
+                localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
               }
             }
+            setIsSaving(false);
+
+            if (pollData.ipfsHash) {
+              const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
+              matches.unshift({
+                roomId,
+                players: { creator: updatedGame.player1, joiner: updatedGame.player2 },
+                betAmount: (Number(updatedGame.betAmount) / 1e18).toString(),
+                games: [
+                  {
+                    creatorMove: updatedGame.player1 === address ? move : pollData.opponentMove,
+                    joinerMove: updatedGame.player2 === address ? move : pollData.opponentMove,
+                    winner: pollData.winner,
+                    timestamp: new Date().toISOString(),
+                    ipfsHash: pollData.ipfsHash,
+                  },
+                ],
+              });
+              localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
+            }
           }
-        }, 1000);
-      }
+        }
+      }, 1000);
     } catch (error) {
       console.error("Error submitting move:", error);
       toast.error("Failed to submit move", {
