@@ -5,18 +5,14 @@ const deployRPSOnline: DeployFunction = async function (hre: HardhatRuntimeEnvir
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  // Backend wallet that will call finishGame
-  const backendAddress = process.env.BACKEND_WALLET || deployer;
-
   await deploy("RPSOnline", {
     from: deployer,
-    args: [backendAddress],
+    args: [],
     log: true,
     autoMine: true,
   });
 
-  console.log("RPSOnline deployed with:");
-  console.log("  Backend:", backendAddress);
+  console.log("RPSOnline deployed");
 };
 
 export default deployRPSOnline;

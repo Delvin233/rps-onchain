@@ -26,8 +26,8 @@ contract RPSOnline {
     event MatchFinished(string indexed roomId, address indexed winner, uint256 matchNumber);
     event GameCancelled(string indexed roomId, address indexed creator);
     
-    constructor(address _backend) {
-        backend = _backend;
+    constructor() {
+        backend = msg.sender;
     }
     
     function createGame(string memory roomId) external {
@@ -62,7 +62,7 @@ contract RPSOnline {
     function publishMatch(string memory roomId, address winner) external {
         Game storage game = games[roomId];
         require(game.player1 == msg.sender || game.player2 == msg.sender, "Not a player");
-        require(game.state == GameState.Joined, "Game not in progress");
+        require(game.state == GameState.Joined || game.state == GameState.Finished, "Game not ready");
         
         game.matches.push(Match({
             winner: winner,
@@ -78,13 +78,7 @@ contract RPSOnline {
         return games[roomId].matches;
     }
     
-    function closeRoom(string memory roomId) external {
-        Game storage game = games[roomId];
-        require(game.player1 == msg.sender || game.player2 == msg.sender, "Not a player");
-        require(game.matches.length > 0, "No matches played");
-        
-        game.state = GameState.Finished;
-    }
+
     
 
 

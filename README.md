@@ -202,6 +202,9 @@ DEPLOYER_PRIVATE_KEY=your_private_key
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 PINATA_JWT=your_pinata_jwt_token
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
+
+# Optional: Backend wallet (not required for free-to-play)
+# BACKEND_PRIVATE_KEY=your_backend_wallet_private_key
 ```
 
 ## 🤝 Contributing

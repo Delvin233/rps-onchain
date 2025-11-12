@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowLeft, Plus, Users } from "lucide-react";
+import { ArrowLeft, Plus, Users, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -16,6 +16,8 @@ export default function MultiplayerPage() {
   const [isJoining, setIsJoining] = useState(false);
   const [showCreateConfirm, setShowCreateConfirm] = useState(false);
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
+  const [roomInfo, setRoomInfo] = useState<any>(null);
+  const [checkingRoom, setCheckingRoom] = useState(false);
 
   useEffect(() => {
     const savedRoomCode = sessionStorage.getItem("freeRoomCode");
@@ -24,7 +26,31 @@ export default function MultiplayerPage() {
 
   useEffect(() => {
     sessionStorage.setItem("freeRoomCode", roomCode);
+    if (roomCode.length === 6) {
+      checkRoomInfo();
+    } else {
+      setRoomInfo(null);
+    }
   }, [roomCode]);
+
+  const checkRoomInfo = async () => {
+    setCheckingRoom(true);
+    try {
+      const response = await fetch(`/api/room/info?roomId=${roomCode}`);
+      if (response.ok) {
+        const data = await response.json();
+        const verifyRes = await fetch(`/api/check-verification?address=${data.creator}`);
+        const verifyData = await verifyRes.json();
+        setRoomInfo({ ...data, creatorVerified: verifyData.verified });
+      } else {
+        setRoomInfo(null);
+      }
+    } catch (error) {
+      setRoomInfo(null);
+    } finally {
+      setCheckingRoom(false);
+    }
+  };
 
   const { writeContractAsync: createGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
@@ -68,10 +94,14 @@ export default function MultiplayerPage() {
     setIsJoining(true);
     setShowJoinConfirm(false);
     try {
+      // Check if joiner is verified
+      const verifyRes = await fetch(`/api/check-verification?address=${address}`);
+      const verifyData = await verifyRes.json();
+      
       const response = await fetch("/api/room/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId: roomCode, joiner: address }),
+        body: JSON.stringify({ roomId: roomCode, joiner: address, joinerVerified: verifyData.verified }),
       });
 
       const data = await response.json();
@@ -156,6 +186,18 @@ export default function MultiplayerPage() {
                 placeholder="XXXXXX"
                 maxLength={6}
               />
+              {checkingRoom && <p className="text-xs text-base-content/60 mt-2">Checking room...</p>}
+              {roomInfo && (
+                <div className="mt-3 p-3 bg-base-200 rounded-lg">
+                  <p className="text-sm text-base-content/80 mb-1">Creator: {roomInfo.creator.slice(0, 6)}...{roomInfo.creator.slice(-4)}</p>
+                  {roomInfo.creatorVerified && (
+                    <div className="flex items-center gap-1 text-success text-sm">
+                      <Shield size={14} />
+                      <span>Verified Human</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <button
               onClick={() => setShowJoinConfirm(true)}
@@ -188,15 +230,23 @@ export default function MultiplayerPage() {
         </div>
       )}
 
-      {showJoinConfirm && (
+      {showJoinConfirm && roomInfo && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-secondary/30 rounded-xl p-6 max-w-md w-full shadow-glow-secondary">
             <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
-            <p className="text-base-content/80 mb-2">
-              You will be asked to sign a transaction to join room{" "}
-              <span className="font-mono font-bold">{roomCode}</span>.
+            <div className="mb-4 p-3 bg-base-200 rounded-lg">
+              <p className="text-sm text-base-content/60 mb-1">Room Creator</p>
+              <p className="text-base-content font-mono text-sm mb-2">{roomInfo.creator.slice(0, 10)}...{roomInfo.creator.slice(-8)}</p>
+              {roomInfo.creatorVerified && (
+                <div className="flex items-center gap-2 text-success">
+                  <Shield size={16} />
+                  <span className="text-sm font-semibold">Verified Human</span>
+                </div>
+              )}
+            </div>
+            <p className="text-base-content/80 mb-6 text-sm">
+              You will be asked to sign a transaction to join this room. This is free and only requires gas fees.
             </p>
-            <p className="text-base-content/80 mb-6">This is free and only requires gas fees.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowJoinConfirm(false)} className="btn btn-ghost flex-1">
                 Cancel

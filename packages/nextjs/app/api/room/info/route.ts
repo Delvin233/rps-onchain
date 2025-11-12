@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
       betAmount: room.betAmount,
       status: room.status,
       creator: room.creator,
+      joiner: room.joiner,
+      joinerVerified: room.joinerVerified || false,
       isFree: room.isFree || false,
     });
   } catch (error) {
