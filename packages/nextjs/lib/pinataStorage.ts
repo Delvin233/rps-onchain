@@ -1,3 +1,5 @@
+import { createClient } from "redis";
+
 // IPFS storage for match records via Pinata
 export interface MatchRecord {
   address?: string;
@@ -68,11 +70,44 @@ export async function storeMatchRecord(matchData: MatchRecord): Promise<{ ipfsHa
   }
 }
 
-// Retrieve match record from IPFS
+// Redis client singleton
+let redis: ReturnType<typeof createClient> | null = null;
+
+const getRedis = async () => {
+  if (!redis && typeof window === "undefined") {
+    redis = createClient({ url: process.env.REDIS_URL });
+    await redis.connect();
+  }
+  return redis;
+};
+
+// Retrieve match record from IPFS with Redis cache
 export async function getMatchRecord(ipfsHash: string): Promise<MatchRecord | null> {
   try {
+    // Try Redis cache first (server-side only)
+    if (typeof window === "undefined") {
+      const client = await getRedis();
+      if (client) {
+        const cached = await client.get(`match:${ipfsHash}`);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      }
+    }
+
+    // Fetch from IPFS
     const response = await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-    return await response.json();
+    const data = await response.json();
+
+    // Cache in Redis for 24 hours (server-side only)
+    if (typeof window === "undefined" && data) {
+      const client = await getRedis();
+      if (client) {
+        await client.set(`match:${ipfsHash}`, JSON.stringify(data), { EX: 86400 });
+      }
+    }
+
+    return data;
   } catch (error) {
     console.error("Error retrieving match from IPFS:", error);
     return null;

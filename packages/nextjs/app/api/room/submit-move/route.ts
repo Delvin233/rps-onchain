@@ -24,10 +24,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const room = roomStorage.get(roomId);
+    const room = await roomStorage.get(roomId);
     if (!room) {
       console.log("Room not found:", roomId);
-      console.log("Available rooms:", Array.from(roomStorage.getAll().keys()));
+      const allRooms = await roomStorage.getAll();
+      console.log(
+        "Available rooms:",
+        allRooms.map(r => r.roomId),
+      );
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
     console.log("Room found:", { roomId, status: room.status, creator: room.creator, joiner: room.joiner });
@@ -92,7 +96,7 @@ export async function POST(req: NextRequest) {
       room.status = "playing";
     }
 
-    roomStorage.set(roomId, room);
+    await roomStorage.set(roomId, room);
 
     return NextResponse.json({ success: true });
   } catch (error) {

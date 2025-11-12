@@ -1,8 +1,4 @@
-// Shared in-memory storage for rooms
-// WARNING: This will NOT work reliably on Vercel serverless functions!
-// Each API route may run on a different serverless instance with separate memory.
-// For production on Vercel, use: Vercel KV, Redis, or a database.
-// Note: This will be lost on server restart. Use database for production.
+import { createClient } from "redis";
 
 interface Room {
   roomId: string;
@@ -26,54 +22,45 @@ interface Room {
   joinerVerified?: boolean;
 }
 
-// Use global to persist across hot reloads in dev mode
-const globalForRooms = global as typeof globalThis & {
-  rooms: Map<string, Room>;
+const ROOM_TTL = 60 * 60; // 1 hour in seconds
+
+let redis: ReturnType<typeof createClient> | null = null;
+
+const getRedis = async () => {
+  if (!redis) {
+    redis = createClient({ url: process.env.REDIS_URL });
+    await redis.connect();
+  }
+  return redis;
 };
 
-if (!globalForRooms.rooms) {
-  globalForRooms.rooms = new Map<string, Room>();
-}
-
-const rooms = globalForRooms.rooms;
-
-const ROOM_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
-
 export const roomStorage = {
-  get: (roomId: string) => {
-    const room = rooms.get(roomId);
-    if (!room) return undefined;
-
-    // Check if room expired
-    if (Date.now() - room.createdAt > ROOM_TTL) {
-      rooms.delete(roomId);
-      return undefined;
-    }
-
-    return room;
+  get: async (roomId: string): Promise<Room | undefined> => {
+    const client = await getRedis();
+    const data = await client.get(`room:${roomId}`);
+    return data ? JSON.parse(data) : undefined;
   },
-  set: (roomId: string, room: Room) => rooms.set(roomId, room),
-  delete: (roomId: string) => rooms.delete(roomId),
-  has: (roomId: string) => {
-    const room = rooms.get(roomId);
-    if (!room) return false;
-
-    // Check if room expired
-    if (Date.now() - room.createdAt > ROOM_TTL) {
-      rooms.delete(roomId);
-      return false;
-    }
-
-    return true;
+  set: async (roomId: string, room: Room): Promise<void> => {
+    const client = await getRedis();
+    await client.set(`room:${roomId}`, JSON.stringify(room), { EX: ROOM_TTL });
   },
-  getAll: () => {
-    // Clean up expired rooms
-    const now = Date.now();
-    for (const [roomId, room] of rooms.entries()) {
-      if (now - room.createdAt > ROOM_TTL) {
-        rooms.delete(roomId);
-      }
-    }
-    return Array.from(rooms.values());
+  delete: async (roomId: string): Promise<void> => {
+    const client = await getRedis();
+    await client.del(`room:${roomId}`);
+  },
+  has: async (roomId: string): Promise<boolean> => {
+    const client = await getRedis();
+    return (await client.exists(`room:${roomId}`)) === 1;
+  },
+  getAll: async (): Promise<Room[]> => {
+    const client = await getRedis();
+    const keys = await client.keys("room:*");
+    const rooms = await Promise.all(
+      keys.map(async key => {
+        const data = await client.get(key);
+        return data ? JSON.parse(data) : null;
+      }),
+    );
+    return rooms.filter((room): room is Room => room !== null);
   },
 };

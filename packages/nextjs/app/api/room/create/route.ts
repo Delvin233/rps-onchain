@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const roomId = generateRoomId();
-    roomStorage.set(roomId, {
+    await roomStorage.set(roomId, {
       roomId,
       creator,
       betAmount: betAmount || "0",

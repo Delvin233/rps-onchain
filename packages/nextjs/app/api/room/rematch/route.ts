@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const { roomId, player, action } = await req.json();
 
-    const room = roomStorage.get(roomId);
+    const room = await roomStorage.get(roomId);
     if (!room) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
@@ -21,17 +21,17 @@ export async function POST(req: NextRequest) {
       room.rematchRequested = null;
     } else if (action === "leave") {
       room.playerLeft = player;
-      roomStorage.set(roomId, room);
+      await roomStorage.set(roomId, room);
 
       // Delete room after 3 seconds to allow other player to see notification
-      setTimeout(() => {
-        roomStorage.delete(roomId);
+      setTimeout(async () => {
+        await roomStorage.delete(roomId);
       }, 3000);
 
       return NextResponse.json({ success: true });
     }
 
-    roomStorage.set(roomId, room);
+    await roomStorage.set(roomId, room);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error handling rematch:", error);

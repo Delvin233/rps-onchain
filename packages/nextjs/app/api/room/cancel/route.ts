@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const room = roomStorage.get(roomId);
+    const room = await roomStorage.get(roomId);
     if (!room) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cannot cancel - player already joined" }, { status: 400 });
     }
 
-    roomStorage.delete(roomId);
+    await roomStorage.delete(roomId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -15,14 +15,14 @@ export async function GET(req: NextRequest) {
     };
 
     // Cleanup free rooms (older than 10 minutes)
-    const freeRooms = roomStorage.getAll();
+    const freeRooms = await roomStorage.getAll();
     const now = Date.now();
     const tenMinutes = 10 * 60 * 1000;
 
     for (const room of freeRooms) {
       results.freeRoomsChecked++;
       if (now - room.createdAt > tenMinutes) {
-        roomStorage.delete(room.roomId);
+        await roomStorage.delete(room.roomId);
         results.freeRoomsDeleted++;
       }
     }
