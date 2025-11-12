@@ -37,6 +37,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, txHash: hash });
   } catch (error: any) {
     console.error("Error processing payout:", error);
+
+    // If transaction already known, it's processing - return success
+    if (error.message?.includes("already known") || error.message?.includes("nonce")) {
+      return NextResponse.json({ success: true, message: "Payout already processing" });
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
