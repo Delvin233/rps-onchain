@@ -9,6 +9,8 @@ export async function GET() {
     EDGE_CONFIG_ID_EXTRACTED: !!edgeConfigId,
     EDGE_CONFIG_SAMPLE: process.env.EDGE_CONFIG?.substring(0, 50),
     VERCEL_API_TOKEN: !!process.env.VERCEL_API_TOKEN,
+    BACKEND_PRIVATE_KEY: !!process.env.BACKEND_PRIVATE_KEY,
+    PINATA_JWT: !!process.env.PINATA_JWT,
     NODE_ENV: process.env.NODE_ENV,
   });
 }
