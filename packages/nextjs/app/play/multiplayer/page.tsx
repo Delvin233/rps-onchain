@@ -44,6 +44,13 @@ export default function MultiplayerPage() {
         setRoomInfo({ ...data, creatorVerified: verifyData.verified });
       } else {
         setRoomInfo(null);
+        toast.error("Room not found", {
+          style: {
+            background: "#1f2937",
+            color: "#fff",
+            border: "1px solid #ef4444",
+          },
+        });
       }
     } catch {
       setRoomInfo(null);

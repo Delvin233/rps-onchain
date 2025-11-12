@@ -539,7 +539,7 @@ export default function MultiplayerGamePage() {
 
           {isFreeMode && (
             <button onClick={() => setShowTipModal(true)} disabled={isSaving} className="btn btn-accent w-full mt-3">
-              💰 Tip Opponent (G$)
+              Tip Opponent (G$)
             </button>
           )}
 
@@ -558,7 +558,7 @@ export default function MultiplayerGamePage() {
       {showTipModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-accent/30 rounded-xl p-6 max-w-md w-full shadow-glow-accent">
-            <h3 className="text-xl font-bold mb-4 text-accent">💰 Tip Your Opponent</h3>
+            <h3 className="text-xl font-bold mb-4 text-accent">Tip Your Opponent</h3>
             <p className="text-base-content/80 mb-4 text-sm">
               Send GoodDollar (G$) tokens to your opponent as a tip for a great game!
             </p>
