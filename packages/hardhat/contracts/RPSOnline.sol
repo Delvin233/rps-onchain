@@ -2,14 +2,13 @@
 pragma solidity ^0.8.19;
 
 contract RPSOnline {
-    enum GameState { Created, Joined, Finished, Claimed }
+    enum GameState { Created, Joined, Finished }
     
     struct Game {
         address player1;
         address player2;
         GameState state;
         address winner;
-        uint256 betAmount;
         uint256 createdAt;
     }
     
@@ -17,10 +16,9 @@ contract RPSOnline {
     
     mapping(string => Game) public games;
     
-    event GameCreated(string indexed roomId, address indexed creator, uint256 betAmount);
-    event GameJoined(string indexed roomId, address indexed joiner, uint256 betAmount);
+    event GameCreated(string indexed roomId, address indexed creator);
+    event GameJoined(string indexed roomId, address indexed joiner);
     event GameFinished(string indexed roomId, address indexed winner);
-    event WinningsClaimed(string indexed roomId, address indexed claimer, uint256 amount);
     event GameCancelled(string indexed roomId, address indexed creator);
     
     constructor(address _backend) {
@@ -35,11 +33,10 @@ contract RPSOnline {
             player2: address(0),
             state: GameState.Created,
             winner: address(0),
-            betAmount: 0,
             createdAt: block.timestamp
         });
         
-        emit GameCreated(roomId, msg.sender, 0);
+        emit GameCreated(roomId, msg.sender);
     }
     
     function joinGame(string memory roomId) external {
@@ -52,7 +49,7 @@ contract RPSOnline {
         game.player2 = msg.sender;
         game.state = GameState.Joined;
         
-        emit GameJoined(roomId, msg.sender, 0);
+        emit GameJoined(roomId, msg.sender);
     }
     
     function getGame(string memory roomId) external view returns (Game memory) {
