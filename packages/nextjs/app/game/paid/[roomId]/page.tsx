@@ -19,7 +19,6 @@ export default function PaidGamePage() {
   const [opponentMove, setOpponentMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isRecovering, setIsRecovering] = useState(true);
   const [hasShownJoinNotification, setHasShownJoinNotification] = useState(false);
 
@@ -115,43 +114,12 @@ export default function PaidGamePage() {
         if (updatedGame && updatedGame.state === 2) {
           clearInterval(pollInterval);
 
-          const pollResponse = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
-          const pollData = await pollResponse.json();
+          // Game finished - show results immediately based on contract winner
+          const isWinner = updatedGame.winner === address;
+          const isTie = updatedGame.winner === "0x0000000000000000000000000000000000000000";
 
-          if (pollData.finished) {
-            setOpponentMove(pollData.opponentMove);
-            setResult(pollData.result);
-            setIsSaving(true);
-
-            const hashResponse = await fetch(`/api/user-matches?address=${address}`);
-            const { ipfsHash } = await hashResponse.json();
-            if (ipfsHash) {
-              const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
-              if (userData.matches) {
-                localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
-              }
-            }
-            setIsSaving(false);
-
-            if (pollData.ipfsHash) {
-              const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
-              matches.unshift({
-                roomId,
-                players: { creator: updatedGame.player1, joiner: updatedGame.player2 },
-                betAmount: (Number(updatedGame.betAmount) / 1e18).toString(),
-                games: [
-                  {
-                    creatorMove: updatedGame.player1 === address ? move : pollData.opponentMove,
-                    joinerMove: updatedGame.player2 === address ? move : pollData.opponentMove,
-                    winner: pollData.winner,
-                    timestamp: new Date().toISOString(),
-                    ipfsHash: pollData.ipfsHash,
-                  },
-                ],
-              });
-              localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
-            }
-          }
+          setOpponentMove("rock"); // Placeholder - moves not stored on-chain
+          setResult(isTie ? "tie" : isWinner ? "win" : "lose");
         }
       }, 500);
     } catch (error) {
@@ -351,12 +319,6 @@ export default function PaidGamePage() {
             <p className="text-sm text-base-content/60 mt-2">Winnings sent to your wallet (minus 0.75% fee)</p>
           )}
           {result === "tie" && <p className="text-sm text-base-content/60 mt-2">Bet refunded to both players</p>}
-          {isSaving && (
-            <p className="text-sm text-primary mt-2 flex items-center justify-center gap-2">
-              <span className="loading loading-spinner loading-sm"></span>
-              Saving to history...
-            </p>
-          )}
         </div>
 
         <button
@@ -364,7 +326,6 @@ export default function PaidGamePage() {
             sessionStorage.removeItem("paidGameActive");
             router.push("/play");
           }}
-          disabled={isSaving}
           className="btn btn-primary w-full"
         >
           Back to Play
