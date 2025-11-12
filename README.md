@@ -210,6 +210,9 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 PINATA_JWT=your_pinata_jwt_token
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
 
+# Backend wallet for game payouts (REQUIRED for multiplayer)
+BACKEND_PRIVATE_KEY=your_backend_wallet_private_key
+
 # Edge Config (Auto-populated by Vercel)
 EDGE_CONFIG=
 EDGE_CONFIG_ID=
