@@ -276,6 +276,9 @@ export default function PaidGamePage() {
   }
 
   if (!result) {
+    const gameAge = game ? Date.now() - Number(game.createdAt) * 1000 : 0;
+    const isAbandoned = gameAge > 10 * 60 * 1000; // 10 minutes
+
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
@@ -287,6 +290,30 @@ export default function PaidGamePage() {
             Your move: <span className="font-bold uppercase">{selectedMove}</span>
           </p>
           <p className="text-base-content/60">Waiting for opponent move...</p>
+          {isAbandoned && (
+            <div className="mt-6">
+              <p className="text-warning text-sm mb-3">Game abandoned - Claim your refund</p>
+              <button
+                onClick={async () => {
+                  try {
+                    await fetch("/api/room/refund-expired", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ roomId }),
+                    });
+                    toast.success("Refund claimed!");
+                    router.push("/play/paid");
+                  } catch (error) {
+                    console.error("Error claiming refund:", error);
+                    toast.error("Failed to claim refund");
+                  }
+                }}
+                className="btn btn-warning w-full"
+              >
+                Claim Refund
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
