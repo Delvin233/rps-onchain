@@ -205,8 +205,8 @@ export default function PaidGamePage() {
     const isExpired = roomAge > 10 * 60 * 1000; // 10 minutes
 
     return (
-      <div className="p-6 pt-12 pb-24">
-        <div className="fixed top-4 right-4 z-10">
+      <div className="p-6 pt-12 pb-24 max-w-2xl mx-auto">
+        <div className="absolute top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
@@ -253,8 +253,8 @@ export default function PaidGamePage() {
 
   if (!selectedMove) {
     return (
-      <div className="p-6 pt-12 pb-24">
-        <div className="fixed top-4 right-4 z-10">
+      <div className="p-6 pt-12 pb-24 max-w-2xl mx-auto">
+        <div className="absolute top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
@@ -280,8 +280,8 @@ export default function PaidGamePage() {
     const isAbandoned = gameAge > 10 * 60 * 1000; // 10 minutes
 
     return (
-      <div className="p-6 pt-12 pb-24">
-        <div className="fixed top-4 right-4 z-10">
+      <div className="p-6 pt-12 pb-24 max-w-2xl mx-auto">
+        <div className="absolute top-4 right-4 z-10">
           <BalanceDisplay address={address} format="full" />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Result...</h1>
@@ -320,8 +320,8 @@ export default function PaidGamePage() {
   }
 
   return (
-    <div className="p-6 pt-12 pb-24">
-      <div className="fixed top-4 right-4 z-10">
+    <div className="p-6 pt-12 pb-24 max-w-2xl mx-auto">
+      <div className="absolute top-4 right-4 z-10">
         <BalanceDisplay address={address} format="full" />
       </div>
       <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
