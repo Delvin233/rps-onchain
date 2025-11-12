@@ -28,7 +28,7 @@ export default function HistoryPage() {
     const handleScroll = () => {
       if (containerRef.current) {
         const scrolled = containerRef.current.scrollTop;
-        setShowScrollTop(scrolled > 800);
+        setShowScrollTop(scrolled > 300);
       }
     };
 
@@ -236,8 +236,7 @@ export default function HistoryPage() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-24 right-6 bg-primary hover:bg-primary/80 text-primary-content rounded-full p-3 shadow-lg transition-all duration-200 z-50"
-          style={{ maxWidth: "448px" }}
+          className="fixed bottom-24 right-6 bg-primary hover:bg-primary/80 text-primary-content rounded-full p-4 shadow-lg shadow-primary/50 transition-all duration-200 animate-bounce z-50"
         >
           <ArrowUp size={24} />
         </button>
