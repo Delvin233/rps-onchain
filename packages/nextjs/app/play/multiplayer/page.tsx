@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Users } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function MultiplayerPage() {
   const router = useRouter();
@@ -21,6 +23,8 @@ export default function MultiplayerPage() {
   useEffect(() => {
     sessionStorage.setItem("freeRoomCode", roomCode);
   }, [roomCode]);
+
+  const { writeContractAsync: createGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const createRoom = async () => {
     if (!address) return;
@@ -39,14 +43,21 @@ export default function MultiplayerPage() {
 
       const data = await response.json();
       if (data.roomId) {
+        await createGameContract({
+          functionName: "createGame",
+          args: [data.roomId],
+        });
         router.push(`/game/multiplayer/${data.roomId}?mode=free`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating room:", error);
+      toast.error(error.message || "Failed to create room");
     } finally {
       setIsCreating(false);
     }
   };
+
+  const { writeContractAsync: joinGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const joinRoom = async () => {
     if (!address || !roomCode || roomCode.length !== 6) return;
@@ -61,10 +72,15 @@ export default function MultiplayerPage() {
 
       const data = await response.json();
       if (data.success) {
+        await joinGameContract({
+          functionName: "joinGame",
+          args: [roomCode],
+        });
         router.push(`/game/multiplayer/${roomCode}?mode=free`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error joining room:", error);
+      toast.error(error.message || "Failed to join room");
     } finally {
       setIsJoining(false);
     }
