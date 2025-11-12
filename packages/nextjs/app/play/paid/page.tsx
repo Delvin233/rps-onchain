@@ -9,7 +9,7 @@ import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { useAuth } from "~~/contexts/AuthContext";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function PaidMultiplayerPage() {
   const router = useRouter();
@@ -34,6 +34,22 @@ export default function PaidMultiplayerPage() {
   useEffect(() => {
     sessionStorage.setItem("paidRoomCode", roomCode);
   }, [roomCode]);
+
+  const { data: roomData } = useScaffoldReadContract({
+    contractName: "RPSOnline",
+    functionName: "getGame",
+    args: roomCode.length === 6 ? [roomCode as string] : [undefined],
+    query: {
+      enabled: roomCode.length === 6,
+    },
+  });
+
+  useEffect(() => {
+    if (roomData?.betAmount) {
+      const roomBet = (Number(roomData.betAmount) / 1e18).toString();
+      setBetAmount(roomBet);
+    }
+  }, [roomData]);
 
   const maxBet = isHumanVerified ? 1000 : 20;
   const { writeContractAsync: createGame } = useScaffoldWriteContract("RPSOnline");
@@ -182,6 +198,13 @@ export default function PaidMultiplayerPage() {
                 maxLength={6}
               />
             </div>
+            {roomCode.length === 6 && (
+              <div>
+                <label className="text-sm text-base-content/60 block mb-1">Required Bet Amount</label>
+                <input type="text" value={betAmount} readOnly className="input input-bordered w-full bg-base-300" />
+                <p className="text-xs text-base-content/60 mt-1">Auto-filled from room</p>
+              </div>
+            )}
             <button
               onClick={joinRoom}
               disabled={isJoining || !address || roomCode.length !== 6}
