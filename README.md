@@ -150,7 +150,7 @@ yarn dev            # Start frontend (same as yarn start)
 ## 🌐 Network Configuration
 
 - **Network**: Celo Mainnet
-- **Contract Address**: `0xCb52B69987176bcbF74A475b58b9667334769521`
+- **Contract Address**: `0x454476d093e71D01233E7185914e1B3D1BA8345F`
 - **RPC Endpoint**: Celo Forno (public RPC)
 - **Local Development**: Hardhat network
 

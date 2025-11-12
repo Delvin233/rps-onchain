@@ -525,21 +525,10 @@ const deployedContracts = {
   },
   42220: {
     RPSOnline: {
-      address: "0xCb52B69987176bcbF74A475b58b9667334769521",
+      address: "0x454476d093e71D01233E7185914e1B3D1BA8345F",
       abi: [
         {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_backend",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "_feeCollector",
-              type: "address",
-            },
-          ],
+          inputs: [],
           stateMutability: "nonpayable",
           type: "constructor",
         },
@@ -577,33 +566,8 @@ const deployedContracts = {
               name: "creator",
               type: "address",
             },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "betAmount",
-              type: "uint256",
-            },
           ],
           name: "GameCreated",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "winner",
-              type: "address",
-            },
-          ],
-          name: "GameFinished",
           type: "event",
         },
         {
@@ -621,12 +585,6 @@ const deployedContracts = {
               name: "joiner",
               type: "address",
             },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "betAmount",
-              type: "uint256",
-            },
           ],
           name: "GameJoined",
           type: "event",
@@ -643,44 +601,18 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "claimer",
+              name: "winner",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "amount",
+              name: "matchNumber",
               type: "uint256",
             },
           ],
-          name: "WinningsClaimed",
+          name: "MatchFinished",
           type: "event",
-        },
-        {
-          inputs: [],
-          name: "FEE_PERCENTAGE",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "MIN_BET",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
         },
         {
           inputs: [],
@@ -718,37 +650,6 @@ const deployedContracts = {
           ],
           name: "createGame",
           outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "feeCollector",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "roomId",
-              type: "string",
-            },
-            {
-              internalType: "address",
-              name: "winner",
-              type: "address",
-            },
-          ],
-          name: "finishGameAndPayout",
-          outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -776,16 +677,6 @@ const deployedContracts = {
               internalType: "enum RPSOnline.GameState",
               name: "state",
               type: "uint8",
-            },
-            {
-              internalType: "address",
-              name: "winner",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "betAmount",
-              type: "uint256",
             },
             {
               internalType: "uint256",
@@ -824,24 +715,91 @@ const deployedContracts = {
                   type: "uint8",
                 },
                 {
+                  internalType: "uint256",
+                  name: "createdAt",
+                  type: "uint256",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "winner",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "timestamp",
+                      type: "uint256",
+                    },
+                  ],
+                  internalType: "struct RPSOnline.Match[]",
+                  name: "matches",
+                  type: "tuple[]",
+                },
+              ],
+              internalType: "struct RPSOnline.Game",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "getMatchHistory",
+          outputs: [
+            {
+              components: [
+                {
                   internalType: "address",
                   name: "winner",
                   type: "address",
                 },
                 {
                   internalType: "uint256",
-                  name: "betAmount",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "createdAt",
+                  name: "timestamp",
                   type: "uint256",
                 },
               ],
-              internalType: "struct RPSOnline.Game",
+              internalType: "struct RPSOnline.Match[]",
               name: "",
-              type: "tuple",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "getRoomStats",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "totalMatches",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "player1",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "player2",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -876,7 +834,7 @@ const deployedContracts = {
           ],
           name: "joinGame",
           outputs: [],
-          stateMutability: "payable",
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -886,15 +844,20 @@ const deployedContracts = {
               name: "roomId",
               type: "string",
             },
+            {
+              internalType: "address",
+              name: "winner",
+              type: "address",
+            },
           ],
-          name: "refundExpiredGame",
+          name: "publishMatch",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 50928718,
+      deployedOnBlock: 51026786,
     },
     YourContract: {
       address: "0x573b8dAA397Ba6Ce0203205BB031951A2483Bf35",

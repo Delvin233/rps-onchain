@@ -23,6 +23,7 @@ interface Room {
   rematchRequested?: string | null;
   playerLeft?: string | null;
   ipfsHash?: string;
+  joinerVerified?: boolean;
 }
 
 // Use global to persist across hot reloads in dev mode
