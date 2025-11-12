@@ -25,6 +25,7 @@ export default function SinglePlayerPage() {
     setPlayerMove(move);
     setAiMove(null);
     setResult(null);
+    sessionStorage.setItem("aiGameActive", "true");
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -58,6 +59,7 @@ export default function SinglePlayerPage() {
     setPlayerMove(null);
     setAiMove(null);
     setResult(null);
+    sessionStorage.removeItem("aiGameActive");
   };
 
   if (!isConnected) {
@@ -149,7 +151,13 @@ export default function SinglePlayerPage() {
               <button onClick={playAgain} className="btn btn-primary w-full">
                 Play Again
               </button>
-              <button onClick={() => router.push("/play")} className="btn btn-outline w-full">
+              <button
+                onClick={() => {
+                  sessionStorage.removeItem("aiGameActive");
+                  router.push("/play");
+                }}
+                className="btn btn-outline w-full"
+              >
                 Back to Play
               </button>
             </div>
