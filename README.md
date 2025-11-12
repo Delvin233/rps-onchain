@@ -1,23 +1,18 @@
 # RPS-ONCHAIN
 
 ![RPS-ONCHAIN](rps-onchain.jpg)
-A decentralized Rock Paper Scissors game with real money betting, human verification, and gaming aesthetics. Built with scaffold-eth-2 on Celo Mainnet.
+A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer modes. Built with scaffold-eth-2.
 
 ## Game Features
 
 - **Wallet Authentication**: RainbowKit + Wagmi integration
-- **Smart Contract Gameplay**: Commit-reveal scheme prevents cheating
+- **Free to Play**: No betting, just pure fun
 - **Single Player**: Play against AI instantly
 - **Multiplayer**: Create/join rooms with 6-character codes
-- **Flexible Betting**: 0.01 CELO minimum, stake up to max limit
-- **Room Cancellation**: Cancel unjoined rooms for full refund
-- **Self Protocol Verification**: Human verification unlocks higher betting limits
-  - Unverified: 20 CELO max bet
-  - Verified: 1000 CELO max bet
+- **Unlimited Rematches**: Play again and again with friends
 - **Match History**: Decentralized storage via IPFS (Pinata)
 - **Gaming UI**: Neon aesthetics with smooth animations
-- **Divvi Integration**: Referral tracking and rewards on all transactions
-- **Edge Config**: Persistent verification storage across devices
+- **Stats Tracking**: Win/loss records stored on IPFS
 
 ## 🏗 Project Structure
 
@@ -78,32 +73,32 @@ packages/
 
 ## 🎯 How to Play
 
-### Current Implementation (On-Chain)
+### How to Play
 
 1. **Connect Wallet**: Use any wallet (MetaMask recommended)
-2. **Choose Mode**: Single Player (AI) or Multiplayer (0.01+ CELO)
-3. **Create Room**: Generate room code with bet amount
+2. **Choose Mode**: Single Player (AI) or Multiplayer (Free)
+3. **Create Room**: Generate 6-character room code
 4. **Share Code**: Give the room code to your opponent
-5. **Join Room**: Enter room code and match bet amount
-6. **Commit Move**: Submit encrypted move on-chain
-7. **Reveal Move**: Reveal your move to determine winner
-8. **Claim Prize**: Winner claims the full pot (or refund if tie)
+5. **Join Room**: Enter room code to join
+6. **Choose Move**: Select rock, paper, or scissors
+7. **See Results**: Winner determined instantly
+8. **Play Again**: Request rematch for unlimited games
 
 ### Room Management
 
-- **Cancel Room**: Room creators can cancel unjoined rooms for full refund
-- **Multi-Room Warning**: System warns when joining multiple rooms
-- **Auto-Population**: Bet amounts automatically fill when joining rooms
+- **Cancel Room**: Room creators can cancel unjoined rooms
+- **Leave Room**: Exit after game finishes
+- **Rematch System**: Request/accept rematches instantly
 
 ### Game Rules
 
 - Rock beats Scissors
 - Scissors beats Paper
 - Paper beats Rock
-- Same moves = Tie (both players get refund)
-- Winner takes full pot (2x bet amount)
-- Loser loses their bet
-- Abandoned rooms can be cancelled by creator for full refund
+- Same moves = Tie
+- All games are free
+- Stats tracked on IPFS
+- Unlimited rematches available
 
 ## 🔧 Development Commands
 
@@ -163,23 +158,21 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 
 ## ✨ Recent Updates
 
-- ✅ Self Protocol integration for human verification
+- ✅ Pivoted to free-to-play model
+- ✅ Removed all betting/paid room functionality
 - ✅ Gaming UI with neon aesthetics and animations
-- ✅ Edge Config for persistent verification storage
-- ✅ Pinata IPFS integration with timestamped filenames
-- ✅ Divvi referral tracking on all transactions
-- ✅ Celo Forno RPC to avoid rate limits
-- ✅ Dynamic betting limits based on verification status
-- ✅ Forced claim flow before navigation
+- ✅ Pinata IPFS integration for match history
+- ✅ Unlimited rematch system
+- ✅ Stats tracking and history page
 
 ## 🔮 Future Enhancements
 
 - Tournament brackets with multi-round matches
-- Leaderboards & player statistics
-- NFT rewards for winners
+- Global leaderboards & player statistics
+- Achievement system
 - Real-time multiplayer lobbies
-- Gasless transactions via meta-transactions
 - Mobile app development
+- Optional betting mode (future)
 
 ## 🛠 Technical Stack
 
@@ -209,17 +202,6 @@ DEPLOYER_PRIVATE_KEY=your_private_key
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 PINATA_JWT=your_pinata_jwt_token
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
-
-# Backend wallet for game payouts (REQUIRED for multiplayer)
-BACKEND_PRIVATE_KEY=your_backend_wallet_private_key
-
-# Edge Config (Auto-populated by Vercel)
-EDGE_CONFIG=
-EDGE_CONFIG_ID=
-VERCEL_API_TOKEN=
-
-# Optional: Bypass Self Protocol for testing
-NEXT_PUBLIC_BYPASS_SELF_VERIFICATION=false
 ```
 
 ## 🤝 Contributing

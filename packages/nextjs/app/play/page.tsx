@@ -58,7 +58,7 @@ export default function PlayModePage() {
         </button>
 
         <button
-          onClick={() => router.push("/play/paid")}
+          onClick={() => router.push("/play/multiplayer")}
           className="w-full bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-6 hover:border-secondary/50 transition-all duration-200 text-left"
         >
           <div className="flex items-center space-x-4">
@@ -67,7 +67,7 @@ export default function PlayModePage() {
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-1">Multiplayer</h2>
-              <p className="text-sm text-base-content/60">Stake CELO - Winner takes all</p>
+              <p className="text-sm text-base-content/60">Play with friends - Free & Fun</p>
             </div>
           </div>
         </button>
