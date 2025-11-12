@@ -20,6 +20,7 @@ export default function PaidGamePage() {
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRecovering, setIsRecovering] = useState(true);
 
   const { data: game, refetch } = useScaffoldReadContract({
     contractName: "RPSOnline",
@@ -28,6 +29,36 @@ export default function PaidGamePage() {
   });
 
   const moves: Move[] = ["rock", "paper", "scissors"];
+
+  // Recover state from contract on load
+  useEffect(() => {
+    if (!game || !address) return;
+
+    const recoverState = async () => {
+      // Game finished - fetch results
+      if (game.state === 2) {
+        try {
+          const response = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
+          const data = await response.json();
+          if (data.finished) {
+            setSelectedMove(address === game.player1 ? data.creatorMove : data.joinerMove);
+            setOpponentMove(data.opponentMove);
+            setResult(data.result);
+          }
+        } catch (error) {
+          console.error("Error recovering state:", error);
+        }
+      }
+      // Game in progress - show waiting state
+      else if (game.state === 1) {
+        setSelectedMove("rock"); // Placeholder to show waiting screen
+      }
+
+      setIsRecovering(false);
+    };
+
+    recoverState();
+  }, [game, address, roomId]);
 
   useEffect(() => {
     if (!game || game.player1 === "0x0000000000000000000000000000000000000000") return;
@@ -205,6 +236,17 @@ export default function PaidGamePage() {
             Claim Refund
           </button>
         )}
+      </div>
+    );
+  }
+
+  if (isRecovering) {
+    return (
+      <div className="p-6 pt-12 pb-24">
+        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+          <p className="text-lg mb-4">Loading game...</p>
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
       </div>
     );
   }
