@@ -37,10 +37,43 @@ if (!globalForRooms.rooms) {
 
 const rooms = globalForRooms.rooms;
 
+const ROOM_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+
 export const roomStorage = {
-  get: (roomId: string) => rooms.get(roomId),
+  get: (roomId: string) => {
+    const room = rooms.get(roomId);
+    if (!room) return undefined;
+
+    // Check if room expired
+    if (Date.now() - room.createdAt > ROOM_TTL) {
+      rooms.delete(roomId);
+      return undefined;
+    }
+
+    return room;
+  },
   set: (roomId: string, room: Room) => rooms.set(roomId, room),
   delete: (roomId: string) => rooms.delete(roomId),
-  has: (roomId: string) => rooms.has(roomId),
-  getAll: () => Array.from(rooms.values()),
+  has: (roomId: string) => {
+    const room = rooms.get(roomId);
+    if (!room) return false;
+
+    // Check if room expired
+    if (Date.now() - room.createdAt > ROOM_TTL) {
+      rooms.delete(roomId);
+      return false;
+    }
+
+    return true;
+  },
+  getAll: () => {
+    // Clean up expired rooms
+    const now = Date.now();
+    for (const [roomId, room] of rooms.entries()) {
+      if (now - room.createdAt > ROOM_TTL) {
+        rooms.delete(roomId);
+      }
+    }
+    return Array.from(rooms.values());
+  },
 };
