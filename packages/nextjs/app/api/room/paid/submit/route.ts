@@ -77,8 +77,12 @@ export async function POST(req: NextRequest) {
             ),
         ]);
         console.log(`[SUBMIT] Match stored to IPFS for both players`);
-      } catch (error) {
+      } catch (error: any) {
         console.error("[SUBMIT] Payout error:", error);
+        // If game already finished, that's fine - another request beat us to it
+        if (error.message?.includes("not in progress")) {
+          console.log(`[SUBMIT] Game already finished by another request`);
+        }
       }
     }
 
