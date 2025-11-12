@@ -5,6 +5,343 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
+  8453: {
+    RPSOnline: {
+      address: "0x9f7058de37eE38F7bF20f93e9959C22ACB002e48",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "creator",
+              type: "address",
+            },
+          ],
+          name: "GameCancelled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "creator",
+              type: "address",
+            },
+          ],
+          name: "GameCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "joiner",
+              type: "address",
+            },
+          ],
+          name: "GameJoined",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "winner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "matchNumber",
+              type: "uint256",
+            },
+          ],
+          name: "MatchFinished",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "backend",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "cancelGame",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "createGame",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          name: "games",
+          outputs: [
+            {
+              internalType: "address",
+              name: "player1",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "player2",
+              type: "address",
+            },
+            {
+              internalType: "enum RPSOnline.GameState",
+              name: "state",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "createdAt",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "getGame",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "player1",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "player2",
+                  type: "address",
+                },
+                {
+                  internalType: "enum RPSOnline.GameState",
+                  name: "state",
+                  type: "uint8",
+                },
+                {
+                  internalType: "uint256",
+                  name: "createdAt",
+                  type: "uint256",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "winner",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "timestamp",
+                      type: "uint256",
+                    },
+                  ],
+                  internalType: "struct RPSOnline.Match[]",
+                  name: "matches",
+                  type: "tuple[]",
+                },
+              ],
+              internalType: "struct RPSOnline.Game",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "getMatchHistory",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "winner",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct RPSOnline.Match[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "getRoomStats",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "totalMatches",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "player1",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "player2",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "isRoomAvailable",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+          ],
+          name: "joinGame",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "roomId",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "winner",
+              type: "address",
+            },
+          ],
+          name: "publishMatch",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 38085314,
+    },
+  },
   31337: {
     RPSOnline: {
       address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
