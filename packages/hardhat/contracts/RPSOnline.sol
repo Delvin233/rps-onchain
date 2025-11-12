@@ -4,12 +4,17 @@ pragma solidity ^0.8.19;
 contract RPSOnline {
     enum GameState { Created, Joined, Finished }
     
+    struct Match {
+        address winner;
+        uint256 timestamp;
+    }
+    
     struct Game {
         address player1;
         address player2;
         GameState state;
-        address winner;
         uint256 createdAt;
+        Match[] matches;
     }
     
     address public backend;
@@ -18,7 +23,7 @@ contract RPSOnline {
     
     event GameCreated(string indexed roomId, address indexed creator);
     event GameJoined(string indexed roomId, address indexed joiner);
-    event GameFinished(string indexed roomId, address indexed winner);
+    event MatchFinished(string indexed roomId, address indexed winner, uint256 matchNumber);
     event GameCancelled(string indexed roomId, address indexed creator);
     
     constructor(address _backend) {
@@ -28,13 +33,11 @@ contract RPSOnline {
     function createGame(string memory roomId) external {
         require(games[roomId].player1 == address(0), "Room already exists");
         
-        games[roomId] = Game({
-            player1: msg.sender,
-            player2: address(0),
-            state: GameState.Created,
-            winner: address(0),
-            createdAt: block.timestamp
-        });
+        Game storage game = games[roomId];
+        game.player1 = msg.sender;
+        game.player2 = address(0);
+        game.state = GameState.Created;
+        game.createdAt = block.timestamp;
         
         emit GameCreated(roomId, msg.sender);
     }
@@ -56,14 +59,31 @@ contract RPSOnline {
         return games[roomId];
     }
     
-    function finishGame(string memory roomId, address winner) external {
-        require(msg.sender == backend, "Only backend can finish game");
+    function publishMatch(string memory roomId, address winner) external {
         Game storage game = games[roomId];
+        require(game.player1 == msg.sender || game.player2 == msg.sender, "Not a player");
         require(game.state == GameState.Joined, "Game not in progress");
         
-        game.winner = winner;
+        game.matches.push(Match({
+            winner: winner,
+            timestamp: block.timestamp
+        }));
+        
+        emit MatchFinished(roomId, winner, game.matches.length);
+    }
+    
+
+    
+    function getMatchHistory(string memory roomId) external view returns (Match[] memory) {
+        return games[roomId].matches;
+    }
+    
+    function closeRoom(string memory roomId) external {
+        Game storage game = games[roomId];
+        require(game.player1 == msg.sender || game.player2 == msg.sender, "Not a player");
+        require(game.matches.length > 0, "No matches played");
+        
         game.state = GameState.Finished;
-        emit GameFinished(roomId, winner);
     }
     
 
@@ -80,7 +100,12 @@ contract RPSOnline {
     }
     
     function isRoomAvailable(string memory roomId) external view returns (bool) {
-        Game memory game = games[roomId];
+        Game storage game = games[roomId];
         return game.player1 != address(0) && game.player2 == address(0) && game.state == GameState.Created;
+    }
+    
+    function getRoomStats(string memory roomId) external view returns (uint256 totalMatches, address player1, address player2) {
+        Game storage game = games[roomId];
+        return (game.matches.length, game.player1, game.player2);
     }
 }

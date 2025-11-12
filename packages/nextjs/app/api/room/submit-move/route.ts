@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createWalletClient, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { celo } from "viem/chains";
-import deployedContracts from "~~/contracts/deployedContracts";
 import { roomStorage } from "~~/lib/roomStorage";
-
-const contract = deployedContracts[42220].RPSOnline;
 
 function determineWinner(move1: string, move2: string): "win" | "lose" | "tie" {
   if (move1 === move2) return "tie";
@@ -60,43 +54,18 @@ export async function POST(req: NextRequest) {
       room.creatorResult = determineWinner(room.creatorMove, room.joinerMove);
       room.joinerResult = determineWinner(room.joinerMove, room.creatorMove);
 
+      // Store to IPFS
       const winner =
         room.creatorResult === "win"
           ? room.creator
           : room.joinerResult === "win"
             ? room.joiner
             : "0x0000000000000000000000000000000000000000";
-
-      // Call contract to finish game
-      const privateKey = process.env.BACKEND_PRIVATE_KEY;
-      if (privateKey) {
-        try {
-          const formattedKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
-          const account = privateKeyToAccount(formattedKey as `0x${string}`);
-          const client = createWalletClient({
-            account,
-            chain: celo,
-            transport: http(),
-          });
-
-          await client.writeContract({
-            address: contract.address as `0x${string}`,
-            abi: contract.abi,
-            functionName: "finishGame" as any,
-            args: [roomId, winner as `0x${string}`],
-          });
-        } catch (error) {
-          console.error("Contract call failed:", error);
-        }
-      }
-
-      // Store to IPFS
       const matchData = {
         roomId,
         players: { creator: room.creator, joiner: room.joiner },
         moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
         result: { winner, timestamp: new Date().toISOString() },
-        betAmount: "0",
       };
 
       await Promise.all([
