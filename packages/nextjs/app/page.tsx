@@ -22,8 +22,8 @@ export default function Home() {
 
   const statsData = [
     { title: "Total Games", value: stats.totalGames.toString(), icon: Target },
-    { title: "Win Rate", value: `${stats.winRate}%`, icon: TrendingUp },
-    { title: "Total Wagered", value: `${stats.totalWagered.toFixed(2)} CELO`, icon: Coins },
+    { title: "Wins", value: stats.wins.toString(), icon: TrendingUp },
+    { title: "Win Rate", value: `${stats.winRate}%`, icon: Coins },
   ];
 
   return (
