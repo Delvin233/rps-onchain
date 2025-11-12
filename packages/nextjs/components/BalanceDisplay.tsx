@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Address, formatEther } from "viem";
-import { base, celo } from "viem/chains";
-import { useBalance, useChainId } from "wagmi";
+import { useBalance, useChainId, useChains } from "wagmi";
 
 type BalanceDisplayProps = {
   address?: Address;
@@ -13,6 +12,7 @@ type BalanceDisplayProps = {
 export const BalanceDisplay = ({ address, format = "compact" }: BalanceDisplayProps) => {
   const [isHidden, setIsHidden] = useState(false);
   const chainId = useChainId();
+  const chains = useChains();
   const { data: balance, isLoading } = useBalance({ address, chainId });
 
   if (!address || isLoading || !balance) {
@@ -20,7 +20,8 @@ export const BalanceDisplay = ({ address, format = "compact" }: BalanceDisplayPr
   }
 
   const formattedBalance = Number(formatEther(balance.value));
-  const nativeSymbol = chainId === celo.id ? "CELO" : chainId === base.id ? "ETH" : balance.symbol;
+  const currentChain = chains.find(c => c.id === chainId);
+  const nativeSymbol = currentChain?.nativeCurrency?.symbol || balance.symbol;
 
   if (format === "full") {
     return (
