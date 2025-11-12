@@ -1,7 +1,7 @@
 # RPS-ONCHAIN
 
 ![RPS-ONCHAIN](rps-onchain.jpg)
-A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer modes. Built with scaffold-eth-2.
+A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support (Celo + Base). Built with scaffold-eth-2.
 
 ## Game Features
 
@@ -107,6 +107,7 @@ packages/
 yarn chain          # Start local Hardhat network
 yarn deploy         # Deploy contracts to local network
 yarn deploy --network celo # Deploy to Celo mainnet
+yarn deploy --network base # Deploy to Base mainnet
 
 # Frontend
 yarn start          # Start Next.js development server
@@ -149,10 +150,22 @@ yarn dev            # Start frontend (same as yarn start)
 
 ## 🌐 Network Configuration
 
-- **Network**: Celo Mainnet
-- **Contract Address**: `0x454476d093e71D01233E7185914e1B3D1BA8345F`
-- **RPC Endpoint**: Celo Forno (public RPC)
-- **Local Development**: Hardhat network
+### **Supported Networks**
+
+**Celo Mainnet:**
+- Contract: `0x454476d093e71D01233E7185914e1B3D1BA8345F`
+- RPC: https://forno.celo.org
+- Gas Token: CELO or cUSD
+- Recommended Wallets: MiniPay, MetaMask
+
+**Base Mainnet:**
+- Contract: `0x9f7058de37eE38F7bF20f93e9959C22ACB002e48`
+- RPC: https://mainnet.base.org
+- Gas Token: ETH
+- Recommended Wallets: Coinbase Wallet, MetaMask
+
+**Local Development:**
+- Hardhat network (localhost)
 
 Contract addresses are auto-exported to `contracts/deployedContracts.ts` after deployment.
 
@@ -179,11 +192,10 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - **Frontend**: Next.js 13+, React, TypeScript, TailwindCSS
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
-- **Network**: Celo Mainnet (Forno RPC)
+- **Networks**: Celo Mainnet + Base Mainnet (Multi-chain)
 - **Storage**: IPFS via Pinata
-- **Persistence**: Vercel Edge Config
 - **Identity**: Self Protocol (@selfxyz/core)
-- **Referrals**: Divvi SDK
+- **Payments**: GoodDollar (G$) tipping
 - **Deployment**: Vercel
 
 ## 📝 Environment Variables
