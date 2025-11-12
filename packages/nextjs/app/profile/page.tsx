@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, LogOut, Shield, Wallet } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAccount, useDisconnect } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
@@ -13,6 +14,7 @@ export default function ProfilePage() {
   const { disconnect } = useDisconnect();
   const { isHumanVerified } = useAuth();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [username, setUsername] = useState("");
 
   const copyAddress = () => {
@@ -114,10 +116,51 @@ export default function ProfilePage() {
       </div>
 
       {/* Disconnect */}
-      <button onClick={() => disconnect()} className="btn btn-error w-full">
+      <button
+        onClick={() => {
+          const hasActiveGame = sessionStorage.getItem("paidGameActive") === "true";
+          if (hasActiveGame) {
+            toast.error("You have an active game! Please finish or cancel it before disconnecting.", {
+              duration: 4000,
+              style: {
+                background: "#1f2937",
+                color: "#fff",
+                border: "1px solid #ef4444",
+              },
+            });
+            return;
+          }
+          setShowDisconnectConfirm(true);
+        }}
+        className="btn btn-error w-full"
+      >
         <LogOut size={16} />
         Disconnect Wallet
       </button>
+
+      {/* Disconnect Confirmation Modal */}
+      {showDisconnectConfirm && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100/95 backdrop-blur-xl border border-error/30 rounded-xl p-6 max-w-sm w-full shadow-glow-error">
+            <h3 className="text-xl font-bold mb-4 text-error">Disconnect Wallet?</h3>
+            <p className="text-base-content/70 mb-6">Are you sure you want to disconnect your wallet?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDisconnectConfirm(false)} className="btn btn-ghost flex-1">
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  disconnect();
+                  setShowDisconnectConfirm(false);
+                }}
+                className="btn btn-error flex-1"
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
     </div>
