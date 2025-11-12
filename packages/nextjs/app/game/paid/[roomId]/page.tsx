@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -28,6 +28,8 @@ export default function PaidGamePage() {
     functionName: "getGame",
     args: [roomId],
   });
+
+  const { writeContractAsync: refundExpired } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
@@ -220,15 +222,16 @@ export default function PaidGamePage() {
           <button
             onClick={async () => {
               try {
-                await fetch("/api/room/refund-expired", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ roomId }),
+                await refundExpired({
+                  functionName: "refundExpiredGame",
+                  args: [roomId],
                 });
                 sessionStorage.removeItem("activeWaitingRoom");
+                toast.success("Refund claimed!");
                 router.push("/play/paid");
               } catch (error) {
                 console.error("Error claiming refund:", error);
+                toast.error("Failed to claim refund");
               }
             }}
             className="btn btn-warning w-full mb-2"
@@ -296,10 +299,9 @@ export default function PaidGamePage() {
               <button
                 onClick={async () => {
                   try {
-                    await fetch("/api/room/refund-expired", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ roomId }),
+                    await refundExpired({
+                      functionName: "refundExpiredGame",
+                      args: [roomId],
                     });
                     toast.success("Refund claimed!");
                     router.push("/play/paid");
