@@ -89,25 +89,22 @@ export default function HistoryPage() {
             if (isAiMatch) {
               return (
                 <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <p className="font-semibold">vs AI</p>
-                      <p className="text-xs text-base-content/60">
-                        {new Date(match.timestamp || Date.now()).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-base-content/60">Free Play</p>
-                      <p
-                        className={`text-sm font-semibold ${match.result === "win" ? "text-success" : match.result === "tie" ? "text-warning" : "text-error"}`}
-                      >
-                        {match.result === "win" ? "WIN" : match.result === "tie" ? "TIE" : "LOSS"}
-                      </p>
-                    </div>
+                  <div className="mb-3">
+                    <p className="font-semibold mb-1">vs AI</p>
+                    <p className="text-xs text-base-content/60">
+                      {new Date(match.timestamp || Date.now()).toLocaleString()}
+                    </p>
                   </div>
-                  <div className="bg-base-200 p-3 rounded-lg text-sm">
-                    <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
-                    <span className="font-bold uppercase">{match.opponentMove}</span>
+                  <div className="bg-base-200 p-3 rounded-lg text-sm flex justify-between items-center">
+                    <span>
+                      <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
+                      <span className="font-bold uppercase">{match.opponentMove}</span>
+                    </span>
+                    <span
+                      className={`font-semibold ${match.result === "win" ? "text-success" : match.result === "tie" ? "text-warning" : "text-error"}`}
+                    >
+                      [{match.result === "win" ? "WIN" : match.result === "tie" ? "TIE" : "LOSS"}]
+                    </span>
                   </div>
                   {match.ipfsHash && (
                     <a
@@ -141,33 +138,19 @@ export default function HistoryPage() {
 
               return (
                 <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <p className="font-semibold">
-                        vs {(isCreator ? match.players?.joiner : match.players?.creator)?.slice(0, 6)}...
-                        {(isCreator ? match.players?.joiner : match.players?.creator)?.slice(-4)}
-                      </p>
-                      <p className="text-xs text-base-content/60">Room: {match.roomId}</p>
-                      <p className="text-xs text-base-content/60">
-                        {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
-                      </p>
+                  <div className="mb-3">
+                    <p className="font-semibold mb-1">
+                      vs {(isCreator ? match.players?.joiner : match.players?.creator)?.slice(0, 8)}...
+                      {(isCreator ? match.players?.joiner : match.players?.creator)?.slice(-4)} at {match.roomId}
+                    </p>
+                    <p className="text-xs text-base-content/60">
+                      {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
+                    </p>
+                    {games.length > 1 && (
                       <p className="text-xs text-base-content/60">
                         {games.length} game{games.length > 1 ? "s" : ""}
                       </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-success font-semibold">Free Play</p>
-                      {match.txHash && (
-                        <a
-                          href={`https://celoscan.io/tx/${match.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 justify-end mt-1"
-                        >
-                          <ExternalLink size={12} /> Tx
-                        </a>
-                      )}
-                    </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     {displayGames.map((game: any, gIndex: number) => {
