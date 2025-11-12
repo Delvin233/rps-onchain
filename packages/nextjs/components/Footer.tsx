@@ -14,7 +14,7 @@ import { useGlobalState } from "~~/services/store/store";
  */
 export const Footer = () => {
   return null;
-  
+
   const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
