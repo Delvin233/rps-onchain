@@ -75,7 +75,7 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
                 rel="noopener noreferrer"
                 className="btn btn-primary w-full text-lg"
               >
-                🔐 Open Self App
+                Open Self App
               </a>
               <p className="text-base-content/70 text-xs text-center mt-3">
                 Tap to verify your identity in the Self app

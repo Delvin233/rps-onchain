@@ -76,7 +76,7 @@ export default function PaidGamePage() {
 
     if (hasOpponent && isCreator) {
       setHasShownJoinNotification(true);
-      toast.success("🎮 Opponent joined! Redirecting in 3 seconds...", {
+      toast.success("Opponent joined! Redirecting in 3 seconds...", {
         duration: 3000,
         style: {
           background: "#1f2937",
