@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowLeft, Plus, Users, Shield } from "lucide-react";
+import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -45,7 +45,7 @@ export default function MultiplayerPage() {
       } else {
         setRoomInfo(null);
       }
-    } catch (error) {
+    } catch {
       setRoomInfo(null);
     } finally {
       setCheckingRoom(false);
@@ -97,7 +97,7 @@ export default function MultiplayerPage() {
       // Check if joiner is verified
       const verifyRes = await fetch(`/api/check-verification?address=${address}`);
       const verifyData = await verifyRes.json();
-      
+
       const response = await fetch("/api/room/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -189,7 +189,9 @@ export default function MultiplayerPage() {
               {checkingRoom && <p className="text-xs text-base-content/60 mt-2">Checking room...</p>}
               {roomInfo && (
                 <div className="mt-3 p-3 bg-base-200 rounded-lg">
-                  <p className="text-sm text-base-content/80 mb-1">Creator: {roomInfo.creator.slice(0, 6)}...{roomInfo.creator.slice(-4)}</p>
+                  <p className="text-sm text-base-content/80 mb-1">
+                    Creator: {roomInfo.creator.slice(0, 6)}...{roomInfo.creator.slice(-4)}
+                  </p>
                   {roomInfo.creatorVerified && (
                     <div className="flex items-center gap-1 text-success text-sm">
                       <Shield size={14} />
@@ -236,7 +238,9 @@ export default function MultiplayerPage() {
             <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <p className="text-sm text-base-content/60 mb-1">Room Creator</p>
-              <p className="text-base-content font-mono text-sm mb-2">{roomInfo.creator.slice(0, 10)}...{roomInfo.creator.slice(-8)}</p>
+              <p className="text-base-content font-mono text-sm mb-2">
+                {roomInfo.creator.slice(0, 10)}...{roomInfo.creator.slice(-8)}
+              </p>
               {roomInfo.creatorVerified && (
                 <div className="flex items-center gap-2 text-success">
                   <Shield size={16} />

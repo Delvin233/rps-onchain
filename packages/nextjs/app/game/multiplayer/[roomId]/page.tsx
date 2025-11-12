@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAccount } from "wagmi";
 import { parseEther } from "viem";
+import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
@@ -98,9 +98,14 @@ export default function MultiplayerGamePage() {
       setBetAmount(data.betAmount);
       setGameStatus(data.status);
       setIsFreeMode(data.isFree || false);
-      
+
       // Show joiner verification status to creator
-      if (data.joiner && data.joinerVerified && data.creator === address && !sessionStorage.getItem(`joiner_verified_${roomId}`)) {
+      if (
+        data.joiner &&
+        data.joinerVerified &&
+        data.creator === address &&
+        !sessionStorage.getItem(`joiner_verified_${roomId}`)
+      ) {
         sessionStorage.setItem(`joiner_verified_${roomId}`, "true");
         toast.custom(
           (t: { id: string }) => (
@@ -329,8 +334,15 @@ export default function MultiplayerGamePage() {
     try {
       const isCreator = gameData.creator === address;
       const myResult = isCreator ? gameData.creatorResult : gameData.joinerResult;
-      const winner = myResult === "win" ? address : myResult === "lose" ? (isCreator ? gameData.joiner : gameData.creator) : "0x0000000000000000000000000000000000000000";
-      
+      const winner =
+        myResult === "win"
+          ? address
+          : myResult === "lose"
+            ? isCreator
+              ? gameData.joiner
+              : gameData.creator
+            : "0x0000000000000000000000000000000000000000";
+
       // @ts-ignore
       await publishMatchContract({
         functionName: "publishMatch",
@@ -353,14 +365,14 @@ export default function MultiplayerGamePage() {
       const isCreator = gameData.creator === address;
       const opponent = isCreator ? gameData.joiner : gameData.creator;
       const GOODDOLLAR_ADDRESS = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
-      
+
       // @ts-ignore
       await sendToken({
         address: GOODDOLLAR_ADDRESS,
         functionName: "transfer",
         args: [opponent, parseEther(tipAmount)],
       });
-      
+
       toast.success(`Sent ${tipAmount} G$ tip!`);
       setShowTipModal(false);
     } catch (error: any) {
@@ -578,14 +590,17 @@ export default function MultiplayerGamePage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
             <h3 className="text-xl font-bold mb-4 text-primary">Publish Match Results?</h3>
-            <p className="text-base-content/80 mb-2">
-              Your match results are saved to IPFS and your history.
-            </p>
+            <p className="text-base-content/80 mb-2">Your match results are saved to IPFS and your history.</p>
             <p className="text-base-content/80 mb-6">
-              Want to publish them on-chain? You&apos;ll pay gas fees but results will be permanently recorded on the blockchain.
+              Want to publish them on-chain? You&apos;ll pay gas fees but results will be permanently recorded on the
+              blockchain.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowPublishModal(false)} className="btn btn-ghost flex-1" disabled={isPublishing}>
+              <button
+                onClick={() => setShowPublishModal(false)}
+                className="btn btn-ghost flex-1"
+                disabled={isPublishing}
+              >
                 Skip
               </button>
               <button onClick={publishMatch} className="btn btn-primary flex-1" disabled={isPublishing}>
