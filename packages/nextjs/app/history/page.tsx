@@ -156,9 +156,7 @@ export default function HistoryPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-base-content/60">
-                        {match.betAmount === "0" ? "Free" : `${match.betAmount} CELO`}
-                      </p>
+                      <p className="text-sm text-success font-semibold">Free Play</p>
                       {match.txHash && (
                         <a
                           href={`https://celoscan.io/tx/${match.txHash}`}
