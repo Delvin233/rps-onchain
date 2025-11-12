@@ -23,16 +23,16 @@ export const BalanceDisplay = ({ address, format = "compact" }: BalanceDisplayPr
 
   if (format === "full") {
     return (
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-base-content/60">Bal:</span>
-        <button
-          onClick={() => setIsHidden(!isHidden)}
-          className="text-sm font-bold hover:text-primary transition-colors"
-          type="button"
-        >
+      <button
+        onClick={() => setIsHidden(!isHidden)}
+        className="bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg px-3 py-1.5 transition-all flex items-center gap-1.5 whitespace-nowrap"
+        type="button"
+      >
+        <span className="text-xs text-base-content/60">Bal:</span>
+        <span className="text-sm font-bold">
           {isHidden ? "****" : `${formattedBalance.toFixed(2)} ${targetNetwork.nativeCurrency.symbol}`}
-        </button>
-      </div>
+        </span>
+      </button>
     );
   }
 

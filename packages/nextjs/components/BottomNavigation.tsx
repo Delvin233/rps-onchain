@@ -86,6 +86,21 @@ export const BottomNavigation = () => {
         // On subpage: double-tap to return to root
         if (isOnPlaySubpage) {
           if (timeSinceLastTap < 500) {
+            // Check if user has active waiting room
+            const activeWaitingRoom = sessionStorage.getItem("activeWaitingRoom");
+            if (activeWaitingRoom) {
+              toast.error("You have a room waiting! Cancel it first or wait for opponent.", {
+                duration: 3000,
+                style: {
+                  background: "#1f2937",
+                  color: "#fff",
+                  border: "1px solid #ef4444",
+                },
+              });
+              lastPlayTapRef.current = 0;
+              return;
+            }
+
             // Double-tap detected
             sessionStorage.removeItem("lastPlayPage");
             sessionStorage.removeItem("paidBetAmount");

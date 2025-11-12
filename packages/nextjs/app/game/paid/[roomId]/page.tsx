@@ -50,10 +50,6 @@ export default function PaidGamePage() {
           console.error("Error recovering state:", error);
         }
       }
-      // Game in progress - show waiting state
-      else if (game.state === 1) {
-        setSelectedMove("rock"); // Placeholder to show waiting screen
-      }
 
       setIsRecovering(false);
     };
@@ -222,6 +218,15 @@ export default function PaidGamePage() {
     }
   }, [hasOpponent, game?.state]);
 
+  // Store active room ID for navigation checks
+  useEffect(() => {
+    if (!hasOpponent && game?.player1 === address) {
+      sessionStorage.setItem("activeWaitingRoom", roomId);
+    } else {
+      sessionStorage.removeItem("activeWaitingRoom");
+    }
+  }, [hasOpponent, game?.player1, address, roomId]);
+
   if (!game || game.player1 === "0x0000000000000000000000000000000000000000") {
     return (
       <div className="p-6 pt-12 pb-24">
@@ -260,6 +265,7 @@ export default function PaidGamePage() {
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ roomId }),
                 });
+                sessionStorage.removeItem("activeWaitingRoom");
                 router.push("/play/paid");
               } catch (error) {
                 console.error("Error claiming refund:", error);

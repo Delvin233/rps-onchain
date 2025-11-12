@@ -52,8 +52,8 @@ export default function PaidMultiplayerPage() {
   }, [roomData]);
 
   const maxBet = isHumanVerified ? 1000 : 20;
-  const { writeContractAsync: createGame } = useScaffoldWriteContract("RPSOnline");
-  const { writeContractAsync: joinGame } = useScaffoldWriteContract("RPSOnline");
+  const { writeContractAsync: createGame } = useScaffoldWriteContract({ contractName: "RPSOnline" });
+  const { writeContractAsync: joinGame } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const createRoom = async () => {
     const bet = parseFloat(betAmount);
