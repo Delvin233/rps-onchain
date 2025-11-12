@@ -118,6 +118,16 @@ export default function MultiplayerPage() {
           args: [roomCode],
         });
         router.push(`/game/multiplayer/${roomCode}?mode=free`);
+      } else if (data.error === "Room is full") {
+        toast.error("Room is full", {
+          style: {
+            background: "#1f2937",
+            color: "#fff",
+            border: "1px solid #ef4444",
+          },
+        });
+      } else {
+        toast.error(data.error || "Failed to join room");
       }
     } catch (error: any) {
       console.error("Error joining room:", error);
@@ -132,8 +142,8 @@ export default function MultiplayerPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Free Mode</h1>
-            <p className="text-base-content/70">Connect Wallet</p>
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Multiplayer</h1>
+            <p className="text-base-content/70">Connect Wallet to Play</p>
           </div>
           <div className="w-full">
             <ConnectButton.Custom>
@@ -158,7 +168,7 @@ export default function MultiplayerPage() {
         <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-2xl font-bold text-glow-primary ml-2">Free Mode</h1>
+        <h1 className="text-2xl font-bold text-glow-primary ml-2">Multiplayer</h1>
       </div>
 
       <div className="space-y-6">

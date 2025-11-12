@@ -21,6 +21,14 @@ export async function POST(req: NextRequest) {
       room.rematchRequested = null;
     } else if (action === "leave") {
       room.playerLeft = player;
+      roomStorage.set(roomId, room);
+
+      // Delete room after 3 seconds to allow other player to see notification
+      setTimeout(() => {
+        roomStorage.delete(roomId);
+      }, 3000);
+
+      return NextResponse.json({ success: true });
     }
 
     roomStorage.set(roomId, room);
