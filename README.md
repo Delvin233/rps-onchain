@@ -9,7 +9,7 @@ A decentralized Rock Paper Scissors game with real money betting, human verifica
 - **Smart Contract Gameplay**: Commit-reveal scheme prevents cheating
 - **Single Player**: Play against AI instantly
 - **Multiplayer**: Create/join rooms with 6-character codes
-- **Flexible Betting**: 0 CELO for free play, or stake up to max limit
+- **Flexible Betting**: 0.01 CELO minimum, stake up to max limit
 - **Room Cancellation**: Cancel unjoined rooms for full refund
 - **Self Protocol Verification**: Human verification unlocks higher betting limits
   - Unverified: 20 CELO max bet
@@ -81,8 +81,8 @@ packages/
 ### Current Implementation (On-Chain)
 
 1. **Connect Wallet**: Use any wallet (MetaMask recommended)
-2. **Choose Mode**: Single Player (AI) or Multiplayer (0+ CELO)
-3. **Create Room**: Generate room code with bet amount (0 for free)
+2. **Choose Mode**: Single Player (AI) or Multiplayer (0.01+ CELO)
+3. **Create Room**: Generate room code with bet amount
 4. **Share Code**: Give the room code to your opponent
 5. **Join Room**: Enter room code and match bet amount
 6. **Commit Move**: Submit encrypted move on-chain

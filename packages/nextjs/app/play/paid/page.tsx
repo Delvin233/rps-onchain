@@ -15,7 +15,7 @@ export default function PaidMultiplayerPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const { isHumanVerified } = useAuth();
-  const [betAmount, setBetAmount] = useState("0");
+  const [betAmount, setBetAmount] = useState("0.01");
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -41,7 +41,7 @@ export default function PaidMultiplayerPage() {
 
   const createRoom = async () => {
     const bet = parseFloat(betAmount);
-    if (!address || bet < 0 || bet > maxBet) return;
+    if (!address || bet < 0.01 || bet > maxBet) return;
 
     setIsCreating(true);
     try {
@@ -146,18 +146,18 @@ export default function PaidMultiplayerPage() {
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-base-content/60 block mb-1">Bet Amount (CELO) - 0 for free</label>
+              <label className="text-sm text-base-content/60 block mb-1">Bet Amount (CELO)</label>
               <input
                 type="number"
                 value={betAmount}
                 onChange={e => setBetAmount(e.target.value)}
-                min={0}
+                min={0.01}
                 max={maxBet}
                 step={0.01}
                 className="input input-bordered w-full"
               />
               <p className="text-xs text-base-content/60 mt-1">
-                0 CELO = Free • Max: {maxBet} CELO {!isHumanVerified && "(Verify to increase)"}
+                Min: 0.01 CELO • Max: {maxBet} CELO {!isHumanVerified && "(Verify to increase)"}
               </p>
             </div>
             <button onClick={createRoom} disabled={isCreating || !address} className="btn btn-primary w-full">

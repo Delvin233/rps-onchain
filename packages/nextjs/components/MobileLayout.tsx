@@ -15,8 +15,10 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isInGame = pathname.includes("/game/multiplayer/") || pathname === "/play/single";
-  const isInPlayMode = pathname === "/play/paid" || pathname === "/play/multiplayer";
+  const isInGame = pathname.includes("/game/paid/");
+  const isInActiveAIGame =
+    pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
+  const isInPlaySubpage = pathname.startsWith("/play/") && pathname !== "/play";
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -34,24 +36,13 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
 
       if (Math.abs(swipeDistance) < minSwipeDistance) return;
 
-      // In active game: only allow swipe right to open history overlay
-      if (isInGame) {
-        if (swipeDistance > 0) {
-          router.push("/history");
-        }
+      // Block all swipes during active games
+      if (isInGame || isInActiveAIGame) {
         return;
       }
 
-      // Allow swipes in play mode pages
-      if (isInPlayMode) {
-        const currentIndex = mainRoutes.indexOf(pathname);
-        if (currentIndex === -1) return;
-
-        if (swipeDistance > 0 && currentIndex < mainRoutes.length - 1) {
-          router.push(mainRoutes[currentIndex + 1]);
-        } else if (swipeDistance < 0 && currentIndex > 0) {
-          router.push(mainRoutes[currentIndex - 1]);
-        }
+      // Block swipes on play subpages - must use double-tap Play button
+      if (isInPlaySubpage) {
         return;
       }
 
@@ -77,7 +68,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
         container.removeEventListener("touchend", handleTouchEnd);
       }
     };
-  }, [pathname, router, isInGame, isInPlayMode]);
+  }, [pathname, router, isInGame, isInActiveAIGame, isInPlaySubpage]);
 
   return (
     <>

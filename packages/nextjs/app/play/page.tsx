@@ -67,7 +67,7 @@ export default function PlayModePage() {
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-1">Multiplayer</h2>
-              <p className="text-sm text-base-content/60">Play with friends - Free or stake CELO</p>
+              <p className="text-sm text-base-content/60">Stake CELO - Winner takes all</p>
             </div>
           </div>
         </button>

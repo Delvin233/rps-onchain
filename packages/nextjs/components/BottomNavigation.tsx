@@ -60,40 +60,38 @@ export const BottomNavigation = () => {
         const now = Date.now();
         const timeSinceLastTap = now - lastPlayTapRef.current;
         const isOnPlaySubpage = pathname.startsWith("/play/");
+        const isOnPlayRoot = pathname === "/play";
 
-        // Double-tap detected (within 500ms) - reset to root
-        if (timeSinceLastTap < 500 && pathname.startsWith("/play")) {
-          sessionStorage.removeItem("lastPlayPage");
-          sessionStorage.removeItem("paidBetAmount");
-          sessionStorage.removeItem("paidRoomCode");
-          toast.success("Returned to Play menu", {
-            duration: 2000,
-            style: {
-              background: "#1f2937",
-              color: "#fff",
-              border: "1px solid #10b981",
-            },
-          });
-          router.push("/play");
-          lastPlayTapRef.current = 0;
-          return;
-        }
-
-        lastPlayTapRef.current = now;
-
-        // Single tap from non-play page: restore last subpage
+        // From non-play page: restore last subpage or go to root
         if (!pathname.startsWith("/play")) {
           const lastPlayPage = sessionStorage.getItem("lastPlayPage");
           if (lastPlayPage && lastPlayPage.startsWith("/play/")) {
             router.push(lastPlayPage);
-            return;
+          } else {
+            router.push("/play");
           }
-          router.push("/play");
+          lastPlayTapRef.current = 0;
           return;
         }
 
-        // Single tap on subpage: show hint
+        // On play root: do nothing
+        if (isOnPlayRoot) {
+          return;
+        }
+
+        // On subpage: double-tap to return to root
         if (isOnPlaySubpage) {
+          if (timeSinceLastTap < 500) {
+            // Double-tap detected
+            sessionStorage.removeItem("lastPlayPage");
+            sessionStorage.removeItem("paidBetAmount");
+            sessionStorage.removeItem("paidRoomCode");
+            router.push("/play");
+            lastPlayTapRef.current = 0;
+            return;
+          }
+          // First tap: just record time, don't navigate
+          lastPlayTapRef.current = now;
           toast("Tap again to return to Play menu", {
             duration: 2000,
             style: {
@@ -102,6 +100,7 @@ export const BottomNavigation = () => {
               border: "1px solid #6366f1",
             },
           });
+          return;
         }
       }
 
