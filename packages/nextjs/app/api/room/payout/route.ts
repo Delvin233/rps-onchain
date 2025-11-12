@@ -9,9 +9,11 @@ const contract = deployedContracts[42220].RPSOnline;
 export async function POST(req: NextRequest) {
   try {
     const { roomId, winner } = await req.json();
+    console.log(`[PAYOUT] Processing payout for room ${roomId}, winner: ${winner}`);
 
     const privateKey = process.env.BACKEND_PRIVATE_KEY;
     if (!privateKey) {
+      console.error("[PAYOUT] BACKEND_PRIVATE_KEY not configured");
       throw new Error("BACKEND_PRIVATE_KEY not configured");
     }
 
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
       transport: http(),
     });
 
+    console.log(`[PAYOUT] Sending transaction to contract...`);
     const hash = await client.writeContract({
       address: contract.address as `0x${string}`,
       abi: contract.abi,
@@ -30,6 +33,7 @@ export async function POST(req: NextRequest) {
       args: [roomId, winner],
     });
 
+    console.log(`[PAYOUT] Transaction sent: ${hash}`);
     return NextResponse.json({ success: true, txHash: hash });
   } catch (error: any) {
     console.error("Error processing payout:", error);

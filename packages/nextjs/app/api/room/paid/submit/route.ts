@@ -41,19 +41,25 @@ export async function POST(req: NextRequest) {
             ? game.creator
             : game.joiner;
 
+      console.log(`[SUBMIT] Both moves received for room ${roomId}`);
+      console.log(`[SUBMIT] Winner: ${winner}, Address: ${winnerAddress}`);
+
       const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
         ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
         : "http://localhost:3000";
 
       // Trigger payout (must complete before response)
       try {
-        await fetch(`${baseUrl}/api/room/payout`, {
+        console.log(`[SUBMIT] Calling payout API at ${baseUrl}/api/room/payout`);
+        const payoutRes = await fetch(`${baseUrl}/api/room/payout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ roomId, winner: winnerAddress }),
         });
+        const payoutData = await payoutRes.json();
+        console.log(`[SUBMIT] Payout response:`, payoutData);
       } catch (error) {
-        console.error("Payout error:", error);
+        console.error("[SUBMIT] Payout error:", error);
       }
     }
 
