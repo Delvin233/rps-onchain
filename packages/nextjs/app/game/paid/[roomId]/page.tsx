@@ -91,46 +91,53 @@ export default function PaidGamePage() {
           localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
         }
       } else {
+        // Poll contract state for game completion
         const pollInterval = setInterval(async () => {
-          const pollResponse = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
-          const pollData = await pollResponse.json();
+          const { data: updatedGame } = await refetch();
 
-          if (pollData.finished && game) {
-            setOpponentMove(pollData.opponentMove);
-            setResult(pollData.result);
-            setIsSaving(true);
+          if (updatedGame && updatedGame.state === 2) {
+            // Game finished
+            clearInterval(pollInterval);
 
-            // Sync matches from IPFS to localStorage
-            const hashResponse = await fetch(`/api/user-matches?address=${address}`);
-            const { ipfsHash } = await hashResponse.json();
-            if (ipfsHash) {
-              const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
-              if (userData.matches) {
-                localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+            // Fetch result from API
+            const pollResponse = await fetch(`/api/room/paid/status?roomId=${roomId}&player=${address}`);
+            const pollData = await pollResponse.json();
+
+            if (pollData.finished) {
+              setOpponentMove(pollData.opponentMove);
+              setResult(pollData.result);
+              setIsSaving(true);
+
+              // Sync matches from IPFS to localStorage
+              const hashResponse = await fetch(`/api/user-matches?address=${address}`);
+              const { ipfsHash } = await hashResponse.json();
+              if (ipfsHash) {
+                const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
+                if (userData.matches) {
+                  localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+                }
+              }
+              setIsSaving(false);
+
+              if (pollData.ipfsHash) {
+                const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
+                matches.unshift({
+                  roomId,
+                  players: { creator: updatedGame.player1, joiner: updatedGame.player2 },
+                  betAmount: (Number(updatedGame.betAmount) / 1e18).toString(),
+                  games: [
+                    {
+                      creatorMove: updatedGame.player1 === address ? move : pollData.opponentMove,
+                      joinerMove: updatedGame.player2 === address ? move : pollData.opponentMove,
+                      winner: pollData.winner,
+                      timestamp: new Date().toISOString(),
+                      ipfsHash: pollData.ipfsHash,
+                    },
+                  ],
+                });
+                localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
               }
             }
-            setIsSaving(false);
-
-            if (pollData.ipfsHash) {
-              const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
-              matches.unshift({
-                roomId,
-                players: { creator: game.player1, joiner: game.player2 },
-                betAmount: (Number(game.betAmount) / 1e18).toString(),
-                games: [
-                  {
-                    creatorMove: game.player1 === address ? move : pollData.opponentMove,
-                    joinerMove: game.player2 === address ? move : pollData.opponentMove,
-                    winner: pollData.winner,
-                    timestamp: new Date().toISOString(),
-                    ipfsHash: pollData.ipfsHash,
-                  },
-                ],
-              });
-              localStorage.setItem("rps_matches", JSON.stringify(matches.slice(0, 50)));
-            }
-
-            clearInterval(pollInterval);
           }
         }, 1000);
       }
