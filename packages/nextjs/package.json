@@ -18,6 +18,7 @@
   "dependencies": {
     "@divvi/referral-sdk": "^2.0.0",
     "@heroicons/react": "~2.1.5",
+    "@libsql/client": "^0.15.15",
     "@rainbow-me/rainbowkit": "2.2.8",
     "@selfxyz/core": "^1.1.0-beta.7",
     "@selfxyz/qrcode": "^1.0.15",

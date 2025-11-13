@@ -264,9 +264,9 @@ export default function MultiplayerGamePage() {
         setIsSaving(false);
         setGameData(data);
 
-        // Check if this specific match is published
-        const currentMatchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}_`;
-        const published = Object.keys(sessionStorage).some(key => key.startsWith(`published_${currentMatchKey}`));
+        // Check if this specific match is published (without timestamp)
+        const currentMatchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}`;
+        const published = sessionStorage.getItem(`published_${currentMatchKey}`) === "true";
         setIsMatchPublished(published);
       }
 
@@ -444,22 +444,12 @@ export default function MultiplayerGamePage() {
             : "0x0000000000000000000000000000000000000000";
 
       const matchKey = `${roomId}_${gameData.creatorMove}_${gameData.joinerMove}_${Date.now()}`;
-
-      console.log("Publishing match with args:", {
-        roomId,
-        winner,
-        creatorMove: gameData.creatorMove,
-        joinerMove: gameData.joinerMove,
-        chainId,
-        matchKey,
-      });
+      const baseMatchKey = `${roomId}_${gameData.creatorMove}_${gameData.joinerMove}`;
 
       const tx = await publishMatchContract({
         functionName: "publishMatch",
         args: [roomId, winner, gameData.creatorMove, gameData.joinerMove],
       });
-
-      console.log("Transaction result:", tx);
 
       // Store tx hash to match history with unique match key
       if (tx && chainId) {
@@ -473,7 +463,8 @@ export default function MultiplayerGamePage() {
             chainId: chainId.toString(),
           }),
         });
-        sessionStorage.setItem(`published_${matchKey}`, "true");
+        sessionStorage.setItem(`published_${baseMatchKey}`, "true");
+        setIsMatchPublished(true);
       }
 
       toast.success("Match published on-chain! View on block explorer.");

@@ -47,6 +47,22 @@ export default function OnChainMatchesPage() {
     setIsLoading(true);
     const allMatches: OnChainMatch[] = [];
 
+    // Fetch published room IDs from database
+    const dbResponse = await fetch("/api/store-blockchain-proof");
+    const dbData = await dbResponse.json();
+    const publishedRooms = new Map<string, { roomId: string; chainId: number; txHash: string }>();
+
+    dbData.proofs?.forEach((proof: any) => {
+      const key = `${proof.room_id}_${proof.chain_id}`;
+      if (!publishedRooms.has(key)) {
+        publishedRooms.set(key, {
+          roomId: proof.room_id,
+          chainId: proof.chain_id,
+          txHash: proof.tx_hash,
+        });
+      }
+    });
+
     // Fetch from both chains
     for (const [chainId, chainName, client] of [
       [42220, "Celo", celoClient],
@@ -54,41 +70,9 @@ export default function OnChainMatchesPage() {
     ] as const) {
       try {
         const contract = deployedContracts[chainId].RPSOnline;
+        const roomsForChain = Array.from(publishedRooms.values()).filter(r => r.chainId === chainId);
 
-        // Get current block
-        const currentBlock = await client?.getBlockNumber();
-        if (!currentBlock) continue;
-
-        // Only fetch last 10000 blocks to avoid timeout
-        const fromBlock = currentBlock - 10000n > 0n ? currentBlock - 10000n : 0n;
-
-        // Get MatchFinished events
-        const logs = await client?.getLogs({
-          address: contract.address,
-          event: {
-            type: "event",
-            name: "MatchFinished",
-            inputs: [
-              { type: "string", name: "roomId", indexed: true },
-              { type: "address", name: "winner", indexed: true },
-              { type: "uint256", name: "matchNumber", indexed: false },
-            ],
-          },
-          fromBlock,
-          toBlock: "latest",
-        });
-
-        // Group by roomId and get tx hash
-        const roomMap = new Map<string, string>();
-        logs?.forEach(log => {
-          if (log.args.roomId && log.transactionHash) {
-            roomMap.set(log.args.roomId as string, log.transactionHash);
-          }
-        });
-
-        for (const [roomId, txHash] of roomMap.entries()) {
-          if (!roomId) continue;
-
+        for (const { roomId, txHash } of roomsForChain) {
           const [matchHistory, roomStats] = await Promise.all([
             client?.readContract({
               address: contract.address,
@@ -137,10 +121,6 @@ export default function OnChainMatchesPage() {
         console.error(`Error fetching ${chainName} matches:`, error);
         // Continue to next chain
       }
-    }
-
-    if (allMatches.length === 0) {
-      console.log("No on-chain matches found in recent blocks");
     }
 
     // Sort by latest match timestamp
