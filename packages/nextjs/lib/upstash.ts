@@ -1,3 +1,3 @@
-import { kv } from '@vercel/kv'
+import { kv } from "@vercel/kv";
 
-export const redis = kv
+export const redis = kv;
