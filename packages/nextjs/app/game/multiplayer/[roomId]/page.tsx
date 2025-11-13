@@ -30,7 +30,7 @@ export default function MultiplayerGamePage() {
   const [errorCount, setErrorCount] = useState(0);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [isPublished, setIsPublished] = useState(false);
+  const [isMatchPublished, setIsMatchPublished] = useState(false);
   const [gameData, setGameData] = useState<any>(null);
   const [creatorAddress, setCreatorAddress] = useState<string>("");
   const [joinerAddress, setJoinerAddress] = useState<string>("");
@@ -264,10 +264,10 @@ export default function MultiplayerGamePage() {
         setIsSaving(false);
         setGameData(data);
 
-        // Check if already published
-        if (sessionStorage.getItem(`published_${roomId}`) === "true") {
-          setIsPublished(true);
-        }
+        // Check if this specific match is published
+        const currentMatchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}_`;
+        const published = Object.keys(sessionStorage).some(key => key.startsWith(`published_${currentMatchKey}`));
+        setIsMatchPublished(published);
       }
 
       if (data.rematchRequested && data.rematchRequested !== address) {
@@ -443,12 +443,15 @@ export default function MultiplayerGamePage() {
               : gameData.creator
             : "0x0000000000000000000000000000000000000000";
 
+      const matchKey = `${roomId}_${gameData.creatorMove}_${gameData.joinerMove}_${Date.now()}`;
+
       console.log("Publishing match with args:", {
         roomId,
         winner,
         creatorMove: gameData.creatorMove,
         joinerMove: gameData.joinerMove,
         chainId,
+        matchKey,
       });
 
       const tx = await publishMatchContract({
@@ -458,19 +461,19 @@ export default function MultiplayerGamePage() {
 
       console.log("Transaction result:", tx);
 
-      // Store tx hash to match history
+      // Store tx hash to match history with unique match key
       if (tx && chainId) {
         await fetch("/api/store-blockchain-proof", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             roomId,
+            matchKey,
             txHash: tx,
             chainId: chainId.toString(),
           }),
         });
-        setIsPublished(true);
-        sessionStorage.setItem(`published_${roomId}`, "true");
+        sessionStorage.setItem(`published_${matchKey}`, "true");
       }
 
       toast.success("Match published on-chain! View on block explorer.");
@@ -623,10 +626,10 @@ export default function MultiplayerGamePage() {
                       console.log("Publish button clicked, gameData:", gameData);
                       setShowPublishModal(true);
                     }}
-                    disabled={isSaving || isPublished}
+                    disabled={isSaving || isMatchPublished}
                     className="btn btn-outline w-full"
                   >
-                    {isPublished ? "Already Published" : "Publish to Blockchain"}
+                    {isMatchPublished ? "Match Published" : "Publish Latest Match"}
                   </button>
                   <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Leave Room
@@ -646,10 +649,10 @@ export default function MultiplayerGamePage() {
                       console.log("Publish button clicked, gameData:", gameData);
                       setShowPublishModal(true);
                     }}
-                    disabled={isSaving || isPublished}
+                    disabled={isSaving || isMatchPublished}
                     className="btn btn-outline w-full"
                   >
-                    {isPublished ? "Already Published" : "Publish to Blockchain"}
+                    {isMatchPublished ? "Match Published" : "Publish Latest Match"}
                   </button>
                   <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Back to Play
