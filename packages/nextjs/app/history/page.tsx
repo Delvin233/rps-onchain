@@ -32,10 +32,12 @@ export default function HistoryPage() {
     try {
       // 1. Get LocalStorage matches (instant)
       const localMatches = getLocalMatches();
+      console.log("LocalStorage matches:", localMatches);
 
       // 2. Fetch from Redis + IPFS (via API)
       const response = await fetch(`/api/history?address=${address}`);
       const { matches: serverMatches } = await response.json();
+      console.log("Server matches:", serverMatches);
 
       // 3. Merge all sources and deduplicate
       const allMatches = [...localMatches, ...serverMatches];
@@ -62,16 +64,21 @@ export default function HistoryPage() {
       );
 
       // 4. Filter user matches and sort
+      console.log("All unique matches before filter:", uniqueMatches);
       const userMatches = uniqueMatches
-        .filter(
-          match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
-        )
+        .filter(match => {
+          const isMatch =
+            match.players?.creator === address || match.players?.joiner === address || match.player === address;
+          if (!isMatch) console.log("Filtered out:", match, "address:", address);
+          return isMatch;
+        })
         .sort((a, b) => {
           const timeA = typeof a.result === "object" ? a.result.timestamp : a.timestamp || a.games?.[0]?.timestamp || 0;
           const timeB = typeof b.result === "object" ? b.result.timestamp : b.timestamp || b.games?.[0]?.timestamp || 0;
           return timeB - timeA;
         });
 
+      console.log("Final user matches:", userMatches);
       setMatches(userMatches);
     } catch (error) {
       console.error("Error fetching matches:", error);
