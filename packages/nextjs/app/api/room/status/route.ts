@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
         ipfsHash: room.ipfsHash,
         betAmount: room.betAmount,
         roomId: roomId,
+        chainId: room.chainId,
       };
       console.log("Returning finished game status:", response);
       return NextResponse.json(response);
