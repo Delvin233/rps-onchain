@@ -246,10 +246,12 @@ export default function MultiplayerGamePage() {
           if (roomIndex >= 0) {
             if (!matches[roomIndex].games) matches[roomIndex].games = [];
             matches[roomIndex].games.push(gameResult);
+            if (data.playerNames) matches[roomIndex].playerNames = data.playerNames;
           } else {
             matches.push({
               roomId: data.roomId,
               players: { creator: data.creator, joiner: data.joiner },
+              playerNames: data.playerNames,
               betAmount: data.betAmount || "0",
               games: [gameResult],
             });
@@ -418,7 +420,10 @@ export default function MultiplayerGamePage() {
   };
 
   const publishMatch = async () => {
-    if (!gameData || !address) return;
+    if (!gameData || !address) {
+      console.log("Missing gameData or address:", { gameData: !!gameData, address: !!address });
+      return;
+    }
     setIsPublishing(true);
     try {
       const isCreator = gameData.creator === address;
@@ -432,11 +437,20 @@ export default function MultiplayerGamePage() {
               : gameData.creator
             : "0x0000000000000000000000000000000000000000";
 
-      // @ts-ignore
+      console.log("Publishing match with args:", {
+        roomId,
+        winner,
+        creatorMove: gameData.creatorMove,
+        joinerMove: gameData.joinerMove,
+        chainId,
+      });
+
       const tx = await publishMatchContract({
         functionName: "publishMatch",
-        args: [roomId, winner, gameData.creatorMove || "", gameData.joinerMove || ""] as any,
+        args: [roomId, winner, gameData.creatorMove, gameData.joinerMove],
       });
+
+      console.log("Transaction result:", tx);
 
       // Store tx hash to match history
       if (tx && chainId) {

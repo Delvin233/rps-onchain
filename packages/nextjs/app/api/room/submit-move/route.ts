@@ -98,6 +98,9 @@ export async function POST(req: NextRequest) {
           : { name: null },
       ]);
 
+      // Store playerNames in room object
+      room.playerNames = { creator: creatorEns?.name, joiner: joinerEns?.name };
+
       // Store to Redis history for both players
       const storePromises = [];
 

@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
         betAmount: room.betAmount,
         roomId: roomId,
         chainId: room.chainId,
+        playerNames: room.playerNames,
       };
       console.log("Returning finished game status:", response);
       return NextResponse.json(response);
