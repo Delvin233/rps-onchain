@@ -31,12 +31,14 @@ export default function MultiplayerPage() {
   } = useDisplayName(roomInfo?.creator);
 
   useEffect(() => {
-    const savedRoomCode = sessionStorage.getItem("freeRoomCode");
-    if (savedRoomCode) setRoomCode(savedRoomCode);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("clear") === "1") {
+      setRoomCode("");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem("freeRoomCode", roomCode);
     if (roomCode.length === 6) {
       checkRoomInfo();
     } else {
@@ -151,7 +153,10 @@ export default function MultiplayerPage() {
       }
     } catch (error: any) {
       console.error("Error joining room:", error);
-      toast.error(error.message || "Failed to join room");
+      const errorMsg = error.message?.includes("Room does not exist")
+        ? "Room not found. Please check the code or switch networks."
+        : "Failed to join room";
+      toast.error(errorMsg);
     } finally {
       setIsJoining(false);
     }
@@ -293,7 +298,12 @@ export default function MultiplayerPage() {
             </div>
             <button
               onClick={() => setShowJoinConfirm(true)}
-              disabled={isJoining || !address || roomCode.length !== 6}
+              disabled={
+                isJoining ||
+                !address ||
+                roomCode.length !== 6 ||
+                (roomInfo && roomInfo.chainId && roomInfo.chainId !== chainId)
+              }
               className="btn btn-secondary w-full"
             >
               {isJoining ? "Joining..." : "Join Game"}

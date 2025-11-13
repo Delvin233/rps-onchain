@@ -411,7 +411,7 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, player: address, action: "leave" }),
       });
-      handleNavigation("/play/multiplayer");
+      router.push("/play/multiplayer?clear=1");
     } catch (error) {
       console.error("Error leaving room:", error);
     }
