@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
-import { base, celo } from "viem/chains";
+import { celo } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -22,7 +22,8 @@ export default function MultiplayerPage() {
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const [roomInfo, setRoomInfo] = useState<any>(null);
   const [checkingRoom, setCheckingRoom] = useState(false);
-  const [wrongNetwork, setWrongNetwork] = useState<"celo" | "base" | null>(null);
+
+  const { switchChain } = useSwitchChain();
 
   const {
     displayName: creatorName,
@@ -47,11 +48,8 @@ export default function MultiplayerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomCode]);
 
-  const { switchChain } = useSwitchChain();
-
   const checkRoomInfo = async () => {
     setCheckingRoom(true);
-    setWrongNetwork(null);
     try {
       const response = await fetch(`/api/room/info?roomId=${roomCode}`);
       if (response.ok) {
@@ -61,15 +59,6 @@ export default function MultiplayerPage() {
         setRoomInfo({ ...data, creatorVerified: verifyData.verified });
       } else {
         setRoomInfo(null);
-        // Try to detect which network the room might be on
-        const currentChain = window.ethereum?.chainId;
-        if (currentChain === "0xa4ec" || currentChain === 42220) {
-          // On Celo, room might be on Base
-          setWrongNetwork("base");
-        } else if (currentChain === "0x2105" || currentChain === 8453) {
-          // On Base, room might be on Celo
-          setWrongNetwork("celo");
-        }
       }
     } catch {
       setRoomInfo(null);
@@ -232,17 +221,6 @@ export default function MultiplayerPage() {
                 maxLength={6}
               />
               {checkingRoom && <p className="text-xs text-base-content/60 mt-2">Checking room...</p>}
-              {wrongNetwork && (
-                <div className="mt-3 p-3 bg-error/10 border border-error/30 rounded-lg">
-                  <p className="text-sm text-error mb-2">Room not found on this network</p>
-                  <button
-                    onClick={() => switchChain({ chainId: wrongNetwork === "celo" ? celo.id : base.id })}
-                    className="btn btn-sm btn-error w-full"
-                  >
-                    Switch to {wrongNetwork === "celo" ? "Celo" : "Base"}
-                  </button>
-                </div>
-              )}
               {roomInfo && roomInfo.chainId && roomInfo.chainId !== chainId && (
                 <div className="mt-3 p-3 bg-warning/10 border border-warning/30 rounded-lg">
                   <p className="text-sm text-warning mb-2">
