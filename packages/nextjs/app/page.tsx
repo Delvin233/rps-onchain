@@ -54,7 +54,6 @@ export default function Home() {
         <div className="px-6 pt-16 pb-24">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
-            <p className="text-lg text-base-content/80 mb-2">Rock Paper Scissors on the Blockchain</p>
             <p className="text-sm text-base-content/60">Free-to-play Rock Paper Scissors on Celo & Base.</p>
           </div>
 

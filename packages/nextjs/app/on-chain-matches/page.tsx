@@ -53,6 +53,13 @@ export default function OnChainMatchesPage() {
       try {
         const contract = deployedContracts[chainId].RPSOnline;
 
+        // Get current block
+        const currentBlock = await client?.getBlockNumber();
+        if (!currentBlock) continue;
+
+        // Only fetch last 10000 blocks to avoid timeout
+        const fromBlock = currentBlock - 10000n > 0n ? currentBlock - 10000n : 0n;
+
         // Get MatchFinished events
         const logs = await client?.getLogs({
           address: contract.address,
@@ -65,7 +72,7 @@ export default function OnChainMatchesPage() {
               { type: "uint256", name: "matchNumber", indexed: false },
             ],
           },
-          fromBlock: "earliest",
+          fromBlock,
           toBlock: "latest",
         });
 
@@ -126,7 +133,12 @@ export default function OnChainMatchesPage() {
         }
       } catch (error) {
         console.error(`Error fetching ${chainName} matches:`, error);
+        // Continue to next chain
       }
+    }
+
+    if (allMatches.length === 0) {
+      console.log("No on-chain matches found in recent blocks");
     }
 
     // Sort by latest match timestamp

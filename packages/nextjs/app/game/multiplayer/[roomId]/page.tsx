@@ -266,7 +266,6 @@ export default function MultiplayerGamePage() {
         }
         setIsSaving(false);
         setGameData(data);
-        setShowPublishModal(true);
       }
 
       if (data.rematchRequested && data.rematchRequested !== address) {
