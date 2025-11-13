@@ -39,7 +39,22 @@ export default function SinglePlayerPage() {
     setResult(data.result);
     setIsPlaying(false);
 
-    // Stats are now updated instantly via Redis in /api/play-ai
+    // Store to Redis history
+    await fetch("/api/history-fast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        address,
+        match: {
+          opponent: "AI",
+          player: address,
+          playerMove: move,
+          opponentMove: data.aiMove,
+          result: data.result,
+          timestamp: new Date().toISOString(),
+        },
+      }),
+    });
   };
 
   const playAgain = () => {
