@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   8453: {
     RPSOnline: {
-      address: "0x9f7058de37eE38F7bF20f93e9959C22ACB002e48",
+      address: "0x17f238a671CEEa5b6ac9b44E280a42a2Bb080feC",
       abi: [
         {
           inputs: [],
@@ -209,6 +209,16 @@ const deployedContracts = {
                       type: "address",
                     },
                     {
+                      internalType: "string",
+                      name: "player1Move",
+                      type: "string",
+                    },
+                    {
+                      internalType: "string",
+                      name: "player2Move",
+                      type: "string",
+                    },
+                    {
                       internalType: "uint256",
                       name: "timestamp",
                       type: "uint256",
@@ -243,6 +253,16 @@ const deployedContracts = {
                   internalType: "address",
                   name: "winner",
                   type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "player1Move",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "player2Move",
+                  type: "string",
                 },
                 {
                   internalType: "uint256",
@@ -331,6 +351,16 @@ const deployedContracts = {
               name: "winner",
               type: "address",
             },
+            {
+              internalType: "string",
+              name: "player1Move",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "player2Move",
+              type: "string",
+            },
           ],
           name: "publishMatch",
           outputs: [],
@@ -339,7 +369,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 38085314,
+      deployedOnBlock: 38111960,
     },
   },
   31337: {
@@ -862,7 +892,7 @@ const deployedContracts = {
   },
   42220: {
     RPSOnline: {
-      address: "0x454476d093e71D01233E7185914e1B3D1BA8345F",
+      address: "0xace7999ca29Fc9d3dfDD8D7F99A1366a5cF62091",
       abi: [
         {
           inputs: [],
@@ -1064,6 +1094,16 @@ const deployedContracts = {
                       type: "address",
                     },
                     {
+                      internalType: "string",
+                      name: "player1Move",
+                      type: "string",
+                    },
+                    {
+                      internalType: "string",
+                      name: "player2Move",
+                      type: "string",
+                    },
+                    {
                       internalType: "uint256",
                       name: "timestamp",
                       type: "uint256",
@@ -1098,6 +1138,16 @@ const deployedContracts = {
                   internalType: "address",
                   name: "winner",
                   type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "player1Move",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "player2Move",
+                  type: "string",
                 },
                 {
                   internalType: "uint256",
@@ -1186,6 +1236,16 @@ const deployedContracts = {
               name: "winner",
               type: "address",
             },
+            {
+              internalType: "string",
+              name: "player1Move",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "player2Move",
+              type: "string",
+            },
           ],
           name: "publishMatch",
           outputs: [],
@@ -1194,7 +1254,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 51026786,
+      deployedOnBlock: 51112477,
     },
     YourContract: {
       address: "0x573b8dAA397Ba6Ce0203205BB031951A2483Bf35",

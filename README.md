@@ -153,13 +153,13 @@ yarn dev            # Start frontend (same as yarn start)
 ### **Supported Networks**
 
 **Celo Mainnet:**
-- Contract: `0x454476d093e71D01233E7185914e1B3D1BA8345F`
+- Contract: `0xace7999ca29Fc9d3dfDD8D7F99A1366a5cF62091`
 - RPC: https://forno.celo.org
 - Gas Token: CELO or cUSD
 - Recommended Wallets: MiniPay, MetaMask
 
 **Base Mainnet:**
-- Contract: `0x9f7058de37eE38F7bF20f93e9959C22ACB002e48`
+- Contract: `0x17f238a671CEEa5b6ac9b44E280a42a2Bb080feC`
 - RPC: https://mainnet.base.org
 - Gas Token: ETH
 - Recommended Wallets: Coinbase Wallet, MetaMask
