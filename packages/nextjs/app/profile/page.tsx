@@ -21,8 +21,6 @@ export default function ProfilePage() {
     }
   };
 
-  const maxBet = isHumanVerified ? 1000 : 20;
-
   if (!address) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
@@ -99,7 +97,7 @@ export default function ProfilePage() {
             <Shield className={isHumanVerified ? "text-success" : "text-warning"} size={24} />
             <div>
               <p className="font-semibold">{isHumanVerified ? "Verified Account" : "Unverified Account"}</p>
-              <p className="text-xs text-base-content/60">Max bet: {maxBet} CELO</p>
+              <p className="text-xs text-base-content/60">Verified human player</p>
             </div>
           </div>
         </div>
