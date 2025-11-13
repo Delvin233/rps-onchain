@@ -15,7 +15,7 @@ export const useBasename = (address: string | undefined) => {
     const fetchBasename = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`https://resolver-api.basename.app/v1/name/${address}`);
+        const response = await fetch(`/api/basename?address=${address}`);
         if (response.ok) {
           const data = await response.json();
           setBasename(data.name || null);
