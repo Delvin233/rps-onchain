@@ -103,7 +103,7 @@ export default function MultiplayerGamePage() {
 
     const startPolling = () => {
       if (interval) return;
-      interval = setInterval(pollGameStatus, 500);
+      interval = setInterval(pollGameStatus, 2000);
     };
 
     const stopPolling = () => {

@@ -27,12 +27,6 @@ export default function Home() {
           stats.refetch();
         })
         .catch(console.error);
-
-      // Auto-refresh stats every 3 minutes when connected
-      const interval = setInterval(() => {
-        stats.refetch();
-      }, 180000);
-      return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);

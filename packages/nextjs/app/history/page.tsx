@@ -23,12 +23,6 @@ export default function HistoryPage() {
     if (isConnected && address) {
       fetchMatches();
       fetchBlockchainProofs();
-      // Auto-refresh every 3 minutes
-      const interval = setInterval(() => {
-        fetchMatches();
-        fetchBlockchainProofs();
-      }, 180000);
-      return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected]);
@@ -164,7 +158,13 @@ export default function HistoryPage() {
     <div ref={containerRef} className="min-h-screen bg-base-200 p-6 pt-12 pb-24 overflow-y-auto">
       <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
-        <button onClick={fetchMatches} className="btn btn-sm btn-ghost">
+        <button
+          onClick={() => {
+            fetchMatches();
+            fetchBlockchainProofs();
+          }}
+          className="btn btn-sm btn-ghost"
+        >
           <RefreshCw size={18} />
         </button>
         <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
