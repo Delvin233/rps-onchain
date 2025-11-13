@@ -208,6 +208,13 @@ export default function HistoryPage() {
             // Multiplayer match (new format with games array OR old format)
             if (match.players) {
               const isCreator = address === match.players?.creator;
+              const opponentAddress = isCreator ? match.players?.joiner : match.players?.creator;
+              const opponentName = match.playerNames
+                ? isCreator
+                  ? match.playerNames.joiner
+                  : match.playerNames.creator
+                : null;
+              const displayName = opponentName || `${opponentAddress?.slice(0, 8)}...${opponentAddress?.slice(-4)}`;
               const games = match.games || [
                 {
                   creatorMove: match.moves?.creatorMove || "",
@@ -224,9 +231,8 @@ export default function HistoryPage() {
               return (
                 <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
                   <div className="mb-3">
-                    <p className="font-semibold mb-1">
-                      vs {(isCreator ? match.players?.joiner : match.players?.creator)?.slice(0, 8)}...
-                      {(isCreator ? match.players?.joiner : match.players?.creator)?.slice(-4)} at {match.roomId}
+                    <p className="font-semibold mb-1 break-words">
+                      vs {displayName} at {match.roomId}
                     </p>
                     <p className="text-xs text-base-content/60">
                       {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}

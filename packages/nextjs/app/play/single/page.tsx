@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
@@ -16,6 +16,50 @@ export default function SinglePlayerPage() {
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (sessionStorage.getItem("aiGameActive") === "true") {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (sessionStorage.getItem("aiGameActive") === "true") {
+        e.preventDefault();
+        window.history.pushState(null, "", window.location.href);
+        setPendingNavigation("/play");
+        setShowExitConfirm(true);
+      }
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  const handleNavigation = (path: string) => {
+    if (sessionStorage.getItem("aiGameActive") === "true") {
+      setPendingNavigation(path);
+      setShowExitConfirm(true);
+    } else {
+      router.push(path);
+    }
+  };
+
+  const confirmExit = () => {
+    sessionStorage.removeItem("aiGameActive");
+    if (pendingNavigation) {
+      router.push(pendingNavigation);
+    }
+  };
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
@@ -92,7 +136,7 @@ export default function SinglePlayerPage() {
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="flex items-center mb-4">
-        <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
+        <button onClick={() => handleNavigation("/play")} className="btn btn-sm btn-ghost">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
@@ -147,17 +191,28 @@ export default function SinglePlayerPage() {
               <button onClick={playAgain} className="btn btn-primary w-full">
                 Play Again
               </button>
-              <button
-                onClick={() => {
-                  sessionStorage.removeItem("aiGameActive");
-                  router.push("/play");
-                }}
-                className="btn btn-outline w-full"
-              >
+              <button onClick={() => handleNavigation("/play")} className="btn btn-outline w-full">
                 Back to Play
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {showExitConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full shadow-glow-warning">
+            <h3 className="text-xl font-bold mb-4 text-warning">Leave Game?</h3>
+            <p className="text-base-content/80 mb-6">You have an active game. Are you sure you want to leave?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowExitConfirm(false)} className="btn btn-ghost flex-1">
+                Stay
+              </button>
+              <button onClick={confirmExit} className="btn btn-warning flex-1">
+                Leave
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

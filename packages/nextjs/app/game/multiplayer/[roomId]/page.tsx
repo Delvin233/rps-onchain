@@ -33,6 +33,8 @@ export default function MultiplayerGamePage() {
   const [gameData, setGameData] = useState<any>(null);
   const [creatorAddress, setCreatorAddress] = useState<string>("");
   const [joinerAddress, setJoinerAddress] = useState<string>("");
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   const {
     displayName: creatorName,
@@ -50,6 +52,56 @@ export default function MultiplayerGamePage() {
 
   const moves: Move[] = ["rock", "paper", "scissors"];
   const { writeContractAsync: publishMatchContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (gameStatus !== "finished") {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (gameStatus !== "finished") {
+        e.preventDefault();
+        window.history.pushState(null, "", window.location.href);
+        setPendingNavigation("/play/multiplayer");
+        setShowExitConfirm(true);
+      }
+    };
+
+    if (gameStatus !== "finished") {
+      window.history.pushState(null, "", window.location.href);
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [gameStatus]);
+
+  const handleNavigation = (path: string) => {
+    if (gameStatus !== "finished") {
+      setPendingNavigation(path);
+      setShowExitConfirm(true);
+    } else {
+      router.push(path);
+    }
+  };
+
+  const confirmExit = async () => {
+    if (address) {
+      await fetch("/api/room/rematch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, player: address, action: "leave" }),
+      });
+    }
+    if (pendingNavigation) {
+      router.push(pendingNavigation);
+    }
+  };
 
   useEffect(() => {
     if (!address) return;
@@ -254,7 +306,7 @@ export default function MultiplayerGamePage() {
           ),
           { duration: 2000 },
         );
-        setTimeout(() => router.push("/play/multiplayer"), 2000);
+        setTimeout(() => handleNavigation("/play/multiplayer"), 2000);
       }
     } catch (error) {
       console.error("Error polling status:", error);
@@ -303,7 +355,7 @@ export default function MultiplayerGamePage() {
           border: "1px solid #10b981",
         },
       });
-      router.push("/play/multiplayer");
+      handleNavigation("/play/multiplayer");
     } catch (error) {
       console.error("Error cancelling room:", error);
       toast.error("Failed to cancel room");
@@ -366,7 +418,7 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, player: address, action: "leave" }),
       });
-      router.push("/play/multiplayer");
+      handleNavigation("/play/multiplayer");
     } catch (error) {
       console.error("Error leaving room:", error);
     }
@@ -388,11 +440,25 @@ export default function MultiplayerGamePage() {
             : "0x0000000000000000000000000000000000000000";
 
       // @ts-ignore
-      await publishMatchContract({
+      const tx = await publishMatchContract({
         functionName: "publishMatch",
-        args: [roomId, winner],
+        args: [roomId, winner, gameData.creatorMove || "", gameData.joinerMove || ""] as any,
       });
-      toast.success("Match published on-chain!");
+
+      // Store tx hash to match history
+      if (tx) {
+        await fetch("/api/store-blockchain-proof", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomId,
+            txHash: tx,
+            chainId: gameData.chainId,
+          }),
+        });
+      }
+
+      toast.success("Match published on-chain! View on block explorer.");
       setShowPublishModal(false);
     } catch (error: any) {
       console.error("Error publishing match:", error);
@@ -407,7 +473,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">Please connect your wallet to play</p>
-          <button onClick={() => router.push("/")} className="btn btn-primary">
+          <button onClick={() => handleNavigation("/")} className="btn btn-primary">
             Go Home
           </button>
         </div>
@@ -423,7 +489,7 @@ export default function MultiplayerGamePage() {
           <p className="text-sm text-base-content/60 mb-6">
             The room may have expired or the server connection was interrupted.
           </p>
-          <button onClick={() => router.push("/play/multiplayer")} className="btn btn-primary w-full">
+          <button onClick={() => handleNavigation("/play/multiplayer")} className="btn btn-primary w-full">
             Back to Play
           </button>
         </div>
@@ -567,6 +633,13 @@ export default function MultiplayerGamePage() {
                   <button onClick={acceptRematch} disabled={isSaving} className="btn btn-success w-full">
                     Accept Rematch
                   </button>
+                  <button
+                    onClick={() => setShowPublishModal(true)}
+                    disabled={isSaving}
+                    className="btn btn-outline w-full"
+                  >
+                    Publish to Blockchain
+                  </button>
                   <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Leave Room
                   </button>
@@ -580,6 +653,13 @@ export default function MultiplayerGamePage() {
                   >
                     {rematchRequested ? "Waiting for opponent..." : "Play Again"}
                   </button>
+                  <button
+                    onClick={() => setShowPublishModal(true)}
+                    disabled={isSaving}
+                    className="btn btn-outline w-full"
+                  >
+                    Publish to Blockchain
+                  </button>
                   <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Back to Play
                   </button>
@@ -589,7 +669,7 @@ export default function MultiplayerGamePage() {
           )}
 
           {!isFreeMode && (
-            <button onClick={() => router.push("/play")} disabled={isSaving} className="btn btn-primary w-full">
+            <button onClick={() => handleNavigation("/play")} disabled={isSaving} className="btn btn-primary w-full">
               Back to Play
             </button>
           )}
@@ -603,11 +683,10 @@ export default function MultiplayerGamePage() {
       {showPublishModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
-            <h3 className="text-xl font-bold mb-4 text-primary">Publish Match Results?</h3>
-            <p className="text-base-content/80 mb-2">Your match results are saved to IPFS and your history.</p>
+            <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
             <p className="text-base-content/80 mb-6">
-              Want to publish them on-chain? You&apos;ll pay gas fees but results will be permanently recorded on the
-              blockchain.
+              You will be asked to sign a transaction to publish this match result on-chain. This only requires gas fees
+              and will permanently record the result on the blockchain.
             </p>
             <div className="flex gap-3">
               <button
@@ -615,10 +694,29 @@ export default function MultiplayerGamePage() {
                 className="btn btn-ghost flex-1"
                 disabled={isPublishing}
               >
-                Skip
+                Cancel
               </button>
               <button onClick={publishMatch} className="btn btn-primary flex-1" disabled={isPublishing}>
-                {isPublishing ? "Publishing..." : "Publish"}
+                {isPublishing ? "Publishing..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExitConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full shadow-glow-warning">
+            <h3 className="text-xl font-bold mb-4 text-warning">Leave Game?</h3>
+            <p className="text-base-content/80 mb-6">
+              You have an active game. Leaving will forfeit the match. Are you sure?
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowExitConfirm(false)} className="btn btn-ghost flex-1">
+                Stay
+              </button>
+              <button onClick={confirmExit} className="btn btn-warning flex-1">
+                Leave
               </button>
             </div>
           </div>

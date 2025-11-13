@@ -72,6 +72,18 @@ export async function POST(req: NextRequest) {
         result: { winner, timestamp: new Date().toISOString() },
       };
 
+      // Resolve names for both players
+      const [creatorEns, joinerEns] = await Promise.all([
+        fetch(`${req.nextUrl.origin}/api/resolve-name?address=${room.creator}`)
+          .then(r => r.json())
+          .catch(() => null),
+        room.joiner
+          ? fetch(`${req.nextUrl.origin}/api/resolve-name?address=${room.joiner}`)
+              .then(r => r.json())
+              .catch(() => null)
+          : null,
+      ]);
+
       // Store to Redis history for both players
       const storePromises = [];
 
@@ -85,6 +97,7 @@ export async function POST(req: NextRequest) {
             match: {
               roomId,
               players: { creator: room.creator, joiner: room.joiner },
+              playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
               moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
               result: { winner, timestamp: new Date().toISOString() },
             },
@@ -103,6 +116,7 @@ export async function POST(req: NextRequest) {
               match: {
                 roomId,
                 players: { creator: room.creator, joiner: room.joiner },
+                playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
                 moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
                 result: { winner, timestamp: new Date().toISOString() },
               },

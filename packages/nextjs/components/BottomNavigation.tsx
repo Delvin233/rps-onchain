@@ -36,8 +36,11 @@ export const BottomNavigation = () => {
   const isInActiveAIGame =
     pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
 
+  // Check if in active multiplayer game
+  const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
+
   const handleNavigation = (path: string) => {
-    if (isInActivePaidGame || isInActiveAIGame) {
+    if (isInActivePaidGame || isInActiveAIGame || isInActiveMultiplayerGame) {
       // In game - only History opens as overlay
       if (path === "/history") {
         openOverlay("history");

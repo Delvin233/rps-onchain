@@ -16,6 +16,10 @@ export interface MatchRecord {
     creator: string;
     joiner: string;
   };
+  playerNames?: {
+    creator?: string | null;
+    joiner?: string | null;
+  };
   moves?: {
     creatorMove: string;
     joinerMove: string;

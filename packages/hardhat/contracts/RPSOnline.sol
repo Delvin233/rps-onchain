@@ -6,6 +6,8 @@ contract RPSOnline {
     
     struct Match {
         address winner;
+        string player1Move;
+        string player2Move;
         uint256 timestamp;
     }
     
@@ -59,13 +61,15 @@ contract RPSOnline {
         return games[roomId];
     }
     
-    function publishMatch(string memory roomId, address winner) external {
+    function publishMatch(string memory roomId, address winner, string memory player1Move, string memory player2Move) external {
         Game storage game = games[roomId];
         require(game.player1 == msg.sender || game.player2 == msg.sender, "Not a player");
         require(game.state == GameState.Joined || game.state == GameState.Finished, "Game not ready");
         
         game.matches.push(Match({
             winner: winner,
+            player1Move: player1Move,
+            player2Move: player2Move,
             timestamp: block.timestamp
         }));
         
