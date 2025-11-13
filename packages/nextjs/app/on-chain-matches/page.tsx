@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, Filter, Shield, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ExternalLink, Filter, Shield, X } from "lucide-react";
 import { base, celo } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
@@ -24,6 +25,7 @@ interface OnChainMatch {
 }
 
 export default function OnChainMatchesPage() {
+  const router = useRouter();
   const [matches, setMatches] = useState<OnChainMatch[]>([]);
   const [filteredMatches, setFilteredMatches] = useState<OnChainMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -206,6 +208,9 @@ export default function OnChainMatchesPage() {
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
+            <ArrowLeft size={20} />
+          </button>
           <Shield className="text-primary" size={32} />
           <h1 className="text-3xl font-bold text-glow-primary">On-Chain Verified Matches</h1>
         </div>

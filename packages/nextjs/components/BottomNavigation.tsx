@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { History, Home, Play, User } from "lucide-react";
+import { History, Home, Play, Shield, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { useOverlay } from "~~/components/overlays/OverlayManager";
 
@@ -16,6 +16,7 @@ export const BottomNavigation = () => {
     { path: "/", icon: Home, label: "Home" },
     { path: "/play", icon: Play, label: "Play" },
     { path: "/history", icon: History, label: "History" },
+    { path: "/on-chain-matches", icon: Shield, label: "On-Chain" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
 
@@ -23,6 +24,7 @@ export const BottomNavigation = () => {
     if (path === "/") return pathname === "/" || activeOverlay === "home";
     if (path === "/history") return pathname === "/history" || activeOverlay === "history";
     if (path === "/profile") return pathname === "/profile" || activeOverlay === "profile";
+    if (path === "/on-chain-matches") return pathname === "/on-chain-matches";
     return pathname.startsWith(path);
   };
 
