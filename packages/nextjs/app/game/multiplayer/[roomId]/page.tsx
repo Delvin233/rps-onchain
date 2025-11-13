@@ -657,6 +657,30 @@ export default function MultiplayerGamePage() {
             </button>
           )}
         </div>
+
+        {showPublishModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+              <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
+              <p className="text-base-content/80 mb-6">
+                You will be asked to sign a transaction to publish this match result on-chain. This only requires gas
+                fees and will permanently record the result on the blockchain.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowPublishModal(false)}
+                  className="btn btn-ghost flex-1"
+                  disabled={isPublishing}
+                >
+                  Cancel
+                </button>
+                <button onClick={publishMatch} className="btn btn-primary flex-1" disabled={isPublishing}>
+                  {isPublishing ? "Publishing..." : "Confirm"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

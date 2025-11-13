@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicClient, http } from "viem";
-import { base, mainnet } from "viem/chains";
+import { base, celo, mainnet } from "viem/chains";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,38 +11,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ name: null });
     }
 
-    // Try Basename first (Base L2)
-    const baseClient = createPublicClient({
-      chain: base,
-      transport: http(),
-    });
+    // Try all chains: Base, Celo, Mainnet
+    const chains = [
+      { client: createPublicClient({ chain: base, transport: http() }), name: "Base" },
+      { client: createPublicClient({ chain: celo, transport: http() }), name: "Celo" },
+      { client: createPublicClient({ chain: mainnet, transport: http() }), name: "Mainnet" },
+    ];
 
-    try {
-      const basename = await baseClient.getEnsName({
-        address: address as `0x${string}`,
-      });
-      if (basename) {
-        return NextResponse.json({ name: basename });
+    for (const { client, name: chainName } of chains) {
+      try {
+        const resolvedName = await client.getEnsName({
+          address: address as `0x${string}`,
+        });
+        if (resolvedName) {
+          return NextResponse.json({ name: resolvedName });
+        }
+      } catch {
+        console.log(`No name found on ${chainName} for`, address);
       }
-    } catch {
-      console.log("No basename found for", address);
-    }
-
-    // Try ENS (Mainnet)
-    const mainnetClient = createPublicClient({
-      chain: mainnet,
-      transport: http(),
-    });
-
-    try {
-      const ensName = await mainnetClient.getEnsName({
-        address: address as `0x${string}`,
-      });
-      if (ensName) {
-        return NextResponse.json({ name: ensName });
-      }
-    } catch {
-      console.log("No ENS found for", address);
     }
 
     return NextResponse.json({ name: null });
