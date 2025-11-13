@@ -5,6 +5,7 @@
 The app uses a **hybrid storage architecture** combining:
 - **Redis** (via Upstash/Vercel KV) - Real-time game state & fast stats
 - **IPFS** (via Pinata) - Permanent match history storage
+- **Turso** (SQLite) - Persistent blockchain proof storage
 - **Vercel Edge Config** - User match hash pointers
 - **Smart Contracts** (Celo/Base) - On-chain game verification
 - **LocalStorage** - Client-side backup & caching
@@ -25,6 +26,7 @@ The app uses a **hybrid storage architecture** combining:
 │  Game State → Redis (1hr TTL)                                   │
 │  Stats → Redis (permanent) + IPFS (daily sync)                  │
 │  Match History → Redis (7 days) + IPFS (permanent)              │
+│  Blockchain Proofs → Turso (permanent, 5GB storage)             │
 │  Match Pointers → Edge Config (permanent)                       │
 │  Backup → LocalStorage (50 matches)                             │
 └─────────────────────────────────────────────────────────────────┘
@@ -196,8 +198,17 @@ Both Submit Moves → Reveal → Result → IPFS Storage → Optional On-chain P
 1. **Publish to Blockchain** (Optional):
    ```javascript
    // User can publish match on-chain
-   publishMatch(roomId, winner) // Smart contract call
+   publishMatch(roomId, winner, creatorMove, joinerMove) // Smart contract call
+   
+   // Store blockchain proof in Turso
+   const matchKey = `${roomId}_${creatorMove}_${joinerMove}_${timestamp}`
+   await fetch('/api/store-blockchain-proof', {
+     method: 'POST',
+     body: JSON.stringify({ roomId, matchKey, txHash, chainId })
+   })
+   
    // Costs gas but creates permanent on-chain record
+   // Each match can be published independently (per-match publishing)
    ```
 
 2. **Rematch System**:
@@ -372,7 +383,55 @@ await fetch(`https://api.vercel.com/v1/edge-config/${id}/items`, {
 
 ---
 
-### **4. LocalStorage (Client-Side)**
+### **4. Turso (SQLite Database)**
+
+**Purpose**: Persistent blockchain proof storage
+
+**Data Structure**:
+
+```sql
+CREATE TABLE blockchain_proofs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  match_key TEXT UNIQUE NOT NULL,
+  room_id TEXT NOT NULL,
+  tx_hash TEXT NOT NULL,
+  chain_id INTEGER NOT NULL,
+  timestamp_ms INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+```
+
+**Storage Flow**:
+
+1. **Match Published** → User clicks "Publish Latest Match"
+2. **Smart Contract Call** → `publishMatch(roomId, winner, moves)`
+3. **Get Transaction Hash** → Blockchain returns tx hash
+4. **Store in Turso** → `POST /api/store-blockchain-proof`
+   ```javascript
+   {
+     roomId: "ABC123",
+     matchKey: "ABC123_rock_scissors_1234567890",
+     txHash: "0xabc...",
+     chainId: "42220"
+   }
+   ```
+5. **Query Proofs** → `GET /api/store-blockchain-proof?roomId=ABC123`
+
+**Why Turso?**
+- 5GB free storage (vs Redis temporary)
+- Persistent across deployments
+- Fast SQLite queries
+- No block range limitations
+- Supports per-match publishing (unique matchKey)
+
+**Files**:
+- `/lib/turso.ts` - Turso client & table initialization
+- `/api/store-blockchain-proof/route.ts` - Store/fetch proofs
+- `/app/on-chain-matches/page.tsx` - Query database for room IDs
+
+---
+
+### **5. LocalStorage (Client-Side)**
 
 **Purpose**: Backup & offline access
 
@@ -483,21 +542,29 @@ Match End → Redis Storage → IPFS Upload → Edge Config Update → LocalStor
 **Flow**:
 
 1. **User Verification**:
-   - User scans QR code with Self app
-   - Self Protocol verifies identity
+   - User clicks verify button
+   - QR code generated via `@selfxyz/qrcode`
+   - User scans with Self app
+   - Self Protocol verifies identity (age 18+, no OFAC)
    - Callback to `/api/verify/route.ts`
-   - Store in Edge Config: `verification_${address} = true`
+   - Store in Edge Config: `verified_${address} = { verified: true, proof, timestamp }`
 
 2. **Room Creation/Joining**:
    - Check verification status via `/api/check-verification`
-   - Display shield icon for verified users
-   - Notify opponent if verified
+   - Display shield icon (🛡️) for verified users
+   - Toast notification to opponent if verified
+   - Stored in room data: `creatorVerified`, `joinerVerified`
+
+**Storage**:
+- Edge Config stores verification proofs permanently
+- Key format: `verified_${address.toLowerCase()}`
+- Includes full proof data and timestamp
 
 **Files**:
-- `/hooks/useSelfProtocol.ts` - QR code generation
+- `/hooks/useSelfProtocol.ts` - QR code generation & polling
 - `/components/SelfVerificationModal.tsx` - Verification UI
-- `/api/verify/route.ts` - Verification callback
-- `/api/check-verification/route.ts` - Status check
+- `/api/verify/route.ts` - Verification callback (stores in Edge Config)
+- `/api/check-verification/route.ts` - Status check (reads from Edge Config)
 
 ---
 
@@ -633,6 +700,10 @@ KV_REST_API_TOKEN=...
 PINATA_JWT=eyJ...
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
 
+# Turso (SQLite Database)
+TURSO_DATABASE_URL=libsql://...
+TURSO_AUTH_TOKEN=eyJ...
+
 # Edge Config (Vercel)
 EDGE_CONFIG=https://edge-config.vercel.com/...
 EDGE_CONFIG_ID=ecfg_...
@@ -651,6 +722,7 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 - `/lib/upstash.ts` - Redis client
 - `/lib/roomStorage.ts` - Room operations
 - `/lib/pinataStorage.ts` - IPFS utilities
+- `/lib/turso.ts` - Turso database client
 - `/lib/edgeConfigClient.ts` - Edge Config updates
 - `/lib/userStore.ts` - In-memory username cache
 
@@ -661,7 +733,10 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 - `/api/user-stats/route.ts` - IPFS stats sync
 - `/api/user-matches/route.ts` - Hash pointer management
 - `/api/store-match/route.ts` - Match storage
-- `/api/verify/route.ts` - Self Protocol verification
+- `/api/store-blockchain-proof/route.ts` - Blockchain proof storage (Turso)
+- `/api/verify/route.ts` - Self Protocol verification callback
+- `/api/check-verification/route.ts` - Check verification status
+- `/api/resolve-name/route.ts` - ENS/Basename resolution
 - `/api/cron/sync-all/route.ts` - Daily IPFS sync
 
 ### Frontend Pages
@@ -670,6 +745,7 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 - `/app/play/multiplayer/page.tsx` - Room create/join
 - `/app/game/multiplayer/[roomId]/page.tsx` - Game interface
 - `/app/history/page.tsx` - Match history
+- `/app/on-chain-matches/page.tsx` - Published blockchain matches
 
 ### Hooks
 - `/hooks/usePlayerStats.ts` - Fetch user stats
@@ -680,12 +756,13 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 
 ## 🎯 Summary
 
-**The app uses a 4-tier storage strategy**:
+**The app uses a 5-tier storage strategy**:
 
 1. **Redis** - Real-time game state (1hr) + fast stats (permanent)
 2. **IPFS** - Permanent match history (decentralized)
-3. **Edge Config** - Global hash pointers (fast lookups)
-4. **LocalStorage** - Client backup (instant access)
+3. **Turso** - Persistent blockchain proofs (5GB SQLite)
+4. **Edge Config** - Global hash pointers (fast lookups)
+5. **LocalStorage** - Client backup (instant access)
 
 **Data flows**:
 - **During game**: Redis only (fast)
@@ -695,7 +772,9 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 
 **Why this architecture?**:
 - ✅ Fast gameplay (Redis)
-- ✅ Permanent records (IPFS)
+- ✅ Permanent records (IPFS + Turso)
+- ✅ Blockchain verification (Turso proofs)
+- ✅ No block range limits (Turso database)
 - ✅ Global access (Edge Config)
 - ✅ Offline capability (LocalStorage)
 - ✅ Cost-effective (minimal on-chain)

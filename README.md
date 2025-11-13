@@ -11,6 +11,8 @@ A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer mo
 - **Multiplayer**: Create/join rooms with 6-character codes
 - **Unlimited Rematches**: Play again and again with friends
 - **Match History**: Decentralized storage via IPFS (Pinata)
+- **Blockchain Verification**: Optional on-chain match publishing
+- **On-Chain Matches**: View all published matches with filters
 - **Gaming UI**: Neon aesthetics with smooth animations
 - **Stats Tracking**: Win/loss records stored on IPFS
 
@@ -138,12 +140,16 @@ yarn dev            # Start frontend (same as yarn start)
 
 - `app/api/username/route.ts` - Username management
 - `app/api/store-match/route.ts` - IPFS match storage via Pinata
-- `app/api/self-callback/route.ts` - Self Protocol verification callback with Edge Config storage
+- `app/api/store-blockchain-proof/route.ts` - Blockchain proof storage (Turso)
+- `app/api/resolve-name/route.ts` - ENS/Basename resolution
+- `app/api/verify/route.ts` - Self Protocol verification callback with Edge Config storage
+- `app/api/check-verification/route.ts` - Check user verification status
 
 ### Utilities & Libraries
 
 - `utils/gameUtils.ts` - Move hashing and game logic
 - `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
+- `lib/turso.ts` - Turso SQLite database client
 - `lib/edgeConfigClient.ts` - Edge Config client for verification persistence
 - `contexts/AuthContext.tsx` - Unified authentication context
 - `hooks/useSelfProtocol.ts` - Self Protocol integration with QR code generation
@@ -177,6 +183,9 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - ✅ Pinata IPFS integration for match history
 - ✅ Unlimited rematch system
 - ✅ Stats tracking and history page
+- ✅ Turso database for persistent blockchain proof storage
+- ✅ On-chain matches page with filters (no block range limits)
+- ✅ Per-match publishing with ENS/Basename resolution
 
 ## 🔮 Future Enhancements
 
@@ -193,7 +202,7 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
 - **Networks**: Celo Mainnet + Base Mainnet (Multi-chain)
-- **Storage**: IPFS via Pinata
+- **Storage**: IPFS via Pinata, Turso SQLite (5GB)
 - **Identity**: Self Protocol (@selfxyz/core)
 - **Payments**: GoodDollar (G$) tipping
 - **Deployment**: Vercel
@@ -214,6 +223,15 @@ DEPLOYER_PRIVATE_KEY=your_private_key
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 PINATA_JWT=your_pinata_jwt_token
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
+
+# Turso Database (for blockchain proof storage)
+TURSO_DATABASE_URL=libsql://your-database.turso.io
+TURSO_AUTH_TOKEN=your_turso_auth_token
+
+# Edge Config (for verification storage)
+EDGE_CONFIG=https://edge-config.vercel.com/...
+EDGE_CONFIG_ID=ecfg_...
+VERCEL_API_TOKEN=...
 
 # Optional: Backend wallet (not required for free-to-play)
 # BACKEND_PRIVATE_KEY=your_backend_wallet_private_key
