@@ -151,8 +151,12 @@ export default function Home() {
             <p className="text-lg md:text-xl font-semibold mb-1">
               Hello, {displayName}
               {hasEns && (
-                <span className={`text-xs ml-2 ${ensType === "mainnet" ? "text-success" : "text-info"}`}>
-                  {ensType === "mainnet" ? "ENS" : "BASE"}
+                <span
+                  className={`text-xs ml-2 ${
+                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                  }`}
+                >
+                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
                 </span>
               )}
             </p>

@@ -235,8 +235,16 @@ export default function MultiplayerPage() {
                   <p className="text-sm text-base-content/80 mb-1">
                     Creator: {creatorName}
                     {creatorHasEns && (
-                      <span className={`ml-1 text-xs ${creatorEnsType === "mainnet" ? "text-success" : "text-info"}`}>
-                        {creatorEnsType === "mainnet" ? "ENS" : "BASE"}
+                      <span
+                        className={`ml-1 text-xs ${
+                          creatorEnsType === "mainnet"
+                            ? "text-success"
+                            : creatorEnsType === "basename"
+                              ? "text-primary"
+                              : "text-info"
+                        }`}
+                      >
+                        {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
                       </span>
                     )}
                   </p>
@@ -289,8 +297,16 @@ export default function MultiplayerPage() {
               <p className="text-base-content text-base font-semibold mb-2">
                 {creatorName}
                 {creatorHasEns && (
-                  <span className={`ml-2 text-xs ${creatorEnsType === "mainnet" ? "text-success" : "text-info"}`}>
-                    {creatorEnsType === "mainnet" ? "ENS" : "BASE"}
+                  <span
+                    className={`ml-2 text-xs ${
+                      creatorEnsType === "mainnet"
+                        ? "text-success"
+                        : creatorEnsType === "basename"
+                          ? "text-primary"
+                          : "text-info"
+                    }`}
+                  >
+                    {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
                   </span>
                 )}
               </p>

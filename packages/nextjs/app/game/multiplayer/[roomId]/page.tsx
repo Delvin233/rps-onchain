@@ -514,8 +514,12 @@ export default function MultiplayerGamePage() {
               <p className="text-xs text-base-content/60 mb-1">
                 {myName}
                 {myHasEns && (
-                  <span className={`ml-1 ${myEnsType === "mainnet" ? "text-success" : "text-info"}`}>
-                    {myEnsType === "mainnet" ? "ENS" : "BASE"}
+                  <span
+                    className={`ml-1 ${
+                      myEnsType === "mainnet" ? "text-success" : myEnsType === "basename" ? "text-primary" : "text-info"
+                    }`}
+                  >
+                    {myEnsType === "mainnet" ? "ENS" : myEnsType === "basename" ? "BASENAME" : "BASE"}
                   </span>
                 )}
               </p>
@@ -525,8 +529,16 @@ export default function MultiplayerGamePage() {
               <p className="text-xs text-base-content/60 mb-1">
                 {opponentName}
                 {opponentHasEns && (
-                  <span className={`ml-1 ${opponentEnsType === "mainnet" ? "text-success" : "text-info"}`}>
-                    {opponentEnsType === "mainnet" ? "ENS" : "BASE"}
+                  <span
+                    className={`ml-1 ${
+                      opponentEnsType === "mainnet"
+                        ? "text-success"
+                        : opponentEnsType === "basename"
+                          ? "text-primary"
+                          : "text-info"
+                    }`}
+                  >
+                    {opponentEnsType === "mainnet" ? "ENS" : opponentEnsType === "basename" ? "BASENAME" : "BASE"}
                   </span>
                 )}
               </p>

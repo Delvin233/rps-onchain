@@ -91,8 +91,12 @@ export default function ProfilePage() {
           <p className="text-lg font-semibold">
             {displayName}
             {hasEns && (
-              <span className={`text-xs ml-2 ${ensType === "mainnet" ? "text-success" : "text-info"}`}>
-                {ensType === "mainnet" ? "ENS" : "BASE"}
+              <span
+                className={`text-xs ml-2 ${
+                  ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                }`}
+              >
+                {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
               </span>
             )}
           </p>
