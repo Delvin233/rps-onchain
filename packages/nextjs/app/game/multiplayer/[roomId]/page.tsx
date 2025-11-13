@@ -441,8 +441,6 @@ export default function MultiplayerGamePage() {
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60">Share this code with your opponent</p>
-          {!isFreeMode && <p className="text-primary font-semibold mt-4">Bet: {betAmount} CELO</p>}
-          {isFreeMode && <p className="text-success font-semibold mt-4">Free Mode</p>}
         </div>
         <button onClick={cancelRoom} className="btn btn-error w-full">
           Cancel Room
@@ -459,7 +457,7 @@ export default function MultiplayerGamePage() {
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
         {!isFreeMode && <p className="text-center text-base-content/60 mb-6">Bet: {betAmount} CELO</p>}
-        {isFreeMode && <p className="text-center text-success mb-6">Free Mode</p>}
+
         <div className="space-y-4">
           {moves.map(move => (
             <button

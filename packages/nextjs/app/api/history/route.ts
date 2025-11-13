@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
           // Create unique key based on match type
           let key: string;
           if (m.opponent === "AI") {
-            // AI match: timestamp + player + moves
-            key = `ai-${m.timestamp}-${m.player}-${m.playerMove}-${m.opponentMove}`;
+            // AI match: timestamp + player + moves (if available)
+            key = `ai-${m.timestamp}-${m.player}-${m.playerMove || "none"}-${m.opponentMove || "none"}`;
           } else if (m.roomId && m.games) {
             // Multiplayer with games array
             key = `room-${m.roomId}-${m.games.length}`;

@@ -147,7 +147,7 @@ export default function Home() {
         </div>
       ) : (
         <div className="px-6 pt-8 pb-4">
-          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6 mt-12">
+          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6">
             <p className="text-lg md:text-xl font-semibold mb-1">
               Hello, {displayName}
               {hasEns && (

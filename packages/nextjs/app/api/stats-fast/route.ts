@@ -77,40 +77,6 @@ export async function POST(request: NextRequest) {
     // Store updated stats
     await redis.set(`stats:${addressLower}`, stats);
 
-    // Store match in history
-    const match = {
-      timestamp: new Date().toISOString(),
-      result,
-      player: address,
-      opponent: "AI",
-    };
-
-    await redis.lpush(`history:${addressLower}`, JSON.stringify(match));
-
-    // Check list length before trimming
-    const listLength = await redis.llen(`history:${addressLower}`);
-
-    // If list is about to exceed 100, auto-sync to IPFS first
-    if (listLength >= 100) {
-      try {
-        // Get all matches before trimming
-        const allMatches = await redis.lrange(`history:${addressLower}`, 0, -1);
-        const parsedMatches = allMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
-
-        // Sync to IPFS
-        await fetch(`${request.nextUrl.origin}/api/sync-ipfs`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, matches: parsedMatches }),
-        });
-      } catch (error) {
-        console.error("Auto-sync to IPFS failed:", error);
-        // Continue anyway - don't block the game
-      }
-    }
-
-    await redis.ltrim(`history:${addressLower}`, 0, 99); // Keep last 100
-
     return NextResponse.json({ success: true, stats });
   } catch (error) {
     console.error("Error updating fast stats:", error);

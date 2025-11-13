@@ -32,12 +32,10 @@ export default function HistoryPage() {
     try {
       // 1. Get LocalStorage matches (instant)
       const localMatches = getLocalMatches();
-      console.log("LocalStorage matches:", localMatches);
 
       // 2. Fetch from Redis + IPFS (via API)
       const response = await fetch(`/api/history?address=${address}`);
       const { matches: serverMatches } = await response.json();
-      console.log("Server matches:", serverMatches);
 
       // 3. Merge all sources and deduplicate
       const allMatches = [...localMatches, ...serverMatches];
@@ -47,8 +45,8 @@ export default function HistoryPage() {
             // Create unique key based on match type
             let key: string;
             if (m.opponent === "AI") {
-              // AI match: timestamp + player + moves
-              key = `ai-${m.timestamp}-${m.player}-${m.playerMove}-${m.opponentMove}`;
+              // AI match: timestamp + player + moves (if available)
+              key = `ai-${m.timestamp}-${m.player}-${m.playerMove || "none"}-${m.opponentMove || "none"}`;
             } else if (m.roomId && m.games) {
               // Multiplayer with games array: roomId + game count
               key = `room-${m.roomId}-${m.games.length}`;
@@ -64,21 +62,21 @@ export default function HistoryPage() {
       );
 
       // 4. Filter user matches and sort
-      console.log("All unique matches before filter:", uniqueMatches);
       const userMatches = uniqueMatches
-        .filter(match => {
-          const isMatch =
-            match.players?.creator === address || match.players?.joiner === address || match.player === address;
-          if (!isMatch) console.log("Filtered out:", match, "address:", address);
-          return isMatch;
-        })
+        .filter(
+          match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
+        )
         .sort((a, b) => {
-          const timeA = typeof a.result === "object" ? a.result.timestamp : a.timestamp || a.games?.[0]?.timestamp || 0;
-          const timeB = typeof b.result === "object" ? b.result.timestamp : b.timestamp || b.games?.[0]?.timestamp || 0;
-          return timeB - timeA;
+          const getTime = (match: any) => {
+            const ts =
+              typeof match.result === "object"
+                ? match.result.timestamp
+                : match.timestamp || match.games?.[0]?.timestamp || 0;
+            return typeof ts === "string" ? new Date(ts).getTime() : ts;
+          };
+          return getTime(b) - getTime(a);
         });
 
-      console.log("Final user matches:", userMatches);
       setMatches(userMatches);
     } catch (error) {
       console.error("Error fetching matches:", error);
@@ -139,7 +137,7 @@ export default function HistoryPage() {
   return (
     <div ref={containerRef} className="min-h-screen bg-base-200 p-6 pt-12 pb-24 overflow-y-auto">
       <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
-      <div className="flex justify-end items-center gap-3 mb-6">
+      <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button onClick={fetchMatches} className="btn btn-sm btn-ghost">
           <RefreshCw size={18} />
         </button>
