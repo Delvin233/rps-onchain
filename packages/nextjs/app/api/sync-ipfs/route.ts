@@ -3,29 +3,32 @@ import { redis } from "~~/lib/upstash";
 
 export async function POST(request: NextRequest) {
   try {
-    const { address } = await request.json();
-    
+    const { address, matches: providedMatches } = await request.json();
+
     if (!address) {
       return NextResponse.json({ error: "Address required" }, { status: 400 });
     }
 
     const addressLower = address.toLowerCase();
-    
-    // Get data from Redis
-    const [statsData, matches] = await Promise.all([
-      redis.get(`stats:${addressLower}`),
-      redis.lrange(`history:${addressLower}`, 0, 99)
-    ]);
-    
+
+    // Get data from Redis (or use provided matches)
+    let matches = providedMatches;
+    const statsData = await redis.get(`stats:${addressLower}`);
+
+    if (!matches) {
+      // Fetch from Redis if not provided
+      const redisMatches = await redis.lrange(`history:${addressLower}`, 0, 99);
+      matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+    }
     const stats = statsData ? statsData : null;
     if (!stats) {
       return NextResponse.json({ error: "No stats found" }, { status: 404 });
     }
-    
+
     // Get current IPFS hash
     const hashResponse = await fetch(`${request.nextUrl.origin}/api/user-matches?address=${address}`);
     const { ipfsHash: currentHash } = await hashResponse.json();
-    
+
     // Store to IPFS
     const pinataResponse = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
       method: "POST",
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         pinataContent: {
           address,
-          matches: matches.map(m => JSON.parse(m)),
+          matches,
           stats,
           syncedAt: new Date().toISOString(),
         },
@@ -45,20 +48,20 @@ export async function POST(request: NextRequest) {
         },
       }),
     });
-    
+
     if (!pinataResponse.ok) {
       throw new Error("Failed to sync to IPFS");
     }
-    
+
     const { IpfsHash } = await pinataResponse.json();
-    
+
     // Update Edge Config with new hash
     await fetch(`${request.nextUrl.origin}/api/user-matches`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address, ipfsHash: IpfsHash }),
     });
-    
+
     // Unpin old file
     if (currentHash) {
       try {
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
         console.error("Error unpinning old file:", error);
       }
     }
-    
+
     return NextResponse.json({ success: true, ipfsHash: IpfsHash });
   } catch (error: any) {
     console.error("Error syncing to IPFS:", error);

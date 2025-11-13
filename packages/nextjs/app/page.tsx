@@ -6,28 +6,32 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
   const { address } = useAccount();
   const router = useRouter();
   const stats = usePlayerStats(address);
+  const { displayName, hasEns, ensType } = useDisplayName(address);
 
   useEffect(() => {
     if (address) {
       // Auto-migrate existing users from IPFS to Redis
-      fetch('/api/migrate-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address })
-      }).then(() => {
-        stats.refetch();
-      }).catch(console.error);
-      
-      // Auto-refresh stats every 5 seconds when connected
+      fetch("/api/migrate-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address }),
+      })
+        .then(() => {
+          stats.refetch();
+        })
+        .catch(console.error);
+
+      // Auto-refresh stats every 3 minutes when connected
       const interval = setInterval(() => {
         stats.refetch();
-      }, 5000);
+      }, 180000);
       return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,9 +122,7 @@ export default function Home() {
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-bold">1</span>
                 </div>
-                <p className="text-sm text-base-content/80">
-                  Connect your wallet to start playing
-                </p>
+                <p className="text-sm text-base-content/80">Connect your wallet to start playing</p>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -138,9 +140,7 @@ export default function Home() {
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-bold">4</span>
                 </div>
-                <p className="text-sm text-base-content/80">
-                  Results are determined instantly and recorded on-chain
-                </p>
+                <p className="text-sm text-base-content/80">Results are determined instantly and recorded on-chain</p>
               </div>
             </div>
           </div>
@@ -148,21 +148,23 @@ export default function Home() {
       ) : (
         <div className="px-6 pt-8 pb-4">
           <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6 mt-12">
-            <p className="text-sm md:text-base text-base-content/60 mb-2">Connected</p>
-            <div className="flex items-center justify-center gap-2">
-              <p className="font-mono text-sm md:text-base">
-                {address.slice(0, 6)}...{address.slice(-4)}
-              </p>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(address);
-                }}
-                className="btn btn-xs btn-ghost"
-                title="Copy address"
-              >
-                📋
-              </button>
-            </div>
+            <p className="text-lg md:text-xl font-semibold mb-1">
+              Hello, {displayName}
+              {hasEns && (
+                <span className={`text-xs ml-2 ${ensType === "mainnet" ? "text-success" : "text-info"}`}>
+                  {ensType === "mainnet" ? "ENS" : "BASE"}
+                </span>
+              )}
+            </p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(address);
+              }}
+              className="text-xs text-base-content/60 hover:text-base-content transition-colors"
+              title="Copy address"
+            >
+              {address.slice(0, 10)}...{address.slice(-8)} 📋
+            </button>
           </div>
 
           <button

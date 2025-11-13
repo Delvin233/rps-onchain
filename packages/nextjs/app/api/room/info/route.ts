@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
       status: room.status,
       creator: room.creator,
       joiner: room.joiner,
+      creatorVerified: room.creatorVerified || false,
       joinerVerified: room.joinerVerified || false,
       isFree: room.isFree || false,
     });

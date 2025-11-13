@@ -17,7 +17,6 @@ export default function SinglePlayerPage() {
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-
   const moves: Move[] = ["rock", "paper", "scissors"];
 
   const playGame = async (move: Move) => {
@@ -124,7 +123,6 @@ export default function SinglePlayerPage() {
                 >
                   {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "It's a Tie!"}
                 </p>
-
               </div>
             )}
           </div>

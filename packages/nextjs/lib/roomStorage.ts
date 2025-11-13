@@ -20,6 +20,7 @@ interface Room {
   playerLeft?: string | null;
   ipfsHash?: string;
   joinerVerified?: boolean;
+  creatorVerified?: boolean;
 }
 
 const ROOM_TTL = 60 * 60; // 1 hour in seconds

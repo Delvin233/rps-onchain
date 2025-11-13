@@ -5,26 +5,83 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
-import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
+import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
   const { address, isConnected } = useAccount();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const { syncToIPFS, isSyncing } = useIPFSSync();
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && address) {
+      fetchMatches();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, isConnected]);
+
+  const fetchMatches = async () => {
+    setIsLoading(true);
+    try {
+      // 1. Get LocalStorage matches (instant)
+      const localMatches = getLocalMatches();
+
+      // 2. Fetch from Redis + IPFS (via API)
+      const response = await fetch(`/api/history?address=${address}`);
+      const { matches: serverMatches } = await response.json();
+
+      // 3. Merge all sources and deduplicate
+      const allMatches = [...localMatches, ...serverMatches];
+      const uniqueMatches = Array.from(
+        new Map(
+          allMatches.map(m => {
+            // Create unique key based on match type
+            let key: string;
+            if (m.opponent === "AI") {
+              // AI match: timestamp + player + moves
+              key = `ai-${m.timestamp}-${m.player}-${m.playerMove}-${m.opponentMove}`;
+            } else if (m.roomId && m.games) {
+              // Multiplayer with games array: roomId + game count
+              key = `room-${m.roomId}-${m.games.length}`;
+            } else {
+              // Single multiplayer game: roomId + timestamp + moves
+              const ts = typeof m.result === "object" ? m.result.timestamp : m.timestamp || Date.now();
+              const moves = m.moves ? `${m.moves.creatorMove}-${m.moves.joinerMove}` : "";
+              key = `match-${m.roomId}-${ts}-${moves}`;
+            }
+            return [key, m];
+          }),
+        ).values(),
+      );
+
+      // 4. Filter user matches and sort
+      const userMatches = uniqueMatches
+        .filter(
+          match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
+        )
+        .sort((a, b) => {
+          const timeA = typeof a.result === "object" ? a.result.timestamp : a.timestamp || a.games?.[0]?.timestamp || 0;
+          const timeB = typeof b.result === "object" ? b.result.timestamp : b.timestamp || b.games?.[0]?.timestamp || 0;
+          return timeB - timeA;
+        });
+
+      setMatches(userMatches);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+      // Fallback to localStorage only
       const localMatches = getLocalMatches();
       const userMatches = localMatches.filter(
         match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
       );
       setMatches(userMatches);
+    } finally {
+      setIsLoading(false);
     }
-  }, [address, isConnected]);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,23 +131,20 @@ export default function HistoryPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => syncToIPFS(address!)}
-            disabled={isSyncing}
-            className="btn btn-sm btn-outline"
-          >
-            {isSyncing ? (
-              <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-              <Upload size={16} />
-            )}
+          <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
+            {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
             Sync IPFS
           </button>
           <BalanceDisplay address={address} format="full" />
         </div>
       </div>
 
-      {matches.length === 0 ? (
+      {isLoading ? (
+        <div className="text-center py-12">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-base-content/60 mt-4">Loading match history...</p>
+        </div>
+      ) : matches.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-base-content/60 mb-4">No matches found</p>
           <a href="/play" className="text-primary hover:text-primary/80 text-sm">

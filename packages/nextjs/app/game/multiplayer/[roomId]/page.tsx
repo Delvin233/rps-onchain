@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -31,15 +31,25 @@ export default function MultiplayerGamePage() {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [gameData, setGameData] = useState<any>(null);
-  const [showTipModal, setShowTipModal] = useState(false);
-  const [isTipping, setIsTipping] = useState(false);
-  const [tipAmount, setTipAmount] = useState("1");
+  const [creatorAddress, setCreatorAddress] = useState<string>("");
+  const [joinerAddress, setJoinerAddress] = useState<string>("");
+
+  const {
+    displayName: creatorName,
+    hasEns: creatorHasEns,
+    ensType: creatorEnsType,
+  } = useDisplayName(creatorAddress || undefined);
+  const {
+    displayName: joinerName,
+    hasEns: joinerHasEns,
+    ensType: joinerEnsType,
+  } = useDisplayName(joinerAddress || undefined);
+
   const toastShownRef = useRef(false);
   const leftToastShownRef = useRef(false);
 
   const moves: Move[] = ["rock", "paper", "scissors"];
   const { writeContractAsync: publishMatchContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
-  const { writeContractAsync: sendToken } = useScaffoldWriteContract("ERC20" as any);
 
   useEffect(() => {
     if (!address) return;
@@ -98,6 +108,8 @@ export default function MultiplayerGamePage() {
       setBetAmount(data.betAmount);
       setGameStatus(data.status);
       setIsFreeMode(data.isFree || false);
+      setCreatorAddress(data.creator || "");
+      setJoinerAddress(data.joiner || "");
 
       // Show joiner verification status to creator
       if (
@@ -117,6 +129,30 @@ export default function MultiplayerGamePage() {
                 <span>🛡️</span> Opponent is Verified
               </p>
               <p className="text-sm text-base-content/60">Your opponent is a verified human</p>
+            </div>
+          ),
+          { duration: 4000 },
+        );
+      }
+
+      // Show creator verification status to joiner
+      if (
+        data.creator &&
+        data.creatorVerified &&
+        data.joiner === address &&
+        !sessionStorage.getItem(`creator_verified_${roomId}`)
+      ) {
+        sessionStorage.setItem(`creator_verified_${roomId}`, "true");
+        toast.custom(
+          (t: { id: string }) => (
+            <div
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-base-100 border border-success/50 rounded-lg p-4 shadow-lg cursor-pointer"
+            >
+              <p className="text-success font-semibold mb-1 flex items-center gap-2">
+                <span>🛡️</span> Room Creator is Verified
+              </p>
+              <p className="text-sm text-base-content/60">The room creator is a verified human</p>
             </div>
           ),
           { duration: 4000 },
@@ -366,31 +402,6 @@ export default function MultiplayerGamePage() {
     }
   };
 
-  const sendTip = async () => {
-    if (!gameData || !address) return;
-    setIsTipping(true);
-    try {
-      const isCreator = gameData.creator === address;
-      const opponent = isCreator ? gameData.joiner : gameData.creator;
-      const GOODDOLLAR_ADDRESS = "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A";
-
-      // @ts-ignore
-      await sendToken({
-        address: GOODDOLLAR_ADDRESS,
-        functionName: "transfer",
-        args: [opponent, parseEther(tipAmount)],
-      });
-
-      toast.success(`Sent ${tipAmount} G$ tip!`);
-      setShowTipModal(false);
-    } catch (error: any) {
-      console.error("Error sending tip:", error);
-      toast.error(error.message || "Failed to send tip");
-    } finally {
-      setIsTipping(false);
-    }
-  };
-
   if (!isConnected || !address) {
     return (
       <div className="p-6 pt-12 pb-24">
@@ -483,6 +494,14 @@ export default function MultiplayerGamePage() {
   }
 
   if (gameStatus === "finished" && result) {
+    const isCreator = creatorAddress === address;
+    const myName = isCreator ? creatorName : joinerName;
+    const myHasEns = isCreator ? creatorHasEns : joinerHasEns;
+    const myEnsType = isCreator ? creatorEnsType : joinerEnsType;
+    const opponentName = isCreator ? joinerName : creatorName;
+    const opponentHasEns = isCreator ? joinerHasEns : creatorHasEns;
+    const opponentEnsType = isCreator ? joinerEnsType : creatorEnsType;
+
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
@@ -492,11 +511,25 @@ export default function MultiplayerGamePage() {
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
-              <p className="text-sm text-base-content/60 mb-2">You</p>
+              <p className="text-xs text-base-content/60 mb-1">
+                {myName}
+                {myHasEns && (
+                  <span className={`ml-1 ${myEnsType === "mainnet" ? "text-success" : "text-info"}`}>
+                    {myEnsType === "mainnet" ? "ENS" : "BASE"}
+                  </span>
+                )}
+              </p>
               <p className="text-2xl font-bold capitalize">{selectedMove}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-base-content/60 mb-2">Opponent</p>
+              <p className="text-xs text-base-content/60 mb-1">
+                {opponentName}
+                {opponentHasEns && (
+                  <span className={`ml-1 ${opponentEnsType === "mainnet" ? "text-success" : "text-info"}`}>
+                    {opponentEnsType === "mainnet" ? "ENS" : "BASE"}
+                  </span>
+                )}
+              </p>
               <p className="text-2xl font-bold capitalize">{opponentMove}</p>
             </div>
           </div>
@@ -545,12 +578,6 @@ export default function MultiplayerGamePage() {
             </div>
           )}
 
-          {isFreeMode && (
-            <button onClick={() => setShowTipModal(true)} disabled={isSaving} className="btn btn-accent w-full mt-3">
-              Tip Opponent (G$)
-            </button>
-          )}
-
           {!isFreeMode && (
             <button onClick={() => router.push("/play")} disabled={isSaving} className="btn btn-primary w-full">
               Back to Play
@@ -563,37 +590,6 @@ export default function MultiplayerGamePage() {
 
   return (
     <>
-      {showTipModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-accent/30 rounded-xl p-6 max-w-md w-full shadow-glow-accent">
-            <h3 className="text-xl font-bold mb-4 text-accent">Tip Your Opponent</h3>
-            <p className="text-base-content/80 mb-4 text-sm">
-              Send GoodDollar (G$) tokens to your opponent as a tip for a great game!
-            </p>
-            <div className="mb-6">
-              <label className="text-sm text-base-content/60 block mb-2">Amount (G$)</label>
-              <input
-                type="number"
-                value={tipAmount}
-                onChange={e => setTipAmount(e.target.value)}
-                className="input input-bordered w-full"
-                placeholder="1"
-                min="0.1"
-                step="0.1"
-              />
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowTipModal(false)} className="btn btn-ghost flex-1" disabled={isTipping}>
-                Cancel
-              </button>
-              <button onClick={sendTip} className="btn btn-accent flex-1" disabled={isTipping}>
-                {isTipping ? "Sending..." : "Send Tip"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showPublishModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">

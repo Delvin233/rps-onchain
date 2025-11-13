@@ -72,26 +72,63 @@ export async function POST(req: NextRequest) {
         result: { winner, timestamp: new Date().toISOString() },
       };
 
-      await Promise.all([
-        (async () => {
-          const creatorHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.creator}`);
-          const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
-          await fetch(`${req.nextUrl.origin}/api/user-stats`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address: room.creator, currentHash: creatorCurrentHash, newMatch: matchData }),
-          });
-        })(),
-        (async () => {
-          const joinerHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.joiner}`);
-          const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
-          await fetch(`${req.nextUrl.origin}/api/user-stats`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address: room.joiner, currentHash: joinerCurrentHash, newMatch: matchData }),
-          });
-        })(),
+      // Store to Redis (fast)
+      await fetch(`${req.nextUrl.origin}/api/store-match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(matchData),
+      });
+
+      // Batch IPFS uploads to avoid rate limits
+      // Only sync to IPFS every 10 games or at 100 games
+      const shouldSyncToIPFS = async (address: string) => {
+        try {
+          const response = await fetch(`${req.nextUrl.origin}/api/stats-fast?address=${address}`);
+          const { stats } = await response.json();
+          // Sync on first game, every 10th game, or at 100 games
+          return stats.totalGames === 1 || stats.totalGames % 10 === 0 || stats.totalGames >= 100;
+        } catch {
+          return false;
+        }
+      };
+
+      const [creatorShouldSync, joinerShouldSync] = await Promise.all([
+        shouldSyncToIPFS(room.creator),
+        room.joiner ? shouldSyncToIPFS(room.joiner) : Promise.resolve(false),
       ]);
+
+      // Only sync to IPFS if needed (batching)
+      const ipfsSyncPromises = [];
+      if (creatorShouldSync) {
+        ipfsSyncPromises.push(
+          (async () => {
+            const creatorHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.creator}`);
+            const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
+            await fetch(`${req.nextUrl.origin}/api/user-stats`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: room.creator, currentHash: creatorCurrentHash, newMatch: matchData }),
+            });
+          })(),
+        );
+      }
+      if (joinerShouldSync && room.joiner) {
+        ipfsSyncPromises.push(
+          (async () => {
+            const joinerHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.joiner}`);
+            const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
+            await fetch(`${req.nextUrl.origin}/api/user-stats`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: room.joiner, currentHash: joinerCurrentHash, newMatch: matchData }),
+            });
+          })(),
+        );
+      }
+
+      if (ipfsSyncPromises.length > 0) {
+        await Promise.all(ipfsSyncPromises);
+      }
     } else {
       room.status = "playing";
     }

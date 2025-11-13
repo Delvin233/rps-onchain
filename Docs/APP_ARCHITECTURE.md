@@ -69,7 +69,7 @@ User → /play → /play/single → Choose Move → AI Response → Result
 #### Data Storage:
 - **Redis**: `stats:${address}` - Instant stats
 - **Redis**: `history:${address}` - Last 100 matches (7-day TTL)
-- **IPFS**: Synced via daily cron job (`/api/cron/sync-all`)
+- **IPFS**: Auto-synced when Redis reaches 100 matches + daily cron job
 
 ---
 
@@ -436,34 +436,43 @@ Match End → Redis Storage → IPFS Upload → Edge Config Update → LocalStor
 
 **User visits `/history`**:
 
-1. **Fetch LocalStorage** (`getLocalMatches()`)
-   - Get last 50 matches from client storage
-   - Includes both AI and multiplayer matches
+1. **Instant Load** - LocalStorage
+   - Shows last 50 matches immediately
+   - No loading spinner for instant UX
 
-2. **Filter User Matches**:
+2. **Fetch Server Data** - `/api/history`
+   - **Redis**: Last 100 matches (7-day TTL)
+   - **IPFS**: All matches via Edge Config hash
+   - Runs in parallel
+
+3. **Merge & Deduplicate**:
    ```javascript
-   matches.filter(m => 
-     m.players?.creator === address || 
-     m.players?.joiner === address || 
-     m.player === address
-   )
+   // Combine all sources
+   allMatches = [...localStorage, ...redis, ...ipfs]
+   
+   // Deduplicate by unique key
+   uniqueKey = `${roomId}-${player}-${opponent}`
+   
+   // Sort by timestamp (newest first)
    ```
 
-3. **Display Matches**:
+4. **Filter & Display**:
+   - Filter matches where user is player
    - **AI Matches**: Single game cards
    - **Multiplayer Matches**: Expandable room cards
      - Shows all games in that room
      - Collapse/expand for rooms with 5+ games
      - IPFS links for each game
 
-4. **IPFS Sync Button**:
+5. **IPFS Sync Button**:
    - Manually trigger sync to IPFS
    - Calls `/api/sync-ipfs` → uploads current stats
 
-**Data Sources**:
-- Primary: LocalStorage (instant)
-- Backup: Redis history (7 days)
-- Permanent: IPFS (via hash lookup)
+**Data Sources** (in order):
+1. **LocalStorage** - Instant, last 50 matches
+2. **Redis** - Fast via `/api/history`, last 100 matches (7-day TTL)
+3. **IPFS** - Permanent via Edge Config hash pointer
+4. **Merge & Deduplicate** - All sources combined, sorted by timestamp
 
 ---
 
@@ -681,7 +690,7 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 **Data flows**:
 - **During game**: Redis only (fast)
 - **After game**: Redis → IPFS → Edge Config → LocalStorage
-- **History page**: LocalStorage first, IPFS fallback
+- **History page**: LocalStorage + Redis + IPFS (merged & deduplicated)
 - **Stats**: Redis (instant), IPFS (permanent backup)
 
 **Why this architecture?**:

@@ -21,8 +21,31 @@ export async function POST(req: NextRequest) {
     // Add new match
     allMatches.unshift(newMatch);
 
-    // Keep only last 100 matches
-    const limitedMatches = allMatches.slice(0, 100);
+    // Deduplicate matches before storing
+    const uniqueMatches = Array.from(
+      new Map(
+        allMatches.map(m => {
+          // Create unique key based on match type
+          let key: string;
+          if (m.opponent === "AI") {
+            // AI match: timestamp + player
+            key = `ai-${m.timestamp}-${m.player}`;
+          } else if (m.roomId && m.games) {
+            // Multiplayer with games array
+            key = `room-${m.roomId}-${m.games.length}`;
+          } else {
+            // Single multiplayer game
+            const ts = typeof m.result === "object" ? m.result.timestamp : m.timestamp || Date.now();
+            const moves = m.moves ? `${m.moves.creatorMove}-${m.moves.joinerMove}` : "";
+            key = `match-${m.roomId}-${ts}-${moves}`;
+          }
+          return [key, m];
+        }),
+      ).values(),
+    );
+
+    // Keep only last 100 matches after deduplication
+    const limitedMatches = Array.from(uniqueMatches).slice(0, 100);
 
     // Calculate stats
     const userMatches = limitedMatches.filter(
@@ -38,7 +61,6 @@ export async function POST(req: NextRequest) {
     ).length;
     const losses = userMatches.length - wins - ties;
     const winRate = userMatches.length > 0 ? Math.round((wins / userMatches.length) * 100) : 0;
-
 
     // Store updated data to IPFS directly via Pinata
     const pinataResponse = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
@@ -57,7 +79,6 @@ export async function POST(req: NextRequest) {
             losses,
             ties,
             winRate,
-
           },
           updatedAt: new Date().toISOString(),
         },

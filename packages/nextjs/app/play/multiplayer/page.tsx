@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { base, celo } from "viem/chains";
 import { useAccount, useSwitchChain } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 
 export default function MultiplayerPage() {
   const router = useRouter();
@@ -21,6 +22,12 @@ export default function MultiplayerPage() {
   const [checkingRoom, setCheckingRoom] = useState(false);
   const [wrongNetwork, setWrongNetwork] = useState<"celo" | "base" | null>(null);
 
+  const {
+    displayName: creatorName,
+    hasEns: creatorHasEns,
+    ensType: creatorEnsType,
+  } = useDisplayName(roomInfo?.creator);
+
   useEffect(() => {
     const savedRoomCode = sessionStorage.getItem("freeRoomCode");
     if (savedRoomCode) setRoomCode(savedRoomCode);
@@ -33,6 +40,7 @@ export default function MultiplayerPage() {
     } else {
       setRoomInfo(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomCode]);
 
   const { switchChain } = useSwitchChain();
@@ -225,7 +233,12 @@ export default function MultiplayerPage() {
               {roomInfo && (
                 <div className="mt-3 p-3 bg-base-200 rounded-lg">
                   <p className="text-sm text-base-content/80 mb-1">
-                    Creator: {roomInfo.creator.slice(0, 6)}...{roomInfo.creator.slice(-4)}
+                    Creator: {creatorName}
+                    {creatorHasEns && (
+                      <span className={`ml-1 text-xs ${creatorEnsType === "mainnet" ? "text-success" : "text-info"}`}>
+                        {creatorEnsType === "mainnet" ? "ENS" : "BASE"}
+                      </span>
+                    )}
                   </p>
                   {roomInfo.creatorVerified && (
                     <div className="flex items-center gap-1 text-success text-sm">
@@ -273,8 +286,13 @@ export default function MultiplayerPage() {
             <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <p className="text-sm text-base-content/60 mb-1">Room Creator</p>
-              <p className="text-base-content font-mono text-sm mb-2">
-                {roomInfo.creator.slice(0, 10)}...{roomInfo.creator.slice(-8)}
+              <p className="text-base-content text-base font-semibold mb-2">
+                {creatorName}
+                {creatorHasEns && (
+                  <span className={`ml-2 text-xs ${creatorEnsType === "mainnet" ? "text-success" : "text-info"}`}>
+                    {creatorEnsType === "mainnet" ? "ENS" : "BASE"}
+                  </span>
+                )}
               </p>
               {roomInfo.creatorVerified && (
                 <div className="flex items-center gap-2 text-success">
