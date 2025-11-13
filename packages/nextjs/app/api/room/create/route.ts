@@ -7,15 +7,16 @@ function generateRoomId(): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { creator, betAmount, isFree } = await req.json();
+    const { creator, betAmount, isFree, chainId } = await req.json();
 
-    if (!creator) {
+    if (!creator || !chainId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const roomId = generateRoomId();
-    roomStorage.set(roomId, {
+    await roomStorage.set(roomId, {
       roomId,
+      chainId,
       creator,
       betAmount: betAmount || "0",
       joiner: null,
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
       createdAt: Date.now(),
     } as any);
 
-    return NextResponse.json({ roomId });
+    return NextResponse.json({ roomId, chainId });
   } catch (error) {
     console.error("Error creating room:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

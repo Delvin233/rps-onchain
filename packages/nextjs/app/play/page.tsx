@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { User, Users } from "lucide-react";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 export default function PlayModePage() {
   const router = useRouter();
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
 
   if (!isConnected) {
     return (
@@ -36,9 +36,9 @@ export default function PlayModePage() {
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-glow-primary">Choose Game Mode</h1>
-        <BalanceDisplay address={address} format="full" />
+      <h1 className="text-3xl font-bold text-glow-primary mb-4">Choose Game Mode</h1>
+      <div className="flex justify-end mb-6">
+        <RainbowKitCustomConnectButton />
       </div>
 
       <div className="space-y-4">
@@ -59,21 +59,6 @@ export default function PlayModePage() {
 
         <button
           onClick={() => router.push("/play/multiplayer")}
-          className="w-full bg-card/50 backdrop-blur border border-success/20 rounded-xl p-6 hover:border-success/50 transition-all duration-200 text-left"
-        >
-          <div className="flex items-center space-x-4">
-            <div className="p-3 rounded-lg bg-success/10">
-              <Users className="text-success" size={32} />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold mb-1">Free Mode</h2>
-              <p className="text-sm text-base-content/60">Play with friends - No stakes</p>
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => router.push("/play/paid")}
           className="w-full bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-6 hover:border-secondary/50 transition-all duration-200 text-left"
         >
           <div className="flex items-center space-x-4">
@@ -81,8 +66,8 @@ export default function PlayModePage() {
               <Users className="text-secondary" size={32} />
             </div>
             <div>
-              <h2 className="text-xl font-semibold mb-1">Paid Mode</h2>
-              <p className="text-sm text-base-content/60">Stake CELO - Winner takes all</p>
+              <h2 className="text-xl font-semibold mb-1">Multiplayer</h2>
+              <p className="text-sm text-base-content/60">Play with friends - Free & Fun</p>
             </div>
           </div>
         </button>

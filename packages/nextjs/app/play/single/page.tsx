@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -16,7 +16,50 @@ export default function SinglePlayerPage() {
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (sessionStorage.getItem("aiGameActive") === "true") {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (sessionStorage.getItem("aiGameActive") === "true") {
+        e.preventDefault();
+        window.history.pushState(null, "", window.location.href);
+        setPendingNavigation("/play");
+        setShowExitConfirm(true);
+      }
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  const handleNavigation = (path: string) => {
+    if (sessionStorage.getItem("aiGameActive") === "true") {
+      setPendingNavigation(path);
+      setShowExitConfirm(true);
+    } else {
+      router.push(path);
+    }
+  };
+
+  const confirmExit = () => {
+    sessionStorage.removeItem("aiGameActive");
+    if (pendingNavigation) {
+      router.push(pendingNavigation);
+    }
+  };
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
@@ -25,6 +68,7 @@ export default function SinglePlayerPage() {
     setPlayerMove(move);
     setAiMove(null);
     setResult(null);
+    sessionStorage.setItem("aiGameActive", "true");
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -39,25 +83,29 @@ export default function SinglePlayerPage() {
     setResult(data.result);
     setIsPlaying(false);
 
-    // Sync matches from IPFS to localStorage
-    setIsSaving(true);
-    if (typeof window !== "undefined") {
-      const hashResponse = await fetch(`/api/user-matches?address=${address}`);
-      const { ipfsHash } = await hashResponse.json();
-      if (ipfsHash) {
-        const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
-        if (userData.matches) {
-          localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
-        }
-      }
-    }
-    setIsSaving(false);
+    // Store to Redis history
+    await fetch("/api/history-fast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        address,
+        match: {
+          opponent: "AI",
+          player: address,
+          playerMove: move,
+          opponentMove: data.aiMove,
+          result: data.result,
+          timestamp: new Date().toISOString(),
+        },
+      }),
+    });
   };
 
   const playAgain = () => {
     setPlayerMove(null);
     setAiMove(null);
     setResult(null);
+    sessionStorage.removeItem("aiGameActive");
   };
 
   if (!isConnected) {
@@ -87,14 +135,14 @@ export default function SinglePlayerPage() {
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
-        </div>
-        <BalanceDisplay address={address} format="full" />
+      <div className="flex items-center mb-4">
+        <button onClick={() => handleNavigation("/play")} className="btn btn-sm btn-ghost">
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
+      </div>
+      <div className="flex justify-end mb-6">
+        <RainbowKitCustomConnectButton />
       </div>
 
       {!playerMove ? (
@@ -134,26 +182,37 @@ export default function SinglePlayerPage() {
                 >
                   {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "It's a Tie!"}
                 </p>
-                {isSaving && (
-                  <p className="text-sm text-base-content/60 mt-3 flex items-center justify-center gap-2">
-                    <span className="loading loading-spinner loading-sm"></span>
-                    Saving to history...
-                  </p>
-                )}
               </div>
             )}
           </div>
 
-          {result && !isSaving && (
+          {result && (
             <div className="space-y-3">
               <button onClick={playAgain} className="btn btn-primary w-full">
                 Play Again
               </button>
-              <button onClick={() => router.push("/play")} className="btn btn-outline w-full">
+              <button onClick={() => handleNavigation("/play")} className="btn btn-outline w-full">
                 Back to Play
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {showExitConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full shadow-glow-warning">
+            <h3 className="text-xl font-bold mb-4 text-warning">Leave Game?</h3>
+            <p className="text-base-content/80 mb-6">You have an active game. Are you sure you want to leave?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowExitConfirm(false)} className="btn btn-ghost flex-1">
+                Stay
+              </button>
+              <button onClick={confirmExit} className="btn btn-warning flex-1">
+                Leave
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

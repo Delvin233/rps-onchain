@@ -3,29 +3,77 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowLeft, Plus, Users } from "lucide-react";
-import { useAccount } from "wagmi";
+import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
+import toast from "react-hot-toast";
+import { celo } from "viem/chains";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 
 export default function MultiplayerPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [showCreateConfirm, setShowCreateConfirm] = useState(false);
+  const [showJoinConfirm, setShowJoinConfirm] = useState(false);
+  const [roomInfo, setRoomInfo] = useState<any>(null);
+  const [checkingRoom, setCheckingRoom] = useState(false);
+
+  const { switchChain } = useSwitchChain();
+
+  const {
+    displayName: creatorName,
+    hasEns: creatorHasEns,
+    ensType: creatorEnsType,
+  } = useDisplayName(roomInfo?.creator);
 
   useEffect(() => {
-    const savedRoomCode = sessionStorage.getItem("freeRoomCode");
-    if (savedRoomCode) setRoomCode(savedRoomCode);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("clear") === "1") {
+      setRoomCode("");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem("freeRoomCode", roomCode);
+    if (roomCode.length === 6) {
+      checkRoomInfo();
+    } else {
+      setRoomInfo(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomCode]);
+
+  const checkRoomInfo = async () => {
+    setCheckingRoom(true);
+    try {
+      const response = await fetch(`/api/room/info?roomId=${roomCode}`);
+      if (response.ok) {
+        const data = await response.json();
+        const verifyRes = await fetch(`/api/check-verification?address=${data.creator}`);
+        const verifyData = await verifyRes.json();
+        setRoomInfo({ ...data, creatorVerified: verifyData.verified });
+      } else {
+        setRoomInfo(null);
+      }
+    } catch {
+      setRoomInfo(null);
+    } finally {
+      setCheckingRoom(false);
+    }
+  };
+
+  const { writeContractAsync: createGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const createRoom = async () => {
     if (!address) return;
 
     setIsCreating(true);
+    setShowCreateConfirm(false);
     try {
       const response = await fetch("/api/room/create", {
         method: "POST",
@@ -34,37 +82,70 @@ export default function MultiplayerPage() {
           creator: address,
           betAmount: "0",
           isFree: true,
+          chainId,
         }),
       });
 
       const data = await response.json();
       if (data.roomId) {
+        await createGameContract({
+          functionName: "createGame",
+          args: [data.roomId],
+        });
         router.push(`/game/multiplayer/${data.roomId}?mode=free`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating room:", error);
+      toast.error(error.message || "Failed to create room");
     } finally {
       setIsCreating(false);
     }
   };
 
+  const { writeContractAsync: joinGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
+
   const joinRoom = async () => {
     if (!address || !roomCode || roomCode.length !== 6) return;
 
     setIsJoining(true);
+    setShowJoinConfirm(false);
     try {
+      // Sign blockchain transaction FIRST
+      await joinGameContract({
+        functionName: "joinGame",
+        args: [roomCode],
+      });
+
+      // THEN update Redis after blockchain confirms
+      const verifyRes = await fetch(`/api/check-verification?address=${address}`);
+      const verifyData = await verifyRes.json();
+
       const response = await fetch("/api/room/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId: roomCode, joiner: address }),
+        body: JSON.stringify({ roomId: roomCode, joiner: address, joinerVerified: verifyData.verified }),
       });
 
       const data = await response.json();
       if (data.success) {
         router.push(`/game/multiplayer/${roomCode}?mode=free`);
+      } else if (data.error === "Room is full") {
+        toast.error("Room is full", {
+          style: {
+            background: "#1f2937",
+            color: "#fff",
+            border: "1px solid #ef4444",
+          },
+        });
+      } else {
+        toast.error(data.error || "Failed to join room");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error joining room:", error);
+      const errorMsg = error.message?.includes("Room does not exist")
+        ? "Room not found. Please check the code or switch networks."
+        : "Failed to join room";
+      toast.error(errorMsg);
     } finally {
       setIsJoining(false);
     }
@@ -75,8 +156,8 @@ export default function MultiplayerPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Free Mode</h1>
-            <p className="text-base-content/70">Connect Wallet</p>
+            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Multiplayer</h1>
+            <p className="text-base-content/70">Connect Wallet to Play</p>
           </div>
           <div className="w-full">
             <ConnectButton.Custom>
@@ -97,11 +178,14 @@ export default function MultiplayerPage() {
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-4">
         <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-2xl font-bold text-glow-primary ml-2">Free Mode</h1>
+        <h1 className="text-2xl font-bold text-glow-primary ml-2">Multiplayer</h1>
+      </div>
+      <div className="flex justify-end mb-6">
+        <RainbowKitCustomConnectButton />
       </div>
 
       <div className="space-y-6">
@@ -111,7 +195,11 @@ export default function MultiplayerPage() {
             <span>Create Room</span>
           </h2>
           <div className="space-y-4">
-            <button onClick={createRoom} disabled={isCreating || !address} className="btn btn-primary w-full">
+            <button
+              onClick={() => setShowCreateConfirm(true)}
+              disabled={isCreating || !address}
+              className="btn btn-primary w-full"
+            >
               {isCreating ? "Creating..." : "Create Room"}
             </button>
           </div>
@@ -132,10 +220,68 @@ export default function MultiplayerPage() {
                 placeholder="XXXXXX"
                 maxLength={6}
               />
+              {checkingRoom && <p className="text-xs text-base-content/60 mt-2">Checking room...</p>}
+              {roomInfo && roomInfo.chainId && roomInfo.chainId !== chainId && (
+                <div className="mt-3 p-3 bg-warning/10 border border-warning/30 rounded-lg">
+                  <p className="text-sm text-warning mb-2">
+                    Room is on {roomInfo.chainId === celo.id ? "Celo" : "Base"}
+                  </p>
+                  <button
+                    onClick={() => switchChain({ chainId: roomInfo.chainId })}
+                    className="btn btn-sm btn-warning w-full"
+                  >
+                    Switch Network
+                  </button>
+                </div>
+              )}
+              {roomInfo && (
+                <div className="mt-3 p-3 bg-base-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm text-base-content/80">
+                      Creator: {creatorName}
+                      {creatorHasEns && (
+                        <span
+                          className={`ml-1 text-xs ${
+                            creatorEnsType === "mainnet"
+                              ? "text-success"
+                              : creatorEnsType === "basename"
+                                ? "text-primary"
+                                : "text-info"
+                          }`}
+                        >
+                          {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                        </span>
+                      )}
+                    </p>
+                    {roomInfo.creator && (
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(roomInfo.creator);
+                          toast.success("Address copied!");
+                        }}
+                        className="btn btn-xs btn-ghost"
+                      >
+                        📋
+                      </button>
+                    )}
+                  </div>
+                  {roomInfo.creatorVerified && (
+                    <div className="flex items-center gap-1 text-success text-sm">
+                      <Shield size={14} />
+                      <span>Verified Human</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <button
-              onClick={joinRoom}
-              disabled={isJoining || !address || roomCode.length !== 6}
+              onClick={() => setShowJoinConfirm(true)}
+              disabled={
+                isJoining ||
+                !address ||
+                roomCode.length !== 6 ||
+                (roomInfo && roomInfo.chainId && roomInfo.chainId !== chainId)
+              }
               className="btn btn-secondary w-full"
             >
               {isJoining ? "Joining..." : "Join Game"}
@@ -143,6 +289,81 @@ export default function MultiplayerPage() {
           </div>
         </div>
       </div>
+
+      {showCreateConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+            <h3 className="text-xl font-bold mb-4 text-primary">Confirm Room Creation</h3>
+            <p className="text-base-content/80 mb-6">
+              You will be asked to sign a transaction to create your game room on-chain. This is free and only requires
+              gas fees.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowCreateConfirm(false)} className="btn btn-ghost flex-1">
+                Cancel
+              </button>
+              <button onClick={createRoom} className="btn btn-primary flex-1">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showJoinConfirm && roomInfo && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 border border-secondary/30 rounded-xl p-6 max-w-md w-full shadow-glow-secondary">
+            <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
+            <div className="mb-4 p-3 bg-base-200 rounded-lg">
+              <p className="text-sm text-base-content/60 mb-1">Room Creator</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-base-content text-base font-semibold">
+                  {creatorName}
+                  {creatorHasEns && (
+                    <span
+                      className={`ml-2 text-xs ${
+                        creatorEnsType === "mainnet"
+                          ? "text-success"
+                          : creatorEnsType === "basename"
+                            ? "text-primary"
+                            : "text-info"
+                      }`}
+                    >
+                      {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                    </span>
+                  )}
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(roomInfo.creator);
+                    toast.success("Address copied!");
+                  }}
+                  className="btn btn-xs btn-ghost"
+                >
+                  📋
+                </button>
+              </div>
+              {roomInfo.creatorVerified && (
+                <div className="flex items-center gap-2 text-success">
+                  <Shield size={16} />
+                  <span className="text-sm font-semibold">Verified Human</span>
+                </div>
+              )}
+            </div>
+            <p className="text-base-content/80 mb-6 text-sm">
+              You will be asked to sign a transaction to join this room. This is free and only requires gas fees.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowJoinConfirm(false)} className="btn btn-ghost flex-1">
+                Cancel
+              </button>
+              <button onClick={joinRoom} className="btn btn-secondary flex-1">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

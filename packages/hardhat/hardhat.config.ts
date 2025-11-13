@@ -129,6 +129,16 @@ const config: HardhatUserConfig = {
   // Configuration for harhdat-verify plugin
   etherscan: {
     apiKey: etherscanApiKey,
+    customChains: [
+      {
+        network: "celo",
+        chainId: 42220,
+        urls: {
+          apiURL: "https://api.celoscan.io/api",
+          browserURL: "https://celoscan.io",
+        },
+      },
+    ],
   },
   // Configuration for etherscan-verify from hardhat-deploy plugin
   verify: {

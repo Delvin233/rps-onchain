@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, createContext, useContext, useState, useEffect } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 interface AuthContextType {
@@ -18,13 +18,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
   const [isHumanVerified, setIsHumanVerified] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (walletAddress && mounted && typeof window !== 'undefined') {
+    if (walletAddress && mounted && typeof window !== "undefined") {
       fetch(`/api/check-verification?address=${walletAddress}`)
         .then(res => res.json())
         .then(data => setIsHumanVerified(data.verified || false))

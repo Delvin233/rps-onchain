@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Missing roomId" }, { status: 400 });
     }
 
-    const room = roomStorage.get(roomId);
+    const room = await roomStorage.get(roomId);
     if (!room) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
         ipfsHash: room.ipfsHash,
         betAmount: room.betAmount,
         roomId: roomId,
+        chainId: room.chainId,
+        playerNames: room.playerNames,
       };
       console.log("Returning finished game status:", response);
       return NextResponse.json(response);

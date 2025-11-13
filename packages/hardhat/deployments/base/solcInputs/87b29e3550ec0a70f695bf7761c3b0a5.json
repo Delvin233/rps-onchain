@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/RPSOnline.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\ncontract RPSOnline {\n    enum GameState { Created, Joined, Finished }\n    \n    struct Match {\n        address winner;\n        uint256 timestamp;\n    }\n    \n    struct Game {\n        address player1;\n        address player2;\n        GameState state;\n        uint256 createdAt;\n        Match[] matches;\n    }\n    \n    address public backend;\n    \n    mapping(string => Game) public games;\n    \n    event GameCreated(string indexed roomId, address indexed creator);\n    event GameJoined(string indexed roomId, address indexed joiner);\n    event MatchFinished(string indexed roomId, address indexed winner, uint256 matchNumber);\n    event GameCancelled(string indexed roomId, address indexed creator);\n    \n    constructor() {\n        backend = msg.sender;\n    }\n    \n    function createGame(string memory roomId) external {\n        require(games[roomId].player1 == address(0), \"Room already exists\");\n        \n        Game storage game = games[roomId];\n        game.player1 = msg.sender;\n        game.player2 = address(0);\n        game.state = GameState.Created;\n        game.createdAt = block.timestamp;\n        \n        emit GameCreated(roomId, msg.sender);\n    }\n    \n    function joinGame(string memory roomId) external {\n        Game storage game = games[roomId];\n        require(game.player1 != address(0), \"Room does not exist\");\n        require(game.player2 == address(0), \"Room is full\");\n        require(game.player1 != msg.sender, \"Cannot join your own room\");\n        require(game.state == GameState.Created, \"Game not available\");\n        \n        game.player2 = msg.sender;\n        game.state = GameState.Joined;\n        \n        emit GameJoined(roomId, msg.sender);\n    }\n    \n    function getGame(string memory roomId) external view returns (Game memory) {\n        return games[roomId];\n    }\n    \n    function publishMatch(string memory roomId, address winner) external {\n        Game storage game = games[roomId];\n        require(game.player1 == msg.sender || game.player2 == msg.sender, \"Not a player\");\n        require(game.state == GameState.Joined || game.state == GameState.Finished, \"Game not ready\");\n        \n        game.matches.push(Match({\n            winner: winner,\n            timestamp: block.timestamp\n        }));\n        \n        emit MatchFinished(roomId, winner, game.matches.length);\n    }\n    \n\n    \n    function getMatchHistory(string memory roomId) external view returns (Match[] memory) {\n        return games[roomId].matches;\n    }\n    \n\n    \n\n\n    \n    function cancelGame(string memory roomId) external {\n        Game storage game = games[roomId];\n        require(game.player1 == msg.sender, \"Not the creator\");\n        require(game.state == GameState.Created, \"Game already started\");\n        require(game.player2 == address(0), \"Player already joined\");\n        \n        delete games[roomId];\n        emit GameCancelled(roomId, msg.sender);\n    }\n    \n    function isRoomAvailable(string memory roomId) external view returns (bool) {\n        Game storage game = games[roomId];\n        return game.player1 != address(0) && game.player2 == address(0) && game.state == GameState.Created;\n    }\n    \n    function getRoomStats(string memory roomId) external view returns (uint256 totalMatches, address player1, address player2) {\n        Game storage game = games[roomId];\n        return (game.matches.length, game.player1, game.player2);\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

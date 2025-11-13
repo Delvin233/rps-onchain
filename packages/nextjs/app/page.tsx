@@ -5,40 +5,50 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
   const { address } = useAccount();
   const router = useRouter();
   const stats = usePlayerStats(address);
+  const { displayName, hasEns, ensType } = useDisplayName(address);
 
   useEffect(() => {
     if (address) {
-      stats.refetch();
+      // Auto-migrate existing users from IPFS to Redis
+      fetch("/api/migrate-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address }),
+      })
+        .then(() => {
+          stats.refetch();
+        })
+        .catch(console.error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   const statsData = [
     { title: "Total Games", value: stats.totalGames.toString(), icon: Target },
-    { title: "Win Rate", value: `${stats.winRate}%`, icon: TrendingUp },
-    { title: "Total Wagered", value: `${stats.totalWagered.toFixed(2)} CELO`, icon: Coins },
+    { title: "Wins", value: stats.wins.toString(), icon: TrendingUp },
+    { title: "Win Rate", value: `${stats.winRate}%`, icon: Coins },
   ];
 
   return (
-    <div className="min-h-screen bg-base-200 relative">
+    <div className="min-h-screen bg-base-200">
       {address && (
-        <div className="absolute top-4 right-4 z-10">
-          <BalanceDisplay address={address} format="full" />
+        <div className="flex justify-end pt-4 px-6">
+          <RainbowKitCustomConnectButton />
         </div>
       )}
       {!address ? (
         <div className="px-6 pt-16 pb-24">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
-            <p className="text-lg text-base-content/80 mb-2">Rock Paper Scissors on the Blockchain</p>
-            <p className="text-sm text-base-content/60">Play. Bet. Win. All on Celo.</p>
+            <p className="text-sm text-base-content/60">Free-to-play Rock Paper Scissors on Celo & Base.</p>
           </div>
 
           <div className="mb-12 max-w-md mx-auto">
@@ -75,9 +85,9 @@ export default function Home() {
                   <Coins className="text-secondary" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold mb-1">Real Money Betting</h3>
+                  <h3 className="text-lg font-bold mb-1">Free to Play</h3>
                   <p className="text-sm text-base-content/60">
-                    Stake CELO and win big. Winner takes all with instant payouts.
+                    No betting required. Just pure fun with friends and AI opponents.
                   </p>
                 </div>
               </div>
@@ -91,7 +101,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-lg font-bold mb-1">Track Your Stats</h3>
                   <p className="text-sm text-base-content/60">
-                    View match history, win rates, and total earnings on IPFS.
+                    View match history, win rates, and achievements stored on IPFS.
                   </p>
                 </div>
               </div>
@@ -105,9 +115,7 @@ export default function Home() {
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-bold">1</span>
                 </div>
-                <p className="text-sm text-base-content/80">
-                  Connect your wallet and verify identity for higher limits
-                </p>
+                <p className="text-sm text-base-content/80">Connect your wallet to start playing</p>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -125,31 +133,35 @@ export default function Home() {
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-bold">4</span>
                 </div>
-                <p className="text-sm text-base-content/80">
-                  Winner takes the full pot automatically via smart contract
-                </p>
+                <p className="text-sm text-base-content/80">Results are determined instantly and recorded on-chain</p>
               </div>
             </div>
           </div>
         </div>
       ) : (
         <div className="px-6 pt-8 pb-4">
-          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6 mt-12">
-            <p className="text-sm md:text-base text-base-content/60 mb-2">Connected</p>
-            <div className="flex items-center justify-center gap-2">
-              <p className="font-mono text-sm md:text-base">
-                {address.slice(0, 6)}...{address.slice(-4)}
-              </p>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(address);
-                }}
-                className="btn btn-xs btn-ghost"
-                title="Copy address"
-              >
-                📋
-              </button>
-            </div>
+          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6">
+            <p className="text-lg md:text-xl font-semibold mb-1">
+              Hello, {displayName}
+              {hasEns && (
+                <span
+                  className={`text-xs ml-2 ${
+                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                  }`}
+                >
+                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+                </span>
+              )}
+            </p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(address);
+              }}
+              className="text-xs text-base-content/60 hover:text-base-content transition-colors"
+              title="Copy address"
+            >
+              {address.slice(0, 10)}...{address.slice(-8)} 📋
+            </button>
           </div>
 
           <button

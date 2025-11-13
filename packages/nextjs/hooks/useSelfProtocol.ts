@@ -14,13 +14,13 @@ export const useSelfProtocol = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setMounted(true);
     }
   }, []);
 
   useEffect(() => {
-    if (address && mounted && typeof window !== 'undefined') {
+    if (address && mounted && typeof window !== "undefined") {
       fetch(`/api/check-verification?address=${address}`)
         .then(res => res.json())
         .then(data => {
@@ -41,7 +41,7 @@ export const useSelfProtocol = () => {
   }, [pollInterval, pollTimeout]);
 
   const verify = useCallback(async () => {
-    if (!address || !mounted || typeof window === 'undefined') return { success: false, error: "Not ready" };
+    if (!address || !mounted || typeof window === "undefined") return { success: false, error: "Not ready" };
 
     setIsLoading(true);
 

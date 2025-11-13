@@ -2,26 +2,24 @@
 
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Copy, LogOut, Shield, Wallet } from "lucide-react";
-import { useAccount, useDisconnect } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { Copy, Shield } from "lucide-react";
+import { useAccount } from "wagmi";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 
 export default function ProfilePage() {
   const { address } = useAccount();
-  const { disconnect } = useDisconnect();
   const { isHumanVerified } = useAuth();
+  const { displayName, hasEns, ensType } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [username, setUsername] = useState("");
 
   const copyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address);
     }
   };
-
-  const maxBet = isHumanVerified ? 1000 : 20;
 
   if (!address) {
     return (
@@ -51,20 +49,10 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
-      {/* Balance */}
+      {/* Wallet */}
       <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-lg bg-primary/20">
-              <Wallet className="text-primary" size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-base-content/60">Balance</p>
-              <div className="text-2xl font-bold">
-                <BalanceDisplay address={address} />
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center justify-center">
+          <RainbowKitCustomConnectButton />
         </div>
       </div>
 
@@ -81,16 +69,23 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Username */}
+      {/* Display Name */}
       <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mb-4">
-        <label className="text-sm text-base-content/60 mb-2 block">Username</label>
-        <input
-          type="text"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          placeholder="Enter username"
-          className="input input-bordered w-full"
-        />
+        <p className="text-sm text-base-content/60 mb-2">Display Name</p>
+        <div className="flex items-center justify-between">
+          <p className="text-lg font-semibold">
+            {displayName}
+            {hasEns && (
+              <span
+                className={`text-xs ml-2 ${
+                  ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                }`}
+              >
+                {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+              </span>
+            )}
+          </p>
+        </div>
       </div>
 
       {/* Verification Status */}
@@ -102,7 +97,7 @@ export default function ProfilePage() {
             <Shield className={isHumanVerified ? "text-success" : "text-warning"} size={24} />
             <div>
               <p className="font-semibold">{isHumanVerified ? "Verified Account" : "Unverified Account"}</p>
-              <p className="text-xs text-base-content/60">Max bet: {maxBet} CELO</p>
+              <p className="text-xs text-base-content/60">Verified human player</p>
             </div>
           </div>
         </div>
@@ -112,12 +107,6 @@ export default function ProfilePage() {
           </button>
         )}
       </div>
-
-      {/* Disconnect */}
-      <button onClick={() => disconnect()} className="btn btn-error w-full">
-        <LogOut size={16} />
-        Disconnect Wallet
-      </button>
 
       <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
     </div>

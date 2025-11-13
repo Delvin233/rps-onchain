@@ -24,10 +24,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const room = roomStorage.get(roomId);
+    const room = await roomStorage.get(roomId);
     if (!room) {
       console.log("Room not found:", roomId);
-      console.log("Available rooms:", Array.from(roomStorage.getAll().keys()));
+      const allRooms = await roomStorage.getAll();
+      console.log(
+        "Available rooms:",
+        allRooms.map(r => r.roomId),
+      );
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
     console.log("Room found:", { roomId, status: room.status, creator: room.creator, joiner: room.joiner });
@@ -54,21 +58,114 @@ export async function POST(req: NextRequest) {
       room.creatorResult = determineWinner(room.creatorMove, room.joinerMove);
       room.joinerResult = determineWinner(room.joinerMove, room.creatorMove);
 
-      // Store to IPFS if free mode
-      if (room.isFree) {
-        const winner = room.creatorResult === "win" ? room.creator : room.joinerResult === "win" ? room.joiner : "tie";
-        const winnerAddress = winner === "tie" ? "tie" : winner;
+      // Store to IPFS
+      const winner =
+        room.creatorResult === "win"
+          ? room.creator
+          : room.joinerResult === "win"
+            ? room.joiner
+            : "0x0000000000000000000000000000000000000000";
+      const matchData = {
+        roomId,
+        players: { creator: room.creator, joiner: room.joiner },
+        moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
+        result: { winner, timestamp: new Date().toISOString() },
+      };
 
-        const matchData = {
-          roomId,
-          players: { creator: room.creator, joiner: room.joiner },
-          moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
-          result: { winner: winnerAddress, timestamp: new Date().toISOString() },
-          betAmount: room.betAmount || "0",
-        };
+      // Resolve names for both players
+      const [creatorEns, joinerEns] = await Promise.all([
+        fetch(`${req.nextUrl.origin}/api/resolve-name?address=${room.creator}`)
+          .then(r => r.json())
+          .then(data => {
+            console.log("Creator name resolved:", data);
+            return data;
+          })
+          .catch(err => {
+            console.error("Error resolving creator name:", err);
+            return { name: null };
+          }),
+        room.joiner
+          ? fetch(`${req.nextUrl.origin}/api/resolve-name?address=${room.joiner}`)
+              .then(r => r.json())
+              .then(data => {
+                console.log("Joiner name resolved:", data);
+                return data;
+              })
+              .catch(err => {
+                console.error("Error resolving joiner name:", err);
+                return { name: null };
+              })
+          : { name: null },
+      ]);
 
-        // Update stats for both players
-        await Promise.all([
+      // Store playerNames in room object
+      room.playerNames = { creator: creatorEns?.name, joiner: joinerEns?.name };
+
+      // Store to Redis history for both players
+      const storePromises = [];
+
+      // Store for creator
+      storePromises.push(
+        fetch(`${req.nextUrl.origin}/api/history-fast`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: room.creator,
+            match: {
+              roomId,
+              players: { creator: room.creator, joiner: room.joiner },
+              playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
+              moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
+              result: { winner, timestamp: new Date().toISOString() },
+            },
+          }),
+        }),
+      );
+
+      // Store for joiner
+      if (room.joiner) {
+        storePromises.push(
+          fetch(`${req.nextUrl.origin}/api/history-fast`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              address: room.joiner,
+              match: {
+                roomId,
+                players: { creator: room.creator, joiner: room.joiner },
+                playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
+                moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
+                result: { winner, timestamp: new Date().toISOString() },
+              },
+            }),
+          }),
+        );
+      }
+
+      await Promise.all(storePromises);
+
+      // Batch IPFS uploads to avoid rate limits
+      // Only sync to IPFS every 10 games or at 100 games
+      const shouldSyncToIPFS = async (address: string) => {
+        try {
+          const response = await fetch(`${req.nextUrl.origin}/api/stats-fast?address=${address}`);
+          const { stats } = await response.json();
+          // Sync on first game, every 10th game, or at 100 games
+          return stats.totalGames === 1 || stats.totalGames % 10 === 0 || stats.totalGames >= 100;
+        } catch {
+          return false;
+        }
+      };
+
+      const [creatorShouldSync, joinerShouldSync] = await Promise.all([
+        shouldSyncToIPFS(room.creator),
+        room.joiner ? shouldSyncToIPFS(room.joiner) : Promise.resolve(false),
+      ]);
+
+      // Only sync to IPFS if needed (batching)
+      const ipfsSyncPromises = [];
+      if (creatorShouldSync) {
+        ipfsSyncPromises.push(
           (async () => {
             const creatorHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.creator}`);
             const { ipfsHash: creatorCurrentHash } = await creatorHashRes.json();
@@ -78,6 +175,10 @@ export async function POST(req: NextRequest) {
               body: JSON.stringify({ address: room.creator, currentHash: creatorCurrentHash, newMatch: matchData }),
             });
           })(),
+        );
+      }
+      if (joinerShouldSync && room.joiner) {
+        ipfsSyncPromises.push(
           (async () => {
             const joinerHashRes = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${room.joiner}`);
             const { ipfsHash: joinerCurrentHash } = await joinerHashRes.json();
@@ -87,13 +188,17 @@ export async function POST(req: NextRequest) {
               body: JSON.stringify({ address: room.joiner, currentHash: joinerCurrentHash, newMatch: matchData }),
             });
           })(),
-        ]);
+        );
+      }
+
+      if (ipfsSyncPromises.length > 0) {
+        await Promise.all(ipfsSyncPromises);
       }
     } else {
       room.status = "playing";
     }
 
-    roomStorage.set(roomId, room);
+    await roomStorage.set(roomId, room);
 
     return NextResponse.json({ success: true });
   } catch (error) {

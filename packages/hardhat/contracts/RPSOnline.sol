@@ -2,123 +2,89 @@
 pragma solidity ^0.8.19;
 
 contract RPSOnline {
-    enum GameState { Created, Joined, Finished, Claimed }
+    enum GameState { Created, Joined, Finished }
+    
+    struct Match {
+        address winner;
+        string player1Move;
+        string player2Move;
+        uint256 timestamp;
+    }
     
     struct Game {
         address player1;
         address player2;
         GameState state;
-        address winner;
-        uint256 betAmount;
         uint256 createdAt;
+        Match[] matches;
     }
     
     address public backend;
-    address public feeCollector;
-    uint256 public constant FEE_PERCENTAGE = 75; // 0.75% (75/10000)
-    uint256 public constant MIN_BET = 0.01 ether; // Minimum 0.01 CELO
     
     mapping(string => Game) public games;
     
-    event GameCreated(string indexed roomId, address indexed creator, uint256 betAmount);
-    event GameJoined(string indexed roomId, address indexed joiner, uint256 betAmount);
-    event GameFinished(string indexed roomId, address indexed winner);
-    event WinningsClaimed(string indexed roomId, address indexed claimer, uint256 amount);
+    event GameCreated(string indexed roomId, address indexed creator);
+    event GameJoined(string indexed roomId, address indexed joiner);
+    event MatchFinished(string indexed roomId, address indexed winner, uint256 matchNumber);
     event GameCancelled(string indexed roomId, address indexed creator);
     
-    constructor(address _backend, address _feeCollector) {
-        backend = _backend;
-        feeCollector = _feeCollector;
+    constructor() {
+        backend = msg.sender;
     }
     
-    function createGame(string memory roomId) external payable {
+    function createGame(string memory roomId) external {
         require(games[roomId].player1 == address(0), "Room already exists");
-        require(msg.value >= MIN_BET, "Bet amount must be at least 0.01 CELO");
         
-        games[roomId] = Game({
-            player1: msg.sender,
-            player2: address(0),
-            state: GameState.Created,
-            winner: address(0),
-            betAmount: msg.value,
-            createdAt: block.timestamp
-        });
+        Game storage game = games[roomId];
+        game.player1 = msg.sender;
+        game.player2 = address(0);
+        game.state = GameState.Created;
+        game.createdAt = block.timestamp;
         
-        emit GameCreated(roomId, msg.sender, msg.value);
+        emit GameCreated(roomId, msg.sender);
     }
     
-    function joinGame(string memory roomId) external payable {
+    function joinGame(string memory roomId) external {
         Game storage game = games[roomId];
         require(game.player1 != address(0), "Room does not exist");
         require(game.player2 == address(0), "Room is full");
         require(game.player1 != msg.sender, "Cannot join your own room");
         require(game.state == GameState.Created, "Game not available");
-        require(msg.value == game.betAmount, "Incorrect bet amount");
         
         game.player2 = msg.sender;
         game.state = GameState.Joined;
         
-        emit GameJoined(roomId, msg.sender, msg.value);
+        emit GameJoined(roomId, msg.sender);
     }
     
     function getGame(string memory roomId) external view returns (Game memory) {
         return games[roomId];
     }
     
-    function finishGameAndPayout(string memory roomId, address winner) external {
-        require(msg.sender == backend, "Only backend can finish game");
+    function publishMatch(string memory roomId, address winner, string memory player1Move, string memory player2Move) external {
         Game storage game = games[roomId];
-        require(game.state == GameState.Joined, "Game not in progress");
+        require(game.player1 == msg.sender || game.player2 == msg.sender, "Not a player");
+        require(game.state == GameState.Joined || game.state == GameState.Finished, "Game not ready");
         
-        uint256 totalPot = game.betAmount * 2;
+        game.matches.push(Match({
+            winner: winner,
+            player1Move: player1Move,
+            player2Move: player2Move,
+            timestamp: block.timestamp
+        }));
         
-        if (winner == address(0)) {
-            // Tie - refund both (no fee)
-            payable(game.player1).transfer(game.betAmount);
-            payable(game.player2).transfer(game.betAmount);
-            emit WinningsClaimed(roomId, game.player1, game.betAmount);
-            emit WinningsClaimed(roomId, game.player2, game.betAmount);
-        } else {
-            // Winner takes pot minus fee
-            uint256 fee = (totalPot * FEE_PERCENTAGE) / 10000;
-            uint256 payout = totalPot - fee;
-            
-            payable(feeCollector).transfer(fee);
-            payable(winner).transfer(payout);
-            emit WinningsClaimed(roomId, winner, payout);
-        }
-        
-        game.winner = winner;
-        game.state = GameState.Finished;
-        emit GameFinished(roomId, winner);
+        emit MatchFinished(roomId, winner, game.matches.length);
     }
     
-    function refundExpiredGame(string memory roomId) external {
-        Game storage game = games[roomId];
-        require(game.player1 != address(0), "Room does not exist");
-        
-        // Unjoined room expired (10 minutes)
-        if (game.state == GameState.Created && block.timestamp >= game.createdAt + 10 minutes) {
-            uint256 refundAmount = game.betAmount;
-            address creator = game.player1;
-            delete games[roomId];
-            payable(creator).transfer(refundAmount);
-            emit GameCancelled(roomId, creator);
-            return;
-        }
-        
-        // Abandoned game expired (10 minutes after join)
-        if (game.state == GameState.Joined && block.timestamp >= game.createdAt + 10 minutes) {
-            payable(game.player1).transfer(game.betAmount);
-            payable(game.player2).transfer(game.betAmount);
-            game.state = GameState.Finished;
-            emit WinningsClaimed(roomId, game.player1, game.betAmount);
-            emit WinningsClaimed(roomId, game.player2, game.betAmount);
-            return;
-        }
-        
-        revert("Game not expired");
+
+    
+    function getMatchHistory(string memory roomId) external view returns (Match[] memory) {
+        return games[roomId].matches;
     }
+    
+
+    
+
 
     
     function cancelGame(string memory roomId) external {
@@ -127,15 +93,17 @@ contract RPSOnline {
         require(game.state == GameState.Created, "Game already started");
         require(game.player2 == address(0), "Player already joined");
         
-        uint256 refundAmount = game.betAmount;
         delete games[roomId];
-        payable(msg.sender).transfer(refundAmount);
-        
         emit GameCancelled(roomId, msg.sender);
     }
     
     function isRoomAvailable(string memory roomId) external view returns (bool) {
-        Game memory game = games[roomId];
+        Game storage game = games[roomId];
         return game.player1 != address(0) && game.player2 == address(0) && game.state == GameState.Created;
+    }
+    
+    function getRoomStats(string memory roomId) external view returns (uint256 totalMatches, address player1, address player2) {
+        Game storage game = games[roomId];
+        return (game.matches.length, game.player1, game.player2);
     }
 }
