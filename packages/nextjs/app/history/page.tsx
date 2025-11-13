@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, Upload } from "lucide-react";
+import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
@@ -141,7 +141,7 @@ export default function HistoryPage() {
       <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
       <div className="flex justify-end items-center gap-3 mb-6">
         <button onClick={fetchMatches} className="btn btn-sm btn-ghost">
-          🔄
+          <RefreshCw size={18} />
         </button>
         <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
           {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
