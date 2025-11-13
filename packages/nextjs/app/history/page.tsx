@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Upload } from "lucide-react";
+import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
@@ -14,18 +14,44 @@ export default function HistoryPage() {
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [blockchainMatches, setBlockchainMatches] = useState<Record<string, any>>({});
+  const [showOnChainModal, setShowOnChainModal] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { syncToIPFS, isSyncing } = useIPFSSync();
 
   useEffect(() => {
     if (isConnected && address) {
       fetchMatches();
+      fetchBlockchainProofs();
       // Auto-refresh every 3 minutes
-      const interval = setInterval(fetchMatches, 180000);
+      const interval = setInterval(() => {
+        fetchMatches();
+        fetchBlockchainProofs();
+      }, 180000);
       return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected]);
+
+  const fetchBlockchainProofs = async () => {
+    try {
+      const response = await fetch(`/api/store-blockchain-proof?address=${address}`);
+      const data = await response.json();
+      setBlockchainMatches(data.proofs || {});
+    } catch (error) {
+      console.error("Error fetching blockchain proofs:", error);
+    }
+  };
+
+  const fetchOnChainData = async (roomId: string, chainId: string) => {
+    try {
+      const response = await fetch(`/api/blockchain-match?roomId=${roomId}&chainId=${chainId}`);
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching on-chain data:", error);
+      return null;
+    }
+  };
 
   const fetchMatches = async () => {
     setIsLoading(true);
@@ -227,13 +253,25 @@ export default function HistoryPage() {
               const isExpanded = expandedRooms.has(match.roomId || "");
               const showExpand = games.length > 5;
               const displayGames = showExpand && !isExpanded ? games.slice(0, 5) : games;
+              const hasBlockchainProof = blockchainMatches[match.roomId || ""];
 
               return (
                 <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
                   <div className="mb-3">
-                    <p className="font-semibold mb-1 break-words">
-                      vs {displayName} at {match.roomId}
-                    </p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-semibold break-words">
+                        vs {displayName} at {match.roomId}
+                      </p>
+                      {hasBlockchainProof && (
+                        <button
+                          onClick={() => setShowOnChainModal(match.roomId || null)}
+                          className="tooltip tooltip-top"
+                          data-tip="Verified on blockchain"
+                        >
+                          <Shield className="text-success" size={18} />
+                        </button>
+                      )}
+                    </div>
                     <p className="text-xs text-base-content/60">
                       {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
                     </p>
@@ -313,6 +351,124 @@ export default function HistoryPage() {
           <ArrowUp size={24} />
         </button>
       )}
+
+      {showOnChainModal && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-2xl">
+            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <Shield className="text-success" size={24} />
+              On-Chain Verified Match
+            </h3>
+            <OnChainMatchModal
+              roomId={showOnChainModal}
+              chainId={blockchainMatches[showOnChainModal]?.chainId}
+              txHash={blockchainMatches[showOnChainModal]?.txHash}
+              onClose={() => setShowOnChainModal(null)}
+              fetchOnChainData={fetchOnChainData}
+            />
+          </div>
+          <div className="modal-backdrop" onClick={() => setShowOnChainModal(null)}></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OnChainMatchModal({
+  roomId,
+  chainId,
+  txHash,
+  onClose,
+  fetchOnChainData,
+}: {
+  roomId: string;
+  chainId: string;
+  txHash: string;
+  onClose: () => void;
+  fetchOnChainData: (roomId: string, chainId: string) => Promise<any>;
+}) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [playerNames, setPlayerNames] = useState<{ player1?: string; player2?: string }>({});
+
+  useEffect(() => {
+    const load = async () => {
+      const result = await fetchOnChainData(roomId, chainId);
+      if (result) {
+        setData(result);
+        // Resolve names
+        const [name1, name2] = await Promise.all([
+          fetch(`/api/resolve-name?address=${result.players.player1}`).then(r => r.json()),
+          fetch(`/api/resolve-name?address=${result.players.player2}`).then(r => r.json()),
+        ]);
+        setPlayerNames({ player1: name1.name, player2: name2.name });
+      }
+      setIsLoading(false);
+    };
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, chainId]);
+
+  const explorerUrl = chainId === "42220" ? `https://celoscan.io/tx/${txHash}` : `https://basescan.org/tx/${txHash}`;
+
+  return (
+    <div>
+      {isLoading ? (
+        <div className="text-center py-8">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      ) : data ? (
+        <div className="space-y-4">
+          <div className="bg-base-200 p-4 rounded-lg">
+            <p className="text-sm mb-2">
+              <span className="font-semibold">Room ID:</span> {roomId}
+            </p>
+            <p className="text-sm mb-2 break-words">
+              <span className="font-semibold">Player 1:</span>{" "}
+              {playerNames.player1 || `${data.players.player1.slice(0, 8)}...${data.players.player1.slice(-4)}`}
+            </p>
+            <p className="text-sm break-words">
+              <span className="font-semibold">Player 2:</span>{" "}
+              {playerNames.player2 || `${data.players.player2.slice(0, 8)}...${data.players.player2.slice(-4)}`}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-semibold">Matches:</h4>
+            {data.matches.map((m: any, idx: number) => {
+              const winnerName =
+                m.winner === data.players.player1
+                  ? playerNames.player1 || `${data.players.player1.slice(0, 6)}...`
+                  : m.winner === data.players.player2
+                    ? playerNames.player2 || `${data.players.player2.slice(0, 6)}...`
+                    : "Tie";
+              return (
+                <div key={idx} className="bg-base-200 p-3 rounded-lg">
+                  <div className="flex justify-between items-center text-sm">
+                    <span>
+                      <span className="font-bold uppercase">{m.player1Move}</span> vs{" "}
+                      <span className="font-bold uppercase">{m.player2Move}</span>
+                    </span>
+                    <span className="font-semibold text-success">{winnerName}</span>
+                  </div>
+                  <p className="text-xs text-base-content/60 mt-1">{new Date(m.timestamp * 1000).toLocaleString()}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full">
+            <ExternalLink size={16} /> View on Block Explorer
+          </a>
+        </div>
+      ) : (
+        <p className="text-center text-base-content/60">Failed to load on-chain data</p>
+      )}
+      <div className="modal-action">
+        <button onClick={onClose} className="btn">
+          Close
+        </button>
+      </div>
     </div>
   );
 }

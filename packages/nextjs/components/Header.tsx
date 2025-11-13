@@ -30,6 +30,10 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "History",
     href: "/history",
   },
+  {
+    label: "On-Chain",
+    href: "/on-chain-matches",
+  },
 ];
 
 export const HeaderMenuLinks = () => {
