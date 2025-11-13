@@ -285,7 +285,8 @@ export default function HistoryPage() {
                     {displayGames.map((game: any, gIndex: number) => {
                       const myMove = isCreator ? game.creatorMove : game.joinerMove;
                       const oppMove = isCreator ? game.joinerMove : game.creatorMove;
-                      const result = game.winner === address ? "win" : game.winner === "tie" ? "tie" : "lose";
+                      const isTie = myMove === oppMove;
+                      const result = isTie ? "tie" : game.winner === address ? "win" : "lose";
                       return (
                         <div
                           key={gIndex}
