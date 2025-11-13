@@ -24,8 +24,13 @@ export async function GET(request: NextRequest) {
     if (ipfsHash) {
       try {
         const ipfsResponse = await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-        const ipfsData = await ipfsResponse.json();
-        ipfsMatches = ipfsData.matches || [];
+        if (ipfsResponse.ok) {
+          const contentType = ipfsResponse.headers.get("content-type");
+          if (contentType?.includes("application/json")) {
+            const ipfsData = await ipfsResponse.json();
+            ipfsMatches = ipfsData.matches || [];
+          }
+        }
       } catch (error) {
         console.error("Error fetching from IPFS:", error);
       }
