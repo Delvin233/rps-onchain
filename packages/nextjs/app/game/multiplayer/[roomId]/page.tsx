@@ -30,6 +30,7 @@ export default function MultiplayerGamePage() {
   const [errorCount, setErrorCount] = useState(0);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const [gameData, setGameData] = useState<any>(null);
   const [creatorAddress, setCreatorAddress] = useState<string>("");
   const [joinerAddress, setJoinerAddress] = useState<string>("");
@@ -262,6 +263,11 @@ export default function MultiplayerGamePage() {
         }
         setIsSaving(false);
         setGameData(data);
+
+        // Check if already published
+        if (sessionStorage.getItem(`published_${roomId}`) === "true") {
+          setIsPublished(true);
+        }
       }
 
       if (data.rematchRequested && data.rematchRequested !== address) {
@@ -463,6 +469,8 @@ export default function MultiplayerGamePage() {
             chainId: chainId.toString(),
           }),
         });
+        setIsPublished(true);
+        sessionStorage.setItem(`published_${roomId}`, "true");
       }
 
       toast.success("Match published on-chain! View on block explorer.");
@@ -615,10 +623,10 @@ export default function MultiplayerGamePage() {
                       console.log("Publish button clicked, gameData:", gameData);
                       setShowPublishModal(true);
                     }}
-                    disabled={isSaving}
+                    disabled={isSaving || isPublished}
                     className="btn btn-outline w-full"
                   >
-                    Publish to Blockchain
+                    {isPublished ? "Already Published" : "Publish to Blockchain"}
                   </button>
                   <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Leave Room
@@ -638,10 +646,10 @@ export default function MultiplayerGamePage() {
                       console.log("Publish button clicked, gameData:", gameData);
                       setShowPublishModal(true);
                     }}
-                    disabled={isSaving}
+                    disabled={isSaving || isPublished}
                     className="btn btn-outline w-full"
                   >
-                    Publish to Blockchain
+                    {isPublished ? "Already Published" : "Publish to Blockchain"}
                   </button>
                   <button onClick={leaveRoom} disabled={isSaving} className="btn btn-error w-full">
                     Back to Play
