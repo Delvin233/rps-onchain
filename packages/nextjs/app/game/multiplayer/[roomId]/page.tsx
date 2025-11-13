@@ -611,7 +611,10 @@ export default function MultiplayerGamePage() {
                     Accept Rematch
                   </button>
                   <button
-                    onClick={() => setShowPublishModal(true)}
+                    onClick={() => {
+                      console.log("Publish button clicked, gameData:", gameData);
+                      setShowPublishModal(true);
+                    }}
                     disabled={isSaving}
                     className="btn btn-outline w-full"
                   >
@@ -631,7 +634,10 @@ export default function MultiplayerGamePage() {
                     {rematchRequested ? "Waiting for opponent..." : "Play Again"}
                   </button>
                   <button
-                    onClick={() => setShowPublishModal(true)}
+                    onClick={() => {
+                      console.log("Publish button clicked, gameData:", gameData);
+                      setShowPublishModal(true);
+                    }}
                     disabled={isSaving}
                     className="btn btn-outline w-full"
                   >
