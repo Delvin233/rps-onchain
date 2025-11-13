@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cannot cancel - player already joined" }, { status: 400 });
     }
 
-    await roomStorage.delete(roomId);
+    await roomStorage.delete(roomId, room.chainId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -14,5 +14,5 @@ export const useDisplayName = (address: string | undefined) => {
   const hasEns = !!(mainnetEns || basename || baseEns);
   const ensType = mainnetEns ? "mainnet" : basename ? "basename" : baseEns ? "base" : null;
 
-  return { displayName, hasEns, ensType };
+  return { displayName, hasEns, ensType, fullAddress: address };
 };

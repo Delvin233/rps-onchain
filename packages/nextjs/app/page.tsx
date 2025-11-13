@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
@@ -47,7 +47,7 @@ export default function Home() {
     <div className="min-h-screen bg-base-200 relative">
       {address && (
         <div className="absolute top-4 right-4 z-10">
-          <BalanceDisplay address={address} format="full" />
+          <RainbowKitCustomConnectButton />
         </div>
       )}
       {!address ? (

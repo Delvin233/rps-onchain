@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 
@@ -435,7 +435,7 @@ export default function MultiplayerGamePage() {
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
-          <BalanceDisplay address={address} format="full" />
+          <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
@@ -455,7 +455,7 @@ export default function MultiplayerGamePage() {
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
-          <BalanceDisplay address={address} format="full" />
+          <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
         {!isFreeMode && <p className="text-center text-base-content/60 mb-6">Bet: {betAmount} CELO</p>}
@@ -480,7 +480,7 @@ export default function MultiplayerGamePage() {
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
-          <BalanceDisplay address={address} format="full" />
+          <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
@@ -505,7 +505,7 @@ export default function MultiplayerGamePage() {
     return (
       <div className="p-6 pt-12 pb-24">
         <div className="fixed top-4 right-4 z-10">
-          <BalanceDisplay address={address} format="full" />
+          <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">

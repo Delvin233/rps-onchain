@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -98,7 +98,7 @@ export default function SinglePlayerPage() {
           </button>
           <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
         </div>
-        <BalanceDisplay address={address} format="full" />
+        <RainbowKitCustomConnectButton />
       </div>
 
       {!playerMove ? (

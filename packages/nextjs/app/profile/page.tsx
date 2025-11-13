@@ -2,21 +2,18 @@
 
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Copy, LogOut, Shield, Wallet } from "lucide-react";
-import toast from "react-hot-toast";
-import { useAccount, useDisconnect } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { Copy, Shield } from "lucide-react";
+import { useAccount } from "wagmi";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 
 export default function ProfilePage() {
   const { address } = useAccount();
-  const { disconnect } = useDisconnect();
   const { isHumanVerified } = useAuth();
   const { displayName, hasEns, ensType } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
 
   const copyAddress = () => {
     if (address) {
@@ -54,20 +51,10 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
-      {/* Balance */}
+      {/* Wallet */}
       <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-lg bg-primary/20">
-              <Wallet className="text-primary" size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-base-content/60">Balance</p>
-              <div className="text-2xl font-bold">
-                <BalanceDisplay address={address} />
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center justify-center">
+          <RainbowKitCustomConnectButton />
         </div>
       </div>
 
@@ -122,53 +109,6 @@ export default function ProfilePage() {
           </button>
         )}
       </div>
-
-      {/* Disconnect */}
-      <button
-        onClick={() => {
-          const hasActiveGame = sessionStorage.getItem("paidGameActive") === "true";
-          if (hasActiveGame) {
-            toast.error("You have an active game! Please finish or cancel it before disconnecting.", {
-              duration: 4000,
-              style: {
-                background: "#1f2937",
-                color: "#fff",
-                border: "1px solid #ef4444",
-              },
-            });
-            return;
-          }
-          setShowDisconnectConfirm(true);
-        }}
-        className="btn btn-error w-full"
-      >
-        <LogOut size={16} />
-        Disconnect Wallet
-      </button>
-
-      {/* Disconnect Confirmation Modal */}
-      {showDisconnectConfirm && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100/95 backdrop-blur-xl border border-error/30 rounded-xl p-6 max-w-sm w-full shadow-glow-error">
-            <h3 className="text-xl font-bold mb-4 text-error">Disconnect Wallet?</h3>
-            <p className="text-base-content/70 mb-6">Are you sure you want to disconnect your wallet?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowDisconnectConfirm(false)} className="btn btn-ghost flex-1">
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  disconnect();
-                  setShowDisconnectConfirm(false);
-                }}
-                className="btn btn-error flex-1"
-              >
-                Disconnect
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
     </div>

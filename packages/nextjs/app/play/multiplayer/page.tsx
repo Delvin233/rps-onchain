@@ -6,13 +6,14 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { base, celo } from "viem/chains";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 
 export default function MultiplayerPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -89,6 +90,7 @@ export default function MultiplayerPage() {
           creator: address,
           betAmount: "0",
           isFree: true,
+          chainId,
         }),
       });
 
@@ -230,24 +232,50 @@ export default function MultiplayerPage() {
                   </button>
                 </div>
               )}
+              {roomInfo && roomInfo.chainId && roomInfo.chainId !== chainId && (
+                <div className="mt-3 p-3 bg-warning/10 border border-warning/30 rounded-lg">
+                  <p className="text-sm text-warning mb-2">
+                    Room is on {roomInfo.chainId === celo.id ? "Celo" : "Base"}
+                  </p>
+                  <button
+                    onClick={() => switchChain({ chainId: roomInfo.chainId })}
+                    className="btn btn-sm btn-warning w-full"
+                  >
+                    Switch Network
+                  </button>
+                </div>
+              )}
               {roomInfo && (
                 <div className="mt-3 p-3 bg-base-200 rounded-lg">
-                  <p className="text-sm text-base-content/80 mb-1">
-                    Creator: {creatorName}
-                    {creatorHasEns && (
-                      <span
-                        className={`ml-1 text-xs ${
-                          creatorEnsType === "mainnet"
-                            ? "text-success"
-                            : creatorEnsType === "basename"
-                              ? "text-primary"
-                              : "text-info"
-                        }`}
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm text-base-content/80">
+                      Creator: {creatorName}
+                      {creatorHasEns && (
+                        <span
+                          className={`ml-1 text-xs ${
+                            creatorEnsType === "mainnet"
+                              ? "text-success"
+                              : creatorEnsType === "basename"
+                                ? "text-primary"
+                                : "text-info"
+                          }`}
+                        >
+                          {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                        </span>
+                      )}
+                    </p>
+                    {roomInfo.creator && (
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(roomInfo.creator);
+                          toast.success("Address copied!");
+                        }}
+                        className="btn btn-xs btn-ghost"
                       >
-                        {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
-                      </span>
+                        📋
+                      </button>
                     )}
-                  </p>
+                  </div>
                   {roomInfo.creatorVerified && (
                     <div className="flex items-center gap-1 text-success text-sm">
                       <Shield size={14} />
@@ -294,22 +322,33 @@ export default function MultiplayerPage() {
             <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <p className="text-sm text-base-content/60 mb-1">Room Creator</p>
-              <p className="text-base-content text-base font-semibold mb-2">
-                {creatorName}
-                {creatorHasEns && (
-                  <span
-                    className={`ml-2 text-xs ${
-                      creatorEnsType === "mainnet"
-                        ? "text-success"
-                        : creatorEnsType === "basename"
-                          ? "text-primary"
-                          : "text-info"
-                    }`}
-                  >
-                    {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
-                  </span>
-                )}
-              </p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-base-content text-base font-semibold">
+                  {creatorName}
+                  {creatorHasEns && (
+                    <span
+                      className={`ml-2 text-xs ${
+                        creatorEnsType === "mainnet"
+                          ? "text-success"
+                          : creatorEnsType === "basename"
+                            ? "text-primary"
+                            : "text-info"
+                      }`}
+                    >
+                      {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                    </span>
+                  )}
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(roomInfo.creator);
+                    toast.success("Address copied!");
+                  }}
+                  className="btn btn-xs btn-ghost"
+                >
+                  📋
+                </button>
+              </div>
               {roomInfo.creatorVerified && (
                 <div className="flex items-center gap-2 text-success">
                   <Shield size={16} />

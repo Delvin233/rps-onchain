@@ -2,6 +2,7 @@ import { createClient } from "redis";
 
 interface Room {
   roomId: string;
+  chainId: number;
   creator: string;
   joiner: string | null;
   betAmount: string;
@@ -36,26 +37,36 @@ const getRedis = async () => {
 };
 
 export const roomStorage = {
-  get: async (roomId: string): Promise<Room | undefined> => {
+  get: async (roomId: string, chainId?: number): Promise<Room | undefined> => {
     const client = await getRedis();
-    const data = await client.get(`room:${roomId}`);
-    return data ? JSON.parse(data) : undefined;
+    if (chainId) {
+      const data = await client.get(`room:${chainId}:${roomId}`);
+      return data ? JSON.parse(data) : undefined;
+    }
+    // Fallback: try to find room on any chain
+    const keys = await client.keys(`room:*:${roomId}`);
+    if (keys.length > 0) {
+      const data = await client.get(keys[0]);
+      return data ? JSON.parse(data) : undefined;
+    }
+    return undefined;
   },
   set: async (roomId: string, room: Room): Promise<void> => {
     const client = await getRedis();
-    await client.set(`room:${roomId}`, JSON.stringify(room), { EX: ROOM_TTL });
+    await client.set(`room:${room.chainId}:${roomId}`, JSON.stringify(room), { EX: ROOM_TTL });
   },
-  delete: async (roomId: string): Promise<void> => {
+  delete: async (roomId: string, chainId: number): Promise<void> => {
     const client = await getRedis();
-    await client.del(`room:${roomId}`);
+    await client.del(`room:${chainId}:${roomId}`);
   },
-  has: async (roomId: string): Promise<boolean> => {
+  has: async (roomId: string, chainId: number): Promise<boolean> => {
     const client = await getRedis();
-    return (await client.exists(`room:${roomId}`)) === 1;
+    return (await client.exists(`room:${chainId}:${roomId}`)) === 1;
   },
-  getAll: async (): Promise<Room[]> => {
+  getAll: async (chainId?: number): Promise<Room[]> => {
     const client = await getRedis();
-    const keys = await client.keys("room:*");
+    const pattern = chainId ? `room:${chainId}:*` : "room:*";
+    const keys = await client.keys(pattern);
     const rooms = await Promise.all(
       keys.map(async key => {
         const data = await client.get(key);

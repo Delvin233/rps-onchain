@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
       // Delete room after 3 seconds to allow other player to see notification
       setTimeout(async () => {
-        await roomStorage.delete(roomId);
+        await roomStorage.delete(roomId, room.chainId);
       }, 3000);
 
       return NextResponse.json({ success: true });

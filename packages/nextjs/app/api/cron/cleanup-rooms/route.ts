@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     for (const room of freeRooms) {
       results.freeRoomsChecked++;
       if (now - room.createdAt > tenMinutes) {
-        await roomStorage.delete(room.roomId);
+        await roomStorage.delete(room.roomId, room.chainId);
         results.freeRoomsDeleted++;
       }
     }

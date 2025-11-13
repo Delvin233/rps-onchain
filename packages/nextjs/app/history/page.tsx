@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
-import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
@@ -135,7 +135,7 @@ export default function HistoryPage() {
             {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
             Sync IPFS
           </button>
-          <BalanceDisplay address={address} format="full" />
+          <RainbowKitCustomConnectButton />
         </div>
       </div>
 
@@ -167,8 +167,14 @@ export default function HistoryPage() {
                   </div>
                   <div className="bg-base-200 p-3 rounded-lg text-sm flex justify-between items-center">
                     <span>
-                      <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
-                      <span className="font-bold uppercase">{match.opponentMove}</span>
+                      {match.playerMove && match.opponentMove ? (
+                        <>
+                          <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
+                          <span className="font-bold uppercase">{match.opponentMove}</span>
+                        </>
+                      ) : (
+                        <span className="text-base-content/60">Move data unavailable</span>
+                      )}
                     </span>
                     <span
                       className={`font-semibold ${match.result === "win" ? "text-success" : match.result === "tie" ? "text-warning" : "text-error"}`}

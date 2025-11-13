@@ -72,12 +72,46 @@ export async function POST(req: NextRequest) {
         result: { winner, timestamp: new Date().toISOString() },
       };
 
-      // Store to Redis (fast)
-      await fetch(`${req.nextUrl.origin}/api/store-match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(matchData),
-      });
+      // Store to Redis history for both players
+      const storePromises = [];
+
+      // Store for creator
+      storePromises.push(
+        fetch(`${req.nextUrl.origin}/api/history-fast`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: room.creator,
+            match: {
+              roomId,
+              players: { creator: room.creator, joiner: room.joiner },
+              moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
+              result: { winner, timestamp: new Date().toISOString() },
+            },
+          }),
+        }),
+      );
+
+      // Store for joiner
+      if (room.joiner) {
+        storePromises.push(
+          fetch(`${req.nextUrl.origin}/api/history-fast`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              address: room.joiner,
+              match: {
+                roomId,
+                players: { creator: room.creator, joiner: room.joiner },
+                moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
+                result: { winner, timestamp: new Date().toISOString() },
+              },
+            }),
+          }),
+        );
+      }
+
+      await Promise.all(storePromises);
 
       // Batch IPFS uploads to avoid rate limits
       // Only sync to IPFS every 10 games or at 100 games
