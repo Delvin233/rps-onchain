@@ -33,27 +33,14 @@ export async function GET(request: NextRequest) {
 
     await initBlockchainProofsTable();
 
-    // Get all proofs for a room
-    if (roomId) {
-      const result = await turso.execute({
-        sql: "SELECT * FROM blockchain_proofs WHERE room_id = ? ORDER BY timestamp_ms DESC",
-        args: [roomId],
-      });
+    const result = roomId
+      ? await turso.execute({
+          sql: "SELECT * FROM blockchain_proofs WHERE room_id = ? ORDER BY timestamp_ms DESC",
+          args: [roomId],
+        })
+      : await turso.execute("SELECT * FROM blockchain_proofs ORDER BY timestamp_ms DESC");
 
-      const proofs: Record<string, any> = {};
-      for (const row of result.rows) {
-        proofs[row.room_id as string] = {
-          txHash: row.tx_hash,
-          chainId: row.chain_id,
-          timestamp: row.timestamp_ms,
-          createdAt: row.created_at,
-        };
-      }
-
-      return NextResponse.json({ proofs });
-    }
-
-    return NextResponse.json({ error: "Room ID required" }, { status: 400 });
+    return NextResponse.json({ proofs: result.rows });
   } catch (error) {
     console.error("Error fetching blockchain proof:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
