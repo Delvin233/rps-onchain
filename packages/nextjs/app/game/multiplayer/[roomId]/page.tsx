@@ -221,6 +221,8 @@ export default function MultiplayerGamePage() {
 
       if (data.status === "finished") {
         const isCreator = data.creator === address;
+        setCreatorAddress(data.creator);
+        setJoinerAddress(data.joiner);
         setOpponentMove(isCreator ? data.joinerMove : data.creatorMove);
         const myResult = isCreator ? data.creatorResult : data.joinerResult;
         setResult(myResult);
