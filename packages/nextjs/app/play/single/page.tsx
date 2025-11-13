@@ -16,7 +16,7 @@ export default function SinglePlayerPage() {
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
@@ -40,19 +40,7 @@ export default function SinglePlayerPage() {
     setResult(data.result);
     setIsPlaying(false);
 
-    // Sync matches from IPFS to localStorage
-    setIsSaving(true);
-    if (typeof window !== "undefined") {
-      const hashResponse = await fetch(`/api/user-matches?address=${address}`);
-      const { ipfsHash } = await hashResponse.json();
-      if (ipfsHash) {
-        const userData = await (await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`)).json();
-        if (userData.matches) {
-          localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
-        }
-      }
-    }
-    setIsSaving(false);
+    // Stats are now updated instantly via Redis in /api/play-ai
   };
 
   const playAgain = () => {
@@ -136,17 +124,12 @@ export default function SinglePlayerPage() {
                 >
                   {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "It's a Tie!"}
                 </p>
-                {isSaving && (
-                  <p className="text-sm text-base-content/60 mt-3 flex items-center justify-center gap-2">
-                    <span className="loading loading-spinner loading-sm"></span>
-                    Saving to history...
-                  </p>
-                )}
+
               </div>
             )}
           </div>
 
-          {result && !isSaving && (
+          {result && (
             <div className="space-y-3">
               <button onClick={playAgain} className="btn btn-primary w-full">
                 Play Again

@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "redis";
-
-let redis: ReturnType<typeof createClient> | null = null;
-
-const getRedis = async () => {
-  if (!redis) {
-    redis = createClient({ url: process.env.REDIS_URL });
-    await redis.connect();
-  }
-  return redis;
-};
+import { redis } from "~~/lib/upstash";
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,12 +10,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Address required" }, { status: 400 });
     }
 
-    const client = await getRedis();
     const addressLower = address.toLowerCase();
 
-    const matches = await client.lRange(`history:${addressLower}`, 0, 49);
-    const statsData = await client.get(`stats:${addressLower}`);
-    const stats = statsData ? JSON.parse(statsData) : { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
+    const [matches, statsData] = await Promise.all([
+      redis.lrange(`history:${addressLower}`, 0, 49),
+      redis.get(`stats:${addressLower}`)
+    ]);
+    
+    const stats = statsData ? statsData : { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
 
     return NextResponse.json({
       matches: matches.map(m => JSON.parse(m)),

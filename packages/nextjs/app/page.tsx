@@ -15,7 +15,20 @@ export default function Home() {
 
   useEffect(() => {
     if (address) {
-      stats.refetch();
+      // Auto-migrate existing users from IPFS to Redis
+      fetch('/api/migrate-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address })
+      }).then(() => {
+        stats.refetch();
+      }).catch(console.error);
+      
+      // Auto-refresh stats every 5 seconds when connected
+      const interval = setInterval(() => {
+        stats.refetch();
+      }, 5000);
+      return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
@@ -38,7 +51,7 @@ export default function Home() {
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
             <p className="text-lg text-base-content/80 mb-2">Rock Paper Scissors on the Blockchain</p>
-            <p className="text-sm text-base-content/60">Play. Bet. Win. All on Celo.</p>
+            <p className="text-sm text-base-content/60">Free-to-play Rock Paper Scissors on Celo & Base.</p>
           </div>
 
           <div className="mb-12 max-w-md mx-auto">
@@ -75,9 +88,9 @@ export default function Home() {
                   <Coins className="text-secondary" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold mb-1">Real Money Betting</h3>
+                  <h3 className="text-lg font-bold mb-1">Free to Play</h3>
                   <p className="text-sm text-base-content/60">
-                    Stake CELO and win big. Winner takes all with instant payouts.
+                    No betting required. Just pure fun with friends and AI opponents.
                   </p>
                 </div>
               </div>
@@ -91,7 +104,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-lg font-bold mb-1">Track Your Stats</h3>
                   <p className="text-sm text-base-content/60">
-                    View match history, win rates, and total earnings on IPFS.
+                    View match history, win rates, and achievements stored on IPFS.
                   </p>
                 </div>
               </div>
@@ -106,7 +119,7 @@ export default function Home() {
                   <span className="text-xs font-bold">1</span>
                 </div>
                 <p className="text-sm text-base-content/80">
-                  Connect your wallet and verify identity for higher limits
+                  Connect your wallet to start playing
                 </p>
               </div>
               <div className="flex items-center space-x-3">
@@ -126,7 +139,7 @@ export default function Home() {
                   <span className="text-xs font-bold">4</span>
                 </div>
                 <p className="text-sm text-base-content/80">
-                  Winner takes the full pot automatically via smart contract
+                  Results are determined instantly and recorded on-chain
                 </p>
               </div>
             </div>

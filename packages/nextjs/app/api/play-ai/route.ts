@@ -31,25 +31,13 @@ export async function POST(req: NextRequest) {
     const aiMove = getRandomMove();
     const result = determineWinner(playerMove, aiMove);
 
-    // Get current hash and update stats
-    const hashResponse = await fetch(`${req.nextUrl.origin}/api/user-matches?address=${address}`);
-    const { ipfsHash: currentHash } = await hashResponse.json();
-
-    await fetch(`${req.nextUrl.origin}/api/user-stats`, {
+    // Update stats in Redis (fast)
+    await fetch(`${req.nextUrl.origin}/api/stats-fast`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         address,
-        currentHash,
-        newMatch: {
-          player: address,
-          opponent: "AI",
-          playerMove,
-          opponentMove: aiMove,
-          result,
-          timestamp: new Date().toISOString(),
-          betAmount: "0",
-        },
+        result,
       }),
     });
 

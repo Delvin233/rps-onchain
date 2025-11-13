@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     ).length;
     const losses = userMatches.length - wins - ties;
     const winRate = userMatches.length > 0 ? Math.round((wins / userMatches.length) * 100) : 0;
-    const totalWagered = userMatches.reduce((sum: number, match: any) => sum + parseFloat(match.betAmount || "0"), 0);
+
 
     // Store updated data to IPFS directly via Pinata
     const pinataResponse = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
             losses,
             ties,
             winRate,
-            totalWagered,
+
           },
           updatedAt: new Date().toISOString(),
         },

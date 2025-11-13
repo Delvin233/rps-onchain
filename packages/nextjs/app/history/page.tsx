@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowUp, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
+import { useIPFSSync } from "~~/hooks/useIPFSSync";
 
 export default function HistoryPage() {
   const { address, isConnected } = useAccount();
@@ -13,6 +14,7 @@ export default function HistoryPage() {
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { syncToIPFS, isSyncing } = useIPFSSync();
 
   useEffect(() => {
     if (isConnected) {
@@ -71,7 +73,21 @@ export default function HistoryPage() {
     <div ref={containerRef} className="min-h-screen bg-base-200 p-6 pt-12 pb-24 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
-        <BalanceDisplay address={address} format="full" />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => syncToIPFS(address!)}
+            disabled={isSyncing}
+            className="btn btn-sm btn-outline"
+          >
+            {isSyncing ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              <Upload size={16} />
+            )}
+            Sync IPFS
+          </button>
+          <BalanceDisplay address={address} format="full" />
+        </div>
       </div>
 
       {matches.length === 0 ? (

@@ -20,7 +20,7 @@ export const usePlayerStats = (address: string | undefined) => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/history?address=${address}`);
+      const response = await fetch(`/api/stats-fast?address=${address}`);
       const data = await response.json();
 
       if (data.stats) {
