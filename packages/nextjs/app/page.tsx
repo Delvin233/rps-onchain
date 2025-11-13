@@ -44,9 +44,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-base-200 relative">
+    <div className="min-h-screen bg-base-200">
       {address && (
-        <div className="absolute top-4 right-4 z-10">
+        <div className="flex justify-end pt-4 px-6">
           <RainbowKitCustomConnectButton />
         </div>
       )}

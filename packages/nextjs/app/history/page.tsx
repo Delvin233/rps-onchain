@@ -20,6 +20,9 @@ export default function HistoryPage() {
   useEffect(() => {
     if (isConnected && address) {
       fetchMatches();
+      // Auto-refresh every 3 minutes
+      const interval = setInterval(fetchMatches, 180000);
+      return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected]);
@@ -128,15 +131,16 @@ export default function HistoryPage() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-base-200 p-6 pt-12 pb-24 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-glow-primary">Match History</h1>
-        <div className="flex items-center gap-3">
-          <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
-            {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
-            Sync IPFS
-          </button>
-          <RainbowKitCustomConnectButton />
-        </div>
+      <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
+      <div className="flex justify-end items-center gap-3 mb-6">
+        <button onClick={fetchMatches} className="btn btn-sm btn-ghost">
+          🔄
+        </button>
+        <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
+          {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
+          Sync IPFS
+        </button>
+        <RainbowKitCustomConnectButton />
       </div>
 
       {isLoading ? (

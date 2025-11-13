@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Address, formatEther } from "viem";
 import { useDisplayUsdMode } from "~~/hooks/scaffold-eth/useDisplayUsdMode";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
@@ -19,6 +20,7 @@ export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
   const { targetNetwork } = useTargetNetwork();
   const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
   const isNativeCurrencyPriceFetching = useGlobalState(state => state.nativeCurrency.isFetching);
+  const [isHidden, setIsHidden] = useState(false);
 
   const {
     data: balance,
@@ -28,7 +30,7 @@ export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
     address,
   });
 
-  const { displayUsdMode, toggleDisplayUsdMode } = useDisplayUsdMode({ defaultUsdMode: usdMode });
+  const { displayUsdMode } = useDisplayUsdMode({ defaultUsdMode: usdMode });
 
   if (!address || isLoading || balance === null || (isNativeCurrencyPriceFetching && nativeCurrencyPrice === 0)) {
     return (
@@ -54,11 +56,13 @@ export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
   return (
     <button
       className={`btn btn-sm btn-ghost flex flex-col font-normal items-center hover:bg-transparent ${className}`}
-      onClick={toggleDisplayUsdMode}
+      onClick={() => setIsHidden(!isHidden)}
       type="button"
     >
       <div className="w-full flex items-center justify-center">
-        {displayUsdMode ? (
+        {isHidden ? (
+          <span>****</span>
+        ) : displayUsdMode ? (
           <>
             <span className="text-[0.8em] font-bold mr-1">$</span>
             <span>{(formattedBalance * nativeCurrencyPrice).toFixed(2)}</span>

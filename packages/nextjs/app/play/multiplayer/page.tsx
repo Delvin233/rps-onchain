@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { base, celo } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 
@@ -181,11 +182,14 @@ export default function MultiplayerPage() {
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-4">
         <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-2xl font-bold text-glow-primary ml-2">Multiplayer</h1>
+      </div>
+      <div className="flex justify-end mb-6">
+        <RainbowKitCustomConnectButton />
       </div>
 
       <div className="space-y-6">
