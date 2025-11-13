@@ -14,7 +14,7 @@ type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
 export default function MultiplayerGamePage() {
   const params = useParams();
   const router = useRouter();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
 
   const roomId = params.roomId as string;
   const [isFreeMode, setIsFreeMode] = useState(false);
@@ -36,16 +36,8 @@ export default function MultiplayerGamePage() {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
-  const {
-    displayName: creatorName,
-    hasEns: creatorHasEns,
-    ensType: creatorEnsType,
-  } = useDisplayName(creatorAddress || undefined);
-  const {
-    displayName: joinerName,
-    hasEns: joinerHasEns,
-    ensType: joinerEnsType,
-  } = useDisplayName(joinerAddress || undefined);
+  const { displayName: creatorName } = useDisplayName(creatorAddress || undefined);
+  const { displayName: joinerName } = useDisplayName(joinerAddress || undefined);
 
   const toastShownRef = useRef(false);
   const leftToastShownRef = useRef(false);
@@ -445,14 +437,14 @@ export default function MultiplayerGamePage() {
       });
 
       // Store tx hash to match history
-      if (tx) {
+      if (tx && chainId) {
         await fetch("/api/store-blockchain-proof", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             roomId,
             txHash: tx,
-            chainId: gameData.chainId,
+            chainId: chainId.toString(),
           }),
         });
       }
@@ -559,11 +551,7 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "finished" && result) {
     const isCreator = creatorAddress === address;
     const myName = isCreator ? creatorName : joinerName;
-    const myHasEns = isCreator ? creatorHasEns : joinerHasEns;
-    const myEnsType = isCreator ? creatorEnsType : joinerEnsType;
     const opponentName = isCreator ? joinerName : creatorName;
-    const opponentHasEns = isCreator ? joinerHasEns : creatorHasEns;
-    const opponentEnsType = isCreator ? joinerEnsType : creatorEnsType;
 
     return (
       <div className="p-6 pt-12 pb-24">
@@ -574,37 +562,11 @@ export default function MultiplayerGamePage() {
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
-              <p className="text-xs text-base-content/60 mb-1">
-                {myName}
-                {myHasEns && (
-                  <span
-                    className={`ml-1 ${
-                      myEnsType === "mainnet" ? "text-success" : myEnsType === "basename" ? "text-primary" : "text-info"
-                    }`}
-                  >
-                    {myEnsType === "mainnet" ? "ENS" : myEnsType === "basename" ? "BASENAME" : "BASE"}
-                  </span>
-                )}
-              </p>
+              <p className="text-xs text-base-content/60 mb-1">{myName}</p>
               <p className="text-2xl font-bold capitalize">{selectedMove}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-base-content/60 mb-1">
-                {opponentName}
-                {opponentHasEns && (
-                  <span
-                    className={`ml-1 ${
-                      opponentEnsType === "mainnet"
-                        ? "text-success"
-                        : opponentEnsType === "basename"
-                          ? "text-primary"
-                          : "text-info"
-                    }`}
-                  >
-                    {opponentEnsType === "mainnet" ? "ENS" : opponentEnsType === "basename" ? "BASENAME" : "BASE"}
-                  </span>
-                )}
-              </p>
+              <p className="text-xs text-base-content/60 mb-1">{opponentName}</p>
               <p className="text-2xl font-bold capitalize">{opponentMove}</p>
             </div>
           </div>

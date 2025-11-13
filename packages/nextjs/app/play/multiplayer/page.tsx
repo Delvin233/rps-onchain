@@ -119,7 +119,13 @@ export default function MultiplayerPage() {
     setIsJoining(true);
     setShowJoinConfirm(false);
     try {
-      // Check if joiner is verified
+      // Sign blockchain transaction FIRST
+      await joinGameContract({
+        functionName: "joinGame",
+        args: [roomCode],
+      });
+
+      // THEN update Redis after blockchain confirms
       const verifyRes = await fetch(`/api/check-verification?address=${address}`);
       const verifyData = await verifyRes.json();
 
@@ -131,10 +137,6 @@ export default function MultiplayerPage() {
 
       const data = await response.json();
       if (data.success) {
-        await joinGameContract({
-          functionName: "joinGame",
-          args: [roomCode],
-        });
         router.push(`/game/multiplayer/${roomCode}?mode=free`);
       } else if (data.error === "Room is full") {
         toast.error("Room is full", {
