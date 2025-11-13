@@ -76,12 +76,26 @@ export async function POST(req: NextRequest) {
       const [creatorEns, joinerEns] = await Promise.all([
         fetch(`${req.nextUrl.origin}/api/resolve-name?address=${room.creator}`)
           .then(r => r.json())
-          .catch(() => null),
+          .then(data => {
+            console.log("Creator name resolved:", data);
+            return data;
+          })
+          .catch(err => {
+            console.error("Error resolving creator name:", err);
+            return { name: null };
+          }),
         room.joiner
           ? fetch(`${req.nextUrl.origin}/api/resolve-name?address=${room.joiner}`)
               .then(r => r.json())
-              .catch(() => null)
-          : null,
+              .then(data => {
+                console.log("Joiner name resolved:", data);
+                return data;
+              })
+              .catch(err => {
+                console.error("Error resolving joiner name:", err);
+                return { name: null };
+              })
+          : { name: null },
       ]);
 
       // Store to Redis history for both players

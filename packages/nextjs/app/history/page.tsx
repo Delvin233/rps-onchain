@@ -237,10 +237,10 @@ export default function HistoryPage() {
               const opponentAddress = isCreator ? match.players?.joiner : match.players?.creator;
               const opponentName = match.playerNames
                 ? isCreator
-                  ? match.playerNames.joiner
-                  : match.playerNames.creator
+                  ? match.playerNames.joiner || null
+                  : match.playerNames.creator || null
                 : null;
-              const displayName = opponentName || `${opponentAddress?.slice(0, 8)}...${opponentAddress?.slice(-4)}`;
+              const displayName = opponentName || `${opponentAddress?.slice(0, 6)}...${opponentAddress?.slice(-4)}`;
               const games = match.games || [
                 {
                   creatorMove: match.moves?.creatorMove || "",
