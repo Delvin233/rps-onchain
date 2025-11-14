@@ -1514,17 +1514,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@farcaster/frame-wagmi-connector@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@farcaster/frame-wagmi-connector@npm:1.0.0"
-  peerDependencies:
-    "@farcaster/frame-sdk": ^0.1.0
-    "@wagmi/core": ^2.14.1
-    viem: ^2.21.55
-  checksum: 691443b6260e4cc35da30b7bcada1d53453ea234d368aae76db10734156e4acf43c796f2ca61e1ba7b0169caa2521db3cb136292c61e48aa5a3e35db12c2b971
-  languageName: node
-  linkType: hard
-
 "@farcaster/miniapp-core@npm:0.4.1":
   version: 0.4.1
   resolution: "@farcaster/miniapp-core@npm:0.4.1"
@@ -4560,7 +4549,6 @@ __metadata:
   dependencies:
     "@divvi/referral-sdk": ^2.0.0
     "@farcaster/frame-sdk": ^0.1.12
-    "@farcaster/frame-wagmi-connector": ^1.0.0
     "@farcaster/miniapp-sdk": ^0.2.1
     "@farcaster/miniapp-wagmi-connector": ^1.1.0
     "@farcaster/quick-auth": ^0.0.8
