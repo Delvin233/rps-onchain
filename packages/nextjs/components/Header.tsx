@@ -10,6 +10,7 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useFarcasterAuth } from "~~/hooks/useFarcasterAuth";
 
 type HeaderMenuLink = {
   label: string;
@@ -66,6 +67,7 @@ const UsernameDisplay = () => {
   const { address, isConnected } = useAccount();
   const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
   const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
+  const { user: farcasterUser } = useFarcasterAuth();
   const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
@@ -88,12 +90,14 @@ const UsernameDisplay = () => {
       setDisplayName(mainnetEnsName);
     } else if (baseEnsName) {
       setDisplayName(baseEnsName);
+    } else if (farcasterUser) {
+      setDisplayName(farcasterUser.username);
     } else if (username) {
       setDisplayName(username);
     } else {
       setDisplayName("User");
     }
-  }, [mainnetEnsName, baseEnsName, username]);
+  }, [mainnetEnsName, baseEnsName, farcasterUser, username]);
 
   const saveUsername = async () => {
     if (!address || !tempUsername.trim()) return;
@@ -138,12 +142,18 @@ const UsernameDisplay = () => {
         </div>
       ) : (
         <div className="flex items-center gap-1">
+          {farcasterUser && (
+            <img src={farcasterUser.pfp_url} alt={farcasterUser.username} className="w-6 h-6 rounded-full" />
+          )}
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
             {mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
             {baseEnsName && !mainnetEnsName && <span className="text-info text-xs ml-1">BASE</span>}
+            {farcasterUser && !mainnetEnsName && !baseEnsName && (
+              <span className="text-purple-500 text-xs ml-1">FC</span>
+            )}
           </span>
-          {!mainnetEnsName && !baseEnsName && (
+          {!mainnetEnsName && !baseEnsName && !farcasterUser && (
             <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
             </button>

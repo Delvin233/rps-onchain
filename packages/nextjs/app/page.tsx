@@ -6,7 +6,9 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
+import { useFarcasterAuth } from "~~/hooks/useFarcasterAuth";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
@@ -14,6 +16,8 @@ export default function Home() {
   const router = useRouter();
   const stats = usePlayerStats(address);
   const { displayName, hasEns, ensType } = useDisplayName(address);
+  const { context, isMiniAppReady } = useFarcaster();
+  const { signIn, isSignedIn, isLoading, user } = useFarcasterAuth();
 
   useEffect(() => {
     if (address) {
@@ -51,7 +55,7 @@ export default function Home() {
             <p className="text-sm text-base-content/60">Free-to-play Rock Paper Scissors on Celo & Base.</p>
           </div>
 
-          <div className="mb-12 max-w-md mx-auto">
+          <div className="mb-12 max-w-md mx-auto space-y-3">
             <ConnectButton.Custom>
               {({ openConnectModal }) => (
                 <button
@@ -62,6 +66,26 @@ export default function Home() {
                 </button>
               )}
             </ConnectButton.Custom>
+
+            {isMiniAppReady && context && !isSignedIn && (
+              <button
+                onClick={signIn}
+                disabled={isLoading}
+                className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6 disabled:opacity-50"
+              >
+                {isLoading ? "Signing in..." : "Sign in with Farcaster"}
+              </button>
+            )}
+
+            {isSignedIn && user && (
+              <div className="bg-card/50 backdrop-blur border border-purple-500/30 rounded-xl p-4 flex items-center space-x-3">
+                <img src={user.pfp_url} alt={user.username} className="w-12 h-12 rounded-full" />
+                <div>
+                  <p className="font-semibold">{user.display_name}</p>
+                  <p className="text-sm text-base-content/60">@{user.username}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4 mb-12">
