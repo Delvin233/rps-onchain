@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { AuthProvider } from "~~/contexts/AuthContext";
+import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
@@ -63,10 +64,12 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
               : lightTheme()
           }
         >
-          <AuthProvider>
-            <ProgressBar height="3px" color="#2299dd" />
-            <ScaffoldEthApp>{children}</ScaffoldEthApp>
-          </AuthProvider>
+          <FarcasterProvider>
+            <AuthProvider>
+              <ProgressBar height="3px" color="#2299dd" />
+              <ScaffoldEthApp>{children}</ScaffoldEthApp>
+            </AuthProvider>
+          </FarcasterProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
