@@ -40,7 +40,7 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
     <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-base-100/95 backdrop-blur-xl border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-glow-primary">Verify Human Identity</h3>
+          <h3 className="text-xl font-bold text-glow-primary">Prove You&apos;re Human</h3>
           <button onClick={handleClose} className="btn btn-ghost btn-sm btn-circle">
             ✕
           </button>
@@ -50,13 +50,13 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
           <div className="text-center space-y-4 py-4">
             <div className="text-success text-5xl animate-bounce">✓</div>
             <p className="text-lg font-bold">Verification Successful!</p>
-            <p className="text-base-content/70 text-sm">You can now bet up to 1000 CELO (was 20 CELO)</p>
+            <p className="text-base-content/70 text-sm">Other players will see you&apos;re verified!</p>
           </div>
         ) : !hasStarted ? (
           <div className="space-y-4">
             <p className="text-base-content/80 text-sm">
-              Verify you&apos;re a real human using your government-issued ID (passport, etc.) to unlock higher betting
-              limits.
+              Prove you&apos;re a real human to other players using your government-issued ID. Verified players show a
+              shield icon (🛡️) in game rooms.
             </p>
             <button onClick={handleStart} className="btn btn-primary w-full">
               Start Verification

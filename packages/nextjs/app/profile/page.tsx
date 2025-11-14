@@ -1,19 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
+import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
 
 export default function ProfilePage() {
   const { address } = useAccount();
   const { isHumanVerified } = useAuth();
   const { displayName, hasEns, ensType } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
+  const [entitlement, setEntitlement] = useState<bigint>(0n);
+  const [nextClaimTime, setNextClaimTime] = useState<Date | null>(null);
+  const [timeUntilClaim, setTimeUntilClaim] = useState("");
+  const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (isReady && address && identitySDK) {
+      checkEntitlement().then(result => setEntitlement(result.amount));
+      getNextClaimTime().then(setNextClaimTime);
+      identitySDK.getWhitelistedRoot(address).then(({ isWhitelisted }) => {
+        setIsWhitelisted(isWhitelisted);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReady, address]);
+
+  useEffect(() => {
+    if (!nextClaimTime) return;
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = nextClaimTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setTimeUntilClaim("Available now!");
+        checkEntitlement().then(result => setEntitlement(result.amount));
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeUntilClaim(`${hours}h ${minutes}m`);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextClaimTime]);
+
+  const handleClaim = async () => {
+    try {
+      await claim();
+      toast.success("UBI claimed successfully!");
+      checkEntitlement().then(result => setEntitlement(result.amount));
+      getNextClaimTime().then(setNextClaimTime);
+    } catch (error) {
+      console.error("Claim error:", error);
+      toast.error("Failed to claim UBI");
+    }
+  };
 
   const copyAddress = () => {
     if (address) {
@@ -97,7 +151,9 @@ export default function ProfilePage() {
             <Shield className={isHumanVerified ? "text-success" : "text-warning"} size={24} />
             <div>
               <p className="font-semibold">{isHumanVerified ? "Verified Account" : "Unverified Account"}</p>
-              <p className="text-xs text-base-content/60">Verified human player</p>
+              <p className="text-xs text-base-content/60">
+                {isHumanVerified ? "Verified human player" : "Verify to prove you're human"}
+              </p>
             </div>
           </div>
         </div>
@@ -105,6 +161,54 @@ export default function ProfilePage() {
           <button onClick={() => setShowVerificationModal(true)} className="btn btn-primary w-full">
             Verify Identity
           </button>
+        )}
+      </div>
+
+      {/* GoodDollar UBI Claim */}
+      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+        <div className="flex items-center space-x-3 mb-4">
+          <span className="text-2xl">💚</span>
+          <div>
+            <p className="font-semibold">Daily UBI Claim</p>
+            <p className="text-xs text-base-content/60">Claim your GoodDollar (G$) tokens</p>
+          </div>
+        </div>
+
+        {isReady ? (
+          <>
+            {entitlement > 0n ? (
+              <>
+                <div className="bg-success/10 border border-success/30 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
+                  <p className="text-2xl font-bold text-success">{(Number(entitlement) / 1e18).toFixed(2)} G$</p>
+                </div>
+                {isWhitelisted === false && (
+                  <div className="bg-info/10 border border-info/30 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-info">
+                      💡 First time? Clicking &quot;Claim Now&quot; will redirect you to complete Face Verification
+                    </p>
+                  </div>
+                )}
+                <button onClick={handleClaim} disabled={isLoading} className="btn btn-success w-full">
+                  {isLoading ? "Claiming..." : "Claim Now"}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="bg-base-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-base-content/60 mb-1">Next claim available in</p>
+                  <p className="text-xl font-bold">{timeUntilClaim || "Checking..."}</p>
+                </div>
+                <button disabled className="btn btn-disabled w-full">
+                  Claim Unavailable
+                </button>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-sm text-base-content/60">Loading claim status...</p>
+          </div>
         )}
       </div>
 
