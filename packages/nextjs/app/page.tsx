@@ -20,6 +20,16 @@ export default function Home() {
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
 
+  // Debug: Log Farcaster state
+  useEffect(() => {
+    console.log("[Farcaster Debug]", {
+      isMiniAppReady,
+      hasContext: !!context,
+      hasConnector: !!farcasterConnector,
+      connectorIds: connectors.map(c => c.id),
+    });
+  }, [isMiniAppReady, context, farcasterConnector, connectors]);
+
   useEffect(() => {
     if (address) {
       // Auto-migrate existing users from IPFS to Redis
@@ -57,12 +67,14 @@ export default function Home() {
           </div>
 
           <div className="mb-12 max-w-md mx-auto space-y-3">
-            {isMiniAppReady && context && farcasterConnector && (
+            {isMiniAppReady && farcasterConnector && (
               <button
                 onClick={() => connect({ connector: farcasterConnector })}
-                className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
+                disabled={!context}
+                className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={!context ? "Loading Farcaster context..." : ""}
               >
-                Connect with Farcaster
+                {context ? "Connect with Farcaster" : "Loading Farcaster..."}
               </button>
             )}
 
