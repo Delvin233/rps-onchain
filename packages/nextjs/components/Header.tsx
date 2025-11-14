@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
@@ -143,7 +144,13 @@ const UsernameDisplay = () => {
       ) : (
         <div className="flex items-center gap-1">
           {farcasterUser && (
-            <img src={farcasterUser.pfp_url} alt={farcasterUser.username} className="w-6 h-6 rounded-full" />
+            <Image
+              src={farcasterUser.pfp_url}
+              alt={farcasterUser.username}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
           )}
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>

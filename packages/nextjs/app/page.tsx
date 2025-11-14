@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Play, Target, TrendingUp } from "lucide-react";
@@ -79,7 +80,7 @@ export default function Home() {
 
             {isSignedIn && user && (
               <div className="bg-card/50 backdrop-blur border border-purple-500/30 rounded-xl p-4 flex items-center space-x-3">
-                <img src={user.pfp_url} alt={user.username} className="w-12 h-12 rounded-full" />
+                <Image src={user.pfp_url} alt={user.username} width={48} height={48} className="rounded-full" />
                 <div>
                   <p className="font-semibold">{user.display_name}</p>
                   <p className="text-sm text-base-content/60">@{user.username}</p>
