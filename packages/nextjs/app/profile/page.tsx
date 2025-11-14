@@ -16,18 +16,22 @@ export default function ProfilePage() {
   const { isHumanVerified } = useAuth();
   const { displayName, hasEns, ensType } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady } = useGoodDollarClaim();
+  const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
   const [entitlement, setEntitlement] = useState<bigint>(0n);
   const [nextClaimTime, setNextClaimTime] = useState<Date | null>(null);
   const [timeUntilClaim, setTimeUntilClaim] = useState("");
+  const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (isReady) {
+    if (isReady && address && identitySDK) {
       checkEntitlement().then(result => setEntitlement(result.amount));
       getNextClaimTime().then(setNextClaimTime);
+      identitySDK.getWhitelistedRoot(address).then(({ isWhitelisted }) => {
+        setIsWhitelisted(isWhitelisted);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady]);
+  }, [isReady, address]);
 
   useEffect(() => {
     if (!nextClaimTime) return;
@@ -178,6 +182,13 @@ export default function ProfilePage() {
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
                   <p className="text-2xl font-bold text-success">{(Number(entitlement) / 1e18).toFixed(2)} G$</p>
                 </div>
+                {isWhitelisted === false && (
+                  <div className="bg-info/10 border border-info/30 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-info">
+                      💡 First time? Clicking &quot;Claim Now&quot; will redirect you to complete Face Verification
+                    </p>
+                  </div>
+                )}
                 <button onClick={handleClaim} disabled={isLoading} className="btn btn-success w-full">
                   {isLoading ? "Claiming..." : "Claim Now"}
                 </button>

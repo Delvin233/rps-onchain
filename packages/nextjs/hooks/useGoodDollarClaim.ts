@@ -64,11 +64,26 @@ export const useGoodDollarClaim = () => {
     }
   };
 
+  const identitySDK = useMemo(() => {
+    if (!address || !publicClient || !walletClient) return null;
+    try {
+      return new IdentitySDK({
+        account: address,
+        publicClient,
+        walletClient,
+        env: "production",
+      });
+    } catch {
+      return null;
+    }
+  }, [address, publicClient, walletClient]);
+
   return {
     checkEntitlement,
     getNextClaimTime,
     claim,
     isLoading,
     isReady: !!claimSDK,
+    identitySDK,
   };
 };
