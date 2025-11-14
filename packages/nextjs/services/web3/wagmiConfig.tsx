@@ -1,4 +1,5 @@
 import { wagmiConnectors } from "./wagmiConnectors";
+import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { Chain, createClient, fallback, http } from "viem";
 import { hardhat, mainnet } from "viem/chains";
 import { createConfig } from "wagmi";
@@ -14,7 +15,7 @@ export const enabledChains = targetNetworks.find((network: Chain) => network.id 
 
 export const wagmiConfig = createConfig({
   chains: enabledChains,
-  connectors: wagmiConnectors(),
+  connectors: [farcasterMiniApp(), ...wagmiConnectors()],
   ssr: true,
   client: ({ chain }) => {
     let rpcFallbacks = [http()];
