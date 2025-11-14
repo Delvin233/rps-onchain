@@ -176,7 +176,7 @@ export default function ProfilePage() {
               <>
                 <div className="bg-success/10 border border-success/30 rounded-lg p-4 mb-4">
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
-                  <p className="text-2xl font-bold text-success">{entitlement.toString()} G$</p>
+                  <p className="text-2xl font-bold text-success">{(Number(entitlement) / 1e18).toFixed(2)} G$</p>
                 </div>
                 <button onClick={handleClaim} disabled={isLoading} className="btn btn-success w-full">
                   {isLoading ? "Claiming..." : "Claim Now"}
