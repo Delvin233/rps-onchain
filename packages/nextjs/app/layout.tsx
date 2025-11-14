@@ -8,10 +8,32 @@ import { AuthProvider } from "~~/contexts/AuthContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
-export const metadata = getMetadata({
+const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
+
+const baseMetadata = getMetadata({
   title: "RPS-ONCHAIN",
   description: "Rock Paper Scissors on-chain game with Pinata storage",
 });
+
+export const metadata = {
+  ...baseMetadata,
+  other: {
+    "fc:frame": JSON.stringify({
+      version: "next",
+      imageUrl: `${appUrl}/images/frame-preview.png`,
+      button: {
+        title: "Play RPS",
+        action: {
+          type: "launch_frame",
+          name: "RPS-OnChain",
+          url: appUrl,
+          splashImageUrl: `${appUrl}/images/splash.png`,
+          splashBackgroundColor: "#0c0a09",
+        },
+      },
+    }),
+  },
+};
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
