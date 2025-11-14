@@ -1536,7 +1536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@farcaster/miniapp-sdk@npm:0.2.1":
+"@farcaster/miniapp-sdk@npm:0.2.1, @farcaster/miniapp-sdk@npm:^0.2.1":
   version: 0.2.1
   resolution: "@farcaster/miniapp-sdk@npm:0.2.1"
   dependencies:
@@ -1546,6 +1546,17 @@ __metadata:
     eventemitter3: ^5.0.1
     ox: ^0.4.4
   checksum: db3883863b031d4c0f461a7f383694df2d78ffa60933b19232c2584382b69273b088254fe1128006ea9c0e2f06619d92c27d9592e54e18c19d00c607b73e3043
+  languageName: node
+  linkType: hard
+
+"@farcaster/miniapp-wagmi-connector@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@farcaster/miniapp-wagmi-connector@npm:1.1.0"
+  peerDependencies:
+    "@farcaster/miniapp-sdk": ^0.2.0
+    "@wagmi/core": ^2.14.1
+    viem: ^2.21.55
+  checksum: 45b18ed314a1cb712c5ef2a555178690d23f3cb261905fea2ec38eea6a5986476f44b972b9c7226ca34dc75b9af202aa66cf8643705915d9837c172d74239069
   languageName: node
   linkType: hard
 
@@ -4550,6 +4561,8 @@ __metadata:
     "@divvi/referral-sdk": ^2.0.0
     "@farcaster/frame-sdk": ^0.1.12
     "@farcaster/frame-wagmi-connector": ^1.0.0
+    "@farcaster/miniapp-sdk": ^0.2.1
+    "@farcaster/miniapp-wagmi-connector": ^1.1.0
     "@farcaster/quick-auth": ^0.0.8
     "@goodsdks/citizen-sdk": ^1.2.2
     "@heroicons/react": ~2.1.5
