@@ -94,6 +94,6 @@ export const FONT_THEMES: Record<string, FontTheme> = {
 };
 
 // 🎨 CHANGE THIS TO SWITCH THEMES
-export const ACTIVE_FONT_THEME: keyof typeof FONT_THEMES = "cleanModern";
+export const ACTIVE_FONT_THEME: keyof typeof FONT_THEMES = "techForward";
 
 export const getActiveTheme = () => FONT_THEMES[ACTIVE_FONT_THEME];
