@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Coins, Play, Target, TrendingUp } from "lucide-react";
+import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useConnect } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
@@ -128,6 +128,20 @@ export default function Home() {
                   <h3 className="text-lg font-bold mb-1">Track Your Stats</h3>
                   <p className="text-sm text-base-content/60">
                     View match history, win rates, and achievements stored on IPFS.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-200">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-yellow-500/20 mt-1">
+                  <Gift className="text-yellow-500" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Claim Daily GoodDollar</h3>
+                  <p className="text-sm text-base-content/60">
+                    Get free G$ tokens daily. Connect your wallet to start claiming!
                   </p>
                 </div>
               </div>
