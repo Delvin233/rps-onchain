@@ -258,49 +258,49 @@ export default function OnChainMatchesPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredMatches.map((match, idx) => (
-              <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
-                <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="badge badge-primary">{match.chainName}</span>
-                      <span className="text-sm text-base-content/60">Room: {match.roomId}</span>
+              <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+                <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="badge badge-primary badge-sm">{match.chainName}</span>
+                      <span className="text-xs text-base-content/60">Room: {match.roomId}</span>
                     </div>
-                    <div className="text-sm space-y-1">
+                    <div className="text-xs space-y-0.5">
                       <p className="break-words">
-                        <span className="font-semibold">Player 1:</span>{" "}
+                        <span className="font-semibold">P1:</span>{" "}
                         {match.player1Name || `${match.player1.slice(0, 8)}...${match.player1.slice(-4)}`}
                       </p>
                       <p className="break-words">
-                        <span className="font-semibold">Player 2:</span>{" "}
+                        <span className="font-semibold">P2:</span>{" "}
                         {match.player2Name || `${match.player2.slice(0, 8)}...${match.player2.slice(-4)}`}
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5 flex-shrink-0">
                     {match.txHash && (
                       <a
                         href={`${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn btn-sm btn-primary"
+                        className="btn btn-xs btn-primary"
                       >
-                        <ExternalLink size={14} /> View TX
+                        <ExternalLink size={12} /> TX
                       </a>
                     )}
                     <a
                       href={getExplorerUrl(match.chainId)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-sm btn-outline"
+                      className="btn btn-xs btn-outline"
                     >
-                      <ExternalLink size={14} /> Contract
+                      <ExternalLink size={12} /> Contract
                     </a>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {match.matches.map((m, mIdx) => {
                     const winnerName =
                       m.winner === match.player1
@@ -310,15 +310,15 @@ export default function OnChainMatchesPage() {
                           : "Tie";
 
                     return (
-                      <div key={mIdx} className="bg-base-200 p-3 rounded-lg">
-                        <div className="flex justify-between items-center text-sm">
+                      <div key={mIdx} className="bg-base-200 p-2 rounded-lg">
+                        <div className="flex justify-between items-center text-xs">
                           <span>
                             <span className="font-bold uppercase">{m.player1Move}</span> vs{" "}
                             <span className="font-bold uppercase">{m.player2Move}</span>
                           </span>
                           <span className="font-semibold text-success">{winnerName}</span>
                         </div>
-                        <p className="text-xs text-base-content/60 mt-1">
+                        <p className="text-[10px] text-base-content/60 mt-0.5">
                           {new Date(m.timestamp * 1000).toLocaleString()}
                         </p>
                       </div>
