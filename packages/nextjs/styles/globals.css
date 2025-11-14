@@ -115,20 +115,55 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
-  p {
-    margin: 1rem 0;
-  }
+
 
   body {
     min-height: 100vh;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    margin-bottom: 0.5rem;
+  /* Typography - HTML Tags */
+  h1 {
+    font-family: var(--font-orbitron, system-ui);
+    font-size: 3rem; /* 48px */
+    font-weight: 700;
     line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-family: var(--font-orbitron, system-ui);
+    font-size: 2.25rem; /* 36px */
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-family: var(--font-orbitron, system-ui);
+    font-size: 1.875rem; /* 30px */
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+
+  h4 {
+    font-family: var(--font-orbitron, system-ui);
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 1rem 0;
+  }
+
+  button {
+    font-family: var(--font-orbitron, system-ui);
+    font-weight: 600;
   }
 
   /* Cursor styles */
