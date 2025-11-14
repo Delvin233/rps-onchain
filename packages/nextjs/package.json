@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@divvi/referral-sdk": "^2.0.0",
+    "@goodsdks/citizen-sdk": "^1.2.2",
     "@heroicons/react": "~2.1.5",
     "@libsql/client": "^0.15.15",
     "@rainbow-me/rainbowkit": "2.2.8",
