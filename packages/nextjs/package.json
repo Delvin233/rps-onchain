@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "@divvi/referral-sdk": "^2.0.0",
+    "@farcaster/frame-sdk": "^0.1.12",
+    "@farcaster/frame-wagmi-connector": "^1.0.0",
+    "@farcaster/quick-auth": "^0.0.8",
     "@goodsdks/citizen-sdk": "^1.2.2",
     "@heroicons/react": "~2.1.5",
     "@libsql/client": "^0.15.15",
@@ -34,6 +37,7 @@
     "daisyui": "5.0.9",
     "ethers": "^6.15.0",
     "ipfs-http-client": "^60.0.1",
+    "jose": "^6.1.1",
     "kubo-rpc-client": "~5.0.2",
     "lucide-react": "^0.553.0",
     "next": "~15.2.3",
