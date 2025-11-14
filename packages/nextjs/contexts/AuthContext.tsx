@@ -1,8 +1,7 @@
 "use client";
 
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import { useSelfProtocol } from "~~/hooks/useSelfProtocol";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -16,26 +15,54 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
-  const { isVerified: selfVerified, verify: verifySelfProtocol, disconnect: disconnectSelf } = useSelfProtocol();
+  const [isHumanVerified, setIsHumanVerified] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (walletAddress && mounted && typeof window !== "undefined") {
+      fetch(`/api/check-verification?address=${walletAddress}`)
+        .then(res => res.json())
+        .then(data => setIsHumanVerified(data.verified || false))
+        .catch(() => setIsHumanVerified(false));
+    }
+  }, [walletAddress, mounted]);
+
+  if (!mounted) {
+    return (
+      <AuthContext.Provider
+        value={{
+          isAuthenticated: false,
+          address: null,
+          isHumanVerified: false,
+          connectWallet: () => {},
+          verifySelf: async () => {},
+          disconnect: () => {},
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
   const connectWallet = () => {
     // This will be handled by RainbowKit's ConnectButton
   };
 
   const verifySelf = async () => {
-    await verifySelfProtocol();
+    // Verification handled in profile page
   };
 
   const disconnect = () => {
-    if (selfVerified) {
-      disconnectSelf();
-    }
+    // Handled by wallet disconnect
   };
 
   const isAuthenticated = walletConnected;
   const address = walletAddress || null;
-  const isHumanVerified = selfVerified;
 
   return (
     <AuthContext.Provider

@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@divvi/referral-sdk": "^2.3.0",
-    "caniuse-lite": "^1.0.30001749"
+    "caniuse-lite": "^1.0.30001749",
+    "redis": "^5.9.0"
   }
 }

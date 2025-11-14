@@ -1,23 +1,20 @@
 # RPS-ONCHAIN
 
 ![RPS-ONCHAIN](rps-onchain.jpg)
-A decentralized Rock Paper Scissors game with real money betting, human verification, and gaming aesthetics. Built with scaffold-eth-2 on Celo Mainnet.
+A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support (Celo + Base). Built with scaffold-eth-2.
 
 ## Game Features
 
-- **Wallet Authentication**: RainbowKit + Wagmi integration with "Sign In" flow
-- **Smart Contract Gameplay**: Commit-reveal scheme prevents cheating
-- **Room System**: Create/join rooms with 6-character codes
-- **Real Money Betting**: CELO wagering with winner-takes-all payouts
-- **Room Cancellation**: Cancel unjoined rooms for full refund
-- **Self Protocol Verification**: Human verification unlocks higher betting limits
-  - Unverified: 20 CELO max bet
-  - Verified: 1000 CELO max bet
-- **Match History**: Decentralized storage via IPFS (Pinata) with timestamped filenames
-- **Gaming UI**: Neon aesthetics with smooth animations and gradient backgrounds
-- **Multi-Room Protection**: Warnings when joining multiple active rooms
-- **Divvi Integration**: Referral tracking and rewards on all transactions
-- **Edge Config**: Persistent verification storage across devices
+- **Wallet Authentication**: RainbowKit + Wagmi integration
+- **Free to Play**: No betting, just pure fun
+- **Single Player**: Play against AI instantly
+- **Multiplayer**: Create/join rooms with 6-character codes
+- **Unlimited Rematches**: Play again and again with friends
+- **Match History**: Decentralized storage via IPFS (Pinata)
+- **Blockchain Verification**: Optional on-chain match publishing
+- **On-Chain Matches**: View all published matches with filters
+- **Gaming UI**: Neon aesthetics with smooth animations
+- **Stats Tracking**: Win/loss records stored on IPFS
 
 ## 🏗 Project Structure
 
@@ -78,34 +75,32 @@ packages/
 
 ## 🎯 How to Play
 
-### Current Implementation (On-Chain)
+### How to Play
 
 1. **Connect Wallet**: Use any wallet (MetaMask recommended)
-2. **Set Username**: Edit username in header
-3. **Create Room**: Generate room code with CELO bet amount
+2. **Choose Mode**: Single Player (AI) or Multiplayer (Free)
+3. **Create Room**: Generate 6-character room code
 4. **Share Code**: Give the room code to your opponent
-5. **Join Room**: Enter room code - bet amount auto-populates
-6. **Confirm & Join**: Review stake amount and confirm
-7. **Auto-Redirect**: Both players automatically enter game room
-8. **Commit Move**: Submit encrypted move on-chain
-9. **Reveal Move**: Reveal your move to determine winner
-10. **Claim Prize**: Winner claims the full pot
+5. **Join Room**: Enter room code to join
+6. **Choose Move**: Select rock, paper, or scissors
+7. **See Results**: Winner determined instantly
+8. **Play Again**: Request rematch for unlimited games
 
 ### Room Management
 
-- **Cancel Room**: Room creators can cancel unjoined rooms for full refund
-- **Multi-Room Warning**: System warns when joining multiple rooms
-- **Auto-Population**: Bet amounts automatically fill when joining rooms
+- **Cancel Room**: Room creators can cancel unjoined rooms
+- **Leave Room**: Exit after game finishes
+- **Rematch System**: Request/accept rematches instantly
 
 ### Game Rules
 
 - Rock beats Scissors
 - Scissors beats Paper
 - Paper beats Rock
-- Same moves = Tie (both players get refund)
-- Winner takes full pot (2x bet amount)
-- Loser loses their bet
-- Abandoned rooms can be cancelled by creator for full refund
+- Same moves = Tie
+- All games are free
+- Stats tracked on IPFS
+- Unlimited rematches available
 
 ## 🔧 Development Commands
 
@@ -114,6 +109,7 @@ packages/
 yarn chain          # Start local Hardhat network
 yarn deploy         # Deploy contracts to local network
 yarn deploy --network celo # Deploy to Celo mainnet
+yarn deploy --network base # Deploy to Base mainnet
 
 # Frontend
 yarn start          # Start Next.js development server
@@ -144,55 +140,71 @@ yarn dev            # Start frontend (same as yarn start)
 
 - `app/api/username/route.ts` - Username management
 - `app/api/store-match/route.ts` - IPFS match storage via Pinata
-- `app/api/self-callback/route.ts` - Self Protocol verification callback with Edge Config storage
+- `app/api/store-blockchain-proof/route.ts` - Blockchain proof storage (Turso)
+- `app/api/resolve-name/route.ts` - ENS/Basename resolution
+- `app/api/verify/route.ts` - Self Protocol verification callback with Edge Config storage
+- `app/api/check-verification/route.ts` - Check user verification status
 
 ### Utilities & Libraries
 
 - `utils/gameUtils.ts` - Move hashing and game logic
 - `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
+- `lib/turso.ts` - Turso SQLite database client
 - `lib/edgeConfigClient.ts` - Edge Config client for verification persistence
 - `contexts/AuthContext.tsx` - Unified authentication context
 - `hooks/useSelfProtocol.ts` - Self Protocol integration with QR code generation
 
 ## 🌐 Network Configuration
 
-- **Network**: Celo Mainnet
-- **Contract Address**: `0xE6D3cb78A795a49E4AF320282d7cD5117931f6B0`
-- **RPC Endpoint**: Celo Forno (public RPC)
-- **Local Development**: Hardhat network
+### **Supported Networks**
+
+**Celo Mainnet:**
+- Contract: `0xace7999ca29Fc9d3dfDD8D7F99A1366a5cF62091`
+- RPC: https://forno.celo.org
+- Gas Token: CELO or cUSD
+- Recommended Wallets: MiniPay, MetaMask
+
+**Base Mainnet:**
+- Contract: `0x17f238a671CEEa5b6ac9b44E280a42a2Bb080feC`
+- RPC: https://mainnet.base.org
+- Gas Token: ETH
+- Recommended Wallets: Coinbase Wallet, MetaMask
+
+**Local Development:**
+- Hardhat network (localhost)
 
 Contract addresses are auto-exported to `contracts/deployedContracts.ts` after deployment.
 
 ## ✨ Recent Updates
 
-- ✅ Self Protocol integration for human verification
+- ✅ Pivoted to free-to-play model
+- ✅ Removed all betting/paid room functionality
 - ✅ Gaming UI with neon aesthetics and animations
-- ✅ Edge Config for persistent verification storage
-- ✅ Pinata IPFS integration with timestamped filenames
-- ✅ Divvi referral tracking on all transactions
-- ✅ Celo Forno RPC to avoid rate limits
-- ✅ Dynamic betting limits based on verification status
-- ✅ Forced claim flow before navigation
+- ✅ Pinata IPFS integration for match history
+- ✅ Unlimited rematch system
+- ✅ Stats tracking and history page
+- ✅ Turso database for persistent blockchain proof storage
+- ✅ On-chain matches page with filters (no block range limits)
+- ✅ Per-match publishing with ENS/Basename resolution
 
 ## 🔮 Future Enhancements
 
 - Tournament brackets with multi-round matches
-- Leaderboards & player statistics
-- NFT rewards for winners
+- Global leaderboards & player statistics
+- Achievement system
 - Real-time multiplayer lobbies
-- Gasless transactions via meta-transactions
 - Mobile app development
+- Optional betting mode (future)
 
 ## 🛠 Technical Stack
 
 - **Frontend**: Next.js 13+, React, TypeScript, TailwindCSS
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
-- **Network**: Celo Mainnet (Forno RPC)
-- **Storage**: IPFS via Pinata
-- **Persistence**: Vercel Edge Config
+- **Networks**: Celo Mainnet + Base Mainnet (Multi-chain)
+- **Storage**: IPFS via Pinata, Turso SQLite (5GB)
 - **Identity**: Self Protocol (@selfxyz/core)
-- **Referrals**: Divvi SDK
+- **Payments**: GoodDollar (G$) tipping
 - **Deployment**: Vercel
 
 ## 📝 Environment Variables
@@ -212,13 +224,17 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 PINATA_JWT=your_pinata_jwt_token
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
 
-# Edge Config (Auto-populated by Vercel)
-EDGE_CONFIG=
-EDGE_CONFIG_ID=
-VERCEL_API_TOKEN=
+# Turso Database (for blockchain proof storage)
+TURSO_DATABASE_URL=libsql://your-database.turso.io
+TURSO_AUTH_TOKEN=your_turso_auth_token
 
-# Optional: Bypass Self Protocol for testing
-NEXT_PUBLIC_BYPASS_SELF_VERIFICATION=false
+# Edge Config (for verification storage)
+EDGE_CONFIG=https://edge-config.vercel.com/...
+EDGE_CONFIG_ID=ecfg_...
+VERCEL_API_TOKEN=...
+
+# Optional: Backend wallet (not required for free-to-play)
+# BACKEND_PRIVATE_KEY=your_backend_wallet_private_key
 ```
 
 ## 🤝 Contributing

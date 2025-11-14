@@ -37,37 +37,34 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-base-100/95 backdrop-blur-xl border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-white text-lg font-bold">Verify Human Identity</h3>
-          <button onClick={handleClose} className="text-gray-400 hover:text-white">
+          <h3 className="text-xl font-bold text-glow-primary">Verify Human Identity</h3>
+          <button onClick={handleClose} className="btn btn-ghost btn-sm btn-circle">
             ✕
           </button>
         </div>
 
         {isVerified ? (
-          <div className="text-center space-y-4">
-            <div className="text-green-400 text-4xl">✓</div>
-            <p className="text-white text-sm font-bold">Verification Successful!</p>
-            <p className="text-gray-300 text-xs">You can now bet up to 1000 CELO (was 20 CELO)</p>
+          <div className="text-center space-y-4 py-4">
+            <div className="text-success text-5xl animate-bounce">✓</div>
+            <p className="text-lg font-bold">Verification Successful!</p>
+            <p className="text-base-content/70 text-sm">You can now bet up to 1000 CELO (was 20 CELO)</p>
           </div>
         ) : !hasStarted ? (
           <div className="space-y-4">
-            <p className="text-gray-300 text-sm">
+            <p className="text-base-content/80 text-sm">
               Verify you&apos;re a real human using your government-issued ID (passport, etc.) to unlock higher betting
               limits.
             </p>
-            <button
-              onClick={handleStart}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 text-sm font-bold rounded"
-            >
+            <button onClick={handleStart} className="btn btn-primary w-full">
               Start Verification
             </button>
           </div>
         ) : !selfApp ? (
           <div className="flex items-center justify-center p-8">
-            <div className="text-white text-sm">Generating QR Code...</div>
+            <span className="loading loading-spinner loading-lg text-primary"></span>
           </div>
         ) : (
           <div className="space-y-4">
@@ -76,16 +73,21 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
                 href={getUniversalLink(selfApp)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 px-4 text-center font-bold rounded-lg shadow-neon-purple"
+                className="btn btn-primary w-full text-lg"
               >
-                🔐 Open Self App
+                Open Self App
               </a>
-              <p className="text-gray-300 text-xs text-center mt-3">Tap to verify your identity in the Self app</p>
-              <p className="text-yellow-400 text-xs text-center mt-2">Waiting for verification...</p>
+              <p className="text-base-content/70 text-xs text-center mt-3">
+                Tap to verify your identity in the Self app
+              </p>
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <span className="loading loading-dots loading-sm text-warning"></span>
+                <p className="text-warning text-xs">Waiting for verification...</p>
+              </div>
             </div>
 
             <div className="hidden md:block">
-              <div className="flex justify-center">
+              <div className="flex justify-center bg-white p-4 rounded-lg">
                 <SelfQRcodeWrapper
                   selfApp={selfApp}
                   onSuccess={() => {}}
@@ -94,16 +96,18 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
                 />
               </div>
               <div className="text-center mt-4">
-                <p className="text-white text-sm font-bold">Scan with Self App</p>
-                <p className="text-gray-300 text-xs">Download the Self app on your phone and scan this QR code</p>
-                <p className="text-yellow-400 text-xs mt-2">Waiting for verification...</p>
+                <p className="font-bold">Scan with Self App</p>
+                <p className="text-base-content/70 text-xs mt-1">
+                  Download the Self app on your phone and scan this QR code
+                </p>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <span className="loading loading-dots loading-sm text-warning"></span>
+                  <p className="text-warning text-xs">Waiting for verification...</p>
+                </div>
               </div>
             </div>
 
-            <button
-              onClick={handleClose}
-              className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 text-sm rounded"
-            >
+            <button onClick={handleClose} className="btn btn-ghost w-full">
               Cancel
             </button>
           </div>

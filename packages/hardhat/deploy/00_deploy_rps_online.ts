@@ -11,6 +11,8 @@ const deployRPSOnline: DeployFunction = async function (hre: HardhatRuntimeEnvir
     log: true,
     autoMine: true,
   });
+
+  console.log("RPSOnline deployed");
 };
 
 export default deployRPSOnline;

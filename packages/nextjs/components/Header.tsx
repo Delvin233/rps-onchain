@@ -7,10 +7,9 @@ import { hardhat } from "viem/chains";
 import { useAccount, useEnsName } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
+import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
-import { useSelfProtocol } from "~~/hooks/useSelfProtocol";
 
 type HeaderMenuLink = {
   label: string;
@@ -30,6 +29,10 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "History",
     href: "/history",
+  },
+  {
+    label: "On-Chain",
+    href: "/on-chain-matches",
   },
 ];
 
@@ -63,12 +66,10 @@ const UsernameDisplay = () => {
   const { address, isConnected } = useAccount();
   const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
   const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
-  const { isVerified } = useSelfProtocol();
   const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   useEffect(() => {
     if (address) {
@@ -147,16 +148,8 @@ const UsernameDisplay = () => {
               ✎
             </button>
           )}
-          {isVerified ? (
-            <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">✅ Verified</span>
-          ) : (
-            <button onClick={() => setShowVerificationModal(true)} className="btn btn-xs btn-outline btn-purple">
-              Verify Identity
-            </button>
-          )}
         </div>
       )}
-      <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
     </div>
   );
 };
@@ -165,6 +158,7 @@ const UsernameDisplay = () => {
  * Site header
  */
 export const Header = () => {
+  const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -199,7 +193,8 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4 flex items-center gap-4">
+      <div className="navbar-end grow mr-4 flex items-center gap-2">
+        <BalanceDisplay address={address} />
         <UsernameDisplay />
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}

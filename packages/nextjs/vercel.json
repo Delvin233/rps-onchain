@@ -1,14 +1,8 @@
 {
-  "installCommand": "yarn install",
-  "headers": [
+  "crons": [
     {
-      "source": "/api/verify",
-      "headers": [
-        {
-          "key": "x-vercel-protection-bypass",
-          "value": "public"
-        }
-      ]
+      "path": "/api/cron/cleanup-rooms",
+      "schedule": "0 0 * * *"
     }
   ]
 }

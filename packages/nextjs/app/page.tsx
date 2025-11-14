@@ -1,110 +1,212 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Coins, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount } from "wagmi";
-
-type GameState = "menu" | "demo";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
+import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
-  const { address, isConnected } = useAccount();
-  const [gameState, setGameState] = useState<GameState>("menu");
+  const { address } = useAccount();
+  const router = useRouter();
+  const stats = usePlayerStats(address);
+  const { displayName, hasEns, ensType } = useDisplayName(address);
 
-  const startDemo = () => {
-    setGameState("demo");
-  };
+  useEffect(() => {
+    if (address) {
+      // Auto-migrate existing users from IPFS to Redis
+      fetch("/api/migrate-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address }),
+      })
+        .then(() => {
+          stats.refetch();
+        })
+        .catch(console.error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
-  const backToMenu = () => {
-    setGameState("menu");
-  };
-
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <div className="card-gaming rounded-2xl p-8 max-w-2xl w-full text-center animate-fade-in-up backdrop-blur-sm">
-          <div className="card-gaming rounded-xl p-6 mb-6 text-left">
-            <p className="text-white text-sm font-bold mb-3">GAME RULES:</p>
-            <div className="space-y-2">
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-green mr-2">✓</span> Rock beats Scissors
-              </p>
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-green mr-2">✓</span> Scissors beats Paper
-              </p>
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-green mr-2">✓</span> Paper beats Rock
-              </p>
-              <p className="text-gray-300 text-xs flex items-center">
-                <span className="text-neon-orange mr-2"></span> Same moves result in a tie
-              </p>
-            </div>
-          </div>
-
-          <p className="text-gray-300 text-sm mb-6">CONNECT WALLET TO START PLAYING</p>
-          <div className="flex justify-center">
-            <ConnectButton />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const statsData = [
+    { title: "Total Games", value: stats.totalGames.toString(), icon: Target },
+    { title: "Wins", value: stats.wins.toString(), icon: TrendingUp },
+    { title: "Win Rate", value: `${stats.winRate}%`, icon: Coins },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      <div className="card-gaming rounded-2xl p-8 max-w-2xl w-full text-center animate-fade-in-up">
-        {gameState === "menu" && (
-          <div className="space-y-6">
-            <div className="card-gaming rounded-xl p-6 text-left animate-slide-in-up">
-              <p className="text-neon-green text-sm font-bold mb-2 flex items-center">
-                <span className="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse-soft"></span>
-                WALLET CONNECTED
-              </p>
-              <p className="text-gray-300 text-xs">
-                Address: {address?.slice(0, 6)}...{address?.slice(-4)}
-              </p>
-            </div>
-            <div className="max-w-md mx-auto space-y-3">
-              <button
-                onClick={startDemo}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-6 text-sm font-bold rounded-xl shadow-glow transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                TEST WALLET FEATURES
-              </button>
-              <Link href="/play">
-                <button className="w-full btn-gaming-primary py-4 px-6 text-white text-lg font-bold rounded-xl transition-all duration-300 hover:scale-105 active:scale-95">
-                  PLAY GAME
-                </button>
-              </Link>
-            </div>
+    <div className="min-h-screen bg-base-200">
+      {address && (
+        <div className="flex justify-end pt-4 px-6">
+          <RainbowKitCustomConnectButton />
+        </div>
+      )}
+      {!address ? (
+        <div className="px-6 pt-16 pb-24">
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="text-5xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
+            <p className="text-sm text-base-content/60">Free-to-play Rock Paper Scissors on Celo & Base.</p>
           </div>
-        )}
 
-        {gameState === "demo" && (
-          <div className="space-y-6 animate-fade-in-up">
-            <div className="card-gaming rounded-xl p-6 text-left">
-              <p className="text-white text-sm font-bold mb-4">WALLET CONNECTION TEST</p>
-              <div className="space-y-2">
-                <p className="text-gray-300 text-xs flex items-center">
-                  <span className="text-neon-green mr-2">✓</span> MetaMask Connected
-                </p>
-                <p className="text-gray-300 text-xs flex items-center">
-                  <span className="text-neon-green mr-2">✓</span> Address Retrieved
-                </p>
-                <p className="text-gray-300 text-xs flex items-center">
-                  <span className="text-neon-green mr-2">✓</span> RainbowKit Integration
-                </p>
+          <div className="mb-12 max-w-md mx-auto">
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
+
+          <div className="space-y-4 mb-12">
+            <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6 hover:border-primary/50 transition-all duration-200">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-primary/10 mt-1">
+                  <Target className="text-primary" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Provably Fair</h3>
+                  <p className="text-sm text-base-content/60">
+                    Smart contract ensures no cheating. Every move is verifiable on-chain.
+                  </p>
+                </div>
               </div>
             </div>
+
+            <div className="bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-6 hover:border-secondary/50 transition-all duration-200">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-secondary/10 mt-1">
+                  <Coins className="text-secondary" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Free to Play</h3>
+                  <p className="text-sm text-base-content/60">
+                    No betting required. Just pure fun with friends and AI opponents.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card/50 backdrop-blur border border-accent/20 rounded-xl p-6 hover:border-accent/50 transition-all duration-200">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-accent/10 mt-1">
+                  <TrendingUp className="text-accent" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Track Your Stats</h3>
+                  <p className="text-sm text-base-content/60">
+                    View match history, win rates, and achievements stored on IPFS.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 rounded-xl p-6">
+            <h3 className="text-lg font-bold mb-4 text-center">How to Play</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold">1</span>
+                </div>
+                <p className="text-sm text-base-content/80">Connect your wallet to start playing</p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold">2</span>
+                </div>
+                <p className="text-sm text-base-content/80">Create a room or join with a 6-character code</p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold">3</span>
+                </div>
+                <p className="text-sm text-base-content/80">Choose Rock, Paper, or Scissors and submit your move</p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold">4</span>
+                </div>
+                <p className="text-sm text-base-content/80">Results are determined instantly and recorded on-chain</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="px-6 pt-8 pb-4">
+          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6">
+            <p className="text-lg md:text-xl font-semibold mb-1">
+              Hello, {displayName}
+              {hasEns && (
+                <span
+                  className={`text-xs ml-2 ${
+                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                  }`}
+                >
+                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+                </span>
+              )}
+            </p>
             <button
-              onClick={backToMenu}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 text-sm font-bold rounded-xl border border-gray-600 transition-all duration-300 hover:scale-105"
+              onClick={() => {
+                navigator.clipboard.writeText(address);
+              }}
+              className="text-xs text-base-content/60 hover:text-base-content transition-colors"
+              title="Copy address"
             >
-              ← BACK TO MENU
+              {address.slice(0, 10)}...{address.slice(-8)} 📋
             </button>
           </div>
-        )}
-      </div>
+
+          <button
+            onClick={() => router.push("/play")}
+            className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 touch-target text-base font-semibold shadow-glow-primary rounded-xl py-3 flex items-center justify-center space-x-2 mb-6"
+          >
+            <Play size={20} />
+            <span>Play Now</span>
+          </button>
+        </div>
+      )}
+
+      {address && (
+        <div className="px-6">
+          <h2 className="text-lg font-semibold mb-3 text-glow-secondary">Your Stats</h2>
+          {stats.isLoading ? (
+            <div className="flex justify-center py-8">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              {statsData.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <div
+                    key={stat.title}
+                    className="bg-card/50 backdrop-blur border border-border rounded-xl p-3 hover:border-primary/50 transition-all duration-200 animate-fade-in"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
+                        <p className="text-xl font-bold">{stat.value}</p>
+                      </div>
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Icon className="text-primary" size={20} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

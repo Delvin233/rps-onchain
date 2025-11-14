@@ -1,6 +1,9 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
+import { MobileLayout } from "~~/components/MobileLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
+import { OverlayProvider } from "~~/components/overlays/OverlayManager";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
@@ -15,9 +18,19 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <html suppressHydrationWarning className={``}>
       <body>
         <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>
-            <AuthProvider>{children}</AuthProvider>
-          </ScaffoldEthAppWithProviders>
+          <div className="flex justify-center h-screen bg-base-300 overflow-hidden">
+            <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
+              <ScaffoldEthAppWithProviders>
+                <AuthProvider>
+                  <MatchSyncProvider>
+                    <OverlayProvider>
+                      <MobileLayout>{children}</MobileLayout>
+                    </OverlayProvider>
+                  </MatchSyncProvider>
+                </AuthProvider>
+              </ScaffoldEthAppWithProviders>
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

@@ -1,0 +1,33 @@
+"use client";
+
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
+import { getMatchRecord } from "~~/lib/pinataStorage";
+
+export const useSyncMatches = () => {
+  const { address } = useAccount();
+
+  useEffect(() => {
+    if (!address) return;
+
+    const syncMatches = async () => {
+      try {
+        // Fetch user's IPFS hash from Edge Config
+        const response = await fetch(`/api/user-matches?address=${address}`);
+        const { ipfsHash } = await response.json();
+
+        if (!ipfsHash) return;
+
+        // Fetch all matches from IPFS
+        const userData = await getMatchRecord(ipfsHash);
+        if (userData && userData.matches) {
+          localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
+        }
+      } catch (error) {
+        console.error("Error syncing matches:", error);
+      }
+    };
+
+    syncMatches();
+  }, [address]);
+};
