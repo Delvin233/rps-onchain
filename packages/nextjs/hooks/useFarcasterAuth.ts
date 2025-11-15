@@ -3,6 +3,11 @@ import { useFarcaster } from "~~/contexts/FarcasterContext";
 export const useFarcasterAuth = () => {
   const { context } = useFarcaster();
 
+  // Debug: log context to see what's available
+  if (typeof window !== "undefined" && context) {
+    console.log("Farcaster context:", context);
+  }
+
   // Use context data directly from Farcaster SDK
   const user = context?.user
     ? {
