@@ -1,4 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { CRTEffect } from "~~/components/CRTEffect";
 import { ColorLoader } from "~~/components/ColorLoader";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
@@ -84,6 +85,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         />
       </head>
       <body>
+        <CRTEffect />
         <ColorLoader />
         <FontLoader />
         <FontSizeLoader />
