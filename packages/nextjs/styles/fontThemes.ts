@@ -9,6 +9,7 @@ export type FontTheme = {
   body: string;
   mono: string;
   googleFontsUrl: string;
+  fontSizeMultiplier?: number; // Optional: increase font size for pixelated fonts
 };
 
 export const FONT_THEMES: Record<string, FontTheme> = {
@@ -40,6 +41,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "Courier Prime",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Tiny5&family=Jersey+10&family=Courier+Prime:wght@400;700&display=swap",
+    fontSizeMultiplier: 1.3, // 30% larger for pixelated fonts
   },
 
   // Theme 4: Clean & Modern

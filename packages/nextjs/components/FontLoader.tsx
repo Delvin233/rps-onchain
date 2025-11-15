@@ -27,18 +27,25 @@ export const FontLoader = () => {
 
     const style = document.createElement("style");
     style.id = "font-variables";
+    const sizeMultiplier = fontTheme.fontSizeMultiplier || 1;
     style.textContent = `
       :root {
         --font-heading: '${fontTheme.heading}', system-ui, sans-serif;
         --font-body: '${fontTheme.body}', system-ui, sans-serif;
         --font-mono: '${fontTheme.mono}', monospace;
+        --font-size-multiplier: ${sizeMultiplier};
       }
       body {
         font-family: var(--font-body) !important;
+        font-size: calc(1rem * var(--font-size-multiplier)) !important;
       }
       h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-heading) !important;
       }
+      h1 { font-size: calc(3rem * var(--font-size-multiplier)) !important; }
+      h2 { font-size: calc(2.25rem * var(--font-size-multiplier)) !important; }
+      h3 { font-size: calc(1.875rem * var(--font-size-multiplier)) !important; }
+      h4 { font-size: calc(1.5rem * var(--font-size-multiplier)) !important; }
       button {
         font-family: var(--font-heading) !important;
       }
