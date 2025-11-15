@@ -96,6 +96,18 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
         notification.remove(notificationId);
       }
       console.error("⚡️ ~ file: useTransactor.ts ~ error", error);
+
+      // Check if user rejected the transaction
+      const isUserRejection =
+        error?.message?.includes("User rejected") ||
+        error?.message?.includes("User denied") ||
+        error?.message?.includes("rejected");
+
+      if (isUserRejection) {
+        // Don't show notification for user rejections - let the calling code handle it
+        throw error;
+      }
+
       const message = getParsedErrorWithAllAbis(error, chainId as AllowedChainIds);
 
       // if receipt was reverted, show notification with block explorer link and return error
