@@ -34,7 +34,7 @@ export const FontThemeSelector = () => {
           </option>
         ))}
       </select>
-      <p className="text-xs text-base-content/60 mt-2">Changes will apply after page reload</p>
+      <p className="text-xs text-base-content/60 mt-2">Click Save Preferences to apply changes</p>
     </div>
   );
 };

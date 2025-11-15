@@ -36,12 +36,11 @@ export const FONT_THEMES: Record<string, FontTheme> = {
   // Theme 3: Retro Arcade
   retroArcade: {
     name: "Retro Arcade",
-    heading: "Tiny5",
-    body: "Jersey 10",
+    heading: "Press Start 2P",
+    body: "Jersey 25",
     mono: "Courier Prime",
     googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Tiny5&family=Jersey+10&family=Courier+Prime:wght@400;700&display=swap",
-    fontSizeMultiplier: 1.3, // 30% larger for pixelated fonts
+      "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Jersey+25&family=Courier+Prime:wght@400;700&display=swap",
   },
 
   // Theme 4: Clean & Modern
@@ -108,11 +107,10 @@ export const getActiveTheme = (): FontTheme => {
   return FONT_THEMES[saved] || FONT_THEMES[DEFAULT_FONT_THEME];
 };
 
-// Save theme preference
+// Save theme preference (no auto-reload, user must click Save button)
 export const setFontTheme = (themeKey: keyof typeof FONT_THEMES) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("fontTheme", themeKey);
-    window.location.reload(); // Reload to apply new fonts
   }
 };
 

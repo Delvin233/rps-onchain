@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Palette, Save } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
 import { FontSizeSlider } from "~~/components/FontSizeSlider";
 import { FontThemeSelector } from "~~/components/FontThemeSelector";
@@ -30,9 +31,11 @@ export default function ThemeSettingsPage() {
       });
 
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      toast.success("Preferences saved! Reloading...");
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error("Failed to save preferences:", error);
+      toast.error("Failed to save preferences");
     } finally {
       setSaving(false);
     }

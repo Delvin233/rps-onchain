@@ -53,7 +53,6 @@ export const getSpacingScale = (): SpacingScale => {
 export const setSpacingScale = (scaleKey: keyof typeof SPACING_SCALES) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("spacingScale", scaleKey);
-    window.location.reload();
   }
 };
 
