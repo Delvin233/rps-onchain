@@ -34,10 +34,22 @@ export const FontLoader = () => {
         --font-mono: '${fontTheme.mono}', monospace;
       }
       body {
-        font-family: var(--font-body);
+        font-family: var(--font-body) !important;
       }
       h1, h2, h3, h4, h5, h6 {
-        font-family: var(--font-heading);
+        font-family: var(--font-heading) !important;
+      }
+      button {
+        font-family: var(--font-heading) !important;
+      }
+      p, span, div, a, label {
+        font-family: var(--font-body) !important;
+      }
+      input, textarea, select {
+        font-family: var(--font-body) !important;
+      }
+      code, pre, kbd, samp {
+        font-family: var(--font-mono) !important;
       }
     `;
     document.head.appendChild(style);

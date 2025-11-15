@@ -115,10 +115,17 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
-
-
   body {
     min-height: 100vh;
+  }
+
+  /* Override Tailwind font utilities to use theme variables */
+  .font-sans {
+    font-family: var(--font-body) !important;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono) !important;
   }
 
   /* Typography - HTML Tags */
