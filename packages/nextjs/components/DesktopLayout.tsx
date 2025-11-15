@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { History, Home, Play, Shield, User } from "lucide-react";
+import toast from "react-hot-toast";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 export const DesktopLayout = ({ children }: { children: ReactNode }) => {
@@ -22,6 +23,29 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
     return pathname.startsWith(path);
   };
 
+  const isInActivePaidGame =
+    pathname.includes("/game/paid/") &&
+    typeof window !== "undefined" &&
+    sessionStorage.getItem("paidGameActive") === "true";
+
+  const isInActiveAIGame =
+    pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
+
+  const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
+
+  const handleNavigation = (path: string) => {
+    if (isInActivePaidGame || isInActiveAIGame || isInActiveMultiplayerGame) {
+      if (path !== pathname) {
+        toast.error("Please finish your match before navigating away.", {
+          duration: 3000,
+          position: "top-center",
+        });
+      }
+    } else {
+      router.push(path);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base-200">
       {/* Desktop Top Navigation */}
@@ -37,7 +61,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
                   return (
                     <button
                       key={item.path}
-                      onClick={() => router.push(item.path)}
+                      onClick={() => handleNavigation(item.path)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                         active
                           ? "bg-primary/10 text-primary"
