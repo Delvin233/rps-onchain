@@ -3,8 +3,8 @@ import { ColorLoader } from "~~/components/ColorLoader";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
-import { MobileLayout } from "~~/components/MobileLayout";
 import { PreferencesSync } from "~~/components/PreferencesSync";
+import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { SpacingLoader } from "~~/components/SpacingLoader";
 import { ThemeProvider } from "~~/components/ThemeProvider";
@@ -89,20 +89,16 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <FontSizeLoader />
         <SpacingLoader />
         <ThemeProvider enableSystem>
-          <div className="flex justify-center h-screen bg-base-300 overflow-hidden">
-            <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
-              <ScaffoldEthAppWithProviders>
-                <AuthProvider>
-                  <PreferencesSync />
-                  <MatchSyncProvider>
-                    <OverlayProvider>
-                      <MobileLayout>{children}</MobileLayout>
-                    </OverlayProvider>
-                  </MatchSyncProvider>
-                </AuthProvider>
-              </ScaffoldEthAppWithProviders>
-            </div>
-          </div>
+          <ScaffoldEthAppWithProviders>
+            <AuthProvider>
+              <PreferencesSync />
+              <MatchSyncProvider>
+                <OverlayProvider>
+                  <ResponsiveLayout>{children}</ResponsiveLayout>
+                </OverlayProvider>
+              </MatchSyncProvider>
+            </AuthProvider>
+          </ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>
     </html>

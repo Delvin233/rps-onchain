@@ -1,0 +1,63 @@
+"use client";
+
+import { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { History, Home, Play, Shield, User } from "lucide-react";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+
+export const DesktopLayout = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navItems = [
+    { path: "/", icon: Home, label: "Home" },
+    { path: "/play", icon: Play, label: "Play" },
+    { path: "/history", icon: History, label: "History" },
+    { path: "/on-chain-matches", icon: Shield, label: "On-Chain" },
+    { path: "/profile", icon: User, label: "Profile" },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
+
+  return (
+    <div className="min-h-screen bg-base-200">
+      {/* Desktop Top Navigation */}
+      <nav className="bg-base-100/80 backdrop-blur-lg border-b border-base-300 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <h1 className="text-2xl font-bold text-primary">RPS-OnChain</h1>
+              <div className="flex items-center gap-2">
+                {navItems.map(item => {
+                  const Icon = item.icon;
+                  const active = isActive(item.path);
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => router.push(item.path)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-base-content/60 hover:text-base-content hover:bg-base-200"
+                      }`}
+                    >
+                      <Icon size={20} />
+                      <span className="font-medium">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <RainbowKitCustomConnectButton />
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+    </div>
+  );
+};
