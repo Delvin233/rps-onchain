@@ -64,9 +64,14 @@ export default function ProfilePage() {
     try {
       await claim();
       toast.success("UBI claimed successfully!");
-      const [newEntitlement, newNextClaimTime] = await Promise.all([checkEntitlement(), getNextClaimTime()]);
-      setEntitlement(newEntitlement.amount);
-      setNextClaimTime(newNextClaimTime);
+      try {
+        const [newEntitlement, newNextClaimTime] = await Promise.all([checkEntitlement(), getNextClaimTime()]);
+        setEntitlement(newEntitlement.amount);
+        setNextClaimTime(newNextClaimTime);
+      } catch (refreshError) {
+        console.error("Error refreshing claim status:", refreshError);
+        setTimeout(() => window.location.reload(), 2000);
+      }
     } catch (error) {
       console.error("Claim error:", error);
       toast.error("Failed to claim UBI");

@@ -70,35 +70,44 @@ export default function SinglePlayerPage() {
     setResult(null);
     sessionStorage.setItem("aiGameActive", "true");
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const response = await fetch("/api/play-ai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ playerMove: move, address }),
-    });
+      const response = await fetch("/api/play-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerMove: move, address }),
+      });
 
-    const data = await response.json();
-    setAiMove(data.aiMove);
-    setResult(data.result);
-    setIsPlaying(false);
+      if (!response.ok) throw new Error("Failed to play against AI");
 
-    // Store to Redis history
-    await fetch("/api/history-fast", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        address,
-        match: {
-          opponent: "AI",
-          player: address,
-          playerMove: move,
-          opponentMove: data.aiMove,
-          result: data.result,
-          timestamp: new Date().toISOString(),
-        },
-      }),
-    });
+      const data = await response.json();
+      setAiMove(data.aiMove);
+      setResult(data.result);
+      setIsPlaying(false);
+
+      // Store to Redis history
+      await fetch("/api/history-fast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address,
+          match: {
+            opponent: "AI",
+            player: address,
+            playerMove: move,
+            opponentMove: data.aiMove,
+            result: data.result,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
+    } catch (error) {
+      console.error("Error playing AI:", error);
+      sessionStorage.removeItem("aiGameActive");
+      setPlayerMove(null);
+      setIsPlaying(false);
+    }
   };
 
   const playAgain = () => {

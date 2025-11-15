@@ -54,9 +54,13 @@ export default function MultiplayerPage() {
       const response = await fetch(`/api/room/info?roomId=${roomCode}`);
       if (response.ok) {
         const data = await response.json();
-        const verifyRes = await fetch(`/api/check-verification?address=${data.creator}`);
-        const verifyData = await verifyRes.json();
-        setRoomInfo({ ...data, creatorVerified: verifyData.verified });
+        if (data.creator) {
+          const verifyRes = await fetch(`/api/check-verification?address=${data.creator}`);
+          const verifyData = await verifyRes.json();
+          setRoomInfo({ ...data, creatorVerified: verifyData.verified });
+        } else {
+          setRoomInfo(data);
+        }
       } else {
         setRoomInfo(null);
       }
