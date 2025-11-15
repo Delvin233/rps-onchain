@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Palette } from "lucide-react";
-import { getThemeOptions, setFontTheme, getActiveTheme } from "~~/styles/fontThemes";
+import { getActiveTheme, getThemeOptions, setFontTheme } from "~~/styles/fontThemes";
 
 export const FontThemeSelector = () => {
   const [currentTheme, setCurrentTheme] = useState("");
@@ -10,13 +10,11 @@ export const FontThemeSelector = () => {
 
   useEffect(() => {
     const theme = getActiveTheme();
-    const current = themeOptions.find(opt => 
-      theme.name === opt.label
-    );
+    const current = themeOptions.find(opt => theme.name === opt.label);
     if (current) {
       setCurrentTheme(current.value);
     }
-  }, []);
+  }, [themeOptions]);
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newTheme = e.target.value;
@@ -29,20 +27,14 @@ export const FontThemeSelector = () => {
         <Palette size={20} className="text-primary" />
         <h3 className="font-semibold">Font Theme</h3>
       </div>
-      <select
-        value={currentTheme}
-        onChange={handleThemeChange}
-        className="select select-bordered w-full"
-      >
+      <select value={currentTheme} onChange={handleThemeChange} className="select select-bordered w-full">
         {themeOptions.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
-      <p className="text-xs text-base-content/60 mt-2">
-        Changes will apply after page reload
-      </p>
+      <p className="text-xs text-base-content/60 mt-2">Changes will apply after page reload</p>
     </div>
   );
 };
