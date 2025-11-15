@@ -143,13 +143,16 @@ const UsernameDisplay = () => {
         </div>
       ) : (
         <div className="flex items-center gap-1">
-          {farcasterUser && (
+          {farcasterUser && farcasterUser.pfp_url && (
             <Image
               src={farcasterUser.pfp_url}
               alt={farcasterUser.username}
               width={32}
               height={32}
               className="rounded-full"
+              onError={e => {
+                e.currentTarget.style.display = "none";
+              }}
             />
           )}
           <span className="text-sm text-base-content hidden sm:block">
