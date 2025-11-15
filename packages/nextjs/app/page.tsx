@@ -19,6 +19,23 @@ export default function Home() {
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
 
+  // Auto-reconnect Farcaster if previously connected
+  useEffect(() => {
+    if (!address && isMiniAppReady && farcasterConnector && context) {
+      const wasConnected = localStorage.getItem("farcaster_connected");
+      if (wasConnected === "true") {
+        connect({ connector: farcasterConnector });
+      }
+    }
+  }, [isMiniAppReady, farcasterConnector, context, address, connect]);
+
+  // Save connection state
+  useEffect(() => {
+    if (address && farcasterConnector) {
+      localStorage.setItem("farcaster_connected", "true");
+    }
+  }, [address, farcasterConnector]);
+
   useEffect(() => {
     if (address) {
       // Auto-migrate existing users from IPFS to Redis
