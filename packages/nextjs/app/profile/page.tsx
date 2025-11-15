@@ -106,42 +106,45 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
-      {/* Wallet */}
+      {/* Mobile Wallet Button */}
       <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4 lg:hidden">
         <div className="flex items-center justify-center">
           <RainbowKitCustomConnectButton />
         </div>
       </div>
 
-      {/* Wallet Info */}
-      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mb-4">
-        <p className="text-sm text-base-content/60 mb-2">Wallet Address</p>
-        <div className="flex items-center justify-between">
-          <code className="text-sm font-mono">
-            {address.slice(0, 10)}...{address.slice(-8)}
-          </code>
-          <button onClick={copyAddress} className="btn btn-sm btn-ghost">
-            <Copy size={16} />
-          </button>
+      {/* User Details - 2 columns on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {/* Wallet Info */}
+        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+          <p className="text-sm text-base-content/60 mb-2">Wallet Address</p>
+          <div className="flex items-center justify-between">
+            <code className="text-sm font-mono">
+              {address.slice(0, 10)}...{address.slice(-8)}
+            </code>
+            <button onClick={copyAddress} className="btn btn-sm btn-ghost">
+              <Copy size={16} />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Display Name */}
-      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mb-4">
-        <p className="text-sm text-base-content/60 mb-2">Display Name</p>
-        <div className="flex items-center justify-between">
-          <p className="text-lg font-semibold">
-            {displayName}
-            {hasEns && (
-              <span
-                className={`text-xs ml-2 ${
-                  ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
-                }`}
-              >
-                {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
-              </span>
-            )}
-          </p>
+        {/* Display Name */}
+        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+          <p className="text-sm text-base-content/60 mb-2">Display Name</p>
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-semibold">
+              {displayName}
+              {hasEns && (
+                <span
+                  className={`text-xs ml-2 ${
+                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                  }`}
+                >
+                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+                </span>
+              )}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -167,25 +170,8 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Theme Settings Link */}
-      <button
-        onClick={() => router.push("/theme-settings")}
-        className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 w-full text-left hover:border-primary/50 transition-all"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IoColorPalette className="text-primary" size={28} />
-            <div>
-              <p className="font-semibold">Theme Settings</p>
-              <p className="text-xs text-base-content/60">Customize fonts, spacing & colors</p>
-            </div>
-          </div>
-          <span className="text-base-content/60">→</span>
-        </div>
-      </button>
-
-      {/* GoodDollar UBI Claim */}
-      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mt-4">
+      {/* GoodDollar UBI Claim - HIGHLIGHTED */}
+      <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-2 border-success/50 rounded-xl p-6 mb-4 shadow-lg shadow-success/20">
         <div className="flex items-center space-x-3 mb-4">
           <span className="text-2xl">💚</span>
           <div>
@@ -231,6 +217,23 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Theme Settings Link */}
+      <button
+        onClick={() => router.push("/theme-settings")}
+        className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 w-full text-left hover:border-primary/50 transition-all mt-4"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <IoColorPalette className="text-primary" size={28} />
+            <div>
+              <p className="font-semibold">Theme Settings</p>
+              <p className="text-xs text-base-content/60">Customize fonts, spacing & colors</p>
+            </div>
+          </div>
+          <span className="text-base-content/60">→</span>
+        </div>
+      </button>
 
       <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
     </div>
