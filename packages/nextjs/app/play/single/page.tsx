@@ -141,7 +141,7 @@ export default function SinglePlayerPage() {
         </button>
         <h1 className="text-2xl font-bold text-glow-primary ml-2">Single Player</h1>
       </div>
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end mb-6 lg:hidden">
         <RainbowKitCustomConnectButton />
       </div>
 

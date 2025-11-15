@@ -171,7 +171,9 @@ export default function HistoryPage() {
           {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
           Sync IPFS
         </button>
-        <RainbowKitCustomConnectButton />
+        <div className="lg:hidden">
+          <RainbowKitCustomConnectButton />
+        </div>
       </div>
 
       {isLoading ? (

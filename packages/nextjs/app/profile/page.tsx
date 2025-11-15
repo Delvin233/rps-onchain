@@ -107,7 +107,7 @@ export default function ProfilePage() {
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
       {/* Wallet */}
-      <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4">
+      <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4 lg:hidden">
         <div className="flex items-center justify-center">
           <RainbowKitCustomConnectButton />
         </div>
