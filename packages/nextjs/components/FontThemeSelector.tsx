@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Palette } from "lucide-react";
+import { useAccount } from "wagmi";
 import { getActiveTheme, getThemeOptions, setFontTheme } from "~~/styles/fontThemes";
 
 export const FontThemeSelector = () => {
+  const { address } = useAccount();
   const [currentTheme, setCurrentTheme] = useState("");
   const themeOptions = getThemeOptions();
 
@@ -16,9 +18,26 @@ export const FontThemeSelector = () => {
     }
   }, [themeOptions]);
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleThemeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newTheme = e.target.value;
     setFontTheme(newTheme as any);
+
+    // Save to database if user is connected
+    if (address) {
+      const spacingScale = localStorage.getItem("spacingScale") || "comfortable";
+      const fontSizeOverride = parseInt(localStorage.getItem("fontSizeOverride") || "100");
+
+      await fetch("/api/user-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address,
+          fontTheme: newTheme,
+          spacingScale,
+          fontSizeOverride,
+        }),
+      }).catch(console.error);
+    }
   };
 
   return (

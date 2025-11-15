@@ -1,6 +1,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
+import { PreferencesSync } from "~~/components/PreferencesSync";
 import { SpacingLoader } from "~~/components/SpacingLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { MobileLayout } from "~~/components/MobileLayout";
@@ -54,6 +55,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
               <ScaffoldEthAppWithProviders>
                 <AuthProvider>
+                  <PreferencesSync />
                   <MatchSyncProvider>
                     <OverlayProvider>
                       <MobileLayout>{children}</MobileLayout>

@@ -5,7 +5,7 @@ export const turso = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// Initialize table
+// Initialize tables
 export async function initBlockchainProofsTable() {
   await turso.execute(`
     CREATE TABLE IF NOT EXISTS blockchain_proofs (
@@ -16,6 +16,19 @@ export async function initBlockchainProofsTable() {
       chain_id TEXT NOT NULL,
       timestamp_ms INTEGER NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+}
+
+export async function initUserPreferencesTable() {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS user_preferences (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_address TEXT UNIQUE NOT NULL,
+      font_theme TEXT DEFAULT 'retroArcade',
+      spacing_scale TEXT DEFAULT 'comfortable',
+      font_size_override INTEGER DEFAULT 100,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 }
