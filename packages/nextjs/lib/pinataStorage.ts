@@ -75,7 +75,8 @@ export async function storeMatchRecord(matchData: MatchRecord): Promise<{ ipfsHa
 // Retrieve match record from IPFS
 export async function getMatchRecord(ipfsHash: string): Promise<MatchRecord | null> {
   try {
-    const response = await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
+    const gateway = process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://gateway.pinata.cloud";
+    const response = await fetch(`${gateway}/ipfs/${ipfsHash}`);
     return await response.json();
   } catch (error) {
     console.error("Error retrieving match from IPFS:", error);
