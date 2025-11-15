@@ -19,22 +19,12 @@ export default function Home() {
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
 
-  // Auto-reconnect Farcaster if previously connected
+  // Auto-connect Farcaster users when miniapp context is ready
   useEffect(() => {
     if (!address && isMiniAppReady && farcasterConnector && context) {
-      const wasConnected = localStorage.getItem("farcaster_connected");
-      if (wasConnected === "true") {
-        connect({ connector: farcasterConnector });
-      }
+      connect({ connector: farcasterConnector });
     }
   }, [isMiniAppReady, farcasterConnector, context, address, connect]);
-
-  // Save connection state
-  useEffect(() => {
-    if (address && farcasterConnector) {
-      localStorage.setItem("farcaster_connected", "true");
-    }
-  }, [address, farcasterConnector]);
 
   useEffect(() => {
     if (address) {
