@@ -5,6 +5,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { FontThemeSelector } from "~~/components/FontThemeSelector";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
@@ -164,8 +165,11 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/* Font Theme Selector */}
+      <FontThemeSelector />
+
       {/* GoodDollar UBI Claim */}
-      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 mt-4">
         <div className="flex items-center space-x-3 mb-4">
           <span className="text-2xl">💚</span>
           <div>

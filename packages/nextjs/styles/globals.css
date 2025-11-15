@@ -123,7 +123,7 @@
 
   /* Typography - HTML Tags */
   h1 {
-    font-family: var(--font-orbitron, system-ui);
+    font-family: var(--font-heading);
     font-size: 3rem; /* 48px */
     font-weight: 700;
     line-height: 1;
@@ -131,7 +131,7 @@
   }
 
   h2 {
-    font-family: var(--font-orbitron, system-ui);
+    font-family: var(--font-heading);
     font-size: 2.25rem; /* 36px */
     font-weight: 700;
     line-height: 1.1;
@@ -139,7 +139,7 @@
   }
 
   h3 {
-    font-family: var(--font-orbitron, system-ui);
+    font-family: var(--font-heading);
     font-size: 1.875rem; /* 30px */
     font-weight: 600;
     line-height: 1.2;
@@ -147,23 +147,35 @@
   }
 
   h4 {
-    font-family: var(--font-orbitron, system-ui);
+    font-family: var(--font-heading);
     font-size: 1.5rem; /* 24px */
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: 0.5rem;
   }
 
+  h5, h6 {
+    font-family: var(--font-heading);
+  }
+
   p {
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: var(--font-body);
     font-size: 1rem;
     line-height: 1.5;
     margin: 1rem 0;
   }
 
   button {
-    font-family: var(--font-orbitron, system-ui);
+    font-family: var(--font-heading);
     font-weight: 600;
+  }
+
+  input, textarea, select, label {
+    font-family: var(--font-body);
+  }
+
+  code, pre, kbd, samp {
+    font-family: var(--font-mono);
   }
 
   /* Cursor styles */

@@ -93,7 +93,31 @@ export const FONT_THEMES: Record<string, FontTheme> = {
   },
 };
 
-// 🎨 CHANGE THIS TO SWITCH THEMES
-export const ACTIVE_FONT_THEME: keyof typeof FONT_THEMES = "neonGaming";
+// 🎨 DEFAULT THEME
+export const DEFAULT_FONT_THEME: keyof typeof FONT_THEMES = "retroArcade";
 
-export const getActiveTheme = () => FONT_THEMES[ACTIVE_FONT_THEME];
+// Get theme from localStorage or use default
+export const getActiveTheme = (): FontTheme => {
+  if (typeof window === "undefined") {
+    return FONT_THEMES[DEFAULT_FONT_THEME];
+  }
+  
+  const saved = localStorage.getItem("fontTheme") as keyof typeof FONT_THEMES;
+  return FONT_THEMES[saved] || FONT_THEMES[DEFAULT_FONT_THEME];
+};
+
+// Save theme preference
+export const setFontTheme = (themeKey: keyof typeof FONT_THEMES) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("fontTheme", themeKey);
+    window.location.reload(); // Reload to apply new fonts
+  }
+};
+
+// Get all theme options for dropdown
+export const getThemeOptions = () => {
+  return Object.entries(FONT_THEMES).map(([key, theme]) => ({
+    value: key,
+    label: theme.name,
+  }));
+};
