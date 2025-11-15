@@ -74,7 +74,7 @@ export default function MultiplayerPage() {
   const { writeContractAsync: createGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const createRoom = async () => {
-    if (!address) return;
+    if (!address || isCreating) return;
 
     setIsCreating(true);
     setShowCreateConfirm(false);
@@ -109,7 +109,7 @@ export default function MultiplayerPage() {
   const { writeContractAsync: joinGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const joinRoom = async () => {
-    if (!address || !roomCode || roomCode.length !== 6) return;
+    if (!address || !roomCode || roomCode.length !== 6 || isJoining) return;
 
     setIsJoining(true);
     setShowJoinConfirm(false);

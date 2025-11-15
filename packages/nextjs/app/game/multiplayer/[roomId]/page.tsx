@@ -97,7 +97,13 @@ export default function MultiplayerGamePage() {
   };
 
   useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      if (gameStatus !== "finished" && gameStatus !== "waiting") {
+        toast.error("Wallet disconnected during game");
+        setTimeout(() => router.push("/"), 2000);
+      }
+      return;
+    }
     fetchRoomInfo();
 
     let interval: NodeJS.Timeout | null = null;
@@ -394,6 +400,7 @@ export default function MultiplayerGamePage() {
       setRematchRequested(false);
       setOpponentRequestedRematch(false);
       toastShownRef.current = false;
+      leftToastShownRef.current = false;
       toast.success("Rematch accepted!", {
         style: {
           background: "#1f2937",
