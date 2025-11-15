@@ -9,14 +9,17 @@ export async function GET() {
     },
     frame: {
       version: "1",
-      name: "RPS-OnChain",
-      iconUrl: `${process.env.NEXT_PUBLIC_URL}/icon.png`,
+      name: "RPS-onChain",
+      iconUrl: `${process.env.NEXT_PUBLIC_URL}/rpsOnchainFavicons/android-chrome-512x512.png`,
       homeUrl: process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz",
       imageUrl: `${process.env.NEXT_PUBLIC_URL}/images/frame-preview.png`,
       buttonTitle: "Play RPS",
       splashImageUrl: `${process.env.NEXT_PUBLIC_URL}/images/splash.png`,
       splashBackgroundColor: "#0c0a09",
       webhookUrl: `${process.env.NEXT_PUBLIC_URL}/api/farcaster/webhook`,
+      description:
+        "Free-to-play Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support on Celo and Base.",
+      noindex: false,
     },
   };
 
