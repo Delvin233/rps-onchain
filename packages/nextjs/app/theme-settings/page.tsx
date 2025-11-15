@@ -1,13 +1,42 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Palette } from "lucide-react";
+import { ArrowLeft, Check, Palette, Save } from "lucide-react";
+import { useAccount } from "wagmi";
 import { FontSizeSlider } from "~~/components/FontSizeSlider";
 import { FontThemeSelector } from "~~/components/FontThemeSelector";
 import { SpacingScaleSelector } from "~~/components/SpacingScaleSelector";
 
 export default function ThemeSettingsPage() {
   const router = useRouter();
+  const { address } = useAccount();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSavePreferences = async () => {
+    if (!address) return;
+
+    setSaving(true);
+    try {
+      const fontTheme = localStorage.getItem("fontTheme") || "retroArcade";
+      const spacingScale = localStorage.getItem("spacingScale") || "comfortable";
+      const fontSizeOverride = parseInt(localStorage.getItem("fontSizeOverride") || "100");
+
+      await fetch("/api/user-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, fontTheme, spacingScale, fontSizeOverride }),
+      });
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error("Failed to save preferences:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
@@ -33,6 +62,28 @@ export default function ThemeSettingsPage() {
         <div className="mb-4">
           <SpacingScaleSelector />
         </div>
+
+        {address && (
+          <button onClick={handleSavePreferences} disabled={saving || saved} className="btn btn-primary w-full mb-4">
+            {saved ? (
+              <>
+                <Check size={20} />
+                Saved to Cloud!
+              </>
+            ) : (
+              <>
+                <Save size={20} />
+                {saving ? "Saving..." : "Save Preferences to Cloud"}
+              </>
+            )}
+          </button>
+        )}
+
+        {!address && (
+          <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 mb-4 text-center">
+            <p className="text-sm text-warning">💡 Connect wallet to sync preferences across devices</p>
+          </div>
+        )}
 
         <div className="bg-card/30 backdrop-blur border border-border/50 rounded-xl p-6 text-center">
           <p className="text-sm text-base-content/60">🎨 Color themes coming soon!</p>

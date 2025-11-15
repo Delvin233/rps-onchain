@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
-
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
@@ -13,6 +13,7 @@ import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { address } = useAccount();
   const { isHumanVerified } = useAuth();
   const { displayName, hasEns, ensType } = useDisplayName(address);
