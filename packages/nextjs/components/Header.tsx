@@ -147,8 +147,8 @@ const UsernameDisplay = () => {
             <Image
               src={farcasterUser.pfp_url}
               alt={farcasterUser.username}
-              width={24}
-              height={24}
+              width={32}
+              height={32}
               className="rounded-full"
             />
           )}
