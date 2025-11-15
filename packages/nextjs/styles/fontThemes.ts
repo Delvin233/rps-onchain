@@ -36,10 +36,10 @@ export const FONT_THEMES: Record<string, FontTheme> = {
   retroArcade: {
     name: "Retro Arcade",
     heading: "Press Start 2P",
-    body: "Rajdhani",
+    body: "Micro 5",
     mono: "Courier Prime",
     googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@300;400;500;600;700&family=Courier+Prime:wght@400;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Micro+5&family=Courier+Prime:wght@400;700&display=swap",
   },
 
   // Theme 4: Clean & Modern
@@ -101,7 +101,7 @@ export const getActiveTheme = (): FontTheme => {
   if (typeof window === "undefined") {
     return FONT_THEMES[DEFAULT_FONT_THEME];
   }
-  
+
   const saved = localStorage.getItem("fontTheme") as keyof typeof FONT_THEMES;
   return FONT_THEMES[saved] || FONT_THEMES[DEFAULT_FONT_THEME];
 };
