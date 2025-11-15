@@ -5,8 +5,8 @@ import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithPro
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { OverlayProvider } from "~~/components/overlays/OverlayManager";
 import { AuthProvider } from "~~/contexts/AuthContext";
-import "~~/styles/globals.css";
 import { getActiveTheme } from "~~/styles/fontThemes";
+import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
