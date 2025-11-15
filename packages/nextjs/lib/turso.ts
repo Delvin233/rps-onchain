@@ -25,7 +25,7 @@ export async function initUserPreferencesTable() {
     CREATE TABLE IF NOT EXISTS user_preferences (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_address TEXT UNIQUE NOT NULL,
-      color_theme TEXT DEFAULT 'neonCyberpunk',
+      color_theme TEXT DEFAULT 'delvin233',
       font_theme TEXT DEFAULT 'futuristic',
       spacing_scale TEXT DEFAULT 'comfortable',
       font_size_override INTEGER DEFAULT 100,

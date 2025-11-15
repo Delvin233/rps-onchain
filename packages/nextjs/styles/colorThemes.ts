@@ -20,7 +20,24 @@ export type ColorTheme = {
 };
 
 export const COLOR_THEMES: Record<string, ColorTheme> = {
-  // Theme 1: Neon Cyberpunk (Default)
+  // Theme 1: Delvin233's Default (Creator's Signature)
+  delvin233: {
+    name: "delvin233's Default",
+    primary: "#10b981",
+    secondary: "#6ee7b7",
+    accent: "#34d399",
+    background: "#0a0a0a",
+    backgroundAlt: "#171717",
+    card: "#1f1f1f",
+    border: "#2d2d2d",
+    text: "#f5f5f5",
+    textMuted: "#a3a3a3",
+    success: "#22c55e",
+    error: "#ef4444",
+    warning: "#f59e0b",
+  },
+
+  // Theme 2: Neon Cyberpunk
   neonCyberpunk: {
     name: "Neon Cyberpunk",
     primary: "#34d399",
@@ -37,7 +54,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#fbbf24",
   },
 
-  // Theme 2: Ocean Breeze
+  // Theme 3: Ocean Breeze
   oceanBreeze: {
     name: "Ocean Breeze",
     primary: "#06b6d4",
@@ -54,7 +71,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#f59e0b",
   },
 
-  // Theme 3: Sunset Glow
+  // Theme 4: Sunset Glow
   sunsetGlow: {
     name: "Sunset Glow",
     primary: "#f59e0b",
@@ -71,7 +88,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#f97316",
   },
 
-  // Theme 4: Forest Night
+  // Theme 5: Forest Night
   forestNight: {
     name: "Forest Night",
     primary: "#10b981",
@@ -88,7 +105,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#fbbf24",
   },
 
-  // Theme 5: Royal Purple
+  // Theme 6: Royal Purple
   royalPurple: {
     name: "Royal Purple",
     primary: "#8b5cf6",
@@ -105,7 +122,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#fbbf24",
   },
 
-  // Theme 6: Fire & Ice
+  // Theme 7: Fire & Ice
   fireIce: {
     name: "Fire & Ice",
     primary: "#ef4444",
@@ -122,7 +139,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#fb923c",
   },
 
-  // Theme 7: Monochrome Pro
+  // Theme 8: Monochrome Pro
   monochromePro: {
     name: "Monochrome Pro",
     primary: "#6b7280",
@@ -139,7 +156,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     warning: "#f59e0b",
   },
 
-  // Theme 8: Retro Arcade
+  // Theme 9: Retro Arcade
   retroArcade: {
     name: "Retro Arcade",
     primary: "#fbbf24",
@@ -158,7 +175,7 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
 };
 
 // 🎨 DEFAULT THEME
-export const DEFAULT_COLOR_THEME: keyof typeof COLOR_THEMES = "neonCyberpunk";
+export const DEFAULT_COLOR_THEME: keyof typeof COLOR_THEMES = "delvin233";
 
 // Get theme from localStorage or use default
 export const getActiveColorTheme = (): ColorTheme => {

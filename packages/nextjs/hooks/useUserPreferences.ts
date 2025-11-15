@@ -60,7 +60,7 @@ export const useUserPreferences = () => {
   const savePreferences = async () => {
     if (!address) return;
 
-    const colorTheme = localStorage.getItem("colorTheme") || "neonCyberpunk";
+    const colorTheme = localStorage.getItem("colorTheme") || "delvin233";
     const fontTheme = localStorage.getItem("fontTheme") || "futuristic";
     const spacingScale = localStorage.getItem("spacingScale") || "comfortable";
     const fontSizeOverride = parseInt(localStorage.getItem("fontSizeOverride") || "100");
