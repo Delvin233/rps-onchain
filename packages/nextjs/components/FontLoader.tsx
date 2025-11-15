@@ -42,10 +42,10 @@ export const FontLoader = () => {
       h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-heading) !important;
       }
-      h1 { font-size: calc(3rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
-      h2 { font-size: calc(2.25rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
-      h3 { font-size: calc(1.875rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
-      h4 { font-size: calc(1.5rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
+      h1 { font-size: calc(2.5rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
+      h2 { font-size: calc(1.875rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
+      h3 { font-size: calc(1.5rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
+      h4 { font-size: calc(1.25rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important; }
       button {
         font-family: var(--font-heading) !important;
       }

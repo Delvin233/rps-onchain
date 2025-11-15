@@ -265,9 +265,9 @@ export default function OnChainMatchesPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="badge badge-primary badge-sm">{match.chainName}</span>
-                      <span className="text-xs text-base-content/60">Room: {match.roomId}</span>
+                      <span className="text-base-content/60">Room: {match.roomId}</span>
                     </div>
-                    <div className="text-xs space-y-0.5">
+                    <div className="space-y-0.5">
                       <p className="break-words">
                         <span className="font-semibold">P1:</span>{" "}
                         {match.player1Name || `${match.player1.slice(0, 8)}...${match.player1.slice(-4)}`}
@@ -311,14 +311,14 @@ export default function OnChainMatchesPage() {
 
                     return (
                       <div key={mIdx} className="bg-base-200 p-2 rounded-lg">
-                        <div className="flex justify-between items-center text-xs">
+                        <div className="flex justify-between items-center">
                           <span>
                             <span className="font-bold uppercase">{m.player1Move}</span> vs{" "}
                             <span className="font-bold uppercase">{m.player2Move}</span>
                           </span>
                           <span className="font-semibold text-success">{winnerName}</span>
                         </div>
-                        <p className="text-[10px] text-base-content/60 mt-0.5">
+                        <p className="text-base-content/60 mt-0.5 opacity-80">
                           {new Date(m.timestamp * 1000).toLocaleString()}
                         </p>
                       </div>

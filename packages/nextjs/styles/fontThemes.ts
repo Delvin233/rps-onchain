@@ -21,6 +21,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "JetBrains Mono",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 
   // Theme 2: Modern Web3
@@ -31,6 +32,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "JetBrains Mono",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 
   // Theme 3: Retro Arcade
@@ -52,6 +54,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "Fira Code",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 
   // Theme 5: Tech Forward
@@ -62,6 +65,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "Source Code Pro",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 
   // Theme 6: Cyberpunk
@@ -72,6 +76,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "Azeret Mono",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&family=Electrolize&family=Azeret+Mono:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 
   // Theme 7: Minimal Pro
@@ -82,6 +87,7 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "IBM Plex Mono",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Work+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 
   // Theme 8: Neon Gaming
@@ -92,11 +98,12 @@ export const FONT_THEMES: Record<string, FontTheme> = {
     mono: "Roboto Mono",
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Bungee&family=Kanit:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap",
+    fontSizeMultiplier: 1.2,
   },
 };
 
 // 🎨 DEFAULT THEME
-export const DEFAULT_FONT_THEME: keyof typeof FONT_THEMES = "retroArcade";
+export const DEFAULT_FONT_THEME: keyof typeof FONT_THEMES = "futuristic";
 
 // Get theme from localStorage or use default
 export const getActiveTheme = (): FontTheme => {

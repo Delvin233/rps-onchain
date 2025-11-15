@@ -182,7 +182,7 @@ export default function HistoryPage() {
       ) : matches.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-base-content/60 mb-4">No matches found</p>
-          <a href="/play" className="text-primary hover:text-primary/80 text-sm">
+          <a href="/play" className="text-primary hover:text-primary/80">
             Play your first game →
           </a>
         </div>
@@ -196,11 +196,11 @@ export default function HistoryPage() {
                 <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
                   <div className="mb-3">
                     <p className="font-semibold mb-1">vs AI</p>
-                    <p className="text-xs text-base-content/60">
+                    <p className="text-base-content/60 opacity-80">
                       {new Date(match.timestamp || Date.now()).toLocaleString()}
                     </p>
                   </div>
-                  <div className="bg-base-200 p-3 rounded-lg text-sm flex justify-between items-center">
+                  <div className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
                     <span>
                       {match.playerMove && match.opponentMove ? (
                         <>
@@ -272,11 +272,11 @@ export default function HistoryPage() {
                         </button>
                       )}
                     </div>
-                    <p className="text-xs text-base-content/60">
+                    <p className="text-base-content/60 opacity-80">
                       {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
                     </p>
                     {games.length > 1 && (
-                      <p className="text-xs text-base-content/60">
+                      <p className="text-base-content/60 opacity-80">
                         {games.length} game{games.length > 1 ? "s" : ""}
                       </p>
                     )}
@@ -288,10 +288,7 @@ export default function HistoryPage() {
                       const isTie = myMove === oppMove;
                       const result = isTie ? "tie" : game.winner === address ? "win" : "lose";
                       return (
-                        <div
-                          key={gIndex}
-                          className="bg-base-200 p-3 rounded-lg text-sm flex justify-between items-center"
-                        >
+                        <div key={gIndex} className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
                           <span>
                             <span className="font-bold uppercase">{myMove}</span> vs{" "}
                             <span className="font-bold uppercase">{oppMove}</span>
@@ -421,14 +418,14 @@ function OnChainMatchModal({
       ) : data ? (
         <div className="space-y-4">
           <div className="bg-base-200 p-4 rounded-lg">
-            <p className="text-sm mb-2">
+            <p className="mb-2">
               <span className="font-semibold">Room ID:</span> {roomId}
             </p>
-            <p className="text-sm mb-2 break-words">
+            <p className="mb-2 break-words">
               <span className="font-semibold">Player 1:</span>{" "}
               {playerNames.player1 || `${data.players.player1.slice(0, 8)}...${data.players.player1.slice(-4)}`}
             </p>
-            <p className="text-sm break-words">
+            <p className="break-words">
               <span className="font-semibold">Player 2:</span>{" "}
               {playerNames.player2 || `${data.players.player2.slice(0, 8)}...${data.players.player2.slice(-4)}`}
             </p>
@@ -445,14 +442,16 @@ function OnChainMatchModal({
                     : "Tie";
               return (
                 <div key={idx} className="bg-base-200 p-3 rounded-lg">
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex justify-between items-center">
                     <span>
                       <span className="font-bold uppercase">{m.player1Move}</span> vs{" "}
                       <span className="font-bold uppercase">{m.player2Move}</span>
                     </span>
                     <span className="font-semibold text-success">{winnerName}</span>
                   </div>
-                  <p className="text-xs text-base-content/60 mt-1">{new Date(m.timestamp * 1000).toLocaleString()}</p>
+                  <p className="text-base-content/60 opacity-80 mt-1">
+                    {new Date(m.timestamp * 1000).toLocaleString()}
+                  </p>
                 </div>
               );
             })}

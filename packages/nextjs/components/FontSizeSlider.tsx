@@ -45,7 +45,7 @@ export const FontSizeSlider = () => {
         <input
           type="range"
           min="80"
-          max="150"
+          max="200"
           step="10"
           value={fontSize}
           onChange={handleChange}
