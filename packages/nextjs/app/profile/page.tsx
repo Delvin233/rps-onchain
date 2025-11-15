@@ -64,8 +64,9 @@ export default function ProfilePage() {
     try {
       await claim();
       toast.success("UBI claimed successfully!");
-      checkEntitlement().then(result => setEntitlement(result.amount));
-      getNextClaimTime().then(setNextClaimTime);
+      const [newEntitlement, newNextClaimTime] = await Promise.all([checkEntitlement(), getNextClaimTime()]);
+      setEntitlement(newEntitlement.amount);
+      setNextClaimTime(newNextClaimTime);
     } catch (error) {
       console.error("Claim error:", error);
       toast.error("Failed to claim UBI");
