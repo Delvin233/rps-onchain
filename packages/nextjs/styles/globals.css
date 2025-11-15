@@ -74,21 +74,21 @@
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #34d399;
-  --color-primary-content: #0c0a09;
-  --color-secondary: #60a5fa;
-  --color-secondary-content: #0c0a09;
-  --color-accent: #a78bfa;
-  --color-accent-content: #f5f5f4;
-  --color-neutral: #f5f5f4;
-  --color-neutral-content: #1e293b;
-  --color-base-100: #1e293b;
-  --color-base-200: #0f172a;
-  --color-base-300: #0c0a09;
-  --color-base-content: #f5f5f4;
-  --color-info: #60a5fa;
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
+  --color-primary: #10b981;
+  --color-primary-content: #0a0a0a;
+  --color-secondary: #6ee7b7;
+  --color-secondary-content: #0a0a0a;
+  --color-accent: #34d399;
+  --color-accent-content: #f5f5f5;
+  --color-neutral: #f5f5f5;
+  --color-neutral-content: #171717;
+  --color-base-100: #171717;
+  --color-base-200: #0a0a0a;
+  --color-base-300: #1f1f1f;
+  --color-base-content: #f5f5f5;
+  --color-info: #6ee7b7;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
   --color-error: #ef4444;
 
   --radius-field: 0.75rem;
@@ -115,55 +115,94 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
-
-
   body {
     min-height: 100vh;
   }
 
-  /* Typography - HTML Tags */
-  h1 {
-    font-family: var(--font-orbitron, system-ui);
-    font-size: 3rem; /* 48px */
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 0.5rem;
+  /* Override Tailwind font utilities to use theme variables */
+  .font-sans {
+    font-family: var(--font-body) !important;
   }
 
-  h2 {
-    font-family: var(--font-orbitron, system-ui);
-    font-size: 2.25rem; /* 36px */
+  .font-mono {
+    font-family: var(--font-mono) !important;
+  }
+
+  /* Spacing utilities using CSS variables */
+  .card-padding {
+    padding: var(--card-padding);
+  }
+
+  .card-gap > * + * {
+    margin-top: var(--card-gap);
+  }
+
+  .section-gap {
+    gap: var(--section-gap);
+  }
+
+  .inner-gap {
+    gap: var(--inner-gap);
+  }
+
+  /* Typography - HTML Tags */
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 2rem; /* 32px */
     font-weight: 700;
     line-height: 1.1;
     margin-bottom: 0.5rem;
   }
 
-  h3 {
-    font-family: var(--font-orbitron, system-ui);
-    font-size: 1.875rem; /* 30px */
-    font-weight: 600;
+  h2 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700;
     line-height: 1.2;
     margin-bottom: 0.5rem;
   }
 
-  h4 {
-    font-family: var(--font-orbitron, system-ui);
-    font-size: 1.5rem; /* 24px */
+  h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem; /* 20px */
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: 0.5rem;
   }
 
+  h4 {
+    font-family: var(--font-heading);
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  h5, h6 {
+    font-family: var(--font-heading);
+  }
+
   p {
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 1rem;
-    line-height: 1.5;
+    font-family: var(--font-body);
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.6;
     margin: 1rem 0;
   }
 
   button {
-    font-family: var(--font-orbitron, system-ui);
+    font-family: var(--font-heading);
     font-weight: 600;
+    font-size: 1rem; /* 16px */
+  }
+
+  input, textarea, select, label {
+    font-family: var(--font-body);
+    font-size: 1rem; /* 16px */
+  }
+
+  code, pre, kbd, samp {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem; /* 15px */
   }
 
   /* Cursor styles */
@@ -313,3 +352,35 @@
 
 .animate-glow { animation: glow 2s ease-in-out infinite; }
 .animate-pulse-glow { animation: glow 2s ease-in-out infinite; }
+
+/* Theme-aware modals */
+.modal-box {
+  background-color: var(--theme-card) !important;
+  color: var(--theme-text) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Responsive modal sizing */
+@media (max-width: 640px) {
+  .modal-box {
+    max-width: calc(100vw - 2rem) !important;
+    margin: 1rem !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .modal-box {
+    max-width: 600px !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .modal-box {
+    max-width: 800px !important;
+  }
+}

@@ -1501,19 +1501,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@farcaster/frame-sdk@npm:^0.1.12":
-  version: 0.1.12
-  resolution: "@farcaster/frame-sdk@npm:0.1.12"
-  dependencies:
-    "@farcaster/miniapp-sdk": 0.2.1
-    "@farcaster/quick-auth": 0.0.8
-    comlink: ^4.4.2
-    eventemitter3: ^5.0.1
-    ox: ^0.4.4
-  checksum: ddbefde84ae84bb8990a45ce75a4709d44ea6ff0a575bf2778a612289f13ae5c7212edaf6c1d2cb6d9ec2c6adc6d6a3787495d2e06d282bc4e6cd6e56daed2c5
-  languageName: node
-  linkType: hard
-
 "@farcaster/miniapp-core@npm:0.4.1":
   version: 0.4.1
   resolution: "@farcaster/miniapp-core@npm:0.4.1"
@@ -1525,7 +1512,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@farcaster/miniapp-sdk@npm:0.2.1, @farcaster/miniapp-sdk@npm:^0.2.1":
+"@farcaster/miniapp-sdk@npm:^0.2.1":
   version: 0.2.1
   resolution: "@farcaster/miniapp-sdk@npm:0.2.1"
   dependencies:
@@ -1549,18 +1536,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@farcaster/quick-auth@npm:0.0.8, @farcaster/quick-auth@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "@farcaster/quick-auth@npm:0.0.8"
-  dependencies:
-    jose: ^5.8.0
-    zod: ^3.25.1
-  peerDependencies:
-    typescript: 5.8.3
-  checksum: 466ca777cbe2de83fc470650ff7455f863a0f848d80767ba25f0fbf01c1f7fffcc1a253b2afc65ba1966682c2dcd1f9d5962f5a17370cd16b7c3b8dd420e3d95
-  languageName: node
-  linkType: hard
-
 "@farcaster/quick-auth@npm:^0.0.6":
   version: 0.0.6
   resolution: "@farcaster/quick-auth@npm:0.0.6"
@@ -1570,6 +1545,18 @@ __metadata:
   peerDependencies:
     typescript: 5.8.3
   checksum: ccfd864ee275b6223e50c9cb52ab9095bcf35e565b2f4ddacb328b4cbcd9fb9261c70bda18a5f1c6ef37deee8e32c413d74ba89f76558a6c641fc7bac58ba6b2
+  languageName: node
+  linkType: hard
+
+"@farcaster/quick-auth@npm:^0.0.8":
+  version: 0.0.8
+  resolution: "@farcaster/quick-auth@npm:0.0.8"
+  dependencies:
+    jose: ^5.8.0
+    zod: ^3.25.1
+  peerDependencies:
+    typescript: 5.8.3
+  checksum: 466ca777cbe2de83fc470650ff7455f863a0f848d80767ba25f0fbf01c1f7fffcc1a253b2afc65ba1966682c2dcd1f9d5962f5a17370cd16b7c3b8dd420e3d95
   languageName: node
   linkType: hard
 
@@ -4548,7 +4535,6 @@ __metadata:
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
     "@divvi/referral-sdk": ^2.0.0
-    "@farcaster/frame-sdk": ^0.1.12
     "@farcaster/miniapp-sdk": ^0.2.1
     "@farcaster/miniapp-wagmi-connector": ^1.1.0
     "@farcaster/quick-auth": ^0.0.8
@@ -4592,6 +4578,7 @@ __metadata:
     react: ~19.0.0
     react-dom: ~19.0.0
     react-hot-toast: ~2.4.0
+    react-icons: ^5.5.0
     redis: ^5.9.0
     tailwindcss: 4.1.3
     type-fest: ~4.26.1
@@ -17413,6 +17400,15 @@ __metadata:
     react: ">=16"
     react-dom: ">=16"
   checksum: 3e337816db574782454bf09c63a8aca546bf9c5be3f83d0494d24bdcfd97ca2db64d4c151c4ab0184d2342d7a7226403e6812e70caf03c8b55a07787bb4ad0f2
+  languageName: node
+  linkType: hard
+
+"react-icons@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "react-icons@npm:5.5.0"
+  peerDependencies:
+    react: "*"
+  checksum: cbd74f4b7982e6e18d59798a6b578268c8eb0909d78d87bcf9b25f99b3e544fd189a76551cb5e770d17f154a60b668551aee108aaf8471309b23f7af3b2c5b07
   languageName: node
   linkType: hard
 

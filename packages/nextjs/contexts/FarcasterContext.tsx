@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
-import sdk from "@farcaster/frame-sdk";
+import sdk from "@farcaster/miniapp-sdk";
 
 interface FarcasterContextType {
   isMiniAppReady: boolean;
@@ -15,6 +15,16 @@ const FarcasterContext = createContext<FarcasterContextType | undefined>(undefin
 export function FarcasterProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<any>(null);
   const [isMiniAppReady, setIsMiniAppReady] = useState(false);
+
+  useEffect(() => {
+    const checkState = async () => {
+      const hasContext = !!context;
+      const hasConnector = (window as any).ethereum?.isFarcaster;
+      const connectorIds = (window as any).wagmi?.connectors?.map((c: any) => c.id) || [];
+      console.log("[Farcaster Debug]", { isMiniAppReady, hasContext, hasConnector, connectorIds });
+    };
+    checkState();
+  }, [isMiniAppReady, context]);
 
   const setMiniAppReady = useCallback(async () => {
     try {

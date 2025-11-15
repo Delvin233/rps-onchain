@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import sdk from "@farcaster/frame-sdk";
+import sdk from "@farcaster/miniapp-sdk";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 
 export const useFarcasterAuth = () => {
