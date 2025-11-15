@@ -7,9 +7,9 @@ export const useFarcasterAuth = () => {
   const user = context?.user
     ? {
         fid: context.user.fid,
-        username: context.user.username,
+        username: context.user.username || context.user.displayName,
         display_name: context.user.displayName || context.user.username,
-        pfp_url: context.user.pfpUrl,
+        pfp_url: context.user.pfpUrl || context.user.profileImage,
       }
     : null;
 

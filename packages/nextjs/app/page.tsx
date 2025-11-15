@@ -19,6 +19,13 @@ export default function Home() {
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
 
+  // Auto-connect Farcaster users when miniapp context is ready
+  useEffect(() => {
+    if (!address && isMiniAppReady && farcasterConnector && context) {
+      connect({ connector: farcasterConnector });
+    }
+  }, [isMiniAppReady, farcasterConnector, context, address, connect]);
+
   useEffect(() => {
     if (address) {
       // Auto-migrate existing users from IPFS to Redis

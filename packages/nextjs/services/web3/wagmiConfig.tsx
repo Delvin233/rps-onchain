@@ -17,6 +17,7 @@ export const wagmiConfig = createConfig({
   chains: enabledChains,
   connectors: [farcasterMiniApp(), ...wagmiConnectors()],
   ssr: true,
+  multiInjectedProviderDiscovery: false,
   client: ({ chain }) => {
     let rpcFallbacks = [http()];
     const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
