@@ -60,7 +60,7 @@ export default function Home() {
           </div>
 
           <div className="mb-12 max-w-md mx-auto space-y-3">
-            {isMiniAppReady && farcasterConnector && (
+            {isMiniAppReady && farcasterConnector ? (
               <button
                 onClick={() => connect({ connector: farcasterConnector })}
                 disabled={!context}
@@ -69,18 +69,18 @@ export default function Home() {
               >
                 {context ? "Connect with Farcaster" : "Loading Farcaster..."}
               </button>
+            ) : (
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <button
+                    onClick={openConnectModal}
+                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                  >
+                    Connect Wallet
+                  </button>
+                )}
+              </ConnectButton.Custom>
             )}
-
-            <ConnectButton.Custom>
-              {({ openConnectModal }) => (
-                <button
-                  onClick={openConnectModal}
-                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
-                >
-                  Connect Wallet
-                </button>
-              )}
-            </ConnectButton.Custom>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-12">
