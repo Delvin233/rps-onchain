@@ -132,7 +132,7 @@ export default function HistoryPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Match History</h1>
@@ -155,7 +155,7 @@ export default function HistoryPage() {
   }
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-base-200 p-6 pt-12 pb-24 overflow-y-auto">
+    <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
       <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button

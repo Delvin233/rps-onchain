@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useConnect } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
@@ -54,13 +53,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      {address && (
-        <div className="flex justify-end pt-4 px-6">
-          <RainbowKitCustomConnectButton />
-        </div>
-      )}
       {!address ? (
-        <div className="lg:py-8">
+        <div className="pt-8 lg:py-8">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl lg:text-6xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
             <p className="text-base lg:text-lg text-base-content/60">
@@ -181,7 +175,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="lg:py-4">
+        <div className="pt-4 lg:py-4">
           <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto">
             <p className="text-lg md:text-xl font-semibold mb-1">
               Hello, {displayName}

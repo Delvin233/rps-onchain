@@ -26,7 +26,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
     <div className="min-h-screen bg-base-200">
       {/* Desktop Top Navigation */}
       <nav className="bg-base-100/80 backdrop-blur-lg border-b border-base-300 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               <h1 className="text-2xl font-bold text-primary">RPS-OnChain</h1>
@@ -57,7 +57,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">{children}</main>
     </div>
   );
 };

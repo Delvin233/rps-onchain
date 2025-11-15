@@ -80,7 +80,7 @@ export default function ProfilePage() {
 
   if (!address) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Profile</h1>
@@ -103,7 +103,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
       {/* Wallet */}

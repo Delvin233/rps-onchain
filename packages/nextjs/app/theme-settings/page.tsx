@@ -45,7 +45,7 @@ export default function ThemeSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => router.back()} className="btn btn-sm btn-ghost">

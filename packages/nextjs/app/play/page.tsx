@@ -35,7 +35,7 @@ export default function PlayModePage() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <h1 className="text-3xl lg:text-4xl font-bold text-glow-primary mb-8">Choose Game Mode</h1>
+      <h1 className="text-3xl lg:text-4xl font-bold text-glow-primary mb-8 pt-4 lg:pt-0">Choose Game Mode</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <button

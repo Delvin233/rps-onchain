@@ -74,7 +74,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
     <>
       <div
         ref={containerRef}
-        className="h-full bg-base-200 pb-20 lg:pb-0 overflow-y-auto transition-transform duration-200 ease-in-out"
+        className="h-full bg-base-200 px-4 sm:px-6 pb-20 lg:pb-0 overflow-y-auto transition-transform duration-200 ease-in-out"
       >
         {children}
       </div>
