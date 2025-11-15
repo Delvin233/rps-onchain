@@ -36,10 +36,10 @@ export const FONT_THEMES: Record<string, FontTheme> = {
   retroArcade: {
     name: "Retro Arcade",
     heading: "Tiny5",
-    body: "Jersey10",
+    body: "Jersey 10",
     mono: "Courier Prime",
     googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Micro+5&family=Courier+Prime:wght@400;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Tiny5&family=Jersey+10&family=Courier+Prime:wght@400;700&display=swap",
   },
 
   // Theme 4: Clean & Modern
