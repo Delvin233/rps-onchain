@@ -18,6 +18,7 @@ export const FontThemeSelector = () => {
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newTheme = e.target.value;
+    setCurrentTheme(newTheme);
     setFontTheme(newTheme as any);
   };
 

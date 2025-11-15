@@ -18,6 +18,7 @@ export const SpacingScaleSelector = () => {
 
   const handleScaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newScale = e.target.value;
+    setCurrentScale(newScale);
     setSpacingScale(newScale as any);
   };
 
