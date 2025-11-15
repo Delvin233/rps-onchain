@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
   try {
     const cached = await redis.get(`ipfs:${hash}`);
     if (cached) {
-      return NextResponse.json({ data: JSON.parse(cached as string) });
+      const data = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return NextResponse.json({ data });
     }
     return NextResponse.json({ data: null });
   } catch (error) {
