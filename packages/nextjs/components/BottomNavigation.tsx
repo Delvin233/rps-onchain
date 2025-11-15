@@ -133,10 +133,7 @@ export const BottomNavigation = () => {
   };
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-base-100/80 backdrop-blur-lg border-t border-base-300"
-      style={{ maxWidth: "448px", margin: "0 auto" }}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-base-100/80 backdrop-blur-lg border-t border-base-300">
       <div className="flex items-center justify-around px-2 py-2 safe-area-pb">
         {navItems.map(item => {
           const Icon = item.icon;
