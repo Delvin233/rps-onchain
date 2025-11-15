@@ -31,19 +31,25 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
       const ctx = await sdk.context;
       if (ctx) {
         setContext(ctx);
+        console.log("[Farcaster] SDK context:", ctx.user);
 
-        // If username is missing, fetch from API
-        if (ctx.user && (!ctx.user.username || !ctx.user.displayName)) {
+        // Always fetch from API to ensure we have username
+        if (ctx.user) {
           try {
             const response = await fetch(`/api/farcaster/user?fid=${ctx.user.fid}`);
             if (response.ok) {
               const userData = await response.json();
+              console.log("[Farcaster] Fetched user data:", userData);
               setEnrichedUser({
                 fid: ctx.user.fid,
                 username: userData.username || ctx.user.username || `fid-${ctx.user.fid}`,
                 displayName:
                   userData.display_name || ctx.user.displayName || userData.username || `User ${ctx.user.fid}`,
                 pfpUrl: userData.pfp_url || ctx.user.pfpUrl || "/placeholder-avatar.png",
+              });
+              console.log("[Farcaster] Enriched user set:", {
+                username: userData.username,
+                displayName: userData.display_name,
               });
             } else {
               // Fallback to context data
@@ -64,19 +70,11 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
               pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
             });
           }
-        } else if (ctx.user) {
-          // Context already has username
-          setEnrichedUser({
-            fid: ctx.user.fid,
-            username: ctx.user.username || `fid-${ctx.user.fid}`,
-            displayName: ctx.user.displayName || ctx.user.username || `User ${ctx.user.fid}`,
-            pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
-          });
         }
       }
       await sdk.actions.ready();
     } catch (err) {
-      console.error("SDK initialization error:", err);
+      console.error("[Farcaster] SDK initialization error:", err);
     } finally {
       setIsMiniAppReady(true);
     }

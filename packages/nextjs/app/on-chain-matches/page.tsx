@@ -261,46 +261,50 @@ export default function OnChainMatchesPage() {
           <div className="space-y-3">
             {filteredMatches.map((match, idx) => (
               <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
-                <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex flex-col gap-3 mb-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
                       <span className="badge badge-primary badge-sm">{match.chainName}</span>
-                      <span className="text-base-content/60">Room: {match.roomId}</span>
+                      <span className="text-xs text-base-content/60 truncate">Room: {match.roomId}</span>
                     </div>
-                    <div className="space-y-0.5">
-                      <p className="break-words">
-                        <span className="font-semibold">P1:</span>{" "}
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      {match.txHash && (
+                        <a
+                          href={`${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-xs btn-primary"
+                        >
+                          <ExternalLink size={12} /> TX
+                        </a>
+                      )}
+                      <a
+                        href={getExplorerUrl(match.chainId)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-xs btn-outline"
+                      >
+                        <ExternalLink size={12} /> Contract
+                      </a>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="bg-base-200 p-2 rounded-lg">
+                      <p className="text-xs text-base-content/60 mb-1">Player 1</p>
+                      <p className="text-sm font-semibold truncate">
                         {match.player1Name || `${match.player1.slice(0, 8)}...${match.player1.slice(-4)}`}
                       </p>
-                      <p className="break-words">
-                        <span className="font-semibold">P2:</span>{" "}
+                    </div>
+                    <div className="bg-base-200 p-2 rounded-lg">
+                      <p className="text-xs text-base-content/60 mb-1">Player 2</p>
+                      <p className="text-sm font-semibold truncate">
                         {match.player2Name || `${match.player2.slice(0, 8)}...${match.player2.slice(-4)}`}
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-1.5 flex-shrink-0">
-                    {match.txHash && (
-                      <a
-                        href={`${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-xs btn-primary"
-                      >
-                        <ExternalLink size={12} /> TX
-                      </a>
-                    )}
-                    <a
-                      href={getExplorerUrl(match.chainId)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-xs btn-outline"
-                    >
-                      <ExternalLink size={12} /> Contract
-                    </a>
-                  </div>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {match.matches.map((m, mIdx) => {
                     const winnerName =
                       m.winner === match.player1
@@ -310,15 +314,16 @@ export default function OnChainMatchesPage() {
                           : "Tie";
 
                     return (
-                      <div key={mIdx} className="bg-base-200 p-2 rounded-lg">
-                        <div className="flex justify-between items-center">
-                          <span>
-                            <span className="font-bold uppercase">{m.player1Move}</span> vs{" "}
-                            <span className="font-bold uppercase">{m.player2Move}</span>
-                          </span>
-                          <span className="font-semibold text-success">{winnerName}</span>
+                      <div key={mIdx} className="bg-base-200 p-3 rounded-lg">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold uppercase text-sm">{m.player1Move}</span>
+                            <span className="text-base-content/60">vs</span>
+                            <span className="font-bold uppercase text-sm">{m.player2Move}</span>
+                          </div>
+                          <span className="font-semibold text-success text-sm truncate">Winner: {winnerName}</span>
                         </div>
-                        <p className="text-base-content/60 mt-0.5 opacity-80">
+                        <p className="text-xs text-base-content/60 mt-2">
                           {new Date(m.timestamp * 1000).toLocaleString()}
                         </p>
                       </div>
