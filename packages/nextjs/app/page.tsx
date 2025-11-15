@@ -19,16 +19,6 @@ export default function Home() {
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
 
-  // Debug: Log Farcaster state
-  useEffect(() => {
-    console.log("[Farcaster Debug]", {
-      isMiniAppReady,
-      hasContext: !!context,
-      hasConnector: !!farcasterConnector,
-      connectorIds: connectors.map(c => c.id),
-    });
-  }, [isMiniAppReady, context, farcasterConnector, connectors]);
-
   useEffect(() => {
     if (address) {
       // Auto-migrate existing users from IPFS to Redis
