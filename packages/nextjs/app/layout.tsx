@@ -25,8 +25,8 @@ const baseMetadata = getMetadata({
 export const metadata = {
   ...baseMetadata,
   other: {
-    "fc:frame": JSON.stringify({
-      version: "next",
+    "fc:miniapp": JSON.stringify({
+      version: "1",
       imageUrl: `${appUrl}/images/frame-preview.png`,
       button: {
         title: "Play RPS",
