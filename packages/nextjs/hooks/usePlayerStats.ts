@@ -9,6 +9,20 @@ export const usePlayerStats = (address: string | undefined) => {
     losses: 0,
     ties: 0,
     winRate: 0,
+    ai: {
+      totalGames: 0,
+      wins: 0,
+      losses: 0,
+      ties: 0,
+      winRate: 0,
+    },
+    multiplayer: {
+      totalGames: 0,
+      wins: 0,
+      losses: 0,
+      ties: 0,
+      winRate: 0,
+    },
   });
   const [isLoading, setIsLoading] = useState(true);
 

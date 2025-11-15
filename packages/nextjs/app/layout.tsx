@@ -59,7 +59,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
               (function() {
                 try {
                   const colorTheme = localStorage.getItem('colorTheme') || 'delvin233';
-                  const fontTheme = localStorage.getItem('fontTheme') || 'futuristic';
+                  const fontTheme = localStorage.getItem('fontTheme') || 'retroArcade';
                   
                   const colors = {
                     delvin233: { primary: '#10b981', bg: '#0a0a0a', text: '#f5f5f5' },
@@ -72,7 +72,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
                   };
                   
                   const c = colors[colorTheme] || colors.delvin233;
-                  const f = fonts[fontTheme] || fonts.futuristic;
+                  const f = fonts[fontTheme] || fonts.retroArcade;
                   
                   document.documentElement.style.setProperty('--theme-primary', c.primary);
                   document.documentElement.style.setProperty('--theme-background', c.bg);

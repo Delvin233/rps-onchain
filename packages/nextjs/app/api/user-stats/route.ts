@@ -47,19 +47,35 @@ export async function POST(req: NextRequest) {
     // Keep only last 100 matches after deduplication
     const limitedMatches = Array.from(uniqueMatches).slice(0, 100);
 
-    // Calculate stats
+    // Calculate stats - separate AI and multiplayer
     const userMatches = limitedMatches.filter(
       (match: any) =>
         match.players?.creator === address || match.players?.joiner === address || match.player === address,
     );
 
-    const wins = userMatches.filter((match: any) =>
-      typeof match.result === "object" ? match.result.winner === address : match.result === "win",
+    const aiMatches = userMatches.filter((m: any) => m.opponent === "AI");
+    const multiplayerMatches = userMatches.filter((m: any) => m.opponent !== "AI");
+
+    // AI stats
+    const aiWins = aiMatches.filter((m: any) => m.result === "win").length;
+    const aiTies = aiMatches.filter((m: any) => m.result === "tie").length;
+    const aiLosses = aiMatches.length - aiWins - aiTies;
+    const aiWinRate = aiMatches.length > 0 ? Math.round((aiWins / aiMatches.length) * 100) : 0;
+
+    // Multiplayer stats
+    const multiWins = multiplayerMatches.filter((m: any) =>
+      typeof m.result === "object" ? m.result.winner === address : m.result === "win",
     ).length;
-    const ties = userMatches.filter((match: any) =>
-      typeof match.result === "object" ? match.result.winner === "tie" : match.result === "tie",
+    const multiTies = multiplayerMatches.filter((m: any) =>
+      typeof m.result === "object" ? m.result.winner === "tie" : m.result === "tie",
     ).length;
-    const losses = userMatches.length - wins - ties;
+    const multiLosses = multiplayerMatches.length - multiWins - multiTies;
+    const multiWinRate = multiplayerMatches.length > 0 ? Math.round((multiWins / multiplayerMatches.length) * 100) : 0;
+
+    // Combined stats
+    const wins = aiWins + multiWins;
+    const ties = aiTies + multiTies;
+    const losses = aiLosses + multiLosses;
     const winRate = userMatches.length > 0 ? Math.round((wins / userMatches.length) * 100) : 0;
 
     // Store updated data to IPFS directly via Pinata
@@ -79,6 +95,20 @@ export async function POST(req: NextRequest) {
             losses,
             ties,
             winRate,
+            ai: {
+              totalGames: aiMatches.length,
+              wins: aiWins,
+              losses: aiLosses,
+              ties: aiTies,
+              winRate: aiWinRate,
+            },
+            multiplayer: {
+              totalGames: multiplayerMatches.length,
+              wins: multiWins,
+              losses: multiLosses,
+              ties: multiTies,
+              winRate: multiWinRate,
+            },
           },
           updatedAt: new Date().toISOString(),
         },
