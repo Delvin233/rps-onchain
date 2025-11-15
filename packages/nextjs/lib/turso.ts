@@ -32,4 +32,26 @@ export async function initUserPreferencesTable() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migration: Add missing columns if they don't exist
+  try {
+    await turso.execute(`ALTER TABLE user_preferences ADD COLUMN color_theme TEXT DEFAULT 'delvin233'`);
+  } catch {
+    // Column already exists, ignore
+  }
+  try {
+    await turso.execute(`ALTER TABLE user_preferences ADD COLUMN font_theme TEXT DEFAULT 'futuristic'`);
+  } catch {
+    // Column already exists, ignore
+  }
+  try {
+    await turso.execute(`ALTER TABLE user_preferences ADD COLUMN spacing_scale TEXT DEFAULT 'comfortable'`);
+  } catch {
+    // Column already exists, ignore
+  }
+  try {
+    await turso.execute(`ALTER TABLE user_preferences ADD COLUMN font_size_override INTEGER DEFAULT 100`);
+  } catch {
+    // Column already exists, ignore
+  }
 }
