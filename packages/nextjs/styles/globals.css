@@ -128,6 +128,23 @@
     font-family: var(--font-mono) !important;
   }
 
+  /* Spacing utilities using CSS variables */
+  .card-padding {
+    padding: var(--card-padding);
+  }
+
+  .card-gap > * + * {
+    margin-top: var(--card-gap);
+  }
+
+  .section-gap {
+    gap: var(--section-gap);
+  }
+
+  .inner-gap {
+    gap: var(--inner-gap);
+  }
+
   /* Typography - HTML Tags */
   h1 {
     font-family: var(--font-heading);

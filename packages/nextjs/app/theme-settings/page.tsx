@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Palette } from "lucide-react";
+import { FontSizeSlider } from "~~/components/FontSizeSlider";
 import { FontThemeSelector } from "~~/components/FontThemeSelector";
 import { SpacingScaleSelector } from "~~/components/SpacingScaleSelector";
 
@@ -23,6 +24,10 @@ export default function ThemeSettingsPage() {
 
         <div className="mb-4">
           <FontThemeSelector />
+        </div>
+
+        <div className="mb-4">
+          <FontSizeSlider />
         </div>
 
         <div className="mb-4">

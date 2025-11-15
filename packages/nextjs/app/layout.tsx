@@ -1,5 +1,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { FontLoader } from "~~/components/FontLoader";
+import { FontSizeLoader } from "~~/components/FontSizeLoader";
+import { SpacingLoader } from "~~/components/SpacingLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { MobileLayout } from "~~/components/MobileLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
@@ -45,6 +47,8 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
       </head>
       <body>
         <FontLoader />
+        <FontSizeLoader />
+        <SpacingLoader />
         <ThemeProvider enableSystem>
           <div className="flex justify-center h-screen bg-base-300 overflow-hidden">
             <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl h-screen bg-base-200 shadow-2xl relative overflow-y-auto">
