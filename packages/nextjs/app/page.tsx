@@ -3,9 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Coins, Play, Target, TrendingUp } from "lucide-react";
+import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useConnect } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
@@ -54,16 +53,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      {address && (
-        <div className="flex justify-end pt-4 px-6">
-          <RainbowKitCustomConnectButton />
-        </div>
-      )}
       {!address ? (
-        <div className="px-6 pt-16 pb-24">
+        <div className="pt-8 lg:py-8">
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-5xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
-            <p className="text-sm text-base-content/60">Free-to-play Rock Paper Scissors on Celo & Base.</p>
+            <h1 className="text-5xl lg:text-6xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
+            <p className="text-base lg:text-lg text-base-content/60">
+              Free-to-play Rock Paper Scissors on Celo & Base.
+            </p>
           </div>
 
           <div className="mb-12 max-w-md mx-auto space-y-3">
@@ -90,7 +86,7 @@ export default function Home() {
             </ConnectButton.Custom>
           </div>
 
-          <div className="space-y-4 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-12">
             <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6 hover:border-primary/50 transition-all duration-200">
               <div className="flex items-start space-x-4">
                 <div className="p-3 rounded-lg bg-primary/10 mt-1">
@@ -132,9 +128,23 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-200">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-yellow-500/20 mt-1">
+                  <Gift className="text-yellow-500" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Claim Daily GoodDollar</h3>
+                  <p className="text-sm text-base-content/60">
+                    Get free G$ tokens daily. Connect your wallet to start claiming!
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 rounded-xl p-6 lg:col-span-2 max-w-2xl mx-auto">
             <h3 className="text-lg font-bold mb-4 text-center">How to Play</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
@@ -165,8 +175,8 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="px-6 pt-8 pb-4">
-          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-4 md:p-6 text-center mb-6">
+        <div className="pt-4 lg:py-4">
+          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto">
             <p className="text-lg md:text-xl font-semibold mb-1">
               Hello, {displayName}
               {hasEns && (
@@ -192,7 +202,7 @@ export default function Home() {
 
           <button
             onClick={() => router.push("/play")}
-            className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 touch-target text-base font-semibold shadow-glow-primary rounded-xl py-3 flex items-center justify-center space-x-2 mb-6"
+            className="w-full max-w-md mx-auto bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 flex items-center justify-center space-x-2 mb-8"
           >
             <Play size={20} />
             <span>Play Now</span>
@@ -201,14 +211,14 @@ export default function Home() {
       )}
 
       {address && (
-        <div className="px-6">
-          <h2 className="text-lg font-semibold mb-3 text-glow-secondary">Your Stats</h2>
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-glow-secondary">Your Stats</h2>
           {stats.isLoading ? (
             <div className="flex justify-center py-8">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {statsData.map((stat, index) => {
                 const Icon = stat.icon;
                 return (

@@ -28,13 +28,7 @@ export const BottomNavigation = () => {
     return pathname.startsWith(path);
   };
 
-  // Check if in active paid game (both players joined)
-  const isInActivePaidGame =
-    pathname.includes("/game/paid/") &&
-    typeof window !== "undefined" &&
-    sessionStorage.getItem("paidGameActive") === "true";
-
-  // Check if in active AI game by checking sessionStorage
+  // Check if in active AI game
   const isInActiveAIGame =
     pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
 
@@ -42,7 +36,7 @@ export const BottomNavigation = () => {
   const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
 
   const handleNavigation = (path: string) => {
-    if (isInActivePaidGame || isInActiveAIGame || isInActiveMultiplayerGame) {
+    if (isInActiveAIGame || isInActiveMultiplayerGame) {
       // In game - only History opens as overlay
       if (path === "/history") {
         openOverlay("history");
@@ -133,10 +127,7 @@ export const BottomNavigation = () => {
   };
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-base-100/80 backdrop-blur-lg border-t border-base-300"
-      style={{ maxWidth: "448px", margin: "0 auto" }}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-base-100/80 backdrop-blur-lg border-t border-base-300">
       <div className="flex items-center justify-around px-2 py-2 safe-area-pb">
         {navItems.map(item => {
           const Icon = item.icon;
@@ -146,7 +137,7 @@ export const BottomNavigation = () => {
             <button
               key={item.path}
               onClick={() => {
-                if (!active || isInActivePaidGame || item.path === "/play") {
+                if (!active || item.path === "/play") {
                   handleNavigation(item.path);
                 }
               }}

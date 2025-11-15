@@ -38,10 +38,7 @@ export const OverlayContainer = ({ type, children }: { type: OverlayType; childr
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div
-        className="absolute inset-0 bottom-16 bg-base-200 rounded-t-3xl shadow-2xl animate-slide-up overflow-y-auto"
-        style={{ maxWidth: "448px", margin: "0 auto" }}
-      >
+      <div className="absolute inset-0 bottom-16 bg-base-200 rounded-t-3xl shadow-2xl animate-slide-up overflow-y-auto">
         <button onClick={closeOverlay} className="absolute top-4 right-4 z-10 btn btn-sm btn-circle btn-ghost">
           <X size={20} />
         </button>

@@ -15,9 +15,9 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isInGame = pathname.includes("/game/paid/");
   const isInActiveAIGame =
     pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
+  const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
   const isInPlaySubpage = pathname.startsWith("/play/") && pathname !== "/play";
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
       if (Math.abs(swipeDistance) < minSwipeDistance) return;
 
       // Block all swipes during active games
-      if (isInGame || isInActiveAIGame) {
+      if (isInActiveAIGame || isInActiveMultiplayerGame) {
         return;
       }
 
@@ -68,17 +68,19 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
         container.removeEventListener("touchend", handleTouchEnd);
       }
     };
-  }, [pathname, router, isInGame, isInActiveAIGame, isInPlaySubpage]);
+  }, [pathname, router, isInActiveAIGame, isInActiveMultiplayerGame, isInPlaySubpage]);
 
   return (
     <>
       <div
         ref={containerRef}
-        className="h-full bg-base-200 pb-20 overflow-y-auto transition-transform duration-200 ease-in-out"
+        className="h-full bg-base-200 px-4 sm:px-6 pb-20 lg:pb-0 overflow-y-auto transition-transform duration-200 ease-in-out"
       >
         {children}
       </div>
-      <BottomNavigation />
+      <div className="lg:hidden">
+        <BottomNavigation />
+      </div>
 
       <OverlayContainer type="history">
         <HistoryPage />

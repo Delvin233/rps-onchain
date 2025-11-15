@@ -509,7 +509,7 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "waiting") {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 lg:hidden">
           <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
@@ -527,7 +527,7 @@ export default function MultiplayerGamePage() {
   if ((gameStatus === "ready" || gameStatus === "playing") && !selectedMove) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 lg:hidden">
           <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
@@ -552,7 +552,7 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "revealing" || (selectedMove && !result)) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 lg:hidden">
           <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
@@ -573,7 +573,7 @@ export default function MultiplayerGamePage() {
 
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 lg:hidden">
           <RainbowKitCustomConnectButton />
         </div>
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
