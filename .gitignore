@@ -54,3 +54,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vercel
+
+# Internal documentation (not for public repo)
+BUGS_FOUND.md
+INFRASTRUCTURE_CAPACITY.md
