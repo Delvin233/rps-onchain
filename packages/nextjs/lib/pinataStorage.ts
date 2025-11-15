@@ -72,12 +72,29 @@ export async function storeMatchRecord(matchData: MatchRecord): Promise<{ ipfsHa
   }
 }
 
-// Retrieve match record from IPFS
+// Retrieve match record from IPFS with Redis caching
 export async function getMatchRecord(ipfsHash: string): Promise<MatchRecord | null> {
   try {
+    // Try cache first
+    const cacheResponse = await fetch(`/api/ipfs-cache?hash=${ipfsHash}`);
+    if (cacheResponse.ok) {
+      const cached = await cacheResponse.json();
+      if (cached.data) return cached.data;
+    }
+
+    // Fetch from IPFS
     const gateway = process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://gateway.pinata.cloud";
     const response = await fetch(`${gateway}/ipfs/${ipfsHash}`);
-    return await response.json();
+    const data = await response.json();
+
+    // Cache it
+    fetch("/api/ipfs-cache", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hash: ipfsHash, data }),
+    }).catch(() => {}); // Fire and forget
+
+    return data;
   } catch (error) {
     console.error("Error retrieving match from IPFS:", error);
     return null;
