@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Palette, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { CRTToggle } from "~~/components/CRTToggle";
 import { ColorThemeSelector } from "~~/components/ColorThemeSelector";
 import { FontSizeSlider } from "~~/components/FontSizeSlider";
 import { FontThemeSelector } from "~~/components/FontThemeSelector";
@@ -70,6 +71,10 @@ export default function ThemeSettingsPage() {
 
         <div className="mb-4">
           <SpacingScaleSelector />
+        </div>
+
+        <div className="mb-4">
+          <CRTToggle />
         </div>
 
         {address && (

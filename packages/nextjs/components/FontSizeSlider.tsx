@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Type } from "lucide-react";
+import { RxFontSize } from "react-icons/rx";
 
 export const FontSizeSlider = () => {
   const [fontSize, setFontSize] = useState(100);
@@ -32,7 +32,7 @@ export const FontSizeSlider = () => {
     <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Type size={20} className="text-primary" />
+          <RxFontSize className="text-primary" size={20} />
           <h3 className="font-semibold">Font Size</h3>
         </div>
         <button onClick={resetToDefault} className="btn btn-xs btn-ghost">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Palette } from "lucide-react";
+import { ImFont } from "react-icons/im";
 import { getActiveTheme, getThemeOptions, setFontTheme } from "~~/styles/fontThemes";
 
 export const FontThemeSelector = () => {
@@ -25,7 +25,7 @@ export const FontThemeSelector = () => {
   return (
     <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
-        <Palette size={20} className="text-primary" />
+        <ImFont className="text-primary" size={20} />
         <h3 className="font-semibold">Font Theme</h3>
       </div>
       <select value={currentTheme} onChange={handleThemeChange} className="select select-bordered w-full">

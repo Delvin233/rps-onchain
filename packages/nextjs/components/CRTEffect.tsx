@@ -3,33 +3,30 @@
 import { useEffect, useState } from "react";
 
 export const CRTEffect = () => {
-  const [isRetroArcade, setIsRetroArcade] = useState(false);
+  const [crtEnabled, setCrtEnabled] = useState(false);
 
   useEffect(() => {
-    const checkTheme = () => {
-      const theme = localStorage.getItem("colorTheme");
-      const isRetro = theme === "retroArcade";
-      setIsRetroArcade(isRetro);
+    const checkCRT = () => {
+      const enabled = localStorage.getItem("crtEffect") === "true";
+      setCrtEnabled(enabled);
 
-      if (isRetro) {
+      if (enabled) {
         document.body.classList.add("crt-active");
       } else {
         document.body.classList.remove("crt-active");
       }
     };
 
-    checkTheme();
-    window.addEventListener("storage", checkTheme);
-    const interval = setInterval(checkTheme, 500);
+    checkCRT();
+    window.addEventListener("storage", checkCRT);
 
     return () => {
-      window.removeEventListener("storage", checkTheme);
-      clearInterval(interval);
+      window.removeEventListener("storage", checkCRT);
       document.body.classList.remove("crt-active");
     };
   }, []);
 
-  if (!isRetroArcade) return null;
+  if (!crtEnabled) return null;
 
   return (
     <>
