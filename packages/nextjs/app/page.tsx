@@ -47,19 +47,19 @@ export default function Home() {
       title: "Total Games",
       value: stats.totalGames.toString(),
       icon: Target,
-      subtitle: `AI: ${stats.ai.totalGames} | PvP: ${stats.multiplayer.totalGames}`,
+      subtitle: `AI: ${stats.ai?.totalGames || 0} | PvP: ${stats.multiplayer?.totalGames || 0}`,
     },
     {
       title: "AI Wins",
-      value: `${stats.ai.wins}/${stats.ai.totalGames}`,
+      value: `${stats.ai?.wins || 0}/${stats.ai?.totalGames || 0}`,
       icon: TrendingUp,
-      subtitle: `${stats.ai.winRate}% win rate`,
+      subtitle: `${stats.ai?.winRate || 0}% win rate`,
     },
     {
       title: "PvP Wins",
-      value: `${stats.multiplayer.wins}/${stats.multiplayer.totalGames}`,
+      value: `${stats.multiplayer?.wins || 0}/${stats.multiplayer?.totalGames || 0}`,
       icon: Coins,
-      subtitle: `${stats.multiplayer.winRate}% win rate`,
+      subtitle: `${stats.multiplayer?.winRate || 0}% win rate`,
     },
   ];
 
