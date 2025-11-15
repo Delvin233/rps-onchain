@@ -51,23 +51,27 @@ export const FontLoader = () => {
     `;
 
     const existingLink = document.getElementById("custom-fonts");
-    if (existingLink) {
-      existingLink.remove();
+    if (existingLink?.parentNode) {
+      existingLink.parentNode.removeChild(existingLink);
     }
     document.head.appendChild(link);
 
     const existingStyle = document.getElementById("font-variables");
-    if (existingStyle) {
-      existingStyle.remove();
+    if (existingStyle?.parentNode) {
+      existingStyle.parentNode.removeChild(existingStyle);
     }
     document.head.appendChild(style);
 
     return () => {
-      if (link.parentNode) {
-        link.parentNode.removeChild(link);
-      }
-      if (style.parentNode) {
-        style.parentNode.removeChild(style);
+      try {
+        if (link?.parentNode) {
+          link.parentNode.removeChild(link);
+        }
+        if (style?.parentNode) {
+          style.parentNode.removeChild(style);
+        }
+      } catch {
+        // Elements already removed
       }
     };
   }, []);

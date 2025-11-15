@@ -95,14 +95,18 @@ export const ColorLoader = () => {
     `;
 
     const existingStyle = document.getElementById("color-variables");
-    if (existingStyle) {
-      existingStyle.remove();
+    if (existingStyle?.parentNode) {
+      existingStyle.parentNode.removeChild(existingStyle);
     }
     document.head.appendChild(style);
 
     return () => {
-      if (style.parentNode) {
-        style.parentNode.removeChild(style);
+      try {
+        if (style?.parentNode) {
+          style.parentNode.removeChild(style);
+        }
+      } catch {
+        // Element already removed
       }
     };
   }, []);
