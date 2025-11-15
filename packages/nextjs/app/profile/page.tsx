@@ -55,7 +55,7 @@ export default function ProfilePage() {
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 60000);
+    const interval = setInterval(updateCountdown, 10000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextClaimTime]);

@@ -114,6 +114,12 @@ export default function MultiplayerPage() {
     setIsJoining(true);
     setShowJoinConfirm(false);
     try {
+      // Refresh room info to ensure it's still valid
+      await checkRoomInfo();
+      if (!roomInfo) {
+        throw new Error("Room no longer exists");
+      }
+
       // Sign blockchain transaction FIRST
       await joinGameContract({
         functionName: "joinGame",
@@ -130,19 +136,17 @@ export default function MultiplayerPage() {
         body: JSON.stringify({ roomId: roomCode, joiner: address, joinerVerified: verifyData.verified }),
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to update room state");
+      }
+
       const data = await response.json();
       if (data.success) {
         router.push(`/game/multiplayer/${roomCode}?mode=free`);
       } else if (data.error === "Room is full") {
-        toast.error("Room is full", {
-          style: {
-            background: "#1f2937",
-            color: "#fff",
-            border: "1px solid #ef4444",
-          },
-        });
+        toast.error("Room is full");
       } else {
-        toast.error(data.error || "Failed to join room");
+        throw new Error(data.error || "Failed to join room");
       }
     } catch (error: any) {
       console.error("Error joining room:", error);
@@ -232,6 +236,7 @@ export default function MultiplayerPage() {
                   </p>
                   <button
                     onClick={() => switchChain({ chainId: roomInfo.chainId })}
+                    disabled={isJoining || isCreating}
                     className="btn btn-sm btn-warning w-full"
                   >
                     Switch Network

@@ -24,7 +24,11 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
   };
 
   const isInActiveAIGame =
-    pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
+    pathname === "/play/single" &&
+    typeof window !== "undefined" &&
+    Array.from({ length: sessionStorage.length }, (_, i) => sessionStorage.key(i))
+      .filter(key => key?.startsWith("aiGameActive_"))
+      .some(key => sessionStorage.getItem(key!) === "true");
 
   const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
 
