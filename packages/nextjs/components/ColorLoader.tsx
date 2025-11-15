@@ -7,12 +7,6 @@ export const ColorLoader = () => {
   useEffect(() => {
     const colorTheme = getActiveColorTheme();
 
-    // Create and inject CSS variables
-    const existingStyle = document.getElementById("color-variables");
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-
     const style = document.createElement("style");
     style.id = "color-variables";
     style.textContent = `
@@ -99,7 +93,18 @@ export const ColorLoader = () => {
         border-color: var(--theme-primary) !important;
       }
     `;
+
+    const existingStyle = document.getElementById("color-variables");
+    if (existingStyle) {
+      existingStyle.remove();
+    }
     document.head.appendChild(style);
+
+    return () => {
+      if (style.parentNode) {
+        style.parentNode.removeChild(style);
+      }
+    };
   }, []);
 
   return null;

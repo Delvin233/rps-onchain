@@ -7,23 +7,10 @@ export const FontLoader = () => {
   useEffect(() => {
     const fontTheme = getActiveTheme();
 
-    // Create and inject font link
-    const existingLink = document.getElementById("custom-fonts");
-    if (existingLink) {
-      existingLink.remove();
-    }
-
     const link = document.createElement("link");
     link.id = "custom-fonts";
     link.rel = "stylesheet";
     link.href = fontTheme.googleFontsUrl;
-    document.head.appendChild(link);
-
-    // Create and inject CSS variables
-    const existingStyle = document.getElementById("font-variables");
-    if (existingStyle) {
-      existingStyle.remove();
-    }
 
     const style = document.createElement("style");
     style.id = "font-variables";
@@ -62,7 +49,27 @@ export const FontLoader = () => {
         font-size: calc(0.9375rem * var(--font-size-multiplier) * var(--font-size-override, 1)) !important;
       }
     `;
+
+    const existingLink = document.getElementById("custom-fonts");
+    if (existingLink) {
+      existingLink.remove();
+    }
+    document.head.appendChild(link);
+
+    const existingStyle = document.getElementById("font-variables");
+    if (existingStyle) {
+      existingStyle.remove();
+    }
     document.head.appendChild(style);
+
+    return () => {
+      if (link.parentNode) {
+        link.parentNode.removeChild(link);
+      }
+      if (style.parentNode) {
+        style.parentNode.removeChild(style);
+      }
+    };
   }, []);
 
   return null;

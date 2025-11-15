@@ -7,7 +7,6 @@ export const SpacingLoader = () => {
   useEffect(() => {
     const spacing = getSpacingScale();
 
-    // Convert Tailwind classes to CSS values
     const spacingMap: Record<string, string> = {
       "p-3": "0.75rem",
       "p-4": "1rem",
@@ -21,11 +20,6 @@ export const SpacingLoader = () => {
       "gap-6": "1.5rem",
     };
 
-    const existingStyle = document.getElementById("spacing-variables");
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-
     const style = document.createElement("style");
     style.id = "spacing-variables";
     style.textContent = `
@@ -36,7 +30,18 @@ export const SpacingLoader = () => {
         --inner-gap: ${spacingMap[spacing.innerGap]};
       }
     `;
+
+    const existingStyle = document.getElementById("spacing-variables");
+    if (existingStyle) {
+      existingStyle.remove();
+    }
     document.head.appendChild(style);
+
+    return () => {
+      if (style.parentNode) {
+        style.parentNode.removeChild(style);
+      }
+    };
   }, []);
 
   return null;
