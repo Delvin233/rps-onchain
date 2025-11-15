@@ -55,7 +55,7 @@ export default function ProfilePage() {
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 60000);
+    const interval = setInterval(updateCountdown, 10000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextClaimTime]);
@@ -64,8 +64,14 @@ export default function ProfilePage() {
     try {
       await claim();
       toast.success("UBI claimed successfully!");
-      checkEntitlement().then(result => setEntitlement(result.amount));
-      getNextClaimTime().then(setNextClaimTime);
+      try {
+        const [newEntitlement, newNextClaimTime] = await Promise.all([checkEntitlement(), getNextClaimTime()]);
+        setEntitlement(newEntitlement.amount);
+        setNextClaimTime(newNextClaimTime);
+      } catch (refreshError) {
+        console.error("Error refreshing claim status:", refreshError);
+        setTimeout(() => window.location.reload(), 2000);
+      }
     } catch (error) {
       console.error("Claim error:", error);
       toast.error("Failed to claim UBI");

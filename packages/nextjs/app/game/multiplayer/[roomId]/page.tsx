@@ -97,7 +97,13 @@ export default function MultiplayerGamePage() {
   };
 
   useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      if (gameStatus !== "finished" && gameStatus !== "waiting") {
+        toast.error("Wallet disconnected during game");
+        setTimeout(() => router.push("/"), 2000);
+      }
+      return;
+    }
     fetchRoomInfo();
 
     let interval: NodeJS.Timeout | null = null;
@@ -349,14 +355,8 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, creator: address }),
       });
-      toast.success("Room cancelled", {
-        style: {
-          background: "#1f2937",
-          color: "#fff",
-          border: "1px solid #10b981",
-        },
-      });
-      handleNavigation("/play/multiplayer");
+      toast.success("Room cancelled");
+      window.location.href = "/play/multiplayer";
     } catch (error) {
       console.error("Error cancelling room:", error);
       toast.error("Failed to cancel room");
@@ -400,6 +400,7 @@ export default function MultiplayerGamePage() {
       setRematchRequested(false);
       setOpponentRequestedRematch(false);
       toastShownRef.current = false;
+      leftToastShownRef.current = false;
       toast.success("Rematch accepted!", {
         style: {
           background: "#1f2937",
@@ -419,7 +420,7 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, player: address, action: "leave" }),
       });
-      router.push("/play/multiplayer?clear=1");
+      window.location.href = "/play/multiplayer";
     } catch (error) {
       console.error("Error leaving room:", error);
     }

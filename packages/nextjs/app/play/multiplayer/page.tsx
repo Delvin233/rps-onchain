@@ -54,9 +54,13 @@ export default function MultiplayerPage() {
       const response = await fetch(`/api/room/info?roomId=${roomCode}`);
       if (response.ok) {
         const data = await response.json();
-        const verifyRes = await fetch(`/api/check-verification?address=${data.creator}`);
-        const verifyData = await verifyRes.json();
-        setRoomInfo({ ...data, creatorVerified: verifyData.verified });
+        if (data.creator) {
+          const verifyRes = await fetch(`/api/check-verification?address=${data.creator}`);
+          const verifyData = await verifyRes.json();
+          setRoomInfo({ ...data, creatorVerified: verifyData.verified });
+        } else {
+          setRoomInfo(data);
+        }
       } else {
         setRoomInfo(null);
       }
@@ -70,7 +74,7 @@ export default function MultiplayerPage() {
   const { writeContractAsync: createGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const createRoom = async () => {
-    if (!address) return;
+    if (!address || isCreating) return;
 
     setIsCreating(true);
     setShowCreateConfirm(false);
@@ -105,11 +109,17 @@ export default function MultiplayerPage() {
   const { writeContractAsync: joinGameContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
 
   const joinRoom = async () => {
-    if (!address || !roomCode || roomCode.length !== 6) return;
+    if (!address || !roomCode || roomCode.length !== 6 || isJoining) return;
 
     setIsJoining(true);
     setShowJoinConfirm(false);
     try {
+      // Refresh room info to ensure it's still valid
+      await checkRoomInfo();
+      if (!roomInfo) {
+        throw new Error("Room no longer exists");
+      }
+
       // Sign blockchain transaction FIRST
       await joinGameContract({
         functionName: "joinGame",
@@ -126,19 +136,17 @@ export default function MultiplayerPage() {
         body: JSON.stringify({ roomId: roomCode, joiner: address, joinerVerified: verifyData.verified }),
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to update room state");
+      }
+
       const data = await response.json();
       if (data.success) {
         router.push(`/game/multiplayer/${roomCode}?mode=free`);
       } else if (data.error === "Room is full") {
-        toast.error("Room is full", {
-          style: {
-            background: "#1f2937",
-            color: "#fff",
-            border: "1px solid #ef4444",
-          },
-        });
+        toast.error("Room is full");
       } else {
-        toast.error(data.error || "Failed to join room");
+        throw new Error(data.error || "Failed to join room");
       }
     } catch (error: any) {
       console.error("Error joining room:", error);
@@ -228,6 +236,7 @@ export default function MultiplayerPage() {
                   </p>
                   <button
                     onClick={() => switchChain({ chainId: roomInfo.chainId })}
+                    disabled={isJoining || isCreating}
                     className="btn btn-sm btn-warning w-full"
                   >
                     Switch Network

@@ -1,4 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { Analytics } from "@vercel/analytics/next";
 import { CRTEffect } from "~~/components/CRTEffect";
 import { ColorLoader } from "~~/components/ColorLoader";
 import { FontLoader } from "~~/components/FontLoader";
@@ -103,6 +104,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             </AuthProvider>
           </ScaffoldEthAppWithProviders>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

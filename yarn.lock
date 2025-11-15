@@ -4552,6 +4552,7 @@ __metadata:
     "@uniswap/sdk-core": ~5.8.2
     "@uniswap/v2-sdk": ~4.6.1
     "@upstash/redis": ^1.35.6
+    "@vercel/analytics": ^1.5.0
     "@vercel/edge-config": ^1.4.3
     "@vercel/kv": ^1.0.1
     abitype: 1.0.6
@@ -6155,6 +6156,36 @@ __metadata:
   peerDependencies:
     "@vanilla-extract/css": ^1.0.0
   checksum: e4fea79a4f49c2b8095892f6d758958548ee8513c7ee27dd1f229c2639bd5271674d117facf79dbdb31d218a64d208e56489dc7a810c9ad30b7454b355298beb
+  languageName: node
+  linkType: hard
+
+"@vercel/analytics@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@vercel/analytics@npm:1.5.0"
+  peerDependencies:
+    "@remix-run/react": ^2
+    "@sveltejs/kit": ^1 || ^2
+    next: ">= 13"
+    react: ^18 || ^19 || ^19.0.0-rc
+    svelte: ">= 4"
+    vue: ^3
+    vue-router: ^4
+  peerDependenciesMeta:
+    "@remix-run/react":
+      optional: true
+    "@sveltejs/kit":
+      optional: true
+    next:
+      optional: true
+    react:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+    vue-router:
+      optional: true
+  checksum: 60991e558ce459ef0fdd3f3b4ccb657453507083ff879570c43cfe613e5a37f6fdae5146926f3cdeba48db9943a4cfd203be6c5d55de44294cf892526b603877
   languageName: node
   linkType: hard
 

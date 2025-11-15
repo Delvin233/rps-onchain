@@ -9,6 +9,8 @@ import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 type Move = "rock" | "paper" | "scissors";
 
+const TAB_ID = typeof window !== "undefined" ? `tab_${Date.now()}_${Math.random()}` : "";
+
 export default function SinglePlayerPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
@@ -21,14 +23,14 @@ export default function SinglePlayerPage() {
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (sessionStorage.getItem("aiGameActive") === "true") {
+      if (sessionStorage.getItem(`aiGameActive_${TAB_ID}`) === "true") {
         e.preventDefault();
         e.returnValue = "";
       }
     };
 
     const handlePopState = (e: PopStateEvent) => {
-      if (sessionStorage.getItem("aiGameActive") === "true") {
+      if (sessionStorage.getItem(`aiGameActive_${TAB_ID}`) === "true") {
         e.preventDefault();
         window.history.pushState(null, "", window.location.href);
         setPendingNavigation("/play");
@@ -46,7 +48,7 @@ export default function SinglePlayerPage() {
   }, []);
 
   const handleNavigation = (path: string) => {
-    if (sessionStorage.getItem("aiGameActive") === "true") {
+    if (sessionStorage.getItem(`aiGameActive_${TAB_ID}`) === "true") {
       setPendingNavigation(path);
       setShowExitConfirm(true);
     } else {
@@ -55,7 +57,7 @@ export default function SinglePlayerPage() {
   };
 
   const confirmExit = () => {
-    sessionStorage.removeItem("aiGameActive");
+    sessionStorage.removeItem(`aiGameActive_${TAB_ID}`);
     if (pendingNavigation) {
       router.push(pendingNavigation);
     }
@@ -68,44 +70,53 @@ export default function SinglePlayerPage() {
     setPlayerMove(move);
     setAiMove(null);
     setResult(null);
-    sessionStorage.setItem("aiGameActive", "true");
+    sessionStorage.setItem(`aiGameActive_${TAB_ID}`, "true");
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const response = await fetch("/api/play-ai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ playerMove: move, address }),
-    });
+      const response = await fetch("/api/play-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerMove: move, address }),
+      });
 
-    const data = await response.json();
-    setAiMove(data.aiMove);
-    setResult(data.result);
-    setIsPlaying(false);
+      if (!response.ok) throw new Error("Failed to play against AI");
 
-    // Store to Redis history
-    await fetch("/api/history-fast", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        address,
-        match: {
-          opponent: "AI",
-          player: address,
-          playerMove: move,
-          opponentMove: data.aiMove,
-          result: data.result,
-          timestamp: new Date().toISOString(),
-        },
-      }),
-    });
+      const data = await response.json();
+      setAiMove(data.aiMove);
+      setResult(data.result);
+      setIsPlaying(false);
+
+      // Store to Redis history
+      await fetch("/api/history-fast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address,
+          match: {
+            opponent: "AI",
+            player: address,
+            playerMove: move,
+            opponentMove: data.aiMove,
+            result: data.result,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
+    } catch (error) {
+      console.error("Error playing AI:", error);
+      sessionStorage.removeItem(`aiGameActive_${TAB_ID}`);
+      setPlayerMove(null);
+      setIsPlaying(false);
+    }
   };
 
   const playAgain = () => {
     setPlayerMove(null);
     setAiMove(null);
     setResult(null);
-    sessionStorage.removeItem("aiGameActive");
+    sessionStorage.removeItem(`aiGameActive_${TAB_ID}`);
   };
 
   if (!isConnected) {
