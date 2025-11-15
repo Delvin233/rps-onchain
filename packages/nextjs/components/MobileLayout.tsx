@@ -15,9 +15,9 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isInGame = pathname.includes("/game/paid/");
   const isInActiveAIGame =
     pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
+  const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
   const isInPlaySubpage = pathname.startsWith("/play/") && pathname !== "/play";
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
       if (Math.abs(swipeDistance) < minSwipeDistance) return;
 
       // Block all swipes during active games
-      if (isInGame || isInActiveAIGame) {
+      if (isInActiveAIGame || isInActiveMultiplayerGame) {
         return;
       }
 
@@ -68,7 +68,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
         container.removeEventListener("touchend", handleTouchEnd);
       }
     };
-  }, [pathname, router, isInGame, isInActiveAIGame, isInPlaySubpage]);
+  }, [pathname, router, isInActiveAIGame, isInActiveMultiplayerGame, isInPlaySubpage]);
 
   return (
     <>

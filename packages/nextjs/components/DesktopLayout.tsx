@@ -23,18 +23,13 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
     return pathname.startsWith(path);
   };
 
-  const isInActivePaidGame =
-    pathname.includes("/game/paid/") &&
-    typeof window !== "undefined" &&
-    sessionStorage.getItem("paidGameActive") === "true";
-
   const isInActiveAIGame =
     pathname === "/play/single" && typeof window !== "undefined" && sessionStorage.getItem("aiGameActive") === "true";
 
   const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
 
   const handleNavigation = (path: string) => {
-    if (isInActivePaidGame || isInActiveAIGame || isInActiveMultiplayerGame) {
+    if (isInActiveAIGame || isInActiveMultiplayerGame) {
       if (path !== pathname) {
         toast.error("Please finish your match before navigating away.", {
           duration: 3000,
