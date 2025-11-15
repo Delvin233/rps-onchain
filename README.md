@@ -1,6 +1,6 @@
-# RPS-ONCHAIN
+# RPS-onChain
 
-![RPS-ONCHAIN](rps-onchain.jpg)
+![RPS-onChain](packages/nextjs/public/rpsOnchainLogo.png)
 A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support (Celo + Base). Built with scaffold-eth-2.
 
 ## Game Features
@@ -159,18 +159,21 @@ yarn dev            # Start frontend (same as yarn start)
 ### **Supported Networks**
 
 **Celo Mainnet:**
+
 - Contract: `0xace7999ca29Fc9d3dfDD8D7F99A1366a5cF62091`
 - RPC: https://forno.celo.org
 - Gas Token: CELO or cUSD
 - Recommended Wallets: MiniPay, MetaMask
 
 **Base Mainnet:**
+
 - Contract: `0x17f238a671CEEa5b6ac9b44E280a42a2Bb080feC`
 - RPC: https://mainnet.base.org
 - Gas Token: ETH
 - Recommended Wallets: Coinbase Wallet, MetaMask
 
 **Local Development:**
+
 - Hardhat network (localhost)
 
 Contract addresses are auto-exported to `contracts/deployedContracts.ts` after deployment.

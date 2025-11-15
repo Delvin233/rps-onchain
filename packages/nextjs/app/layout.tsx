@@ -46,6 +46,11 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning className={``}>
       <head>
+        <link rel="icon" href="/rpsOnchainFavicons/favicon.ico" sizes="any" />
+        <link rel="icon" href="/rpsOnchainFavicons/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="icon" href="/rpsOnchainFavicons/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/rpsOnchainFavicons/apple-touch-icon.png" />
+        <link rel="manifest" href="/rpsOnchainFavicons/site.webmanifest" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
