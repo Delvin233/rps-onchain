@@ -1,11 +1,11 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
-import { PreferencesSync } from "~~/components/PreferencesSync";
-import { SpacingLoader } from "~~/components/SpacingLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { MobileLayout } from "~~/components/MobileLayout";
+import { PreferencesSync } from "~~/components/PreferencesSync";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
+import { SpacingLoader } from "~~/components/SpacingLoader";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { OverlayProvider } from "~~/components/overlays/OverlayManager";
 import { AuthProvider } from "~~/contexts/AuthContext";
