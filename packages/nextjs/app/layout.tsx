@@ -1,4 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { ColorLoader } from "~~/components/ColorLoader";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
@@ -47,6 +48,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
+        <ColorLoader />
         <FontLoader />
         <FontSizeLoader />
         <SpacingLoader />

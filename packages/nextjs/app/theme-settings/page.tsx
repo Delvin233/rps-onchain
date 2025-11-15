@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Palette, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { ColorThemeSelector } from "~~/components/ColorThemeSelector";
 import { FontSizeSlider } from "~~/components/FontSizeSlider";
 import { FontThemeSelector } from "~~/components/FontThemeSelector";
 import { SpacingScaleSelector } from "~~/components/SpacingScaleSelector";
@@ -20,14 +21,15 @@ export default function ThemeSettingsPage() {
 
     setSaving(true);
     try {
-      const fontTheme = localStorage.getItem("fontTheme") || "retroArcade";
+      const colorTheme = localStorage.getItem("colorTheme") || "neonCyberpunk";
+      const fontTheme = localStorage.getItem("fontTheme") || "futuristic";
       const spacingScale = localStorage.getItem("spacingScale") || "comfortable";
       const fontSizeOverride = parseInt(localStorage.getItem("fontSizeOverride") || "100");
 
       await fetch("/api/user-preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, fontTheme, spacingScale, fontSizeOverride }),
+        body: JSON.stringify({ address, colorTheme, fontTheme, spacingScale, fontSizeOverride }),
       });
 
       setSaved(true);
@@ -52,7 +54,11 @@ export default function ThemeSettingsPage() {
           <h1 className="text-3xl font-bold text-glow-primary">Theme Settings</h1>
         </div>
 
-        <p className="text-base-content/60 mb-6">Customize your gaming experience with fonts and spacing.</p>
+        <p className="text-base-content/60 mb-6">Customize your gaming experience with colors, fonts and spacing.</p>
+
+        <div className="mb-4">
+          <ColorThemeSelector />
+        </div>
 
         <div className="mb-4">
           <FontThemeSelector />

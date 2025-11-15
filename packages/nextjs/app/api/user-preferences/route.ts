@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
     const row = result.rows[0];
     return NextResponse.json({
       preferences: {
+        colorTheme: row.color_theme,
         fontTheme: row.font_theme,
         spacingScale: row.spacing_scale,
         fontSizeOverride: row.font_size_override,
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     await ensureTable();
 
     const body = await request.json();
-    const { address, fontTheme, spacingScale, fontSizeOverride } = body;
+    const { address, colorTheme, fontTheme, spacingScale, fontSizeOverride } = body;
 
     if (!address) {
       return NextResponse.json({ error: "Address required" }, { status: 400 });
@@ -60,15 +61,16 @@ export async function POST(request: NextRequest) {
 
     await turso.execute({
       sql: `
-        INSERT INTO user_preferences (user_address, font_theme, spacing_scale, font_size_override, updated_at)
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO user_preferences (user_address, color_theme, font_theme, spacing_scale, font_size_override, updated_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(user_address) DO UPDATE SET
+          color_theme = excluded.color_theme,
           font_theme = excluded.font_theme,
           spacing_scale = excluded.spacing_scale,
           font_size_override = excluded.font_size_override,
           updated_at = CURRENT_TIMESTAMP
       `,
-      args: [address.toLowerCase(), fontTheme, spacingScale, fontSizeOverride],
+      args: [address.toLowerCase(), colorTheme, fontTheme, spacingScale, fontSizeOverride],
     });
 
     return NextResponse.json({ success: true });

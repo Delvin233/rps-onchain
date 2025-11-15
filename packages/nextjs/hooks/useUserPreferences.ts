@@ -14,14 +14,20 @@ export const useUserPreferences = () => {
         const data = await res.json();
 
         if (data.preferences) {
-          const { fontTheme, spacingScale, fontSizeOverride } = data.preferences;
+          const { colorTheme, fontTheme, spacingScale, fontSizeOverride } = data.preferences;
 
           // Only apply if different from current localStorage
+          const currentColor = localStorage.getItem("colorTheme");
           const currentFont = localStorage.getItem("fontTheme");
           const currentSpacing = localStorage.getItem("spacingScale");
           const currentSize = localStorage.getItem("fontSizeOverride");
 
           let needsReload = false;
+
+          if (colorTheme && colorTheme !== currentColor) {
+            localStorage.setItem("colorTheme", colorTheme);
+            needsReload = true;
+          }
 
           if (fontTheme && fontTheme !== currentFont) {
             localStorage.setItem("fontTheme", fontTheme);
@@ -54,7 +60,8 @@ export const useUserPreferences = () => {
   const savePreferences = async () => {
     if (!address) return;
 
-    const fontTheme = localStorage.getItem("fontTheme") || "retroArcade";
+    const colorTheme = localStorage.getItem("colorTheme") || "neonCyberpunk";
+    const fontTheme = localStorage.getItem("fontTheme") || "futuristic";
     const spacingScale = localStorage.getItem("spacingScale") || "comfortable";
     const fontSizeOverride = parseInt(localStorage.getItem("fontSizeOverride") || "100");
 
@@ -64,6 +71,7 @@ export const useUserPreferences = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           address,
+          colorTheme,
           fontTheme,
           spacingScale,
           fontSizeOverride,
