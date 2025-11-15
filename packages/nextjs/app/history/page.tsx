@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
@@ -171,9 +170,6 @@ export default function HistoryPage() {
           {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
           Sync IPFS
         </button>
-        <div className="lg:hidden">
-          <RainbowKitCustomConnectButton />
-        </div>
       </div>
 
       {isLoading ? (
