@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
+import { IoColorPalette } from "react-icons/io5";
 import { useAccount } from "wagmi";
 import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -173,7 +174,7 @@ export default function ProfilePage() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎨</span>
+            <IoColorPalette className="text-primary" size={28} />
             <div>
               <p className="font-semibold">Theme Settings</p>
               <p className="text-xs text-base-content/60">Customize fonts, spacing & colors</p>

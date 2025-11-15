@@ -95,7 +95,7 @@ export default function ThemeSettingsPage() {
         )}
 
         <div className="bg-card/30 backdrop-blur border border-border/50 rounded-xl p-6 text-center">
-          <p className="text-sm text-base-content/60">🎨 Color themes coming soon!</p>
+          <p className="text-base-content/60">Color themes are now available above!</p>
         </div>
       </div>
     </div>
