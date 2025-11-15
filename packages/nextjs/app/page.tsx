@@ -43,9 +43,24 @@ export default function Home() {
   }, [address]);
 
   const statsData = [
-    { title: "Total Games", value: stats.totalGames.toString(), icon: Target },
-    { title: "Wins", value: stats.wins.toString(), icon: TrendingUp },
-    { title: "Win Rate", value: `${stats.winRate}%`, icon: Coins },
+    {
+      title: "Total Games",
+      value: stats.totalGames.toString(),
+      icon: Target,
+      subtitle: `AI: ${stats.ai.totalGames} | PvP: ${stats.multiplayer.totalGames}`,
+    },
+    {
+      title: "AI Wins",
+      value: `${stats.ai.wins}/${stats.ai.totalGames}`,
+      icon: TrendingUp,
+      subtitle: `${stats.ai.winRate}% win rate`,
+    },
+    {
+      title: "PvP Wins",
+      value: `${stats.multiplayer.wins}/${stats.multiplayer.totalGames}`,
+      icon: Coins,
+      subtitle: `${stats.multiplayer.winRate}% win rate`,
+    },
   ];
 
   return (
@@ -228,6 +243,7 @@ export default function Home() {
                       <div>
                         <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
                         <p className="text-xl font-bold">{stat.value}</p>
+                        {stat.subtitle && <p className="text-base-content/60 text-xs mt-1">{stat.subtitle}</p>}
                       </div>
                       <div className="p-2 rounded-lg bg-primary/10">
                         <Icon className="text-primary" size={20} />
