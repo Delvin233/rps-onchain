@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
 import { useAccount, useEnsName } from "wagmi";
-import { base, mainnet } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -67,7 +67,6 @@ export const HeaderMenuLinks = () => {
 const UsernameDisplay = () => {
   const { address, isConnected } = useAccount();
   const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
-  const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
   const { user: farcasterUser } = useFarcasterAuth();
   const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -94,11 +93,9 @@ const UsernameDisplay = () => {
   }, [address]);
 
   useEffect(() => {
-    console.log("[Header] Display name logic:", { mainnetEnsName, baseEnsName, farcasterUser, username });
+    console.log("[Header] Display name logic:", { mainnetEnsName, farcasterUser, username });
     if (mainnetEnsName) {
       setDisplayName(mainnetEnsName);
-    } else if (baseEnsName) {
-      setDisplayName(baseEnsName);
     } else if (farcasterUser) {
       console.log("[Header] Using Farcaster username:", farcasterUser.username);
       setDisplayName(farcasterUser.username);
@@ -107,7 +104,7 @@ const UsernameDisplay = () => {
     } else {
       setDisplayName("User");
     }
-  }, [mainnetEnsName, baseEnsName, farcasterUser, username]);
+  }, [mainnetEnsName, farcasterUser, username]);
 
   const saveUsername = async () => {
     if (!address || !tempUsername.trim()) return;
@@ -167,14 +164,11 @@ const UsernameDisplay = () => {
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
             {mainnetEnsName && displayName === mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
-            {baseEnsName && displayName === baseEnsName && !mainnetEnsName && (
-              <span className="text-info text-xs ml-1">BASE</span>
-            )}
             {farcasterUser && displayName === farcasterUser.username && (
               <span className="text-purple-500 text-xs ml-1">FC</span>
             )}
           </span>
-          {!mainnetEnsName && !baseEnsName && !farcasterUser && (
+          {!mainnetEnsName && !farcasterUser && (
             <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
             </button>
