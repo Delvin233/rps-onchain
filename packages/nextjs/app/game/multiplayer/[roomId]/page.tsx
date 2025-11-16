@@ -218,6 +218,10 @@ export default function MultiplayerGamePage() {
     try {
       const response = await fetch(`/api/room/status?roomId=${roomId}&player=${address}`);
       if (!response.ok) {
+        if (response.status === 404) {
+          setErrorCount(prev => prev + 20);
+          return;
+        }
         console.error(`Room status API returned ${response.status}`);
         setErrorCount(prev => prev + 1);
         return;

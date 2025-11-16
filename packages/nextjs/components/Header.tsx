@@ -166,9 +166,11 @@ const UsernameDisplay = () => {
           )}
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
-            {mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
-            {!mainnetEnsName && baseEnsName && <span className="text-info text-xs ml-1">BASE</span>}
-            {!mainnetEnsName && !baseEnsName && farcasterUser && (
+            {mainnetEnsName && displayName === mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
+            {baseEnsName && displayName === baseEnsName && !mainnetEnsName && (
+              <span className="text-info text-xs ml-1">BASE</span>
+            )}
+            {farcasterUser && displayName === farcasterUser.username && (
               <span className="text-purple-500 text-xs ml-1">FC</span>
             )}
           </span>
