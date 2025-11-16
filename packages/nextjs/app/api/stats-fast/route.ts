@@ -13,13 +13,7 @@ export async function GET(request: NextRequest) {
     const addressLower = address.toLowerCase();
 
     const statsData = await redis.get(`stats:${addressLower}`);
-    const stats: {
-      totalGames: number;
-      wins: number;
-      losses: number;
-      ties: number;
-      winRate: number;
-    } = statsData
+    const stats = statsData
       ? (statsData as any)
       : {
           totalGames: 0,
@@ -27,20 +21,34 @@ export async function GET(request: NextRequest) {
           losses: 0,
           ties: 0,
           winRate: 0,
+          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+          multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
         };
+
+    // Ensure ai and multiplayer exist for backward compatibility
+    if (!stats.ai) stats.ai = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
+    if (!stats.multiplayer) stats.multiplayer = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
 
     return NextResponse.json({ stats });
   } catch (error) {
     console.error("Error fetching fast stats:", error);
     return NextResponse.json({
-      stats: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+      stats: {
+        totalGames: 0,
+        wins: 0,
+        losses: 0,
+        ties: 0,
+        winRate: 0,
+        ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+        multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+      },
     });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { address, result } = await request.json();
+    const { address, result, isAI } = await request.json();
 
     if (!address || !result) {
       return NextResponse.json({ error: "Address and result required" }, { status: 400 });
@@ -50,13 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Get current stats
     const statsData = await redis.get(`stats:${addressLower}`);
-    const stats: {
-      totalGames: number;
-      wins: number;
-      losses: number;
-      ties: number;
-      winRate: number;
-    } = statsData
+    const stats: any = statsData
       ? (statsData as any)
       : {
           totalGames: 0,
@@ -64,15 +66,28 @@ export async function POST(request: NextRequest) {
           losses: 0,
           ties: 0,
           winRate: 0,
+          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+          multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
         };
 
-    // Update stats
+    // Ensure ai and multiplayer exist
+    if (!stats.ai) stats.ai = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
+    if (!stats.multiplayer) stats.multiplayer = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
+
+    // Update overall stats
     stats.totalGames++;
     if (result === "win") stats.wins++;
     else if (result === "lose") stats.losses++;
     else if (result === "tie") stats.ties++;
-
     stats.winRate = stats.totalGames > 0 ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
+
+    // Update AI or multiplayer stats
+    const gameType = isAI ? stats.ai : stats.multiplayer;
+    gameType.totalGames++;
+    if (result === "win") gameType.wins++;
+    else if (result === "lose") gameType.losses++;
+    else if (result === "tie") gameType.ties++;
+    gameType.winRate = gameType.totalGames > 0 ? Math.round((gameType.wins / gameType.totalGames) * 100) : 0;
 
     // Store updated stats
     await redis.set(`stats:${addressLower}`, stats);
