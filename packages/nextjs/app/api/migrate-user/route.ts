@@ -15,21 +15,57 @@ async function migrateUser(address: string, origin: string) {
     return { message: "User already migrated", stats: existingStats };
   }
 
-  // Get IPFS hash
-  const hashResponse = await fetch(`${origin}/api/user-matches?address=${address}`);
-  const { ipfsHash } = await hashResponse.json();
+  // Get matches from Redis first
+  const redisMatches = await redis.lrange(`history:${addressLower}`, 0, -1);
+  let matches = redisMatches.map((m: any) => JSON.parse(m));
 
-  if (!ipfsHash) {
-    return { message: "No IPFS data found" };
+  // If no Redis data, try IPFS
+  if (matches.length === 0) {
+    const hashResponse = await fetch(`${origin}/api/user-matches?address=${address}`);
+    const { ipfsHash } = await hashResponse.json();
+
+    if (!ipfsHash) {
+      return { message: "No data found" };
+    }
+
+    const ipfsResponse = await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
+    const ipfsData = await ipfsResponse.json();
+    matches = ipfsData.matches || [];
   }
 
-  // Fetch IPFS data
-  const ipfsResponse = await fetch(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-  const ipfsData = await ipfsResponse.json();
-
-  if (!ipfsData.matches || !ipfsData.stats) {
-    return { message: "Invalid IPFS data" };
+  if (matches.length === 0) {
+    return { message: "No matches found" };
   }
+
+  // Calculate stats from matches
+  const aiMatches = matches.filter((m: any) => m.opponent === "AI" || m.opponentMove);
+  const multiMatches = matches.filter((m: any) => m.opponent !== "AI" && !m.opponentMove && (m.roomId || m.players));
+
+  const calcStats = (matchList: any[]) => {
+    const wins = matchList.filter(
+      (m: any) => m.result === "win" || (typeof m.result === "object" && m.result.winner === address),
+    ).length;
+    const ties = matchList.filter(
+      (m: any) => m.result === "tie" || (typeof m.result === "object" && m.result.winner === "tie"),
+    ).length;
+    const total = matchList.length;
+    return {
+      totalGames: total,
+      wins,
+      losses: total - wins - ties,
+      ties,
+      winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
+    };
+  };
+
+  const aiStats = calcStats(aiMatches);
+  const multiStats = calcStats(multiMatches);
+  const totalStats = calcStats(matches);
+
+  const ipfsData = {
+    stats: { ...totalStats, ai: aiStats, multiplayer: multiStats },
+    matches,
+  };
 
   // Migrate stats to Redis
   await redis.set(`stats:${addressLower}`, ipfsData.stats);
