@@ -48,8 +48,10 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
                 pfpUrl: userData.pfp_url || ctx.user.pfpUrl || "/placeholder-avatar.png",
               });
               console.log("[Farcaster] Enriched user set:", {
+                fid: ctx.user.fid,
                 username: userData.username,
                 displayName: userData.display_name,
+                pfpUrl: userData.pfp_url,
               });
             } else {
               // Fallback to context data
