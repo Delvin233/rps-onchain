@@ -17,7 +17,7 @@ async function migrateUser(address: string, origin: string) {
 
   // Get matches from Redis first
   const redisMatches = await redis.lrange(`history:${addressLower}`, 0, -1);
-  let matches = redisMatches.map((m: any) => JSON.parse(m));
+  let matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
 
   // If no Redis data, try IPFS
   if (matches.length === 0) {

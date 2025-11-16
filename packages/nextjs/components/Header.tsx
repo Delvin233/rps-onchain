@@ -87,11 +87,13 @@ const UsernameDisplay = () => {
   }, [address]);
 
   useEffect(() => {
+    console.log("[Header] Display name logic:", { mainnetEnsName, baseEnsName, farcasterUser, username });
     if (mainnetEnsName) {
       setDisplayName(mainnetEnsName);
     } else if (baseEnsName) {
       setDisplayName(baseEnsName);
     } else if (farcasterUser) {
+      console.log("[Header] Using Farcaster username:", farcasterUser.username);
       setDisplayName(farcasterUser.username);
     } else if (username) {
       setDisplayName(username);
