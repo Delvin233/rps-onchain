@@ -1,9 +1,10 @@
 "use client";
 
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
@@ -68,21 +69,20 @@ const UsernameDisplay = memo(() => {
   const { address, isConnected, isReconnecting } = useAccount();
   const { displayName, ensType, pfpUrl } = useDisplayName(address);
   const { user: farcasterUser } = useFarcasterAuth();
-  const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
 
-  useEffect(() => {
-    if (address) {
-      fetch(`/api/username?address=${address}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.username) {
-            setUsername(data.username);
-          }
-        });
-    }
-  }, [address]);
+  const { data: username = "", refetch } = useQuery({
+    queryKey: ["username", address],
+    queryFn: async () => {
+      if (!address) return "";
+      const res = await fetch(`/api/username?address=${address}`);
+      const data = await res.json();
+      return data.username || "";
+    },
+    enabled: !!address,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const saveUsername = async () => {
     if (!address || !tempUsername.trim()) return;
@@ -94,7 +94,7 @@ const UsernameDisplay = memo(() => {
     });
 
     if (response.ok) {
-      setUsername(tempUsername.trim());
+      refetch();
       setIsEditing(false);
     }
   };
@@ -134,6 +134,8 @@ const UsernameDisplay = memo(() => {
               width={32}
               height={32}
               className="rounded-full"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
               onError={e => {
                 e.currentTarget.style.display = "none";
               }}

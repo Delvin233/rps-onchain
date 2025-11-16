@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -8,11 +8,14 @@ import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { useAccount } from "wagmi";
-import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
+
+const SelfVerificationModal = lazy(() =>
+  import("~~/components/SelfVerificationModal").then(mod => ({ default: mod.SelfVerificationModal })),
+);
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -146,6 +149,8 @@ export default function ProfilePage() {
                 width={40}
                 height={40}
                 className="rounded-full"
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
                 onError={e => {
                   e.currentTarget.style.display = "none";
                 }}
@@ -260,7 +265,11 @@ export default function ProfilePage() {
         </div>
       </button>
 
-      <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
+      {showVerificationModal && (
+        <Suspense fallback={null}>
+          <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }
