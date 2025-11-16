@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://farcaster.xyz https://client.farcaster.xyz https://warpcast.com https://client.warpcast.com https://wrpcd.net https://*.wrpcd.net https://privy.farcaster.xyz https://privy.warpcast.com https://auth.privy.io https://*.rpc.privy.systems https://cloudflareinsights.com https://explorer-api.walletconnect.com https://relay.walletconnect.com wss://relay.walletconnect.com https://rpc.walletconnect.com https://*.walletconnect.com https://forno.celo.org https://mainnet.base.org https://gateway.pinata.cloud wss://*.bridge.walletconnect.org",
+              "connect-src 'self' https://farcaster.xyz https://client.farcaster.xyz https://warpcast.com https://client.warpcast.com https://wrpcd.net https://*.wrpcd.net https://privy.farcaster.xyz https://privy.warpcast.com https://auth.privy.io https://*.rpc.privy.systems https://cloudflareinsights.com https://explorer-api.walletconnect.com https://relay.walletconnect.com wss://relay.walletconnect.com https://rpc.walletconnect.com https://*.walletconnect.com https://forno.celo.org https://mainnet.base.org https://gateway.pinata.cloud wss://*.bridge.walletconnect.org https://eth.merkle.io https://*.alchemy.com https://*.g.alchemy.com https://api.neynar.com",
               "frame-ancestors 'self' https://farcaster.xyz https://warpcast.com",
               "worker-src 'self' blob:",
             ].join("; "),
