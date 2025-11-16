@@ -31,7 +31,6 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
       const ctx = await sdk.context;
       if (ctx) {
         setContext(ctx);
-        console.log("[Farcaster] SDK context:", ctx.user);
 
         // Always fetch from API to ensure we have username
         if (ctx.user) {
@@ -39,19 +38,12 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
             const response = await fetch(`/api/farcaster/user?fid=${ctx.user.fid}`);
             if (response.ok) {
               const userData = await response.json();
-              console.log("[Farcaster] Fetched user data:", userData);
               setEnrichedUser({
                 fid: ctx.user.fid,
                 username: userData.username || ctx.user.username || `fid-${ctx.user.fid}`,
                 displayName:
                   userData.display_name || ctx.user.displayName || userData.username || `User ${ctx.user.fid}`,
                 pfpUrl: userData.pfp_url || ctx.user.pfpUrl || "/placeholder-avatar.png",
-              });
-              console.log("[Farcaster] Enriched user set:", {
-                fid: ctx.user.fid,
-                username: userData.username,
-                displayName: userData.display_name,
-                pfpUrl: userData.pfp_url,
               });
             } else {
               // Fallback to context data
