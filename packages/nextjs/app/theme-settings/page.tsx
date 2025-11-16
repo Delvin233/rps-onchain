@@ -34,8 +34,8 @@ export default function ThemeSettingsPage() {
       });
 
       setSaved(true);
-      toast.success("Preferences saved!");
-      setTimeout(() => setSaved(false), 2000);
+      toast.success("Preferences saved! Reloading...");
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error("Failed to save preferences:", error);
       toast.error("Failed to save preferences");
