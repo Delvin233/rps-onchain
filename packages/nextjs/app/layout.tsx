@@ -14,13 +14,10 @@ import { AuthProvider } from "~~/contexts/AuthContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
-const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })), {
-  ssr: false,
-});
+const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })));
 
-const OverlayProvider = dynamic(
-  () => import("~~/components/overlays/OverlayManager").then(mod => ({ default: mod.OverlayProvider })),
-  { ssr: false },
+const OverlayProvider = dynamic(() =>
+  import("~~/components/overlays/OverlayManager").then(mod => ({ default: mod.OverlayProvider })),
 );
 
 const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
