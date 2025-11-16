@@ -73,6 +73,7 @@ const UsernameDisplay = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [pfpUrl, setPfpUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (address) {
@@ -83,6 +84,12 @@ const UsernameDisplay = () => {
             setUsername(data.username);
           }
         });
+      fetch(`/api/resolve-name?address=${address}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.pfp) setPfpUrl(data.pfp);
+        })
+        .catch(() => {});
     }
   }, [address]);
 
@@ -145,10 +152,10 @@ const UsernameDisplay = () => {
         </div>
       ) : (
         <div className="flex items-center gap-1">
-          {farcasterUser && farcasterUser.pfp_url && (
+          {(pfpUrl || (farcasterUser && farcasterUser.pfp_url)) && (
             <Image
-              src={farcasterUser.pfp_url}
-              alt={farcasterUser.username}
+              src={pfpUrl || farcasterUser?.pfp_url || ""}
+              alt={displayName}
               width={32}
               height={32}
               className="rounded-full"
