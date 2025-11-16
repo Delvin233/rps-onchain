@@ -160,8 +160,8 @@ const UsernameDisplay = () => {
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
             {mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
-            {baseEnsName && !mainnetEnsName && <span className="text-info text-xs ml-1">BASE</span>}
-            {farcasterUser && !mainnetEnsName && !baseEnsName && (
+            {!mainnetEnsName && baseEnsName && <span className="text-info text-xs ml-1">BASE</span>}
+            {!mainnetEnsName && !baseEnsName && farcasterUser && (
               <span className="text-purple-500 text-xs ml-1">FC</span>
             )}
           </span>
