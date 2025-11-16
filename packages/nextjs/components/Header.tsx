@@ -143,7 +143,7 @@ const UsernameDisplay = memo(() => {
             Welcome <span className="font-bold">{displayName}</span>
             {ensType === "mainnet" && <span className="text-success text-xs ml-1">ENS</span>}
             {ensType === "farcaster" && <span className="text-purple-500 text-xs ml-1">FC</span>}
-            {ensType === "basename" && <span className="text-info text-xs ml-1">BASE</span>}
+            {ensType === "basename" && <span className="text-primary text-xs ml-1">BASENAME</span>}
           </span>
           {!ensType && (
             <button onClick={startEdit} className="btn btn-xs btn-ghost">

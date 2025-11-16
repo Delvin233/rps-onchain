@@ -194,10 +194,22 @@ export default function Home() {
               {hasEns && (
                 <span
                   className={`text-xs ml-2 ${
-                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                    ensType === "mainnet"
+                      ? "text-success"
+                      : ensType === "basename"
+                        ? "text-primary"
+                        : ensType === "farcaster"
+                          ? "text-purple-500"
+                          : "text-info"
                   }`}
                 >
-                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+                  {ensType === "mainnet"
+                    ? "ENS"
+                    : ensType === "basename"
+                      ? "BASENAME"
+                      : ensType === "farcaster"
+                        ? "FC"
+                        : "BASE"}
                 </span>
               )}
             </p>
