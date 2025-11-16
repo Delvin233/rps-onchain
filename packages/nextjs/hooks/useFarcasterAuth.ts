@@ -12,5 +12,7 @@ export const useFarcasterAuth = () => {
       }
     : null;
 
+  console.log("[useFarcasterAuth] enrichedUser:", enrichedUser, "user:", user);
+
   return { user, isSignedIn: !!user, isLoading: false, error: null };
 };
