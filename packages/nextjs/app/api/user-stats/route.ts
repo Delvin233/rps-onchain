@@ -53,8 +53,10 @@ export async function POST(req: NextRequest) {
         match.players?.creator === address || match.players?.joiner === address || match.player === address,
     );
 
-    const aiMatches = userMatches.filter((m: any) => m.opponent === "AI");
-    const multiplayerMatches = userMatches.filter((m: any) => m.opponent !== "AI");
+    const aiMatches = userMatches.filter((m: any) => m.opponent === "AI" || m.opponentMove);
+    const multiplayerMatches = userMatches.filter(
+      (m: any) => m.opponent !== "AI" && !m.opponentMove && (m.roomId || m.players),
+    );
 
     // AI stats
     const aiWins = aiMatches.filter((m: any) => m.result === "win").length;
