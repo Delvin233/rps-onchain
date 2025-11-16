@@ -262,9 +262,9 @@ export default function OnChainMatchesPage() {
             {filteredMatches.map((match, idx) => (
               <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
                 <div className="flex flex-col gap-3 mb-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="badge badge-primary badge-sm">{match.chainName}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="badge badge-primary badge-sm flex-shrink-0">{match.chainName}</span>
                       <span className="text-xs text-base-content/60 truncate">Room: {match.roomId}</span>
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
