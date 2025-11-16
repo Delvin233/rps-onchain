@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
@@ -139,10 +140,12 @@ export default function ProfilePage() {
           <p className="text-sm text-base-content/60 mb-2">Display Name</p>
           <div className="flex items-center gap-3">
             {pfpUrl && (
-              <img
+              <Image
                 src={pfpUrl}
                 alt={displayName}
-                className="w-10 h-10 rounded-full"
+                width={40}
+                height={40}
+                className="rounded-full"
                 onError={e => {
                   e.currentTarget.style.display = "none";
                 }}
