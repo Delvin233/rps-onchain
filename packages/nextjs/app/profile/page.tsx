@@ -161,7 +161,13 @@ export default function ProfilePage() {
               {hasEns && (
                 <span
                   className={`text-xs ml-2 ${
-                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                    ensType === "mainnet"
+                      ? "text-success"
+                      : ensType === "basename"
+                        ? "text-primary"
+                        : ensType === "farcaster"
+                          ? "text-purple-500"
+                          : "text-info"
                   }`}
                 >
                   {ensType === "mainnet"
@@ -195,7 +201,7 @@ export default function ProfilePage() {
         </div>
         {!isHumanVerified && (
           <button onClick={() => setShowVerificationModal(true)} className="btn btn-primary w-full">
-            Verify Identity
+            Verify Identity With Self
           </button>
         )}
       </div>

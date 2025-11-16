@@ -262,7 +262,9 @@ export default function MultiplayerPage() {
                               ? "text-success"
                               : creatorEnsType === "basename"
                                 ? "text-primary"
-                                : "text-info"
+                                : creatorEnsType === "farcaster"
+                                  ? "text-purple-500"
+                                  : "text-info"
                           }`}
                         >
                           {creatorEnsType === "mainnet"
@@ -348,10 +350,18 @@ export default function MultiplayerPage() {
                           ? "text-success"
                           : creatorEnsType === "basename"
                             ? "text-primary"
-                            : "text-info"
+                            : creatorEnsType === "farcaster"
+                              ? "text-purple-500"
+                              : "text-info"
                       }`}
                     >
-                      {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                      {creatorEnsType === "mainnet"
+                        ? "ENS"
+                        : creatorEnsType === "basename"
+                          ? "BASENAME"
+                          : creatorEnsType === "farcaster"
+                            ? "FC"
+                            : "BASE"}
                     </span>
                   )}
                 </p>
