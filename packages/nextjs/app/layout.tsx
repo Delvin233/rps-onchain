@@ -1,6 +1,6 @@
+import dynamic from "next/dynamic";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
-import { CRTEffect } from "~~/components/CRTEffect";
 import { ColorLoader } from "~~/components/ColorLoader";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
@@ -10,10 +10,18 @@ import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { SpacingLoader } from "~~/components/SpacingLoader";
 import { ThemeProvider } from "~~/components/ThemeProvider";
-import { OverlayProvider } from "~~/components/overlays/OverlayManager";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
+
+const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })), {
+  ssr: false,
+});
+
+const OverlayProvider = dynamic(
+  () => import("~~/components/overlays/OverlayManager").then(mod => ({ default: mod.OverlayProvider })),
+  { ssr: false },
+);
 
 const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
 
