@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { address } = useAccount();
   const { isHumanVerified } = useAuth();
-  const { displayName, hasEns, ensType } = useDisplayName(address);
+  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
   const [entitlement, setEntitlement] = useState<bigint>(0n);
@@ -137,7 +137,17 @@ export default function ProfilePage() {
         {/* Display Name */}
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <p className="text-sm text-base-content/60 mb-2">Display Name</p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {pfpUrl && (
+              <img
+                src={pfpUrl}
+                alt={displayName}
+                className="w-10 h-10 rounded-full"
+                onError={e => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            )}
             <p className="text-lg font-semibold">
               {displayName}
               {hasEns && (
@@ -146,7 +156,13 @@ export default function ProfilePage() {
                     ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
                   }`}
                 >
-                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+                  {ensType === "mainnet"
+                    ? "ENS"
+                    : ensType === "basename"
+                      ? "BASENAME"
+                      : ensType === "farcaster"
+                        ? "FC"
+                        : "BASE"}
                 </span>
               )}
             </p>
