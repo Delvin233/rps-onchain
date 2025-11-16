@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { useBasename } from "./useBasename";
 import { useEnsName } from "wagmi";
-import { base, mainnet } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 
 export const useDisplayName = (address: string | undefined) => {
   const { data: mainnetEns } = useEnsName({ address, chainId: mainnet.id });
   const { basename } = useBasename(address);
-  const { data: baseEns } = useEnsName({ address, chainId: base.id });
   const [farcasterData, setFarcasterData] = useState<{ name: string | null; pfp: string | null }>({
     name: null,
     pfp: null,
@@ -25,21 +24,9 @@ export const useDisplayName = (address: string | undefined) => {
   }, [address]);
 
   const displayName =
-    mainnetEns ||
-    basename ||
-    baseEns ||
-    farcasterData.name ||
-    (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
-  const hasEns = !!(mainnetEns || basename || baseEns || farcasterData.name);
-  const ensType = mainnetEns
-    ? "mainnet"
-    : basename
-      ? "basename"
-      : baseEns
-        ? "base"
-        : farcasterData.name
-          ? "farcaster"
-          : null;
+    mainnetEns || basename || farcasterData.name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
+  const hasEns = !!(mainnetEns || basename || farcasterData.name);
+  const ensType = mainnetEns ? "mainnet" : basename ? "basename" : farcasterData.name ? "farcaster" : null;
 
   return { displayName, hasEns, ensType, fullAddress: address, pfpUrl: farcasterData.pfp };
 };
