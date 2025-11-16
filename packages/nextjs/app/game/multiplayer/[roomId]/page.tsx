@@ -360,7 +360,7 @@ export default function MultiplayerGamePage() {
         body: JSON.stringify({ roomId, creator: address }),
       });
       toast.success("Room cancelled");
-      window.location.href = "/play/multiplayer";
+      router.push("/play/multiplayer");
     } catch (error) {
       console.error("Error cancelling room:", error);
       toast.error("Failed to cancel room");
@@ -424,7 +424,7 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, player: address, action: "leave" }),
       });
-      window.location.href = "/play/multiplayer";
+      router.push("/play/multiplayer");
     } catch (error) {
       console.error("Error leaving room:", error);
     }
