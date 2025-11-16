@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Address, formatEther } from "viem";
 import { useBalance, useChainId, useChains } from "wagmi";
 
@@ -9,7 +9,7 @@ type BalanceDisplayProps = {
   format?: "compact" | "full";
 };
 
-export const BalanceDisplay = ({ address, format = "compact" }: BalanceDisplayProps) => {
+export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisplayProps) => {
   const [isHidden, setIsHidden] = useState(false);
   const chainId = useChainId();
   const chains = useChains();
@@ -53,4 +53,6 @@ export const BalanceDisplay = ({ address, format = "compact" }: BalanceDisplayPr
       </span>
     </button>
   );
-};
+});
+
+BalanceDisplay.displayName = "BalanceDisplay";

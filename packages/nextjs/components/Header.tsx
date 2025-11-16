@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -64,8 +64,8 @@ export const HeaderMenuLinks = () => {
   );
 };
 
-const UsernameDisplay = () => {
-  const { address, isConnected } = useAccount();
+const UsernameDisplay = memo(() => {
+  const { address, isConnected, isReconnecting } = useAccount();
   const { displayName, ensType, pfpUrl } = useDisplayName(address);
   const { user: farcasterUser } = useFarcasterAuth();
   const [username, setUsername] = useState("");
@@ -104,7 +104,7 @@ const UsernameDisplay = () => {
     setIsEditing(true);
   };
 
-  if (!isConnected) return null;
+  if (!isConnected || isReconnecting) return null;
 
   return (
     <div className="flex items-center gap-2">
@@ -154,13 +154,15 @@ const UsernameDisplay = () => {
       )}
     </div>
   );
-};
+});
+
+UsernameDisplay.displayName = "UsernameDisplay";
 
 /**
  * Site header
  */
-export const Header = () => {
-  const { address } = useAccount();
+export const Header = memo(() => {
+  const { address, isReconnecting } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -196,11 +198,19 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end grow mr-4 flex items-center gap-2">
-        <BalanceDisplay address={address} />
-        <UsernameDisplay />
+        {isReconnecting ? (
+          <div className="skeleton h-8 w-32 rounded-lg"></div>
+        ) : (
+          <>
+            <BalanceDisplay address={address} />
+            <UsernameDisplay />
+          </>
+        )}
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}
       </div>
     </div>
   );
-};
+});
+
+Header.displayName = "Header";
