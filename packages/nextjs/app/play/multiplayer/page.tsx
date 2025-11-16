@@ -265,7 +265,13 @@ export default function MultiplayerPage() {
                                 : "text-info"
                           }`}
                         >
-                          {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                          {creatorEnsType === "mainnet"
+                            ? "ENS"
+                            : creatorEnsType === "basename"
+                              ? "BASENAME"
+                              : creatorEnsType === "farcaster"
+                                ? "FC"
+                                : "BASE"}
                         </span>
                       )}
                     </p>

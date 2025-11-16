@@ -5,12 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { useAccount, useEnsName } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useFarcasterAuth } from "~~/hooks/useFarcasterAuth";
 
 type HeaderMenuLink = {
@@ -66,13 +66,11 @@ export const HeaderMenuLinks = () => {
 
 const UsernameDisplay = () => {
   const { address, isConnected } = useAccount();
-  const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
+  const { displayName, ensType, pfpUrl } = useDisplayName(address);
   const { user: farcasterUser } = useFarcasterAuth();
   const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [pfpUrl, setPfpUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (address) {
@@ -83,26 +81,8 @@ const UsernameDisplay = () => {
             setUsername(data.username);
           }
         });
-      fetch(`/api/resolve-name?address=${address}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.pfp) setPfpUrl(data.pfp);
-        })
-        .catch(() => {});
     }
   }, [address]);
-
-  useEffect(() => {
-    if (mainnetEnsName) {
-      setDisplayName(mainnetEnsName);
-    } else if (farcasterUser) {
-      setDisplayName(farcasterUser.username);
-    } else if (username) {
-      setDisplayName(username);
-    } else {
-      setDisplayName("User");
-    }
-  }, [mainnetEnsName, farcasterUser, username]);
 
   const saveUsername = async () => {
     if (!address || !tempUsername.trim()) return;
@@ -161,12 +141,11 @@ const UsernameDisplay = () => {
           )}
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
-            {mainnetEnsName && displayName === mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
-            {farcasterUser && displayName === farcasterUser.username && (
-              <span className="text-purple-500 text-xs ml-1">FC</span>
-            )}
+            {ensType === "mainnet" && <span className="text-success text-xs ml-1">ENS</span>}
+            {ensType === "farcaster" && <span className="text-purple-500 text-xs ml-1">FC</span>}
+            {ensType === "basename" && <span className="text-info text-xs ml-1">BASE</span>}
           </span>
-          {!mainnetEnsName && !farcasterUser && (
+          {!ensType && (
             <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
             </button>
