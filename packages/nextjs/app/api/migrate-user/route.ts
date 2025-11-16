@@ -4,9 +4,14 @@ import { redis } from "~~/lib/upstash";
 async function migrateUser(address: string, origin: string) {
   const addressLower = address.toLowerCase();
 
-  // Check if user already has Redis data
-  const existingStats = await redis.get(`stats:${addressLower}`);
-  if (existingStats) {
+  // Check if user already has Redis data with proper AI/multiplayer split
+  const existingStats: any = await redis.get(`stats:${addressLower}`);
+  if (
+    existingStats &&
+    existingStats.ai &&
+    existingStats.multiplayer &&
+    existingStats.ai.totalGames + existingStats.multiplayer.totalGames === existingStats.totalGames
+  ) {
     return { message: "User already migrated", stats: existingStats };
   }
 
