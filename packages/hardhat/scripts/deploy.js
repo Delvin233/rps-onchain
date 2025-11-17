@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+import { ethers } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -12,7 +12,7 @@ async function main() {
   console.log("RPSOnline deployed to:", await rpsOnline.getAddress());
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });
