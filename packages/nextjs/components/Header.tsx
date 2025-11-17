@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { hardhat } from "viem/chains";
-import { useAccount, useEnsName } from "wagmi";
-import { base, mainnet } from "wagmi/chains";
+import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useFarcasterAuth } from "~~/hooks/useFarcasterAuth";
 
 type HeaderMenuLink = {
@@ -64,43 +65,24 @@ export const HeaderMenuLinks = () => {
   );
 };
 
-const UsernameDisplay = () => {
-  const { address, isConnected } = useAccount();
-  const { data: mainnetEnsName } = useEnsName({ address, chainId: mainnet.id });
-  const { data: baseEnsName } = useEnsName({ address, chainId: base.id });
+const UsernameDisplay = memo(() => {
+  const { address, isConnected, isReconnecting } = useAccount();
+  const { displayName, ensType, pfpUrl } = useDisplayName(address);
   const { user: farcasterUser } = useFarcasterAuth();
-  const [username, setUsername] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
 
-  useEffect(() => {
-    if (address) {
-      fetch(`/api/username?address=${address}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.username) {
-            setUsername(data.username);
-          }
-        });
-    }
-  }, [address]);
-
-  useEffect(() => {
-    console.log("[Header] Display name logic:", { mainnetEnsName, baseEnsName, farcasterUser, username });
-    if (mainnetEnsName) {
-      setDisplayName(mainnetEnsName);
-    } else if (baseEnsName) {
-      setDisplayName(baseEnsName);
-    } else if (farcasterUser) {
-      console.log("[Header] Using Farcaster username:", farcasterUser.username);
-      setDisplayName(farcasterUser.username);
-    } else if (username) {
-      setDisplayName(username);
-    } else {
-      setDisplayName("User");
-    }
-  }, [mainnetEnsName, baseEnsName, farcasterUser, username]);
+  const { data: username = "", refetch } = useQuery({
+    queryKey: ["username", address],
+    queryFn: async () => {
+      if (!address) return "";
+      const res = await fetch(`/api/username?address=${address}`);
+      const data = await res.json();
+      return data.username || "";
+    },
+    enabled: !!address,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const saveUsername = async () => {
     if (!address || !tempUsername.trim()) return;
@@ -112,7 +94,7 @@ const UsernameDisplay = () => {
     });
 
     if (response.ok) {
-      setUsername(tempUsername.trim());
+      refetch();
       setIsEditing(false);
     }
   };
@@ -122,7 +104,7 @@ const UsernameDisplay = () => {
     setIsEditing(true);
   };
 
-  if (!isConnected) return null;
+  if (!isConnected || isReconnecting) return null;
 
   return (
     <div className="flex items-center gap-2">
@@ -145,13 +127,15 @@ const UsernameDisplay = () => {
         </div>
       ) : (
         <div className="flex items-center gap-1">
-          {farcasterUser && farcasterUser.pfp_url && (
+          {(pfpUrl || (farcasterUser && farcasterUser.pfp_url)) && (
             <Image
-              src={farcasterUser.pfp_url}
-              alt={farcasterUser.username}
+              src={pfpUrl || farcasterUser?.pfp_url || ""}
+              alt={displayName}
               width={32}
               height={32}
               className="rounded-full"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
               onError={e => {
                 e.currentTarget.style.display = "none";
               }}
@@ -159,13 +143,11 @@ const UsernameDisplay = () => {
           )}
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
-            {mainnetEnsName && <span className="text-success text-xs ml-1">ENS</span>}
-            {baseEnsName && !mainnetEnsName && <span className="text-info text-xs ml-1">BASE</span>}
-            {farcasterUser && !mainnetEnsName && !baseEnsName && (
-              <span className="text-purple-500 text-xs ml-1">FC</span>
-            )}
+            {ensType === "mainnet" && <span className="text-success text-xs ml-1">ENS</span>}
+            {ensType === "farcaster" && <span className="text-purple-500 text-xs ml-1">FC</span>}
+            {ensType === "basename" && <span className="text-primary text-xs ml-1">BASENAME</span>}
           </span>
-          {!mainnetEnsName && !baseEnsName && !farcasterUser && (
+          {!ensType && (
             <button onClick={startEdit} className="btn btn-xs btn-ghost">
               ✎
             </button>
@@ -174,13 +156,15 @@ const UsernameDisplay = () => {
       )}
     </div>
   );
-};
+});
+
+UsernameDisplay.displayName = "UsernameDisplay";
 
 /**
  * Site header
  */
-export const Header = () => {
-  const { address } = useAccount();
+export const Header = memo(() => {
+  const { address, isReconnecting } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
@@ -216,11 +200,19 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end grow mr-4 flex items-center gap-2">
-        <BalanceDisplay address={address} />
-        <UsernameDisplay />
+        {isReconnecting ? (
+          <div className="skeleton h-8 w-32 rounded-lg"></div>
+        ) : (
+          <>
+            <BalanceDisplay address={address} />
+            <UsernameDisplay />
+          </>
+        )}
         <RainbowKitCustomConnectButton />
         {isLocalNetwork && <FaucetButton />}
       </div>
     </div>
   );
-};
+});
+
+Header.displayName = "Header";

@@ -100,7 +100,11 @@ export default function MultiplayerPage() {
       }
     } catch (error: any) {
       console.error("Error creating room:", error);
-      toast.error(error.message || "Failed to create room");
+      if (error.message?.includes("User rejected") || error.message?.includes("User denied")) {
+        toast.error("Transaction cancelled");
+      } else {
+        toast.error("Failed to create room");
+      }
     } finally {
       setIsCreating(false);
     }
@@ -150,10 +154,13 @@ export default function MultiplayerPage() {
       }
     } catch (error: any) {
       console.error("Error joining room:", error);
-      const errorMsg = error.message?.includes("Room does not exist")
-        ? "Room not found. Please check the code or switch networks."
-        : "Failed to join room";
-      toast.error(errorMsg);
+      if (error.message?.includes("User rejected") || error.message?.includes("User denied")) {
+        toast.error("Transaction cancelled");
+      } else if (error.message?.includes("Room does not exist")) {
+        toast.error("Room not found. Please check the code or switch networks.");
+      } else {
+        toast.error("Failed to join room");
+      }
     } finally {
       setIsJoining(false);
     }
@@ -255,10 +262,18 @@ export default function MultiplayerPage() {
                               ? "text-success"
                               : creatorEnsType === "basename"
                                 ? "text-primary"
-                                : "text-info"
+                                : creatorEnsType === "farcaster"
+                                  ? "text-purple-500"
+                                  : "text-info"
                           }`}
                         >
-                          {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                          {creatorEnsType === "mainnet"
+                            ? "ENS"
+                            : creatorEnsType === "basename"
+                              ? "BASENAME"
+                              : creatorEnsType === "farcaster"
+                                ? "FC"
+                                : "BASE"}
                         </span>
                       )}
                     </p>
@@ -335,10 +350,18 @@ export default function MultiplayerPage() {
                           ? "text-success"
                           : creatorEnsType === "basename"
                             ? "text-primary"
-                            : "text-info"
+                            : creatorEnsType === "farcaster"
+                              ? "text-purple-500"
+                              : "text-info"
                       }`}
                     >
-                      {creatorEnsType === "mainnet" ? "ENS" : creatorEnsType === "basename" ? "BASENAME" : "BASE"}
+                      {creatorEnsType === "mainnet"
+                        ? "ENS"
+                        : creatorEnsType === "basename"
+                          ? "BASENAME"
+                          : creatorEnsType === "farcaster"
+                            ? "FC"
+                            : "BASE"}
                     </span>
                   )}
                 </p>

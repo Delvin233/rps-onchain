@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
@@ -13,7 +14,7 @@ export default function Home() {
   const { address } = useAccount();
   const router = useRouter();
   const stats = usePlayerStats(address);
-  const { displayName, hasEns, ensType } = useDisplayName(address);
+  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const { context, isMiniAppReady } = useFarcaster();
   const { connect, connectors } = useConnect();
 
@@ -189,18 +190,47 @@ export default function Home() {
       ) : (
         <div className="pt-4 lg:py-4">
           <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto">
-            <p className="text-lg md:text-xl font-semibold mb-1">
-              Hello, {displayName}
-              {hasEns && (
-                <span
-                  className={`text-xs ml-2 ${
-                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
-                  }`}
-                >
-                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
-                </span>
+            <div className="flex items-center justify-center gap-3 mb-1">
+              {pfpUrl && (
+                <Image
+                  src={pfpUrl}
+                  alt={displayName}
+                  width={48}
+                  height={48}
+                  className="rounded-full"
+                  priority
+                  placeholder="blur"
+                  blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjMzMzIi8+PC9zdmc+"
+                  onError={e => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
               )}
-            </p>
+              <p className="text-lg md:text-xl font-semibold">
+                Hello, {displayName}
+                {hasEns && (
+                  <span
+                    className={`text-xs ml-2 ${
+                      ensType === "mainnet"
+                        ? "text-success"
+                        : ensType === "basename"
+                          ? "text-primary"
+                          : ensType === "farcaster"
+                            ? "text-purple-500"
+                            : "text-info"
+                    }`}
+                  >
+                    {ensType === "mainnet"
+                      ? "ENS"
+                      : ensType === "basename"
+                        ? "BASENAME"
+                        : ensType === "farcaster"
+                          ? "FC"
+                          : "BASE"}
+                  </span>
+                )}
+              </p>
+            </div>
             <button
               onClick={() => {
                 navigator.clipboard.writeText(address);
@@ -226,8 +256,19 @@ export default function Home() {
         <div>
           <h2 className="text-xl font-semibold mb-4 text-glow-secondary">Your Stats</h2>
           {stats.isLoading ? (
-            <div className="flex justify-center py-8">
-              <span className="loading loading-spinner loading-lg text-primary"></span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-card/50 backdrop-blur border border-border rounded-xl p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="skeleton h-3 w-20 mb-2"></div>
+                      <div className="skeleton h-6 w-16 mb-2"></div>
+                      <div className="skeleton h-3 w-24"></div>
+                    </div>
+                    <div className="skeleton h-10 w-10 rounded-lg"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">

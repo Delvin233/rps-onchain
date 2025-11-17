@@ -110,7 +110,7 @@ export default function MultiplayerGamePage() {
 
     const startPolling = () => {
       if (interval) return;
-      interval = setInterval(pollGameStatus, 500);
+      interval = setInterval(pollGameStatus, 1500);
     };
 
     const stopPolling = () => {
@@ -218,6 +218,10 @@ export default function MultiplayerGamePage() {
     try {
       const response = await fetch(`/api/room/status?roomId=${roomId}&player=${address}`);
       if (!response.ok) {
+        if (response.status === 404) {
+          setErrorCount(prev => prev + 20);
+          return;
+        }
         console.error(`Room status API returned ${response.status}`);
         setErrorCount(prev => prev + 1);
         return;
@@ -356,7 +360,7 @@ export default function MultiplayerGamePage() {
         body: JSON.stringify({ roomId, creator: address }),
       });
       toast.success("Room cancelled");
-      window.location.href = "/play/multiplayer";
+      router.push("/play/multiplayer");
     } catch (error) {
       console.error("Error cancelling room:", error);
       toast.error("Failed to cancel room");
@@ -420,7 +424,7 @@ export default function MultiplayerGamePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, player: address, action: "leave" }),
       });
-      window.location.href = "/play/multiplayer";
+      router.push("/play/multiplayer");
     } catch (error) {
       console.error("Error leaving room:", error);
     }

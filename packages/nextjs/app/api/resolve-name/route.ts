@@ -25,13 +25,30 @@ export async function GET(req: NextRequest) {
         address: address as `0x${string}`,
       });
       if (ensName) {
-        return NextResponse.json({ name: ensName });
+        return NextResponse.json({ name: ensName, pfp: null });
       }
     } catch {
       // No ENS found
     }
 
-    // Try Basename via Alchemy NFT API
+    // Try Farcaster username first (prioritize for Farcaster users)
+    try {
+      const fcResponse = await fetch(
+        `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address.toLowerCase()}`,
+        { headers: { "x-api-key": process.env.NEYNAR_API_KEY || "" } },
+      );
+      if (fcResponse.ok) {
+        const fcData = await fcResponse.json();
+        const user = fcData[address.toLowerCase()]?.[0];
+        if (user?.username) {
+          return NextResponse.json({ name: user.username, pfp: user.pfp_url });
+        }
+      }
+    } catch {
+      // No Farcaster found
+    }
+
+    // Try Basename as fallback
     try {
       const url = `https://base-mainnet.g.alchemy.com/nft/v2/${ALCHEMY_KEY}/getNFTs?owner=${address}&contractAddresses[]=${BASENAME_CONTRACT}`;
       const response = await fetch(url);
@@ -41,7 +58,7 @@ export async function GET(req: NextRequest) {
         if (data.ownedNfts && data.ownedNfts.length > 0) {
           const basename = data.ownedNfts[0]?.name || data.ownedNfts[0]?.title;
           if (basename) {
-            return NextResponse.json({ name: basename });
+            return NextResponse.json({ name: basename, pfp: null });
           }
         }
       }
@@ -49,7 +66,7 @@ export async function GET(req: NextRequest) {
       // No Basename found
     }
 
-    return NextResponse.json({ name: null });
+    return NextResponse.json({ name: null, pfp: null });
   } catch (error) {
     console.error("Error resolving name:", error);
     return NextResponse.json({ name: null });

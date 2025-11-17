@@ -1,23 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { useAccount } from "wagmi";
-import { SelfVerificationModal } from "~~/components/SelfVerificationModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
 
+const SelfVerificationModal = lazy(() =>
+  import("~~/components/SelfVerificationModal").then(mod => ({ default: mod.SelfVerificationModal })),
+);
+
 export default function ProfilePage() {
   const router = useRouter();
   const { address } = useAccount();
   const { isHumanVerified } = useAuth();
-  const { displayName, hasEns, ensType } = useDisplayName(address);
+  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
   const [entitlement, setEntitlement] = useState<bigint>(0n);
@@ -137,16 +141,42 @@ export default function ProfilePage() {
         {/* Display Name */}
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <p className="text-sm text-base-content/60 mb-2">Display Name</p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {pfpUrl && (
+              <Image
+                src={pfpUrl}
+                alt={displayName}
+                width={40}
+                height={40}
+                className="rounded-full"
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
+                onError={e => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            )}
             <p className="text-lg font-semibold">
               {displayName}
               {hasEns && (
                 <span
                   className={`text-xs ml-2 ${
-                    ensType === "mainnet" ? "text-success" : ensType === "basename" ? "text-primary" : "text-info"
+                    ensType === "mainnet"
+                      ? "text-success"
+                      : ensType === "basename"
+                        ? "text-primary"
+                        : ensType === "farcaster"
+                          ? "text-purple-500"
+                          : "text-info"
                   }`}
                 >
-                  {ensType === "mainnet" ? "ENS" : ensType === "basename" ? "BASENAME" : "BASE"}
+                  {ensType === "mainnet"
+                    ? "ENS"
+                    : ensType === "basename"
+                      ? "BASENAME"
+                      : ensType === "farcaster"
+                        ? "FC"
+                        : "BASE"}
                 </span>
               )}
             </p>
@@ -171,7 +201,7 @@ export default function ProfilePage() {
         </div>
         {!isHumanVerified && (
           <button onClick={() => setShowVerificationModal(true)} className="btn btn-primary w-full">
-            Verify Identity
+            Verify Identity With Self
           </button>
         )}
       </div>
@@ -241,7 +271,11 @@ export default function ProfilePage() {
         </div>
       </button>
 
-      <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
+      {showVerificationModal && (
+        <Suspense fallback={null}>
+          <SelfVerificationModal isOpen={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

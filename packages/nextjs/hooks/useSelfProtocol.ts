@@ -3,6 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
+// Preload Self Protocol library
+let SelfAppBuilderPromise: Promise<any> | null = null;
+const preloadSelfProtocol = () => {
+  if (!SelfAppBuilderPromise && typeof window !== "undefined") {
+    SelfAppBuilderPromise = import("@selfxyz/qrcode").then(module => module.SelfAppBuilder);
+  }
+  return SelfAppBuilderPromise;
+};
+
 export const useSelfProtocol = () => {
   const { address } = useAccount();
   const [isVerified, setIsVerified] = useState(false);
@@ -16,6 +25,8 @@ export const useSelfProtocol = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setMounted(true);
+      // Preload Self Protocol library for faster verification
+      preloadSelfProtocol();
     }
   }, []);
 
@@ -46,7 +57,7 @@ export const useSelfProtocol = () => {
     setIsLoading(true);
 
     try {
-      const { SelfAppBuilder } = await import("@selfxyz/qrcode");
+      const SelfAppBuilder = await preloadSelfProtocol();
       const app = new SelfAppBuilder({
         version: 2,
         appName: "RPS OnChain",

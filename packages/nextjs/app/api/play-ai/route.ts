@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         address,
         result,
+        isAI: true,
       }),
     });
 
