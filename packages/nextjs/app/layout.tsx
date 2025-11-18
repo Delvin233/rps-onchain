@@ -27,13 +27,6 @@ const baseMetadata = getMetadata({
   description: "Rock Paper Scissors on-chain game with Ai single player mode and PVP mode",
 });
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-};
-
 export const metadata = {
   ...baseMetadata,
   other: {
@@ -44,7 +37,7 @@ export const metadata = {
         title: "Play RPS",
         action: {
           type: "launch_frame",
-          name: "RPS-OnChain",
+          name: "RPS-onChain",
           url: appUrl,
           splashImageUrl: `${appUrl}/images/splash.png`,
           splashBackgroundColor: "#0c0a09",
