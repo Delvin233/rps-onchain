@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useConnect } from "wagmi";
+import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
@@ -22,6 +23,13 @@ export default function Home() {
   const injectedConnector = connectors.find(c => c.id === "injected");
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
+  const isMiniApp = isMiniAppReady || isBaseApp || isMiniPay;
+
+  const getPlatform = (): "farcaster" | "base" | "minipay" => {
+    if (isMiniAppReady) return "farcaster";
+    if (isBaseApp) return "base";
+    return "minipay"; // Default for MiniApp context
+  };
 
   // Auto-connect Farcaster users when miniapp context is ready
   useEffect(() => {
@@ -89,17 +97,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mb-12 max-w-md mx-auto space-y-3">
-            {isMiniAppReady && farcasterConnector ? (
-              <button
-                onClick={() => connect({ connector: farcasterConnector })}
-                disabled={!context}
-                className="w-full bg-purple-600 hover:bg-purple-700 hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                title={!context ? "Loading Farcaster context..." : ""}
-              >
-                {context ? "Connect with Farcaster" : "Loading Farcaster..."}
-              </button>
-            ) : (
+          {!isMiniApp && (
+            <div className="mb-12 max-w-md mx-auto space-y-3">
               <ConnectButton.Custom>
                 {({ openConnectModal }) => (
                   <button
@@ -110,8 +109,8 @@ export default function Home() {
                   </button>
                 )}
               </ConnectButton.Custom>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-12">
             <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6 hover:border-primary/50 transition-all duration-200">
@@ -207,58 +206,64 @@ export default function Home() {
         </div>
       ) : (
         <div className="pt-4 lg:py-4">
-          <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-1">
-              {pfpUrl && (
-                <Image
-                  src={pfpUrl}
-                  alt={displayName}
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                  priority
-                  placeholder="blur"
-                  blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjMzMzIi8+PC9zdmc+"
-                  onError={e => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              )}
-              <p className="text-lg md:text-xl font-semibold">
-                Hello, {displayName}
-                {hasEns && (
-                  <span
-                    className={`text-xs ml-2 ${
-                      ensType === "mainnet"
-                        ? "text-success"
-                        : ensType === "basename"
-                          ? "text-primary"
-                          : ensType === "farcaster"
-                            ? "text-purple-500"
-                            : "text-info"
-                    }`}
-                  >
-                    {ensType === "mainnet"
-                      ? "ENS"
-                      : ensType === "basename"
-                        ? "BASENAME"
-                        : ensType === "farcaster"
-                          ? "FC"
-                          : "BASE"}
-                  </span>
-                )}
-              </p>
+          {isMiniApp ? (
+            <div className="mb-6 max-w-md mx-auto">
+              <MiniAppAccount platform={getPlatform()} />
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(address);
-              }}
-              className="text-xs text-base-content/60 hover:text-base-content transition-colors"
-              title="Copy address"
-            >
-              {address.slice(0, 10)}...{address.slice(-8)} 📋
-            </button>
-          </div>
+          ) : (
+            <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-3 mb-1">
+                {pfpUrl && (
+                  <Image
+                    src={pfpUrl}
+                    alt={displayName}
+                    width={48}
+                    height={48}
+                    className="rounded-full"
+                    priority
+                    placeholder="blur"
+                    blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjMzMzIi8+PC9zdmc+"
+                    onError={e => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
+                <p className="text-lg md:text-xl font-semibold">
+                  Hello, {displayName}
+                  {hasEns && (
+                    <span
+                      className={`text-xs ml-2 ${
+                        ensType === "mainnet"
+                          ? "text-success"
+                          : ensType === "basename"
+                            ? "text-primary"
+                            : ensType === "farcaster"
+                              ? "text-purple-500"
+                              : "text-info"
+                      }`}
+                    >
+                      {ensType === "mainnet"
+                        ? "ENS"
+                        : ensType === "basename"
+                          ? "BASENAME"
+                          : ensType === "farcaster"
+                            ? "FC"
+                            : "BASE"}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                }}
+                className="text-xs text-base-content/60 hover:text-base-content transition-colors"
+                title="Copy address"
+              >
+                {address.slice(0, 10)}...{address.slice(-8)} 📋
+              </button>
+            </div>
+          )}
 
           <button
             onClick={() => router.push("/play")}
