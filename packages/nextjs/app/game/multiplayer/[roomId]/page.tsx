@@ -36,6 +36,7 @@ export default function MultiplayerGamePage() {
   const [joinerAddress, setJoinerAddress] = useState<string>("");
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [opponentLeft, setOpponentLeft] = useState(false);
 
   const { displayName: creatorName } = useDisplayName(creatorAddress || undefined);
   const { displayName: joinerName } = useDisplayName(joinerAddress || undefined);
@@ -273,6 +274,7 @@ export default function MultiplayerGamePage() {
         }
         setIsSaving(false);
         setGameData(data);
+        setOpponentLeft(!!data.playerLeft && data.playerLeft !== address);
 
         // Check if this specific match is published (without timestamp)
         const currentMatchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}`;
@@ -310,14 +312,18 @@ export default function MultiplayerGamePage() {
               className="bg-base-100 border border-error/50 rounded-lg p-4 shadow-lg cursor-pointer"
             >
               <p className="text-error font-semibold mb-2">Opponent left the game</p>
+              <p className="text-sm text-base-content/60">You can still publish the match if finished</p>
               <div className="w-full bg-base-300 rounded-full h-1 overflow-hidden">
                 <div className="bg-error h-full animate-pulse" style={{ width: "100%" }}></div>
               </div>
             </div>
           ),
-          { duration: 2000 },
+          { duration: 4000 },
         );
-        setTimeout(() => handleNavigation("/play/multiplayer"), 2000);
+        // Only auto-navigate if game isn't finished
+        if (data.status !== "finished") {
+          setTimeout(() => handleNavigation("/play/multiplayer"), 3000);
+        }
       }
     } catch (error) {
       console.error("Error polling status:", error);
@@ -618,6 +624,12 @@ export default function MultiplayerGamePage() {
             >
               {result === "win" ? "You Win!" : result === "lose" ? "You Lose!" : "Tie!"}
             </p>
+            {opponentLeft && (
+              <p className="text-sm text-error mt-2 flex items-center justify-center gap-2">
+                <span>⚠️</span>
+                Opponent disconnected
+              </p>
+            )}
             {isSaving && (
               <p className="text-sm text-primary mt-2 flex items-center justify-center gap-2">
                 <span className="loading loading-spinner loading-sm"></span>
@@ -628,7 +640,7 @@ export default function MultiplayerGamePage() {
 
           {isFreeMode && (
             <div className="space-y-3">
-              {opponentRequestedRematch ? (
+              {opponentRequestedRematch && !opponentLeft ? (
                 <>
                   <button onClick={acceptRematch} disabled={isSaving} className="btn btn-success w-full">
                     Accept Rematch
@@ -649,13 +661,15 @@ export default function MultiplayerGamePage() {
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={requestRematch}
-                    disabled={rematchRequested || isSaving}
-                    className="btn btn-primary w-full"
-                  >
-                    {rematchRequested ? "Waiting for opponent..." : "Play Again"}
-                  </button>
+                  {!opponentLeft && (
+                    <button
+                      onClick={requestRematch}
+                      disabled={rematchRequested || isSaving}
+                      className="btn btn-primary w-full"
+                    >
+                      {rematchRequested ? "Waiting for opponent..." : "Play Again"}
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       console.log("Publish button clicked, gameData:", gameData);
