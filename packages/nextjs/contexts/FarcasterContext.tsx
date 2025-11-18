@@ -66,7 +66,6 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
           }
         }
       }
-      await sdk.actions.ready();
     } catch (err) {
       console.error("[Farcaster] SDK initialization error:", err);
     } finally {

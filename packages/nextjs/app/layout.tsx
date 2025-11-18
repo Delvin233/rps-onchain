@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
+import { BaseAppReady } from "~~/components/BaseAppReady";
 import { ColorLoader } from "~~/components/ColorLoader";
 import { FontLoader } from "~~/components/FontLoader";
 import { FontSizeLoader } from "~~/components/FontSizeLoader";
@@ -11,6 +12,7 @@ import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithPro
 import { SpacingLoader } from "~~/components/SpacingLoader";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
+import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
@@ -41,7 +43,7 @@ export const metadata = {
       button: {
         title: "Play RPS",
         action: {
-          type: "launch_frame",
+          type: "launch_miniapp",
           name: "RPS-onChain",
           url: appUrl,
           splashImageUrl: `${appUrl}/images/splash.png`,
@@ -103,6 +105,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         />
       </head>
       <body>
+        <BaseAppReady />
         <CRTEffect />
         <ColorLoader />
         <FontLoader />
@@ -110,14 +113,16 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <SpacingLoader />
         <ThemeProvider enableSystem>
           <ScaffoldEthAppWithProviders>
-            <AuthProvider>
-              <PreferencesSync />
-              <MatchSyncProvider>
-                <OverlayProvider>
-                  <ResponsiveLayout>{children}</ResponsiveLayout>
-                </OverlayProvider>
-              </MatchSyncProvider>
-            </AuthProvider>
+            <FarcasterProvider>
+              <AuthProvider>
+                <PreferencesSync />
+                <MatchSyncProvider>
+                  <OverlayProvider>
+                    <ResponsiveLayout>{children}</ResponsiveLayout>
+                  </OverlayProvider>
+                </MatchSyncProvider>
+              </AuthProvider>
+            </FarcasterProvider>
           </ScaffoldEthAppWithProviders>
         </ThemeProvider>
         <Analytics />
