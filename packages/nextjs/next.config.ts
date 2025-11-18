@@ -30,18 +30,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data: https://fonts.gstatic.com",
-<<<<<<< HEAD
-<<<<<<< HEAD
               "connect-src 'self' * wss: ws: https: http: data: blob:",
-=======
-              "connect-src 'self' https://farcaster.xyz https://client.farcaster.xyz https://warpcast.com https://client.warpcast.com https://wrpcd.net https://*.wrpcd.net https://privy.farcaster.xyz https://privy.warpcast.com https://auth.privy.io https://*.rpc.privy.systems https://cloudflareinsights.com https://explorer-api.walletconnect.com https://relay.walletconnect.com wss://relay.walletconnect.com https://rpc.walletconnect.com https://*.walletconnect.com https://forno.celo.org https://mainnet.base.org https://gateway.pinata.cloud https://*.mypinata.cloud wss://*.bridge.walletconnect.org https://eth.merkle.io https://*.alchemy.com https://*.g.alchemy.com https://api.neynar.com https://pulse.walletconnect.org https://api.web3modal.org https://*.coinbase.com https://*.infura.io https://*.publicnode.com https://rpc.fuse.io https://fuse-rpc.gateway.pokt.network",
->>>>>>> b25feca (re-added fuse endpoints to csp)
-=======
-              "connect-src 'self' https://farcaster.xyz https://client.farcaster.xyz https://warpcast.com https://client.warpcast.com https://wrpcd.net https://*.wrpcd.net https://privy.farcaster.xyz https://privy.warpcast.com https://auth.privy.io https://*.rpc.privy.systems https://cloudflareinsights.com https://explorer-api.walletconnect.com https://relay.walletconnect.com wss://relay.walletconnect.com https://rpc.walletconnect.com https://*.walletconnect.com https://forno.celo.org https://mainnet.base.org https://gateway.pinata.cloud https://*.mypinata.cloud wss://*.bridge.walletconnect.org https://eth.merkle.io https://*.alchemy.com https://*.g.alchemy.com https://api.neynar.com https://pulse.walletconnect.org https://api.web3modal.org https://*.coinbase.com https://*.infura.io https://*.publicnode.com https://rpc.fuse.io https://fuse-rpc.gateway.pokt.network",
-=======
-              "connect-src 'self' https://farcaster.xyz https://client.farcaster.xyz https://warpcast.com https://client.warpcast.com https://wrpcd.net https://*.wrpcd.net https://privy.farcaster.xyz https://privy.warpcast.com https://auth.privy.io https://*.rpc.privy.systems https://cloudflareinsights.com https://explorer-api.walletconnect.com https://relay.walletconnect.com wss://relay.walletconnect.com https://rpc.walletconnect.com https://*.walletconnect.com https://forno.celo.org https://mainnet.base.org https://rpc.fuse.io https://fuse-rpc.gateway.pokt.network https://gateway.pinata.cloud https://*.mypinata.cloud wss://*.bridge.walletconnect.org https://eth.merkle.io https://*.alchemy.com https://*.g.alchemy.com https://api.neynar.com https://pulse.walletconnect.org https://api.web3modal.org https://*.coinbase.com https://*.infura.io https://*.publicnode.com wss://websocket.self.xyz",
->>>>>>> 0510dbe (added fuse endpoints to csp endpoints)
->>>>>>> 4ca278b (added fuse endpoints to csp endpoints)
               "frame-ancestors 'self' https://farcaster.xyz https://warpcast.com",
               "worker-src 'self' blob:",
             ].join("; "),

@@ -101,9 +101,21 @@ export default function MultiplayerPage() {
     } catch (error: any) {
       console.error("Error creating room:", error);
       if (error.message?.includes("User rejected") || error.message?.includes("User denied")) {
-        toast.error("Transaction cancelled");
+        toast.error("Room creation was cancelled", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
       } else {
-        toast.error("Failed to create room");
+        toast.error("Failed to create room", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
       }
     } finally {
       setIsCreating(false);
@@ -155,11 +167,29 @@ export default function MultiplayerPage() {
     } catch (error: any) {
       console.error("Error joining room:", error);
       if (error.message?.includes("User rejected") || error.message?.includes("User denied")) {
-        toast.error("Transaction cancelled");
+        toast.error("Room join was cancelled", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
       } else if (error.message?.includes("Room does not exist")) {
-        toast.error("Room not found. Please check the code or switch networks.");
+        toast.error("Room not found. Please check the code or switch networks.", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
       } else {
-        toast.error("Failed to join room");
+        toast.error("Failed to join room", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
       }
     } finally {
       setIsJoining(false);
@@ -193,11 +223,13 @@ export default function MultiplayerPage() {
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
-      <div className="flex items-start mb-4">
+      <div className="flex items-start mb-4 gap-2">
         <button onClick={() => router.back()} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary ml-2 break-words">Multiplayer</h1>
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary break-words flex-1 min-w-0">
+          Multiplayer
+        </h1>
       </div>
       <div className="flex justify-end mb-6 lg:hidden">
         <RainbowKitCustomConnectButton />

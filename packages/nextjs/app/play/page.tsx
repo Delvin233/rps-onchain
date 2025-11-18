@@ -7,7 +7,19 @@ import { useAccount } from "wagmi";
 
 export default function PlayModePage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, isConnecting } = useAccount();
+
+  // Show loading while wagmi is still connecting/hydrating
+  if (isConnecting) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-base-content/60 mt-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (

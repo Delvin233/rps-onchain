@@ -476,7 +476,23 @@ export default function MultiplayerGamePage() {
       setShowPublishModal(false);
     } catch (error: any) {
       console.error("Error publishing match:", error);
-      toast.error(error.message || "Failed to publish match");
+      if (error.message?.includes("User rejected") || error.message?.includes("User denied")) {
+        toast.error("Publish match was cancelled", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
+      } else {
+        toast.error("Failed to publish match", {
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-error)",
+          },
+        });
+      }
     } finally {
       setIsPublishing(false);
     }
