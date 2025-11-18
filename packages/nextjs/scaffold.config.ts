@@ -15,7 +15,11 @@ export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.celo, chains.base],
+  targetNetworks: (() => {
+    // Detect if running in Base app (miniapp context)
+    const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
+    return isBaseApp ? [chains.base] : [chains.celo, chains.base];
+  })() as readonly [typeof chains.base, ...(typeof chains.celo)[]],
   // The interval at which your front-end polls the RPC servers for new data (it has no effect if you only target the local network (default is 4000))
   pollingInterval: 30000,
   // This is ours Alchemy's default API key.
