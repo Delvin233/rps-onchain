@@ -27,6 +27,11 @@ const baseMetadata = getMetadata({
   description: "Rock Paper Scissors on-chain game with Ai single player mode and PVP mode",
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata = {
   ...baseMetadata,
   other: {

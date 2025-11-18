@@ -155,7 +155,7 @@ export default function HistoryPage() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
-      <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
+      <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary mb-4 break-words">Match History</h1>
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button
           onClick={() => {

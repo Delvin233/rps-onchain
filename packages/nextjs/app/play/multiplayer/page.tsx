@@ -193,11 +193,11 @@ export default function MultiplayerPage() {
 
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
-      <div className="flex items-center mb-4">
-        <button onClick={() => router.back()} className="btn btn-sm btn-ghost">
+      <div className="flex items-start mb-4">
+        <button onClick={() => router.back()} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-2xl font-bold text-glow-primary ml-2">Multiplayer</h1>
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary ml-2 break-words">Multiplayer</h1>
       </div>
       <div className="flex justify-end mb-6 lg:hidden">
         <RainbowKitCustomConnectButton />
