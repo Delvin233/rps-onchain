@@ -23,9 +23,14 @@ const OverlayProvider = dynamic(() =>
 const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
 
 const baseMetadata = getMetadata({
-  title: "RPS-ONCHAIN",
-  description: "Rock Paper Scissors on-chain game with Pinata storage",
+  title: "RPS-onChain",
+  description: "Rock Paper Scissors on-chain game with Ai single player mode and PVP mode",
 });
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata = {
   ...baseMetadata,
@@ -37,7 +42,7 @@ export const metadata = {
         title: "Play RPS",
         action: {
           type: "launch_frame",
-          name: "RPS-OnChain",
+          name: "RPS-onChain",
           url: appUrl,
           splashImageUrl: `${appUrl}/images/splash.png`,
           splashBackgroundColor: "#0c0a09",
@@ -63,6 +68,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             __html: `
               (function() {
                 try {
+                  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
                   const colorTheme = localStorage.getItem('colorTheme') || 'delvin233';
                   const fontTheme = localStorage.getItem('fontTheme') || 'retroArcade';
                   

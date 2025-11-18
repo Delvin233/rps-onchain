@@ -8,7 +8,7 @@ import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, isConnecting } = useAccount();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -129,6 +129,18 @@ export default function HistoryPage() {
     containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Show loading while wagmi is still connecting/hydrating
+  if (isConnecting) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-base-content/60 mt-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
@@ -155,7 +167,7 @@ export default function HistoryPage() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
-      <h1 className="text-2xl font-bold text-glow-primary mb-4">Match History</h1>
+      <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary mb-4 break-words">Match History</h1>
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button
           onClick={() => {

@@ -7,7 +7,19 @@ import { useAccount } from "wagmi";
 
 export default function PlayModePage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, isConnecting } = useAccount();
+
+  // Show loading while wagmi is still connecting/hydrating
+  if (isConnecting) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-base-content/60 mt-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (
@@ -35,7 +47,9 @@ export default function PlayModePage() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <h1 className="text-3xl lg:text-4xl font-bold text-glow-primary mb-8 pt-4 lg:pt-0">Choose Game Mode</h1>
+      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-glow-primary mb-8 pt-4 lg:pt-0 break-words">
+        Choose Game Mode
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <button
@@ -47,7 +61,7 @@ export default function PlayModePage() {
               <User className="text-primary" size={48} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Single Player</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 break-words">Single Player</h2>
               <p className="text-base-content/60">Play against AI - Free & Instant</p>
             </div>
           </div>
@@ -62,7 +76,7 @@ export default function PlayModePage() {
               <Users className="text-secondary" size={48} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Multiplayer</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 break-words">Multiplayer</h2>
               <p className="text-base-content/60">Play with friends - Free & Fun</p>
             </div>
           </div>
