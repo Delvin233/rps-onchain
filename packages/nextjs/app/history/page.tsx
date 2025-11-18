@@ -8,7 +8,7 @@ import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, isConnecting } = useAccount();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -128,6 +128,18 @@ export default function HistoryPage() {
   const scrollToTop = () => {
     containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Show loading while wagmi is still connecting/hydrating
+  if (isConnecting) {
+    return (
+      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-base-content/60 mt-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (
