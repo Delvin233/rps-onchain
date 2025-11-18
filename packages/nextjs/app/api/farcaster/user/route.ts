@@ -14,8 +14,8 @@ export const GET = async (req: NextRequest) => {
   try {
     const user = await fetchFarcasterUser(fid, process.env.NEYNAR_API_KEY || "");
     return NextResponse.json(user);
-  } catch (error) {
-    console.error("Failed to fetch Farcaster user:", error);
-    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
+  } catch {
+    // Don't log error for non-Farcaster users (common in Base app)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 };

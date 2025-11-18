@@ -212,7 +212,7 @@ export default function ProfilePage() {
           <span className="text-2xl">💚</span>
           <div>
             <p className="font-semibold">Daily UBI Claim</p>
-            <p className="text-xs text-base-content/60">Claim your GoodDollar (G$) tokens</p>
+            <p className="text-xs text-base-content/60">Claim your GoodDollar (G$) tokens on CELO Network</p>
           </div>
         </div>
 
