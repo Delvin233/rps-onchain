@@ -23,6 +23,9 @@ export async function GET() {
       tags: ["rockpaperscissors", "multiplayer", "blockchain", "free", "pvp"],
       noindex: false,
     },
+    baseBuilder: {
+      ownerAddress: "0x22f62d3569639f80e71C6Ec5Da60EeE25734a17e",
+    },
   };
 
   return NextResponse.json(manifest);
