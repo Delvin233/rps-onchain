@@ -27,28 +27,31 @@ export const wagmiConnectors = () => {
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  return connectorsForWallets(
-    [
-      {
-        groupName: "Popular",
-        wallets: isMobile ? mobileWallets : [metaMaskWallet, coinbaseWallet, walletConnectWallet],
-      },
-      {
-        groupName: "More",
-        wallets: isMobile ? [] : [rainbowWallet, safeWallet, ledgerWallet],
-      },
-      ...(!targetNetworks.some(network => network.id !== (chains.hardhat as chains.Chain).id) || !onlyLocalBurnerWallet
-        ? [
-            {
-              groupName: "Development",
-              wallets: [rainbowkitBurnerWallet],
-            },
-          ]
-        : []),
-    ],
+  const walletGroups = [
     {
-      appName: "RPS-OnChain",
-      projectId: scaffoldConfig.walletConnectProjectId,
+      groupName: "Popular",
+      wallets: isMobile ? mobileWallets : [metaMaskWallet, coinbaseWallet, walletConnectWallet],
     },
-  );
+  ];
+
+  // Only add More group on desktop
+  if (!isMobile) {
+    walletGroups.push({
+      groupName: "More",
+      wallets: [rainbowWallet, safeWallet, ledgerWallet],
+    });
+  }
+
+  // Add development wallets if needed
+  if (!targetNetworks.some(network => network.id !== (chains.hardhat as chains.Chain).id) || !onlyLocalBurnerWallet) {
+    walletGroups.push({
+      groupName: "Development",
+      wallets: [rainbowkitBurnerWallet],
+    });
+  }
+
+  return connectorsForWallets(walletGroups, {
+    appName: "RPS-OnChain",
+    projectId: scaffoldConfig.walletConnectProjectId,
+  });
 };
