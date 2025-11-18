@@ -23,12 +23,18 @@ const OverlayProvider = dynamic(() =>
 const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
 
 const baseMetadata = getMetadata({
-  title: "RPS-ONCHAIN",
-  description: "Rock Paper Scissors on-chain game with Pinata storage",
+  title: "RPS-onChain",
+  description: "Rock Paper Scissors on-chain game with Ai single player mode and PVP mode",
 });
 
 export const metadata = {
   ...baseMetadata,
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
   other: {
     "fc:miniapp": JSON.stringify({
       version: "1",
