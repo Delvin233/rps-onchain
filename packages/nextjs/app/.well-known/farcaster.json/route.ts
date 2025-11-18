@@ -15,7 +15,7 @@ export async function GET() {
       splashImageUrl: `${process.env.NEXT_PUBLIC_URL}/images/splash.png`,
       splashBackgroundColor: "#0c0a09",
       webhookUrl: `${process.env.NEXT_PUBLIC_URL}/api/farcaster/webhook`,
-      subtitle: "Free-to-play Rock Paper Scissors",
+      subtitle: "Free Rock Paper Scissors",
       description:
         "Free-to-play Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support on Celo and Base.",
       screenshotUrls: [`${process.env.NEXT_PUBLIC_URL}/images/frame-preview.png`],
