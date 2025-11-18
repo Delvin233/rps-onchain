@@ -29,6 +29,7 @@ export default function OnChainMatchesPage() {
   const [matches, setMatches] = useState<OnChainMatch[]>([]);
   const [filteredMatches, setFilteredMatches] = useState<OnChainMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
   const [filters, setFilters] = useState({
     search: "",
     dateFrom: "",
@@ -63,24 +64,29 @@ export default function OnChainMatchesPage() {
       }
     });
 
-    // Fetch from both chains
-    for (const [chainId, chainName, client] of [
-      [42220, "Celo", celoClient],
-      [8453, "Base", baseClient],
-    ] as const) {
+    // Fetch from available chains (Base app only supports Base)
+    const chainsToFetch = isBaseApp
+      ? [{ chainId: 8453, chainName: "Base", client: baseClient }]
+      : [
+          { chainId: 42220, chainName: "Celo", client: celoClient },
+          { chainId: 8453, chainName: "Base", client: baseClient },
+        ];
+
+    for (const { chainId, chainName, client } of chainsToFetch) {
       try {
-        const contract = deployedContracts[chainId].RPSOnline;
+        if (!client) continue;
+        const contract = deployedContracts[chainId as 42220 | 8453].RPSOnline;
         const roomsForChain = Array.from(publishedRooms.values()).filter(r => r.chainId === chainId);
 
         for (const { roomId, txHash } of roomsForChain) {
           const [matchHistory, roomStats] = await Promise.all([
-            client?.readContract({
+            client.readContract({
               address: contract.address,
               abi: contract.abi,
               functionName: "getMatchHistory",
               args: [roomId],
             }),
-            client?.readContract({
+            client.readContract({
               address: contract.address,
               abi: contract.abi,
               functionName: "getRoomStats",
@@ -196,6 +202,11 @@ export default function OnChainMatchesPage() {
         </div>
         <p className="text-base-content/60 mb-6">
           All matches published to the blockchain are permanently verified and publicly viewable.
+          {isBaseApp && (
+            <span className="block mt-2 text-warning text-sm">
+              ⚠️ Base app only shows matches published on Base network.
+            </span>
+          )}
         </p>
 
         {/* Filters */}
@@ -237,7 +248,7 @@ export default function OnChainMatchesPage() {
               className="select select-bordered select-sm w-full"
             >
               <option value="all">All Chains</option>
-              <option value="celo">Celo</option>
+              {!isBaseApp && <option value="celo">Celo</option>}
               <option value="base">Base</option>
             </select>
           </div>

@@ -19,6 +19,7 @@ export default function Home() {
   const { connect, connectors } = useConnect();
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
+  const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
 
   // Auto-connect Farcaster users when miniapp context is ready
   useEffect(() => {
@@ -71,7 +72,9 @@ export default function Home() {
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl lg:text-6xl font-bold text-glow-primary mb-3 animate-glow">RPS-onChain</h1>
             <p className="text-base lg:text-lg text-base-content/60">
-              Free-to-play Rock Paper Scissors on Celo & Base.
+              {isBaseApp
+                ? "Free-to-play Rock Paper Scissors on Base."
+                : "Free-to-play Rock Paper Scissors on Celo & Base."}
             </p>
           </div>
 
@@ -142,19 +145,21 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-200">
-              <div className="flex items-start space-x-4">
-                <div className="p-3 rounded-lg bg-yellow-500/20 mt-1">
-                  <Gift className="text-yellow-500" size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-1">Claim Daily GoodDollar</h3>
-                  <p className="text-sm text-base-content/60">
-                    Get free G$ tokens daily. Connect your wallet to start claiming!
-                  </p>
+            {!isBaseApp && (
+              <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-200">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-yellow-500/20 mt-1">
+                    <Gift className="text-yellow-500" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold mb-1">Claim Daily GoodDollar</h3>
+                    <p className="text-sm text-base-content/60">
+                      Get free G$ tokens daily. Connect your wallet to start claiming!
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 rounded-xl p-6 lg:col-span-2 max-w-2xl mx-auto">
