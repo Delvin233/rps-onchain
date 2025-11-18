@@ -27,14 +27,15 @@ const baseMetadata = getMetadata({
   description: "Rock Paper Scissors on-chain game with Ai single player mode and PVP mode",
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata = {
   ...baseMetadata,
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   other: {
     "fc:miniapp": JSON.stringify({
       version: "1",
@@ -69,6 +70,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             __html: `
               (function() {
                 try {
+                  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
                   const colorTheme = localStorage.getItem('colorTheme') || 'delvin233';
                   const fontTheme = localStorage.getItem('fontTheme') || 'retroArcade';
                   
