@@ -30,6 +30,7 @@ export default function OnChainMatchesPage() {
   const [filteredMatches, setFilteredMatches] = useState<OnChainMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
+  const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
   const [filters, setFilters] = useState({
     search: "",
     dateFrom: "",
@@ -64,13 +65,15 @@ export default function OnChainMatchesPage() {
       }
     });
 
-    // Fetch from available chains (Base app only supports Base)
+    // Fetch from available chains based on platform
     const chainsToFetch = isBaseApp
       ? [{ chainId: 8453, chainName: "Base", client: baseClient }]
-      : [
-          { chainId: 42220, chainName: "Celo", client: celoClient },
-          { chainId: 8453, chainName: "Base", client: baseClient },
-        ];
+      : isMiniPay
+        ? [{ chainId: 42220, chainName: "Celo", client: celoClient }]
+        : [
+            { chainId: 42220, chainName: "Celo", client: celoClient },
+            { chainId: 8453, chainName: "Base", client: baseClient },
+          ];
 
     for (const { chainId, chainName, client } of chainsToFetch) {
       try {
@@ -207,6 +210,11 @@ export default function OnChainMatchesPage() {
               ⚠️ Base app only shows matches published on Base network.
             </span>
           )}
+          {isMiniPay && (
+            <span className="block mt-2 text-warning text-sm">
+              ⚠️ MiniPay only shows matches published on Celo network.
+            </span>
+          )}
         </p>
 
         {/* Filters */}
@@ -249,7 +257,7 @@ export default function OnChainMatchesPage() {
             >
               <option value="all">All Chains</option>
               {!isBaseApp && <option value="celo">Celo</option>}
-              <option value="base">Base</option>
+              {!isMiniPay && <option value="base">Base</option>}
             </select>
           </div>
           <p className="text-xs text-base-content/60 mt-3">

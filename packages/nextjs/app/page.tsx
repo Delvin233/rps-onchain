@@ -19,7 +19,9 @@ export default function Home() {
   const { connect, connectors } = useConnect();
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
+  const injectedConnector = connectors.find(c => c.id === "injected");
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
+  const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
 
   // Auto-connect Farcaster users when miniapp context is ready
   useEffect(() => {
@@ -27,6 +29,13 @@ export default function Home() {
       connect({ connector: farcasterConnector });
     }
   }, [isMiniAppReady, farcasterConnector, context, address, connect]);
+
+  // Auto-connect MiniPay users
+  useEffect(() => {
+    if (!address && isMiniPay && injectedConnector) {
+      connect({ connector: injectedConnector });
+    }
+  }, [isMiniPay, injectedConnector, address, connect]);
 
   useEffect(() => {
     if (address) {
@@ -74,7 +83,9 @@ export default function Home() {
             <p className="text-base lg:text-lg text-base-content/60">
               {isBaseApp
                 ? "Free-to-play Rock Paper Scissors on Base."
-                : "Free-to-play Rock Paper Scissors on Celo & Base."}
+                : isMiniPay
+                  ? "Free-to-play Rock Paper Scissors on Celo."
+                  : "Free-to-play Rock Paper Scissors on Celo & Base."}
             </p>
           </div>
 
@@ -154,7 +165,9 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg font-bold mb-1">Claim Daily GoodDollar</h3>
                     <p className="text-sm text-base-content/60">
-                      Get free G$ tokens daily. Connect your wallet to start claiming!
+                      {isMiniPay
+                        ? "Get free G$ tokens daily on Celo!"
+                        : "Get free G$ tokens daily. Connect your wallet to start claiming!"}
                     </p>
                   </div>
                 </div>
