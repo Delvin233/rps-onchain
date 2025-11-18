@@ -51,7 +51,7 @@ export const wagmiConnectors = () => {
   }
 
   return connectorsForWallets(walletGroups, {
-    appName: "RPS-OnChain",
+    appName: "RPS-onChain",
     projectId: scaffoldConfig.walletConnectProjectId,
   });
 };
