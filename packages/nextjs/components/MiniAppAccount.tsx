@@ -38,35 +38,35 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
     if (platform === "farcaster" && enrichedUser) {
       return {
         displayName: enrichedUser.username ? `@${enrichedUser.username}` : enrichedUser.displayName,
-        avatarUrl: enrichedUser.pfpUrl
+        avatarUrl: enrichedUser.pfpUrl,
       };
     }
-    
+
     // Base app: basename > farcaster profile > truncated wallet
     if (platform === "base") {
       // 1. Basename (ENS ending in .base.eth)
-      if (ensName && ensName.endsWith('.base.eth')) {
+      if (ensName && ensName.endsWith(".base.eth")) {
         return {
           displayName: ensName,
-          avatarUrl: null // TODO: Add basename avatar resolution
+          avatarUrl: null, // TODO: Add basename avatar resolution
         };
       }
-      
+
       // 2. Farcaster profile (if available)
       if (enrichedUser) {
         return {
           displayName: enrichedUser.username ? `@${enrichedUser.username}` : enrichedUser.displayName,
-          avatarUrl: enrichedUser.pfpUrl
+          avatarUrl: enrichedUser.pfpUrl,
         };
       }
-      
+
       // 3. Truncated wallet address
       return {
         displayName: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "",
-        avatarUrl: null
+        avatarUrl: null,
       };
     }
-    
+
     // MiniPay: minipay profile > wallet address
     if (platform === "minipay") {
       // TODO: Add MiniPay profile data when API becomes available
@@ -76,18 +76,18 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       //     avatarUrl: miniPayProfile.avatar
       //   };
       // }
-      
+
       // Fallback to wallet address
       return {
         displayName: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "",
-        avatarUrl: null
+        avatarUrl: null,
       };
     }
-    
+
     // Default fallback
     return {
       displayName: ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
-      avatarUrl: null
+      avatarUrl: null,
     };
   }, [platform, enrichedUser, ensName, address]);
 
@@ -143,19 +143,19 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   if (!address) {
     return (
-      <div 
+      <div
         className={`rounded-xl border backdrop-blur ${platformColors}`}
-        style={{ padding: 'var(--card-padding, 1rem)' }}
+        style={{ padding: "var(--card-padding, 1rem)" }}
       >
         <div className="flex items-center justify-center">
           {isConnecting ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
-            <span 
+            <span
               className="text-base-content/60"
-              style={{ 
-                fontFamily: 'var(--font-body)', 
-                fontSize: 'calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))' 
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
             >
               Connecting...
@@ -169,43 +169,45 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const canSwitchNetworks = platform === "farcaster";
 
   return (
-    <div 
+    <div
       className={`rounded-xl border backdrop-blur ${platformColors}`}
-      style={{ padding: 'var(--card-padding, 1rem)' }}
+      style={{ padding: "var(--card-padding, 1rem)" }}
     >
-      <div className="flex items-center justify-between" style={{ gap: 'var(--inner-gap, 0.75rem)' }}>
-        <div className="flex items-center" style={{ gap: 'var(--inner-gap, 0.75rem)' }}>
+      <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
+        <div className="flex items-center" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
           {avatarUrl ? (
-            <img 
-              src={avatarUrl} 
+            <img
+              src={avatarUrl}
               alt={displayName}
               className="w-10 h-10 rounded-full object-cover"
-              onError={(e) => {
+              onError={e => {
                 // Fallback to text avatar on image error
                 const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.nextElementSibling?.classList.remove('hidden');
+                target.style.display = "none";
+                target.nextElementSibling?.classList.remove("hidden");
               }}
             />
           ) : null}
-          <div className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold ${avatarUrl ? 'hidden' : ''}`}>
+          <div
+            className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold ${avatarUrl ? "hidden" : ""}`}
+          >
             {displayName.slice(0, 2).toUpperCase()}
           </div>
           <div>
-            <p 
+            <p
               className="font-semibold text-base-content"
-              style={{ 
-                fontFamily: 'var(--font-heading)', 
-                fontSize: 'calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))' 
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
             >
               {displayName}
             </p>
-            <p 
+            <p
               className="text-base-content/60"
-              style={{ 
-                fontFamily: 'var(--font-body)', 
-                fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))' 
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
             >
               {balanceLoading ? (
@@ -217,16 +219,16 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
           </div>
         </div>
 
-        <div className="flex items-center" style={{ gap: 'var(--inner-gap, 0.5rem)' }}>
+        <div className="flex items-center" style={{ gap: "var(--inner-gap, 0.5rem)" }}>
           {canSwitchNetworks && (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
                 className="btn btn-xs btn-ghost flex items-center"
-                style={{ 
-                  gap: 'var(--inner-gap, 0.25rem)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))'
+                style={{
+                  gap: "var(--inner-gap, 0.25rem)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                 }}
                 disabled={switchPending}
               >
@@ -243,9 +245,9 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                       chain?.id === celo.id ? "bg-primary/10 text-primary" : ""
                     }`}
                     style={{
-                      padding: 'var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))'
+                      padding: "var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)",
+                      fontFamily: "var(--font-body)",
+                      fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                     }}
                     disabled={chain?.id === celo.id}
                   >
@@ -257,9 +259,9 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                       chain?.id === base.id ? "bg-primary/10 text-primary" : ""
                     }`}
                     style={{
-                      padding: 'var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))'
+                      padding: "var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)",
+                      fontFamily: "var(--font-body)",
+                      fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                     }}
                     disabled={chain?.id === base.id}
                   >
@@ -270,11 +272,11 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
             </div>
           )}
 
-          <button 
-            onClick={handleCopyAddress} 
-            className="btn btn-xs btn-ghost" 
+          <button
+            onClick={handleCopyAddress}
+            className="btn btn-xs btn-ghost"
             title="Copy address"
-            style={{ fontFamily: 'var(--font-body)' }}
+            style={{ fontFamily: "var(--font-body)" }}
           >
             <Copy size={12} />
           </button>
