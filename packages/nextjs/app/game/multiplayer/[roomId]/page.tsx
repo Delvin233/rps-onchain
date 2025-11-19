@@ -557,24 +557,39 @@ export default function MultiplayerGamePage() {
 
   if ((gameStatus === "ready" || gameStatus === "playing") && !selectedMove) {
     return (
-      <div className="p-6 pt-12 pb-24">
+      <div className="px-4 py-4 min-h-screen flex flex-col">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
-        {!isFreeMode && <p className="text-center text-base-content/60 mb-6">Bet: {betAmount} CELO</p>}
+        <h1
+          className="font-bold text-glow-primary"
+          style={{ fontSize: "clamp(1.25rem, 4vw, 1.875rem)", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}
+        >
+          Choose Your Move
+        </h1>
+        {!isFreeMode && (
+          <p
+            className="text-center text-base-content/60"
+            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1rem)", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}
+          >
+            Bet: {betAmount} CELO
+          </p>
+        )}
 
-        <div className="space-y-4">
+        <div className="flex-1 flex flex-col justify-center" style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)" }}>
           {moves.map(move => (
             <button
               key={move}
               onClick={() => submitMove(move)}
               disabled={isSubmitting}
-              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
-              <p className="text-xl font-semibold capitalize">{move}</p>
+              <p className="font-semibold capitalize" style={{ fontSize: "clamp(1rem, 3vw, 1.5rem)" }}>
+                {move}
+              </p>
             </button>
           ))}
         </div>

@@ -15,14 +15,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isInActiveAIGame =
-    pathname === "/play/single" &&
-    typeof window !== "undefined" &&
-    Array.from({ length: sessionStorage.length }, (_, i) => sessionStorage.key(i))
-      .filter(key => key?.startsWith("aiGameActive_"))
-      .some(key => sessionStorage.getItem(key!) === "true");
-  const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
-  const isInPlaySubpage = pathname.startsWith("/play/") && pathname !== "/play";
+  const isInGameArea = pathname?.startsWith("/play") || pathname?.startsWith("/game/");
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -40,13 +33,8 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
 
       if (Math.abs(swipeDistance) < minSwipeDistance) return;
 
-      // Block all swipes during active games
-      if (isInActiveAIGame || isInActiveMultiplayerGame) {
-        return;
-      }
-
-      // Block swipes on play subpages - must use double-tap Play button
-      if (isInPlaySubpage) {
+      // Block all swipes in game area
+      if (isInGameArea) {
         return;
       }
 
@@ -72,7 +60,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
         container.removeEventListener("touchend", handleTouchEnd);
       }
     };
-  }, [pathname, router, isInActiveAIGame, isInActiveMultiplayerGame, isInPlaySubpage]);
+  }, [pathname, router, isInGameArea]);
 
   return (
     <>
