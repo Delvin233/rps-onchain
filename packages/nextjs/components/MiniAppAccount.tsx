@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronDown, Copy, Network } from "lucide-react";
 import toast from "react-hot-toast";
+import { MdLocalGasStation } from "react-icons/md";
 import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
 import { base, celo } from "wagmi/chains";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
@@ -15,7 +16,11 @@ interface MiniAppAccountProps {
 
 export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { address, chain, isConnecting } = useAccount();
-  const { data: balance, isLoading: balanceLoading } = useBalance({ address });
+  const cUSD_ADDRESS = "0x765DE816845861e75A25fCA122bb6898B8B1282a" as `0x${string}`;
+  const { data: balance, isLoading: balanceLoading } = useBalance({
+    address,
+    token: platform === "minipay" ? cUSD_ADDRESS : undefined,
+  });
   const { data: ensName } = useEnsName({ address });
   const { switchChain, isPending: switchPending } = useSwitchChain();
   const { enrichedUser } = useFarcaster();
@@ -219,6 +224,29 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                   `${balance?.formatted.slice(0, 6)} ${balance?.symbol}`
                 )}
               </p>
+              <div className="flex items-center gap-1">
+                <span
+                  className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+                  }}
+                >
+                  {chain?.name?.toUpperCase() || (balance?.symbol === "cUSD" ? "CELO" : "UNKNOWN")}
+                </span>
+                {platform === "minipay" && (
+                  <span
+                    className="text-xs px-1.5 py-0.5 rounded bg-warning/20 text-warning flex items-center gap-0.5"
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "calc(0.6rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+                    }}
+                    title="Gas fees paid in cUSD"
+                  >
+                    <MdLocalGasStation size={10} /> cUSD
+                  </span>
+                )}
+              </div>
               <span
                 className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
                 style={{
