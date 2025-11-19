@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
 import { base, celo } from "wagmi/chains";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
+import { useDisplayName } from "~~/hooks/useDisplayName";
 
 interface MiniAppAccountProps {
   platform: "farcaster" | "base" | "minipay";
@@ -18,6 +19,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { data: ensName } = useEnsName({ address });
   const { switchChain, isPending: switchPending } = useSwitchChain();
   const { enrichedUser } = useFarcaster();
+  const { displayName: apiDisplayName, pfpUrl: apiPfpUrl } = useDisplayName(address);
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -43,28 +45,11 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       };
     }
 
-    // Base app: basename > farcaster profile > truncated wallet
+    // Base app: Use API-based resolution (basename > farcaster > wallet)
     if (platform === "base") {
-      // 1. Basename (ENS ending in .base)
-      if (ensName && (ensName.endsWith(".base.eth") || ensName.endsWith(".base"))) {
-        return {
-          displayName: ensName,
-          avatarUrl: null, // TODO: Add basename avatar resolution
-        };
-      }
-
-      // 2. Farcaster profile (if available)
-      if (enrichedUser) {
-        return {
-          displayName: enrichedUser.username ? `@${enrichedUser.username}` : enrichedUser.displayName,
-          avatarUrl: enrichedUser.pfpUrl,
-        };
-      }
-
-      // 3. Truncated wallet address
       return {
-        displayName: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "",
-        avatarUrl: null,
+        displayName: apiDisplayName,
+        avatarUrl: apiPfpUrl || null,
       };
     }
 
@@ -90,7 +75,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       displayName: ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
       avatarUrl: null,
     };
-  }, [platform, enrichedUser, ensName, address]);
+  }, [platform, enrichedUser, ensName, address, apiDisplayName, apiPfpUrl]);
 
   const toastStyle = useMemo(
     () => ({
@@ -104,10 +89,24 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const handleCopyAddress = useCallback(async () => {
     if (!address) return;
     try {
+      // Try modern clipboard API first
       await navigator.clipboard.writeText(address);
       toast.success("Address copied!", { duration: 2000, style: toastStyle });
     } catch {
-      toast.error("Failed to copy address");
+      // Fallback for iframes (Base app preview)
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = address;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        toast.success("Address copied!", { duration: 2000, style: toastStyle });
+      } catch {
+        toast.error("Failed to copy address");
+      }
     }
   }, [address, toastStyle]);
 
