@@ -23,7 +23,7 @@ export default function Home() {
   const injectedConnector = connectors.find(c => c.id === "injected");
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
-  const isMiniApp = isMiniAppReady || isBaseApp || isMiniPay;
+  const isMiniApp = (isMiniAppReady && !!context) || isBaseApp || isMiniPay;
 
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isMiniAppReady) return "farcaster";
