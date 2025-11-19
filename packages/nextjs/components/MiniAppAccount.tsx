@@ -34,7 +34,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   }, [platform]);
 
   const { displayName, avatarUrl } = useMemo(() => {
-    // Platform-specific identity priority
+    // Farcaster: @username + pfp
     if (platform === "farcaster" && enrichedUser) {
       return {
         displayName: enrichedUser.username ? `@${enrichedUser.username}` : enrichedUser.displayName,
@@ -42,10 +42,40 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       };
     }
     
-    // TODO: Add Base app basename resolution
-    // TODO: Add MiniPay profile data
+    // Base app: basename > farcaster profile > truncated wallet
+    if (platform === "base") {
+      // 1. Basename (ENS ending in .base.eth)
+      if (ensName && ensName.endsWith('.base.eth')) {
+        return {
+          displayName: ensName,
+          avatarUrl: null // TODO: Add basename avatar resolution
+        };
+      }
+      
+      // 2. Farcaster profile (if available)
+      if (enrichedUser) {
+        return {
+          displayName: enrichedUser.username ? `@${enrichedUser.username}` : enrichedUser.displayName,
+          avatarUrl: enrichedUser.pfpUrl
+        };
+      }
+      
+      // 3. Truncated wallet address
+      return {
+        displayName: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "",
+        avatarUrl: null
+      };
+    }
     
-    // Fallback to ENS or wallet address
+    // MiniPay: TODO - add MiniPay profile resolution
+    if (platform === "minipay") {
+      return {
+        displayName: ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
+        avatarUrl: null
+      };
+    }
+    
+    // Default fallback
     return {
       displayName: ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
       avatarUrl: null
