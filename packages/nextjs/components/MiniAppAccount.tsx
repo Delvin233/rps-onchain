@@ -247,6 +247,15 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                   </span>
                 )}
               </div>
+              <span
+                className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+                }}
+              >
+                {chain?.name?.toUpperCase() || "UNKNOWN"}
+              </span>
             </div>
           </div>
         </div>
