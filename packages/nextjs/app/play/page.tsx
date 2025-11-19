@@ -56,61 +56,88 @@ export default function PlayModePage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <div className="flex items-center gap-2 mb-8 pt-4 lg:pt-0">
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-glow-primary break-words">
-          Choose Game Mode
-        </h1>
-        <div className="relative">
-          <IoInformationCircle
-            className="text-base-content/40 hover:text-base-content/60 cursor-pointer"
-            size={20}
-            onClick={() => setShowTooltip(!showTooltip)}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-          />
-          {showTooltip && (
-            <div
-              className="absolute right-0 top-8 w-64 sm:w-80 bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in cursor-pointer"
-              onClick={() => setShowTooltip(false)}
-            >
-              <p className="text-xs text-base-content/80">
-                <strong>Testing tip:</strong> To test multiplayer with different accounts, use separate browsers (e.g.,
-                Chrome + Firefox). Switching accounts in the same browser shares localStorage and may cause silent
-                failures.
-              </p>
-            </div>
-          )}
+    <div className="min-h-screen bg-base-200 px-4 py-4">
+      <div className="mb-[3vh]">
+        <button onClick={() => router.push("/")} className="btn btn-sm btn-outline mb-2">
+          ← Back to Home
+        </button>
+        <div className="flex items-center gap-2">
+          <h1 className="font-bold text-glow-primary" style={{ fontSize: "clamp(1.125rem, 4vw, 1.875rem)" }}>
+            Choose Game Mode
+          </h1>
+          <div className="relative">
+            <IoInformationCircle
+              className="text-base-content/40 hover:text-base-content/60 cursor-pointer flex-shrink-0"
+              size={16}
+              onClick={() => setShowTooltip(!showTooltip)}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            />
+            {showTooltip && (
+              <div
+                className="absolute right-0 top-8 w-64 sm:w-80 bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in cursor-pointer"
+                onClick={() => setShowTooltip(false)}
+              >
+                <p className="text-xs text-base-content/80">
+                  <strong>Testing tip:</strong> To test multiplayer with different accounts, use separate browsers
+                  (e.g., Chrome + Firefox). Switching accounts in the same browser shares localStorage and may cause
+                  silent failures.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[2vh] max-w-4xl mx-auto">
         <button
           onClick={() => router.push("/play/single")}
-          className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-8 hover:border-primary/50 hover:scale-105 transition-all duration-200 text-center"
+          className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl hover:border-primary/50 hover:scale-105 transition-all duration-200 text-center"
+          style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
         >
-          <div className="flex flex-col items-center space-y-4">
-            <div className="p-4 rounded-lg bg-primary/10">
-              <User className="text-primary" size={48} />
+          <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
+            <div className="rounded-lg bg-primary/10" style={{ padding: "clamp(0.5rem, 2vh, 1rem)" }}>
+              <User
+                className="text-primary"
+                style={{ width: "clamp(32px, 6vw, 48px)", height: "clamp(32px, 6vw, 48px)" }}
+              />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 break-words">Single Player</h2>
-              <p className="text-base-content/60">Play against AI - Free & Instant</p>
+              <h2
+                className="font-semibold"
+                style={{ fontSize: "clamp(1rem, 3vw, 1.25rem)", marginBottom: "clamp(0.25rem, 1vh, 0.5rem)" }}
+              >
+                Single Player
+              </h2>
+              <p className="text-base-content/60" style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}>
+                Play against AI - Free & Instant
+              </p>
             </div>
           </div>
         </button>
 
         <button
           onClick={() => router.push("/play/multiplayer")}
-          className="bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-8 hover:border-secondary/50 hover:scale-105 transition-all duration-200 text-center"
+          className="bg-card/50 backdrop-blur border border-secondary/20 rounded-xl hover:border-secondary/50 hover:scale-105 transition-all duration-200 text-center"
+          style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
         >
-          <div className="flex flex-col items-center space-y-4">
-            <div className="p-4 rounded-lg bg-secondary/10">
-              <Users className="text-secondary" size={48} />
+          <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
+            <div className="rounded-lg bg-secondary/10" style={{ padding: "clamp(0.5rem, 2vh, 1rem)" }}>
+              <Users
+                className="text-secondary"
+                style={{ width: "clamp(32px, 6vw, 48px)", height: "clamp(32px, 6vw, 48px)" }}
+              />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 break-words">Multiplayer</h2>
-              <p className="text-base-content/60">Play with friends - Free & Fun</p>
+              <h2
+                className="font-semibold"
+                style={{ fontSize: "clamp(1rem, 3vw, 1.25rem)", marginBottom: "clamp(0.25rem, 1vh, 0.5rem)" }}
+              >
+                Multiplayer
+              </h2>
+              <p className="text-base-content/60" style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}>
+                Play with friends - Free & Fun
+              </p>
             </div>
           </div>
         </button>
