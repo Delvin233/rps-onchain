@@ -50,6 +50,13 @@ export default function Home() {
     }
   }, [isMiniPay, injectedConnector, address, connect]);
 
+  // Fallback: Auto-connect injected wallet if connectors are ready
+  useEffect(() => {
+    if (!address && isMiniPay && connectors.length > 0 && !injectedConnector) {
+      connect({ connector: connectors[0] });
+    }
+  }, [isMiniPay, connectors, injectedConnector, address, connect]);
+
   // Force Base network for Base app users only (not Farcaster)
   useEffect(() => {
     if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
@@ -112,6 +119,14 @@ export default function Home() {
                   : "Free-to-play Rock Paper Scissors on Celo & Base."}
             </p>
           </div>
+
+          {isMiniPay && (
+            <div className="mb-6 text-center">
+              <div className="inline-block bg-primary/10 border border-primary/30 rounded-lg px-4 py-2">
+                <p className="text-sm font-medium text-primary">🔄 MiniPay Detected - Connecting...</p>
+              </div>
+            </div>
+          )}
 
           {!isMiniApp && (
             <div className="mb-12 max-w-md mx-auto space-y-3">
