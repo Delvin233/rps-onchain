@@ -179,7 +179,8 @@ export const Header = memo(() => {
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isMiniAppReady) return "farcaster";
     if (isBaseApp) return "base";
-    return "minipay";
+    if (isMiniPay) return "minipay";
+    return "farcaster"; // Fallback (shouldn't be reached in web)
   };
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
@@ -216,7 +217,7 @@ export const Header = memo(() => {
       <div className="navbar-end grow mr-4 flex items-center gap-2">
         {isReconnecting ? (
           <div className="skeleton h-8 w-32 rounded-lg"></div>
-        ) : isMiniApp && address ? (
+        ) : (isMiniApp && address) ? (
           <div className="max-w-xs">
             <MiniAppAccount platform={getPlatform()} />
           </div>

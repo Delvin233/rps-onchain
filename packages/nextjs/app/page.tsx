@@ -28,7 +28,8 @@ export default function Home() {
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isMiniAppReady) return "farcaster";
     if (isBaseApp) return "base";
-    return "minipay"; // Default for MiniApp context
+    if (isMiniPay) return "minipay";
+    return "farcaster"; // Fallback (shouldn't be reached in web)
   };
 
   // Auto-connect Farcaster users when miniapp context is ready
