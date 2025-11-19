@@ -14,23 +14,12 @@ interface MiniAppAccountProps {
   platform: "farcaster" | "base" | "minipay";
 }
 
-const MINIPAY_TOKENS = [
-  { symbol: "CELO", address: undefined, name: "Celo" },
-  { symbol: "cUSD", address: "0x765DE816845861e75A25fCA122bb6898B8B1282a" as `0x${string}`, name: "Celo Dollar" },
-  { symbol: "USDC", address: "0xcebA9300f2b948710d2653dD7B07f33A8B32118C" as `0x${string}`, name: "USD Coin" },
-  { symbol: "USDT", address: "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e" as `0x${string}`, name: "Tether" },
-  { symbol: "G$", address: "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7a" as `0x${string}`, name: "GoodDollar" },
-];
-
 export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { address, chain, isConnecting } = useAccount();
-  const [selectedToken, setSelectedToken] = useState(
-    platform === "minipay" || platform === "farcaster" ? MINIPAY_TOKENS[1] : MINIPAY_TOKENS[0],
-  );
-  const [showTokenMenu, setShowTokenMenu] = useState(false);
+  const cUSD_ADDRESS = "0x765DE816845861e75A25fCA122bb6898B8B1282a" as `0x${string}`;
   const { data: balance, isLoading: balanceLoading } = useBalance({
     address,
-    token: selectedToken.address,
+    token: platform === "minipay" ? cUSD_ADDRESS : undefined,
   });
   const { data: ensName } = useEnsName({ address });
   const { switchChain, isPending: switchPending } = useSwitchChain();
@@ -38,7 +27,6 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { displayName: apiDisplayName, pfpUrl: apiPfpUrl } = useDisplayName(address);
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const tokenMenuRef = useRef<HTMLDivElement>(null);
 
   const platformColors = useMemo(() => {
     switch (platform) {
@@ -144,22 +132,19 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
     [switchChain, toastStyle],
   );
 
-  // Close menus when clicking outside
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowNetworkMenu(false);
       }
-      if (tokenMenuRef.current && !tokenMenuRef.current.contains(event.target as Node)) {
-        setShowTokenMenu(false);
-      }
     };
 
-    if (showNetworkMenu || showTokenMenu) {
+    if (showNetworkMenu) {
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [showNetworkMenu, showTokenMenu]);
+  }, [showNetworkMenu]);
 
   if (!address) {
     return (
@@ -226,64 +211,19 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               {displayName}
             </p>
             <div className="flex items-center gap-2">
-              {platform === "minipay" || platform === "farcaster" ? (
-                <div className="relative" ref={tokenMenuRef}>
-                  <button
-                    onClick={() => setShowTokenMenu(!showTokenMenu)}
-                    className="text-base-content/60 hover:text-base-content flex items-center gap-1"
-                    style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
-                    }}
-                  >
-                    {balanceLoading ? (
-                      <span className="loading loading-dots loading-xs"></span>
-                    ) : (
-                      <>
-                        {balance?.formatted.slice(0, 6)} {selectedToken.symbol}
-                        <ChevronDown size={10} />
-                      </>
-                    )}
-                  </button>
-                  {showTokenMenu && (
-                    <div className="absolute left-0 top-6 bg-base-100 border border-border rounded-lg shadow-lg z-[100] min-w-32">
-                      {MINIPAY_TOKENS.map(token => (
-                        <button
-                          key={token.symbol}
-                          onClick={() => {
-                            setSelectedToken(token);
-                            setShowTokenMenu(false);
-                          }}
-                          className={`w-full text-left hover:bg-base-200 first:rounded-t-lg last:rounded-b-lg ${
-                            selectedToken.symbol === token.symbol ? "bg-primary/10 text-primary" : ""
-                          }`}
-                          style={{
-                            padding: "var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)",
-                            fontFamily: "var(--font-body)",
-                            fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
-                          }}
-                        >
-                          {token.symbol} {selectedToken.symbol === token.symbol && "✓"}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p
-                  className="text-base-content/60"
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
-                  }}
-                >
-                  {balanceLoading ? (
-                    <span className="loading loading-dots loading-xs"></span>
-                  ) : (
-                    `${balance?.formatted.slice(0, 6)} ${balance?.symbol}`
-                  )}
-                </p>
-              )}
+              <p
+                className="text-base-content/60"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+                }}
+              >
+                {balanceLoading ? (
+                  <span className="loading loading-dots loading-xs"></span>
+                ) : (
+                  `${balance?.formatted.slice(0, 6)} ${balance?.symbol}`
+                )}
+              </p>
               <div className="flex items-center gap-1">
                 <span
                   className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
@@ -292,7 +232,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                     fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                   }}
                 >
-                  {chain?.name?.toUpperCase() || "UNKNOWN"}
+                  {chain?.name?.toUpperCase() || (balance?.symbol === "cUSD" ? "CELO" : "UNKNOWN")}
                 </span>
                 {platform === "minipay" && (
                   <span
