@@ -21,11 +21,11 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const platformColors = useMemo(() => {
     switch (platform) {
       case "farcaster":
-        return "border-purple-500/30 bg-purple-500/10";
+        return "border-accent/30 bg-accent/10";
       case "base":
-        return "border-blue-500/30 bg-blue-500/10";
+        return "border-secondary/30 bg-secondary/10";
       case "minipay":
-        return "border-green-500/30 bg-green-500/10";
+        return "border-primary/30 bg-primary/10";
       default:
         return "border-primary/30 bg-primary/10";
     }
