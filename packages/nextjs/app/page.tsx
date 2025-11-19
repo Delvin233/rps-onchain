@@ -66,17 +66,6 @@ export default function Home() {
     }
   }, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
 
-  // Force Base network for Base app users only (not Farcaster)
-  useEffect(() => {
-    if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
-      try {
-        switchChain({ chainId: 8453 });
-      } catch (error) {
-        console.error("Failed to switch to Base:", error);
-      }
-    }
-  }, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
-
   useEffect(() => {
     if (address) {
       // Auto-migrate existing users from IPFS to Redis
