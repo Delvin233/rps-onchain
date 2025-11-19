@@ -8,6 +8,7 @@ import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { useAccount } from "wagmi";
+import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -22,7 +23,14 @@ export default function ProfilePage() {
   const router = useRouter();
   const { address } = useAccount();
   const { isHumanVerified } = useAuth();
-  const { isMiniApp } = usePlatformDetection();
+  const { isMiniApp, isBaseApp, isMiniPay, isFarcaster } = usePlatformDetection();
+
+  const getPlatform = (): "farcaster" | "base" | "minipay" => {
+    if (isBaseApp) return "base";
+    if (isMiniPay) return "minipay";
+    if (isFarcaster) return "farcaster";
+    return "farcaster";
+  };
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
@@ -119,7 +127,11 @@ export default function ProfilePage() {
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
       {/* Mobile Wallet Button */}
-      {!isMiniApp && (
+      {isMiniApp ? (
+        <div className="mb-4">
+          <MiniAppAccount platform={getPlatform()} />
+        </div>
+      ) : (
         <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4 lg:hidden">
           <div className="flex items-center justify-center">
             <RainbowKitCustomConnectButton />
