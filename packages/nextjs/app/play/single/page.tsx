@@ -155,7 +155,7 @@ export default function SinglePlayerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
+    <div className="min-h-screen bg-base-200 px-4 py-4 flex flex-col">
       <div className="flex items-start mb-4">
         <button onClick={() => handleNavigation("/play")} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
@@ -169,16 +169,24 @@ export default function SinglePlayerPage() {
       )}
 
       {!playerMove ? (
-        <div className="space-y-4">
-          <p className="text-center text-base-content/60 mb-6">Choose your move</p>
+        <div className="flex-1 flex flex-col justify-center" style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)" }}>
+          <p
+            className="text-center text-base-content/60"
+            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1rem)", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}
+          >
+            Choose your move
+          </p>
           {moves.map(move => (
             <button
               key={move}
               onClick={() => playGame(move)}
               disabled={isPlaying}
-              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
-              <p className="text-xl font-semibold capitalize">{move}</p>
+              <p className="font-semibold capitalize" style={{ fontSize: "clamp(1rem, 3vw, 1.5rem)" }}>
+                {move}
+              </p>
             </button>
           ))}
         </div>
