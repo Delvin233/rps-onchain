@@ -98,6 +98,8 @@ export default function ProfilePage() {
     }
   };
 
+  const isMiniPayCheck = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
+
   if (!address) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
@@ -105,18 +107,24 @@ export default function ProfilePage() {
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Profile</h1>
           </div>
-          <div className="w-full">
-            <ConnectButton.Custom>
-              {({ openConnectModal }) => (
-                <button
-                  onClick={openConnectModal}
-                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
-                >
-                  Connect Wallet
-                </button>
-              )}
-            </ConnectButton.Custom>
-          </div>
+          {isMiniPayCheck ? (
+            <div className="flex justify-center">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+          ) : (
+            <div className="w-full">
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <button
+                    onClick={openConnectModal}
+                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                  >
+                    Connect Wallet
+                  </button>
+                )}
+              </ConnectButton.Custom>
+            </div>
+          )}
         </div>
       </div>
     );

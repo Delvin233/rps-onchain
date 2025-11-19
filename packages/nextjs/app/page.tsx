@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
+import { injected } from "wagmi/connectors";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -22,7 +23,6 @@ export default function Home() {
   const { connect, connectors } = useConnect();
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
-  const injectedConnector = connectors.find(c => c.id === "injected");
   const isBaseApp =
     typeof window !== "undefined" &&
     (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
@@ -45,10 +45,15 @@ export default function Home() {
 
   // Auto-connect MiniPay users
   useEffect(() => {
-    if (!address && isMiniPay && injectedConnector) {
-      connect({ connector: injectedConnector });
+    if (!address && isMiniPay && typeof window !== "undefined" && window.ethereum) {
+      window.ethereum
+        .request({ method: "eth_requestAccounts", params: [] })
+        .then(() => {
+          connect({ connector: injected() });
+        })
+        .catch(console.error);
     }
-  }, [isMiniPay, injectedConnector, address, connect]);
+  }, [isMiniPay, address, connect]);
 
   // Force Base network for Base app users only (not Farcaster)
   useEffect(() => {
@@ -112,6 +117,12 @@ export default function Home() {
                   : "Free-to-play Rock Paper Scissors on Celo & Base."}
             </p>
           </div>
+
+          {isMiniPay && (
+            <div className="mb-6 flex justify-center">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+          )}
 
           {!isMiniApp && (
             <div className="mb-12 max-w-md mx-auto space-y-3">
