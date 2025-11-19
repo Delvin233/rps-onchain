@@ -55,3 +55,16 @@ export async function initUserPreferencesTable() {
     // Column already exists, ignore
   }
 }
+
+export async function initVerificationsTable() {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS verifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      address TEXT UNIQUE NOT NULL,
+      verified BOOLEAN DEFAULT 1,
+      proof_data TEXT,
+      timestamp_ms INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+}

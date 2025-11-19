@@ -30,6 +30,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             padding: "16px",
             fontSize: "0.9375rem",
             maxWidth: "500px",
+            cursor: "pointer",
           },
           success: {
             iconTheme: {
