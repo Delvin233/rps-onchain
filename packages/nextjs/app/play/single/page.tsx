@@ -6,6 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -14,6 +15,7 @@ const TAB_ID = typeof window !== "undefined" ? `tab_${Date.now()}_${Math.random(
 export default function SinglePlayerPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
+  const { isMiniApp } = usePlatformDetection();
   const [playerMove, setPlayerMove] = useState<Move | null>(null);
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
@@ -152,9 +154,11 @@ export default function SinglePlayerPage() {
         </button>
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary ml-2 break-words">Single Player</h1>
       </div>
-      <div className="flex justify-end mb-6 lg:hidden">
-        <RainbowKitCustomConnectButton />
-      </div>
+      {!isMiniApp && (
+        <div className="flex justify-end mb-6 lg:hidden">
+          <RainbowKitCustomConnectButton />
+        </div>
+      )}
 
       {!playerMove ? (
         <div className="space-y-4">

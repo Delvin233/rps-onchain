@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { get } from "@vercel/edge-config";
-import { turso } from "~~/lib/turso";
+import { initVerificationsTable, turso } from "~~/lib/turso";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
 
     // Try Turso first
     try {
+      await initVerificationsTable();
       const result = await turso.execute({
         sql: "SELECT verified, proof_data, timestamp_ms FROM verifications WHERE address = ?",
         args: [normalizedAddress],

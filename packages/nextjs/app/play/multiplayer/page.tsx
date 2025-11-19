@@ -10,6 +10,7 @@ import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
+import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 export default function MultiplayerPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function MultiplayerPage() {
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const [roomInfo, setRoomInfo] = useState<any>(null);
   const [checkingRoom, setCheckingRoom] = useState(false);
+  const { isMiniApp } = usePlatformDetection();
 
   const { switchChain } = useSwitchChain();
 
@@ -231,9 +233,11 @@ export default function MultiplayerPage() {
           Multiplayer
         </h1>
       </div>
-      <div className="flex justify-end mb-6 lg:hidden">
-        <RainbowKitCustomConnectButton />
-      </div>
+      {!isMiniApp && (
+        <div className="flex justify-end mb-6 lg:hidden">
+          <RainbowKitCustomConnectButton />
+        </div>
+      )}
 
       <div className="space-y-6">
         <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6">
