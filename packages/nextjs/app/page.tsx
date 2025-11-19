@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
-import { useAccount, useConnect } from "wagmi";
+import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -13,6 +13,8 @@ import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
   const { address } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const router = useRouter();
   const stats = usePlayerStats(address);
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
@@ -47,6 +49,17 @@ export default function Home() {
       connect({ connector: injectedConnector });
     }
   }, [isMiniPay, injectedConnector, address, connect]);
+
+  // Force Base network for Base app users only (not Farcaster)
+  useEffect(() => {
+    if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
+      try {
+        switchChain({ chainId: 8453 });
+      } catch (error) {
+        console.error("Failed to switch to Base:", error);
+      }
+    }
+  }, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
 
   useEffect(() => {
     if (address) {
