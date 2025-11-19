@@ -11,9 +11,9 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
-import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useFarcasterAuth } from "~~/hooks/useFarcasterAuth";
 
 type HeaderMenuLink = {
@@ -169,7 +169,7 @@ export const Header = memo(() => {
   const { address, isReconnecting } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
-  const { context, isMiniAppReady } = useFarcaster();
+  const { isMiniAppReady } = useFarcaster();
 
   // Platform detection
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
@@ -217,7 +217,7 @@ export const Header = memo(() => {
       <div className="navbar-end grow mr-4 flex items-center gap-2">
         {isReconnecting ? (
           <div className="skeleton h-8 w-32 rounded-lg"></div>
-        ) : (isMiniApp && address) ? (
+        ) : isMiniApp && address ? (
           <div className="max-w-xs">
             <MiniAppAccount platform={getPlatform()} />
           </div>

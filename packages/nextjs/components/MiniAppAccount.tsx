@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { ChevronDown, Copy, Network } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
@@ -176,9 +177,11 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
         <div className="flex items-center" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
           {avatarUrl ? (
-            <img
+            <Image
               src={avatarUrl}
               alt={displayName}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover"
               onError={e => {
                 // Fallback to text avatar on image error
