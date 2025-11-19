@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { User, Users } from "lucide-react";
+import { IoInformationCircle } from "react-icons/io5";
 import { useAccount } from "wagmi";
 
 export default function PlayModePage() {
   const router = useRouter();
   const { isConnected, isConnecting } = useAccount();
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // Show loading while wagmi is still connecting/hydrating
   if (isConnecting) {
@@ -47,9 +50,32 @@ export default function PlayModePage() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-glow-primary mb-8 pt-4 lg:pt-0 break-words">
-        Choose Game Mode
-      </h1>
+      <div className="flex items-center gap-2 mb-8 pt-4 lg:pt-0">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-glow-primary break-words">
+          Choose Game Mode
+        </h1>
+        <div className="relative">
+          <IoInformationCircle
+            className="text-base-content/40 hover:text-base-content/60 cursor-pointer"
+            size={20}
+            onClick={() => setShowTooltip(!showTooltip)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          />
+          {showTooltip && (
+            <div
+              className="absolute left-0 top-8 w-64 sm:w-80 bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in cursor-pointer"
+              onClick={() => setShowTooltip(false)}
+            >
+              <p className="text-xs text-base-content/80">
+                <strong>Testing tip:</strong> To test multiplayer with different accounts, use separate browsers (e.g.,
+                Chrome + Firefox). Switching accounts in the same browser shares localStorage and may cause silent
+                failures.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <button

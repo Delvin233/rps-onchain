@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AllIds, DefaultConfigStore, SelfBackendVerifier } from "@selfxyz/core";
-import { updateEdgeConfig } from "~~/lib/edgeConfigClient";
+import { initVerificationsTable, turso } from "~~/lib/turso";
 
 const SCOPE = "rps-onchain";
 const ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -49,22 +49,30 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Store verification in Edge Config
+    // Store verification in Turso
     const address = result.userData.userIdentifier.toLowerCase();
+    const timestamp = Date.now();
     const verificationData = {
       verified: true,
       proof: result,
-      timestamp: Date.now(),
+      timestamp,
     };
 
     try {
-      await updateEdgeConfig(`verified_${address}`, verificationData);
-      console.log(`✅ Verification stored for ${address}`);
+      await initVerificationsTable();
+      await turso.execute({
+        sql: `INSERT INTO verifications (address, verified, proof_data, timestamp_ms) 
+              VALUES (?, ?, ?, ?) 
+              ON CONFLICT(address) DO UPDATE SET 
+                verified = excluded.verified,
+                proof_data = excluded.proof_data,
+                timestamp_ms = excluded.timestamp_ms`,
+        args: [address, 1, JSON.stringify(result), timestamp],
+      });
+      console.log(`✅ Verification stored in Turso for ${address}`);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("❌ Failed to store verification:", errorMsg);
-      console.error("Edge Config ID:", process.env.EDGE_CONFIG_ID ? "Set" : "Missing");
-      console.error("Vercel API Token:", process.env.VERCEL_API_TOKEN ? "Set" : "Missing");
       return NextResponse.json({
         status: "error",
         result: false,
