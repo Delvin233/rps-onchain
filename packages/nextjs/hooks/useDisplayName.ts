@@ -22,10 +22,12 @@ export const useDisplayName = (address: string | undefined) => {
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
+  // Priority: mainnet ENS > basename > farcaster > wallet
   const displayName =
     mainnetEns || basename || farcasterData?.name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
   const hasEns = !!(mainnetEns || basename || farcasterData?.name);
   const ensType = mainnetEns ? "mainnet" : basename ? "basename" : farcasterData?.name ? "farcaster" : null;
+  const pfpUrl = basename ? null : farcasterData?.pfp; // Only show Farcaster pfp if no basename
 
-  return { displayName, hasEns, ensType, fullAddress: address, pfpUrl: farcasterData?.pfp };
+  return { displayName, hasEns, ensType, fullAddress: address, pfpUrl };
 };

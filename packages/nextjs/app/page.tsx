@@ -21,15 +21,17 @@ export default function Home() {
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
   const injectedConnector = connectors.find(c => c.id === "injected");
-  const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
+  const isBaseApp =
+    typeof window !== "undefined" &&
+    (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
   const isMiniApp = (isMiniAppReady && !!context) || isBaseApp || isMiniPay;
 
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
-    if (isMiniAppReady) return "farcaster";
     if (isBaseApp) return "base";
     if (isMiniPay) return "minipay";
-    return "farcaster"; // Fallback (shouldn't be reached in web)
+    if (isMiniAppReady && context) return "farcaster";
+    return "farcaster"; // Fallback
   };
 
   // Auto-connect Farcaster users when miniapp context is ready
