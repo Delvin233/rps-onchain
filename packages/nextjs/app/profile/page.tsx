@@ -12,6 +12,7 @@ import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
+import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 const SelfVerificationModal = lazy(() =>
   import("~~/components/SelfVerificationModal").then(mod => ({ default: mod.SelfVerificationModal })),
@@ -21,6 +22,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { address } = useAccount();
   const { isHumanVerified } = useAuth();
+  const { isMiniApp } = usePlatformDetection();
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
@@ -117,11 +119,13 @@ export default function ProfilePage() {
       <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
 
       {/* Mobile Wallet Button */}
-      <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4 lg:hidden">
-        <div className="flex items-center justify-center">
-          <RainbowKitCustomConnectButton />
+      {!isMiniApp && (
+        <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4 lg:hidden">
+          <div className="flex items-center justify-center">
+            <RainbowKitCustomConnectButton />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* User Details - 2 columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">

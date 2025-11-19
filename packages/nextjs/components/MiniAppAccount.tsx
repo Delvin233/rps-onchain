@@ -45,8 +45,8 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
     // Base app: basename > farcaster profile > truncated wallet
     if (platform === "base") {
-      // 1. Basename (ENS ending in .base.eth)
-      if (ensName && ensName.endsWith(".base.eth")) {
+      // 1. Basename (ENS ending in .base)
+      if (ensName && (ensName.endsWith(".base.eth") || ensName.endsWith(".base"))) {
         return {
           displayName: ensName,
           avatarUrl: null, // TODO: Add basename avatar resolution

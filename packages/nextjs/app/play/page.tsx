@@ -64,7 +64,7 @@ export default function PlayModePage() {
           />
           {showTooltip && (
             <div
-              className="absolute left-0 top-8 w-64 sm:w-80 bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in cursor-pointer"
+              className="absolute right-0 top-8 w-64 sm:w-80 bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in cursor-pointer"
               onClick={() => setShowTooltip(false)}
             >
               <p className="text-xs text-base-content/80">

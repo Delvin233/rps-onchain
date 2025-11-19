@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
+import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -15,6 +16,7 @@ export default function MultiplayerGamePage() {
   const params = useParams();
   const router = useRouter();
   const { address, isConnected, chainId } = useAccount();
+  const { isMiniApp } = usePlatformDetection();
 
   const roomId = params.roomId as string;
   const [isFreeMode, setIsFreeMode] = useState(false);
@@ -536,9 +538,11 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "waiting") {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4 lg:hidden">
-          <RainbowKitCustomConnectButton />
-        </div>
+        {!isMiniApp && (
+          <div className="flex justify-end mb-4 lg:hidden">
+            <RainbowKitCustomConnectButton />
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
@@ -554,9 +558,11 @@ export default function MultiplayerGamePage() {
   if ((gameStatus === "ready" || gameStatus === "playing") && !selectedMove) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4 lg:hidden">
-          <RainbowKitCustomConnectButton />
-        </div>
+        {!isMiniApp && (
+          <div className="flex justify-end mb-4 lg:hidden">
+            <RainbowKitCustomConnectButton />
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Choose Your Move</h1>
         {!isFreeMode && <p className="text-center text-base-content/60 mb-6">Bet: {betAmount} CELO</p>}
 
@@ -579,9 +585,11 @@ export default function MultiplayerGamePage() {
   if (gameStatus === "revealing" || (selectedMove && !result)) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4 lg:hidden">
-          <RainbowKitCustomConnectButton />
-        </div>
+        {!isMiniApp && (
+          <div className="flex justify-end mb-4 lg:hidden">
+            <RainbowKitCustomConnectButton />
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
@@ -600,9 +608,11 @@ export default function MultiplayerGamePage() {
 
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="flex justify-end mb-4 lg:hidden">
-          <RainbowKitCustomConnectButton />
-        </div>
+        {!isMiniApp && (
+          <div className="flex justify-end mb-4 lg:hidden">
+            <RainbowKitCustomConnectButton />
+          </div>
+        )}
         <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
