@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
+import { injected } from "wagmi/connectors";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -22,7 +23,6 @@ export default function Home() {
   const { connect, connectors } = useConnect();
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
-  const injectedConnector = connectors.find(c => c.id === "injected");
   const isBaseApp =
     typeof window !== "undefined" &&
     (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
@@ -45,17 +45,10 @@ export default function Home() {
 
   // Auto-connect MiniPay users
   useEffect(() => {
-    if (!address && isMiniPay && injectedConnector) {
-      connect({ connector: injectedConnector });
+    if (!address && isMiniPay) {
+      connect({ connector: injected() });
     }
-  }, [isMiniPay, injectedConnector, address, connect]);
-
-  // Fallback: Auto-connect injected wallet if connectors are ready
-  useEffect(() => {
-    if (!address && isMiniPay && connectors.length > 0 && !injectedConnector) {
-      connect({ connector: connectors[0] });
-    }
-  }, [isMiniPay, connectors, injectedConnector, address, connect]);
+  }, [isMiniPay, address, connect]);
 
   // Force Base network for Base app users only (not Farcaster)
   useEffect(() => {
