@@ -5,6 +5,7 @@ import { ChevronDown, Copy, Network } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
 import { base, celo } from "wagmi/chains";
+import { useFarcaster } from "~~/contexts/FarcasterContext";
 
 interface MiniAppAccountProps {
   platform: "farcaster" | "base" | "minipay";
@@ -15,6 +16,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { data: balance, isLoading: balanceLoading } = useBalance({ address });
   const { data: ensName } = useEnsName({ address });
   const { switchChain, isPending: switchPending } = useSwitchChain();
+  const { enrichedUser } = useFarcaster();
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -31,10 +33,24 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
     }
   }, [platform]);
 
-  const displayName = useMemo(
-    () => ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
-    [ensName, address],
-  );
+  const { displayName, avatarUrl } = useMemo(() => {
+    // Platform-specific identity priority
+    if (platform === "farcaster" && enrichedUser) {
+      return {
+        displayName: enrichedUser.username ? `@${enrichedUser.username}` : enrichedUser.displayName,
+        avatarUrl: enrichedUser.pfpUrl
+      };
+    }
+    
+    // TODO: Add Base app basename resolution
+    // TODO: Add MiniPay profile data
+    
+    // Fallback to ENS or wallet address
+    return {
+      displayName: ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
+      avatarUrl: null
+    };
+  }, [platform, enrichedUser, ensName, address]);
 
   const toastStyle = useMemo(
     () => ({
@@ -120,7 +136,20 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
     >
       <div className="flex items-center justify-between" style={{ gap: 'var(--inner-gap, 0.75rem)' }}>
         <div className="flex items-center" style={{ gap: 'var(--inner-gap, 0.75rem)' }}>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+          {avatarUrl ? (
+            <img 
+              src={avatarUrl} 
+              alt={displayName}
+              className="w-10 h-10 rounded-full object-cover"
+              onError={(e) => {
+                // Fallback to text avatar on image error
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold ${avatarUrl ? 'hidden' : ''}`}>
             {displayName.slice(0, 2).toUpperCase()}
           </div>
           <div>
