@@ -119,10 +119,8 @@ export default function Home() {
           </div>
 
           {isMiniPay && (
-            <div className="mb-6 text-center">
-              <div className="inline-block bg-primary/10 border border-primary/30 rounded-lg px-4 py-2">
-                <p className="text-sm font-medium text-primary">🔄 MiniPay Detected - Connecting...</p>
-              </div>
+            <div className="mb-6 flex justify-center">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
@@ -141,6 +142,8 @@ export default function HistoryPage() {
     );
   }
 
+  const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
+
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
@@ -148,18 +151,24 @@ export default function HistoryPage() {
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Match History</h1>
           </div>
-          <div className="w-full">
-            <ConnectButton.Custom>
-              {({ openConnectModal }) => (
-                <button
-                  onClick={openConnectModal}
-                  className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
-                >
-                  Connect Wallet
-                </button>
-              )}
-            </ConnectButton.Custom>
-          </div>
+          {isMiniPay ? (
+            <div className="flex justify-center">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+          ) : (
+            <div className="w-full">
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <button
+                    onClick={openConnectModal}
+                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                  >
+                    Connect Wallet
+                  </button>
+                )}
+              </ConnectButton.Custom>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -192,9 +201,9 @@ export default function HistoryPage() {
       ) : matches.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-base-content/60 mb-4">No matches found</p>
-          <a href="/play" className="text-primary hover:text-primary/80">
+          <Link href="/play" className="text-primary hover:text-primary/80">
             Play your first game →
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

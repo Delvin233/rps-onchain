@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
@@ -39,10 +40,30 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "On-Chain",
     href: "/on-chain-matches",
   },
+  {
+    label: "Profile",
+    href: "/profile",
+  },
 ];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+
+  const isInGame = pathname?.startsWith("/game/") || pathname === "/play/single";
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isInGame) {
+      e.preventDefault();
+      toast.error("Please finish your current match before leaving", {
+        duration: 3000,
+        style: {
+          background: "var(--color-base-100)",
+          color: "var(--color-base-content)",
+          border: "1px solid var(--color-error)",
+        },
+      });
+    }
+  };
 
   return (
     <>
@@ -53,6 +74,7 @@ export const HeaderMenuLinks = () => {
             <Link
               href={href}
               passHref
+              onClick={handleClick}
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
               } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
@@ -169,12 +191,14 @@ export const Header = memo(() => {
   const { address, isReconnecting } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
-  const { isMiniAppReady } = useFarcaster();
+  const { isMiniAppReady, context } = useFarcaster();
 
   // Platform detection
-  const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
+  const isBaseApp =
+    typeof window !== "undefined" &&
+    (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
-  const isMiniApp = isMiniAppReady || isBaseApp || isMiniPay;
+  const isMiniApp = (isMiniAppReady && !!context) || isBaseApp || isMiniPay;
 
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isMiniAppReady) return "farcaster";
