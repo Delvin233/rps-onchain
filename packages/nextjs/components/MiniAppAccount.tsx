@@ -88,12 +88,23 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   if (!address) {
     return (
-      <div className={`rounded-xl p-4 border backdrop-blur ${platformColors}`}>
+      <div 
+        className={`rounded-xl border backdrop-blur ${platformColors}`}
+        style={{ padding: 'var(--card-padding, 1rem)' }}
+      >
         <div className="flex items-center justify-center">
           {isConnecting ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
-            <span className="text-sm text-base-content/60">Connecting...</span>
+            <span 
+              className="text-base-content/60"
+              style={{ 
+                fontFamily: 'var(--font-body)', 
+                fontSize: 'calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))' 
+              }}
+            >
+              Connecting...
+            </span>
           )}
         </div>
       </div>
@@ -103,15 +114,32 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const canSwitchNetworks = platform === "farcaster";
 
   return (
-    <div className={`rounded-xl p-4 border backdrop-blur ${platformColors}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <div 
+      className={`rounded-xl border backdrop-blur ${platformColors}`}
+      style={{ padding: 'var(--card-padding, 1rem)' }}
+    >
+      <div className="flex items-center justify-between" style={{ gap: 'var(--inner-gap, 0.75rem)' }}>
+        <div className="flex items-center" style={{ gap: 'var(--inner-gap, 0.75rem)' }}>
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
             {displayName.slice(0, 2).toUpperCase()}
           </div>
           <div>
-            <p className="font-semibold text-sm">{displayName}</p>
-            <p className="text-xs text-base-content/60">
+            <p 
+              className="font-semibold text-base-content"
+              style={{ 
+                fontFamily: 'var(--font-heading)', 
+                fontSize: 'calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))' 
+              }}
+            >
+              {displayName}
+            </p>
+            <p 
+              className="text-base-content/60"
+              style={{ 
+                fontFamily: 'var(--font-body)', 
+                fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))' 
+              }}
+            >
               {balanceLoading ? (
                 <span className="loading loading-dots loading-xs"></span>
               ) : (
@@ -121,16 +149,21 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center" style={{ gap: 'var(--inner-gap, 0.5rem)' }}>
           {canSwitchNetworks && (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
-                className="btn btn-xs btn-ghost flex items-center gap-1"
+                className="btn btn-xs btn-ghost flex items-center"
+                style={{ 
+                  gap: 'var(--inner-gap, 0.25rem)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))'
+                }}
                 disabled={switchPending}
               >
                 {switchPending ? <span className="loading loading-spinner loading-xs"></span> : <Network size={12} />}
-                <span className="text-xs">{chain?.name}</span>
+                <span>{chain?.name}</span>
                 <ChevronDown size={10} />
               </button>
 
@@ -138,18 +171,28 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                 <div className="absolute right-0 top-8 bg-base-100 border border-border rounded-lg shadow-lg z-50 min-w-32">
                   <button
                     onClick={() => handleNetworkSwitch(celo.id)}
-                    className={`w-full px-3 py-2 text-left text-xs hover:bg-base-200 first:rounded-t-lg ${
+                    className={`w-full text-left hover:bg-base-200 first:rounded-t-lg ${
                       chain?.id === celo.id ? "bg-primary/10 text-primary" : ""
                     }`}
+                    style={{
+                      padding: 'var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))'
+                    }}
                     disabled={chain?.id === celo.id}
                   >
                     Celo {chain?.id === celo.id && "✓"}
                   </button>
                   <button
                     onClick={() => handleNetworkSwitch(base.id)}
-                    className={`w-full px-3 py-2 text-left text-xs hover:bg-base-200 last:rounded-b-lg ${
+                    className={`w-full text-left hover:bg-base-200 last:rounded-b-lg ${
                       chain?.id === base.id ? "bg-primary/10 text-primary" : ""
                     }`}
+                    style={{
+                      padding: 'var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))'
+                    }}
                     disabled={chain?.id === base.id}
                   >
                     Base {chain?.id === base.id && "✓"}
@@ -159,7 +202,12 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
             </div>
           )}
 
-          <button onClick={handleCopyAddress} className="btn btn-xs btn-ghost" title="Copy address">
+          <button 
+            onClick={handleCopyAddress} 
+            className="btn btn-xs btn-ghost" 
+            title="Copy address"
+            style={{ fontFamily: 'var(--font-body)' }}
+          >
             <Copy size={12} />
           </button>
         </div>
