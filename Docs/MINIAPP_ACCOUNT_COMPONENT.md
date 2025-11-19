@@ -67,6 +67,7 @@ platform="farcaster"
 **Features:**
 - Shows `@username` from Farcaster profile
 - Displays Farcaster profile picture
+- Network badge shows current network (CELO/BASE)
 - Network switcher enabled (Celo ↔ Base)
 - Full clipboard API support
 
@@ -74,6 +75,12 @@ platform="farcaster"
 1. Farcaster username (`@username`)
 2. Farcaster display name
 3. Wallet address
+
+**Visual Example:**
+```
+[🖼️] @delvin233                    [📋] [🔄 Celo ▼]
+     0.5 CELO [CELO]
+```
 
 ### Base App
 
@@ -84,8 +91,10 @@ platform="base"
 **Features:**
 - Shows Basename or Farcaster username
 - Displays Farcaster pfp (if no basename)
+- Network badge always shows "BASE"
 - Network switcher DISABLED (Base only)
 - Iframe-safe clipboard fallback
+- Auto-switches to Base network on connect
 
 **Identity Priority:**
 1. Basename (`.base` or `.base.eth`)
@@ -95,6 +104,13 @@ platform="base"
 **Special Handling:**
 - Uses `useDisplayName` hook instead of FarcasterContext (more reliable in Base app iframe)
 - Clipboard fallback using `document.execCommand('copy')` for iframe restrictions
+- Automatically forces Base network (chain ID 8453) when user connects
+
+**Visual Example:**
+```
+[🖼️] yourname.base                 [📋]
+     0.001 ETH [BASE]
+```
 
 ### MiniPay
 
@@ -104,7 +120,8 @@ platform="minipay"
 
 **Features:**
 - Shows wallet address (no profile APIs available)
-- No profile picture
+- No profile picture (gradient initials avatar)
+- Network badge always shows "CELO"
 - Network switcher DISABLED (Celo only)
 - Standard clipboard API
 
@@ -112,6 +129,12 @@ platform="minipay"
 1. Wallet address (truncated)
 
 **Note:** MiniPay doesn't have public profile/identity APIs. Phone number attestations exist via Celo identity system but are complex to implement.
+
+**Visual Example:**
+```
+[D2] 0x1234...5678                 [📋]
+     5.2 CELO [CELO]
+```
 
 ## Component Structure
 
@@ -130,14 +153,28 @@ const [showNetworkMenu, setShowNetworkMenu] = useState(false);
 const menuRef = useRef<HTMLDivElement>(null);
 ```
 
+### Visual Layout
+
+```
+┌─────────────────────────────────────────────────────┐
+│  [👤]  @username                    [📋] [🔄 Base ▼] │
+│        0.5 ETH [BASE]                                │
+└─────────────────────────────────────────────────────┘
+```
+
+**Components:**
+- **Left**: Avatar (pfp or initials) + Display name + Balance + Network badge
+- **Right**: Copy button + Network switcher (Farcaster only)
+
 ### Key Features
 
 1. **Platform Colors**: Dynamic border/background based on platform
 2. **Avatar Display**: Shows pfp or generates gradient avatar from initials
 3. **Balance Display**: Real-time token balance with loading state
-4. **Network Switcher**: Dropdown menu (Farcaster only)
-5. **Copy Address**: Clipboard with iframe fallback
-6. **Theme Integration**: Uses CSS variables for fonts, spacing, colors
+4. **Network Badge**: Shows current network (BASE/CELO) dynamically
+5. **Network Switcher**: Dropdown menu (Farcaster only)
+6. **Copy Address**: Clipboard with iframe fallback
+7. **Theme Integration**: Uses CSS variables for fonts, spacing, colors
 
 ## Usage in Your Project
 
@@ -317,7 +354,23 @@ const handleCopyAddress = useCallback(async () => {
 }, [address]);
 ```
 
-## Network Switching Logic
+## Network Badge & Switching Logic
+
+### Network Badge (All Platforms)
+
+```typescript
+<span className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+  {chain?.name?.toUpperCase() || "UNKNOWN"}
+</span>
+```
+
+**Displays:**
+- "BASE" when on Base network
+- "CELO" when on Celo network
+- Updates automatically when network changes
+- Visible on all platforms
+
+### Network Switcher (Farcaster Only)
 
 ```typescript
 const canSwitchNetworks = platform === "farcaster";
@@ -338,6 +391,23 @@ const canSwitchNetworks = platform === "farcaster";
     )}
   </div>
 )}
+```
+
+### Auto-Switch for Base App
+
+Base app users are automatically switched to Base network on connect:
+
+```typescript
+// In app/page.tsx
+useEffect(() => {
+  if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
+    try {
+      switchChain({ chainId: 8453 });
+    } catch (error) {
+      console.error("Failed to switch to Base:", error);
+    }
+  }
+}, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
 ```
 
 ## Performance Optimizations
@@ -378,6 +448,8 @@ const handleNetworkSwitch = useCallback(async (chainId: number) => {
 | Bundle Size | ~200KB | ~5KB |
 | Platform Awareness | ❌ | ✅ |
 | Network Restrictions | ❌ | ✅ |
+| Network Badge | ❌ | ✅ |
+| Auto Network Switch | ❌ | ✅ (Base app) |
 | Farcaster Identity | ❌ | ✅ |
 | Basename Support | ❌ | ✅ |
 | Iframe Clipboard | ❌ | ✅ |
@@ -448,6 +520,34 @@ if (platform === "base") {
 const isBaseApp = typeof window !== "undefined" && 
   (window.location.ancestorOrigins?.[0]?.includes("base.dev") || 
    window.location.href.includes("base.dev/preview"));
+```
+
+### Issue: Base app users connected to Celo network
+
+**Cause:** Network restrictions in `scaffold.config.ts` run at build time, not runtime
+
+**Fix:** Add runtime auto-switch in `app/page.tsx`:
+```typescript
+useEffect(() => {
+  if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
+    try {
+      switchChain({ chainId: 8453 });
+    } catch (error) {
+      console.error("Failed to switch to Base:", error);
+    }
+  }
+}, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
+```
+
+### Issue: Network badge not updating
+
+**Cause:** Not using `chain` from `useAccount`
+
+**Fix:** Badge uses `chain?.name` which updates automatically:
+```typescript
+const { chain } = useAccount();
+// ...
+{chain?.name?.toUpperCase() || "UNKNOWN"}
 ```
 
 ## Future Enhancements
