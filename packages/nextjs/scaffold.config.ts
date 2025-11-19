@@ -17,7 +17,9 @@ const scaffoldConfig = {
   // The networks on which your DApp is live
   targetNetworks: (() => {
     // Detect platform-specific network restrictions
-    const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
+    const isBaseApp =
+      typeof window !== "undefined" &&
+      (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
     const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
 
     if (isBaseApp) return [chains.base];
