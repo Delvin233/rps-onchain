@@ -16,10 +16,14 @@ import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
-const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })));
+const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })), {
+  ssr: false,
+  loading: () => null,
+});
 
-const OverlayProvider = dynamic(() =>
-  import("~~/components/overlays/OverlayManager").then(mod => ({ default: mod.OverlayProvider })),
+const OverlayProvider = dynamic(
+  () => import("~~/components/overlays/OverlayManager").then(mod => ({ default: mod.OverlayProvider })),
+  { ssr: false },
 );
 
 const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
@@ -65,40 +69,46 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <link rel="manifest" href="/rpsOnchainFavicons/site.webmanifest" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://gateway.pinata.cloud" />
+        <link rel="dns-prefetch" href="https://forno.celo.org" />
+        <link rel="dns-prefetch" href="https://mainnet.base.org" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+                  if (typeof window === 'undefined' || !localStorage) return;
                   const colorTheme = localStorage.getItem('colorTheme') || 'delvin233';
                   const fontTheme = localStorage.getItem('fontTheme') || 'retroArcade';
                   
                   const colors = {
-                    delvin233: { primary: '#10b981', bg: '#0a0a0a', text: '#f5f5f5' },
-                    neonCyberpunk: { primary: '#34d399', bg: '#0f172a', text: '#f5f5f4' },
+                    delvin233: { primary: '#10b981', bg: '#0a0a0a' },
+                    neonCyberpunk: { primary: '#34d399', bg: '#0f172a' },
                   };
                   
                   const fonts = {
-                    futuristic: { url: 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap' },
-                    retroArcade: { url: 'https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=Courier+Prime:wght@400;700&display=swap' },
+                    futuristic: 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap',
+                    retroArcade: 'https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=Courier+Prime:wght@400;700&display=swap',
                   };
                   
                   const c = colors[colorTheme] || colors.delvin233;
-                  const f = fonts[fontTheme] || fonts.retroArcade;
+                  const fontUrl = fonts[fontTheme] || fonts.retroArcade;
                   
-                  document.documentElement.style.setProperty('--theme-primary', c.primary);
-                  document.documentElement.style.setProperty('--theme-background', c.bg);
-                  document.documentElement.style.setProperty('--color-base-200', c.bg);
-                  document.documentElement.style.setProperty('--color-primary', c.primary);
+                  const root = document.documentElement.style;
+                  root.setProperty('--theme-primary', c.primary);
+                  root.setProperty('--theme-background', c.bg);
+                  root.setProperty('--color-base-200', c.bg);
+                  root.setProperty('--color-primary', c.primary);
                   
-                  const link = document.createElement('link');
-                  link.rel = 'stylesheet';
-                  link.href = f.url;
-                  document.head.appendChild(link);
-                } catch (e) {
-                  // Ignore errors during SSR
-                }
+                  if (!document.querySelector('link[href="' + fontUrl + '"]')) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = fontUrl;
+                    link.media = 'print';
+                    link.onload = function() { this.media = 'all'; };
+                    document.head.appendChild(link);
+                  }
+                } catch (e) {}
               })();
             `,
           }}
@@ -106,6 +116,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
       </head>
       <body>
         <BaseAppReady />
+
         <CRTEffect />
         <ColorLoader />
         <FontLoader />

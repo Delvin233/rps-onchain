@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Copy, Network } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
@@ -18,7 +18,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const getPlatformColors = () => {
+  const platformColors = useMemo(() => {
     switch (platform) {
       case "farcaster":
         return "border-purple-500/30 bg-purple-500/10";
@@ -29,7 +29,48 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       default:
         return "border-primary/30 bg-primary/10";
     }
-  };
+  }, [platform]);
+
+  const displayName = useMemo(
+    () => ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
+    [ensName, address],
+  );
+
+  const toastStyle = useMemo(
+    () => ({
+      background: "var(--color-base-100)",
+      color: "var(--color-base-content)",
+      border: "1px solid var(--color-success)",
+    }),
+    [],
+  );
+
+  const handleCopyAddress = useCallback(async () => {
+    if (!address) return;
+    try {
+      await navigator.clipboard.writeText(address);
+      toast.success("Address copied!", { duration: 2000, style: toastStyle });
+    } catch {
+      toast.error("Failed to copy address");
+    }
+  }, [address, toastStyle]);
+
+  const handleNetworkSwitch = useCallback(
+    async (chainId: number) => {
+      try {
+        await switchChain({ chainId });
+        setShowNetworkMenu(false);
+        toast.success(`Switched to ${chainId === celo.id ? "Celo" : "Base"}`, {
+          duration: 2000,
+          style: toastStyle,
+        });
+      } catch {
+        toast.error("Failed to switch network");
+        setShowNetworkMenu(false);
+      }
+    },
+    [switchChain, toastStyle],
+  );
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -47,7 +88,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   if (!address) {
     return (
-      <div className={`rounded-xl p-4 border backdrop-blur ${getPlatformColors()}`}>
+      <div className={`rounded-xl p-4 border backdrop-blur ${platformColors}`}>
         <div className="flex items-center justify-center">
           {isConnecting ? (
             <span className="loading loading-spinner loading-sm"></span>
@@ -59,45 +100,10 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
     );
   }
 
-  const displayName = ensName || `${address.slice(0, 6)}...${address.slice(-4)}`;
   const canSwitchNetworks = platform === "farcaster";
 
-  const handleCopyAddress = async () => {
-    try {
-      await navigator.clipboard.writeText(address);
-      toast.success("Address copied!", {
-        duration: 2000,
-        style: {
-          background: "var(--color-base-100)",
-          color: "var(--color-base-content)",
-          border: "1px solid var(--color-success)",
-        },
-      });
-    } catch {
-      toast.error("Failed to copy address");
-    }
-  };
-
-  const handleNetworkSwitch = async (chainId: number) => {
-    try {
-      await switchChain({ chainId });
-      setShowNetworkMenu(false);
-      toast.success(`Switched to ${chainId === celo.id ? "Celo" : "Base"}`, {
-        duration: 2000,
-        style: {
-          background: "var(--color-base-100)",
-          color: "var(--color-base-content)",
-          border: "1px solid var(--color-success)",
-        },
-      });
-    } catch {
-      toast.error("Failed to switch network");
-      setShowNetworkMenu(false);
-    }
-  };
-
   return (
-    <div className={`rounded-xl p-4 border backdrop-blur ${getPlatformColors()}`}>
+    <div className={`rounded-xl p-4 border backdrop-blur ${platformColors}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
