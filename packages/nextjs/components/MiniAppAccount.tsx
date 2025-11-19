@@ -67,10 +67,19 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       };
     }
     
-    // MiniPay: TODO - add MiniPay profile resolution
+    // MiniPay: minipay profile > wallet address
     if (platform === "minipay") {
+      // TODO: Add MiniPay profile data when API becomes available
+      // if (miniPayProfile) {
+      //   return {
+      //     displayName: miniPayProfile.name,
+      //     avatarUrl: miniPayProfile.avatar
+      //   };
+      // }
+      
+      // Fallback to wallet address
       return {
-        displayName: ensName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
+        displayName: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "",
         avatarUrl: null
       };
     }
