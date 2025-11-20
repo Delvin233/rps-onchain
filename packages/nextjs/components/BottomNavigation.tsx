@@ -43,14 +43,9 @@ export const BottomNavigation = () => {
       const isOnPlaySubpage = pathname.startsWith("/play/");
       const isOnPlayRoot = pathname === "/play";
 
-      // From non-play page: restore last subpage or go to root
+      // From non-play page: always go to root /play
       if (!pathname.startsWith("/play")) {
-        const lastPlayPage = sessionStorage.getItem("lastPlayPage");
-        if (lastPlayPage && lastPlayPage.startsWith("/play/")) {
-          router.push(lastPlayPage);
-        } else {
-          router.push("/play");
-        }
+        router.push("/play");
         lastPlayTapRef.current = 0;
         return;
       }
