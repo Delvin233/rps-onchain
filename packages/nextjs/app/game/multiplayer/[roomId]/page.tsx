@@ -129,8 +129,10 @@ export default function MultiplayerGamePage() {
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        stopPolling();
+        if (!isMiniApp) stopPolling();
       } else {
+        setErrorCount(0);
+        pollGameStatus();
         startPolling();
       }
     };
@@ -285,7 +287,7 @@ export default function MultiplayerGamePage() {
           const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
 
           await Promise.all([
-            // Save for current player
+            // Save history for current player
             fetch("/api/history-fast", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -301,7 +303,7 @@ export default function MultiplayerGamePage() {
                 },
               }),
             }),
-            // Save for opponent
+            // Save history for opponent
             fetch("/api/history-fast", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -315,6 +317,26 @@ export default function MultiplayerGamePage() {
                   result: opponentResult,
                   timestamp: new Date().toISOString(),
                 },
+              }),
+            }),
+            // Update stats for current player
+            fetch("/api/stats-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                address,
+                result: myResult,
+                isAI: false,
+              }),
+            }),
+            // Update stats for opponent
+            fetch("/api/stats-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                address: opponentAddress,
+                result: opponentResult,
+                isAI: false,
               }),
             }),
           ]);
