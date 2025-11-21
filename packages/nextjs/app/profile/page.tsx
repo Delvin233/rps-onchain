@@ -231,7 +231,7 @@ export default function ProfilePage() {
       </div>
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
-      <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-2 border-success/50 rounded-xl p-6 mb-4 shadow-lg shadow-success/20">
+      <div className="bg-gradient-to-br from-success/10 to-success/5 border-2 border-success/50 rounded-xl p-6 mb-4 shadow-lg shadow-success/20">
         <div className="flex items-center space-x-3 mb-4">
           <span className="text-2xl">💚</span>
           <div>
