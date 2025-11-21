@@ -250,7 +250,7 @@ export default function MultiplayerPage() {
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="flex items-start mb-4 gap-2">
-        <button onClick={() => router.back()} className="btn btn-sm btn-ghost flex-shrink-0">
+        <button onClick={() => router.push("/play")} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary break-words flex-1 min-w-0">

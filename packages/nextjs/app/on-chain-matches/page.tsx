@@ -31,6 +31,7 @@ export default function OnChainMatchesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
+  const isFarcasterFrame = typeof window !== "undefined" && window.parent !== window;
   const [filters, setFilters] = useState({
     search: "",
     dateFrom: "",
@@ -193,6 +194,14 @@ export default function OnChainMatchesPage() {
     return `${baseUrl}/address/${deployedContracts[chainId as 42220 | 8453].RPSOnline.address}`;
   };
 
+  const openExternalLink = (url: string) => {
+    if (isMiniPay || isBaseApp || isFarcasterFrame) {
+      window.location.href = url;
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base-200 p-6 pt-12 pb-24">
       <div className="max-w-6xl mx-auto">
@@ -277,9 +286,9 @@ export default function OnChainMatchesPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredMatches.map((match, idx) => (
-              <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+              <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
                 <div className="flex flex-col gap-3 mb-3">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
@@ -288,23 +297,23 @@ export default function OnChainMatchesPage() {
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
                       {match.txHash && (
-                        <a
-                          href={`${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() =>
+                            openExternalLink(
+                              `${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`,
+                            )
+                          }
                           className="btn btn-xs btn-primary"
                         >
                           <ExternalLink size={12} /> TX
-                        </a>
+                        </button>
                       )}
-                      <a
-                        href={getExplorerUrl(match.chainId)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => openExternalLink(getExplorerUrl(match.chainId))}
                         className="btn btn-xs btn-outline"
                       >
                         <ExternalLink size={12} /> Contract
-                      </a>
+                      </button>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

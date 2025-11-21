@@ -129,8 +129,10 @@ export default function MultiplayerGamePage() {
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        stopPolling();
+        if (!isMiniApp) stopPolling();
       } else {
+        setErrorCount(0);
+        pollGameStatus();
         startPolling();
       }
     };
@@ -280,22 +282,65 @@ export default function MultiplayerGamePage() {
           localStorage.setItem("rps_matches", JSON.stringify(matches));
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
 
-          // Save to Redis for stats
-          await fetch("/api/history-fast", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              address,
-              match: {
-                opponent: isCreator ? data.joiner : data.creator,
-                player: address,
-                playerMove: isCreator ? data.creatorMove : data.joinerMove,
-                opponentMove: isCreator ? data.joinerMove : data.creatorMove,
-                result: myResult,
-                timestamp: new Date().toISOString(),
-              },
+          // Save to Redis for stats - for BOTH players
+          const opponentAddress = isCreator ? data.joiner : data.creator;
+          const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
+
+          await Promise.all([
+            // Save history for current player
+            fetch("/api/history-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                address,
+                match: {
+                  opponent: opponentAddress,
+                  player: address,
+                  playerMove: isCreator ? data.creatorMove : data.joinerMove,
+                  opponentMove: isCreator ? data.joinerMove : data.creatorMove,
+                  result: myResult,
+                  timestamp: new Date().toISOString(),
+                },
+              }),
             }),
-          });
+            // Save history for opponent
+            fetch("/api/history-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                address: opponentAddress,
+                match: {
+                  opponent: address,
+                  player: opponentAddress,
+                  playerMove: isCreator ? data.joinerMove : data.creatorMove,
+                  opponentMove: isCreator ? data.creatorMove : data.joinerMove,
+                  result: opponentResult,
+                  timestamp: new Date().toISOString(),
+                },
+              }),
+            }),
+            // Update stats for current player
+            fetch("/api/stats-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                address,
+                result: myResult,
+                isAI: false,
+              }),
+            }),
+            // Update stats for opponent
+            fetch("/api/stats-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                address: opponentAddress,
+                result: opponentResult,
+                isAI: false,
+              }),
+            }),
+          ]);
+          // Refetch stats after saving
           refetchStats();
         }
         setIsSaving(false);
@@ -645,7 +690,7 @@ export default function MultiplayerGamePage() {
     const myName = isCreator ? creatorName : joinerName;
     const opponentName = isCreator ? joinerName : creatorName;
     const opponentPlatform = isCreator ? joinerPlatform : creatorPlatform;
-    const isOpponentWalletAddress = opponentName.includes("0x") && opponentName.includes("...");
+    const hasResolvedName = !opponentName.includes("0x") || !opponentName.includes("...");
 
     return (
       <div className="p-6 pt-12 pb-24">
@@ -664,7 +709,7 @@ export default function MultiplayerGamePage() {
             <div className="text-center">
               <p className="text-xs text-base-content/60 mb-1 flex items-center justify-center gap-1">
                 {opponentName}
-                {isOpponentWalletAddress && opponentPlatform && (
+                {!hasResolvedName && opponentPlatform && (
                   <span
                     className={`text-xs px-1.5 py-0.5 rounded font-bold ${
                       opponentPlatform === "minipay" ? "bg-primary/20 text-primary" : "bg-secondary/20 text-secondary"
