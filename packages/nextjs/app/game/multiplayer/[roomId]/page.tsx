@@ -252,6 +252,27 @@ export default function MultiplayerGamePage() {
 
         // Save to localStorage - add game to room's match history
         const matchKey = `${data.roomId}_${data.creatorMove}_${data.joinerMove}`;
+        const opponentAddress = isCreator ? data.joiner : data.creator;
+        const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
+
+        // Always update stats for both players
+        if (!sessionStorage.getItem(`stats_saved_${matchKey}`)) {
+          await Promise.all([
+            fetch("/api/stats-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address, result: myResult, isAI: false }),
+            }),
+            fetch("/api/stats-fast", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: opponentAddress, result: opponentResult, isAI: false }),
+            }),
+          ]);
+          sessionStorage.setItem(`stats_saved_${matchKey}`, "true");
+          refetchStats();
+        }
+
         if (data.ipfsHash && !sessionStorage.getItem(`match_saved_${matchKey}`)) {
           const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
           const roomIndex = matches.findIndex((m: any) => m.roomId === data.roomId);
@@ -282,12 +303,8 @@ export default function MultiplayerGamePage() {
           localStorage.setItem("rps_matches", JSON.stringify(matches));
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
 
-          // Save to Redis for stats - for BOTH players
-          const opponentAddress = isCreator ? data.joiner : data.creator;
-          const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
-
+          // Save to Redis history for BOTH players
           await Promise.all([
-            // Save history for current player
             fetch("/api/history-fast", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -303,7 +320,6 @@ export default function MultiplayerGamePage() {
                 },
               }),
             }),
-            // Save history for opponent
             fetch("/api/history-fast", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -319,29 +335,7 @@ export default function MultiplayerGamePage() {
                 },
               }),
             }),
-            // Update stats for current player
-            fetch("/api/stats-fast", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                address,
-                result: myResult,
-                isAI: false,
-              }),
-            }),
-            // Update stats for opponent
-            fetch("/api/stats-fast", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                address: opponentAddress,
-                result: opponentResult,
-                isAI: false,
-              }),
-            }),
           ]);
-          // Refetch stats after saving
-          refetchStats();
         }
         setIsSaving(false);
         setGameData(data);
