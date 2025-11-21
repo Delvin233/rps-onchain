@@ -169,10 +169,13 @@ export default function SinglePlayerPage() {
       )}
 
       {!playerMove ? (
-        <div className="flex-1 flex flex-col justify-center" style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)" }}>
+        <div
+          className="flex flex-col"
+          style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)", marginTop: "clamp(1rem, 2vh, 2rem)" }}
+        >
           <p
             className="text-center text-base-content/60"
-            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1rem)", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}
+            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1rem)", marginBottom: "clamp(0.5rem, 1vh, 1rem)" }}
           >
             Choose your move
           </p>
