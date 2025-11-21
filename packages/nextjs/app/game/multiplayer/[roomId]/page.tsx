@@ -8,6 +8,7 @@ import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
+import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -17,6 +18,7 @@ export default function MultiplayerGamePage() {
   const router = useRouter();
   const { address, isConnected, chainId } = useAccount();
   const { isMiniApp } = usePlatformDetection();
+  const { refetch: refetchStats } = usePlayerStats(address);
 
   const roomId = params.roomId as string;
   const [isFreeMode, setIsFreeMode] = useState(false);
@@ -36,6 +38,8 @@ export default function MultiplayerGamePage() {
   const [gameData, setGameData] = useState<any>(null);
   const [creatorAddress, setCreatorAddress] = useState<string>("");
   const [joinerAddress, setJoinerAddress] = useState<string>("");
+  const [creatorPlatform, setCreatorPlatform] = useState<string | null>(null);
+  const [joinerPlatform, setJoinerPlatform] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [opponentLeft, setOpponentLeft] = useState(false);
@@ -164,6 +168,8 @@ export default function MultiplayerGamePage() {
       setIsFreeMode(data.isFree || false);
       setCreatorAddress(data.creator || "");
       setJoinerAddress(data.joiner || "");
+      setCreatorPlatform(data.creatorPlatform || null);
+      setJoinerPlatform(data.joinerPlatform || null);
 
       // Show joiner verification status to creator
       if (
@@ -273,6 +279,24 @@ export default function MultiplayerGamePage() {
 
           localStorage.setItem("rps_matches", JSON.stringify(matches));
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
+
+          // Save to Redis for stats
+          await fetch("/api/history-fast", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              address,
+              match: {
+                opponent: isCreator ? data.joiner : data.creator,
+                player: address,
+                playerMove: isCreator ? data.creatorMove : data.joinerMove,
+                opponentMove: isCreator ? data.joinerMove : data.creatorMove,
+                result: myResult,
+                timestamp: new Date().toISOString(),
+              },
+            }),
+          });
+          refetchStats();
         }
         setIsSaving(false);
         setGameData(data);
@@ -527,7 +551,7 @@ export default function MultiplayerGamePage() {
           <p className="text-sm text-base-content/60 mb-6">
             The room may have expired or the server connection was interrupted.
           </p>
-          <button onClick={() => handleNavigation("/play/multiplayer")} className="btn btn-primary w-full">
+          <button onClick={() => router.push("/play/multiplayer")} className="btn btn-primary w-full">
             Back to Play
           </button>
         </div>
@@ -620,6 +644,8 @@ export default function MultiplayerGamePage() {
     const isCreator = creatorAddress === address;
     const myName = isCreator ? creatorName : joinerName;
     const opponentName = isCreator ? joinerName : creatorName;
+    const opponentPlatform = isCreator ? joinerPlatform : creatorPlatform;
+    const isOpponentWalletAddress = opponentName.includes("0x") && opponentName.includes("...");
 
     return (
       <div className="p-6 pt-12 pb-24">
@@ -636,7 +662,18 @@ export default function MultiplayerGamePage() {
               <p className="text-2xl font-bold capitalize">{selectedMove}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-base-content/60 mb-1">{opponentName}</p>
+              <p className="text-xs text-base-content/60 mb-1 flex items-center justify-center gap-1">
+                {opponentName}
+                {isOpponentWalletAddress && opponentPlatform && (
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded font-bold ${
+                      opponentPlatform === "minipay" ? "bg-primary/20 text-primary" : "bg-secondary/20 text-secondary"
+                    }`}
+                  >
+                    {opponentPlatform === "minipay" ? "MINIPAY" : "BASE-APP"}
+                  </span>
+                )}
+              </p>
               <p className="text-2xl font-bold capitalize">{opponentMove}</p>
             </div>
           </div>

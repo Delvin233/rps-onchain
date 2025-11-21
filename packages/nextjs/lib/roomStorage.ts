@@ -4,7 +4,9 @@ interface Room {
   roomId: string;
   chainId: number;
   creator: string;
+  creatorPlatform?: string | null;
   joiner: string | null;
+  joinerPlatform?: string | null;
   betAmount: string;
   creatorMove: string | null;
   joinerMove: string | null;
