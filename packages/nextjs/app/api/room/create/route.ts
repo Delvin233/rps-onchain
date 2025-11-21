@@ -7,7 +7,7 @@ function generateRoomId(): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { creator, betAmount, isFree, chainId } = await req.json();
+    const { creator, betAmount, isFree, chainId, creatorPlatform } = await req.json();
 
     if (!creator || !chainId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -18,8 +18,10 @@ export async function POST(req: NextRequest) {
       roomId,
       chainId,
       creator,
+      creatorPlatform: creatorPlatform || null,
       betAmount: betAmount || "0",
       joiner: null,
+      joinerPlatform: null,
       creatorMove: null,
       joinerMove: null,
       status: "waiting",
