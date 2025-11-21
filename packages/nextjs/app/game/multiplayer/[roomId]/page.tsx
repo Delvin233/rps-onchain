@@ -547,7 +547,7 @@ export default function MultiplayerGamePage() {
           <p className="text-sm text-base-content/60 mb-6">
             The room may have expired or the server connection was interrupted.
           </p>
-          <button onClick={() => handleNavigation("/play/multiplayer")} className="btn btn-primary w-full">
+          <button onClick={() => router.push("/play/multiplayer")} className="btn btn-primary w-full">
             Back to Play
           </button>
         </div>
