@@ -24,7 +24,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { data: ensName } = useEnsName({ address });
   const { switchChain, isPending: switchPending } = useSwitchChain();
   const { enrichedUser } = useFarcaster();
-  const { displayName: apiDisplayName, pfpUrl: apiPfpUrl } = useDisplayName(address);
+  const { displayName: apiDisplayName, pfpUrl: apiPfpUrl, ensType } = useDisplayName(address);
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -202,13 +202,37 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
           </div>
           <div>
             <p
-              className="font-semibold text-base-content"
+              className="font-semibold text-base-content flex items-center gap-1"
               style={{
                 fontFamily: "var(--font-heading)",
                 fontSize: "calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
             >
               {displayName}
+              {ensType && (
+                <span
+                  className={`text-xs ${
+                    ensType === "mainnet"
+                      ? "text-success"
+                      : ensType === "basename"
+                        ? "text-primary"
+                        : ensType === "farcaster"
+                          ? "text-purple-500"
+                          : "text-info"
+                  }`}
+                  style={{
+                    fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+                  }}
+                >
+                  {ensType === "mainnet"
+                    ? "ENS"
+                    : ensType === "basename"
+                      ? "BASENAME"
+                      : ensType === "farcaster"
+                        ? "FC"
+                        : "BASE"}
+                </span>
+              )}
             </p>
             <div className="flex items-center gap-2">
               <p
