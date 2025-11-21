@@ -3,7 +3,7 @@ import { roomStorage } from "~~/lib/roomStorage";
 
 export async function POST(req: NextRequest) {
   try {
-    const { roomId, joiner, joinerVerified } = await req.json();
+    const { roomId, joiner, joinerVerified, joinerPlatform } = await req.json();
 
     if (!roomId || !joiner) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
 
     room.joiner = joiner;
     room.joinerVerified = joinerVerified || false;
+    room.joinerPlatform = joinerPlatform || null;
     room.status = "ready";
     await roomStorage.set(roomId, room);
 

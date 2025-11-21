@@ -25,6 +25,16 @@ export default function MultiplayerPage() {
   const [checkingRoom, setCheckingRoom] = useState(false);
   const { isMiniApp } = usePlatformDetection();
 
+  const getPlatform = (): string | null => {
+    if (typeof window === "undefined") return null;
+    const isBaseApp =
+      window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview");
+    const isMiniPay = (window as any).ethereum?.isMiniPay;
+    if (isMiniPay) return "minipay";
+    if (isBaseApp) return "baseapp";
+    return null;
+  };
+
   const { switchChain } = useSwitchChain();
 
   const {
@@ -89,6 +99,7 @@ export default function MultiplayerPage() {
           betAmount: "0",
           isFree: true,
           chainId,
+          creatorPlatform: getPlatform(),
         }),
       });
 
@@ -151,7 +162,12 @@ export default function MultiplayerPage() {
       const response = await fetch("/api/room/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId: roomCode, joiner: address, joinerVerified: verifyData.verified }),
+        body: JSON.stringify({
+          roomId: roomCode,
+          joiner: address,
+          joinerVerified: verifyData.verified,
+          joinerPlatform: getPlatform(),
+        }),
       });
 
       if (!response.ok) {

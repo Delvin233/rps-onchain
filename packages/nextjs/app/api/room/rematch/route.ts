@@ -20,14 +20,14 @@ export async function POST(req: NextRequest) {
       room.joinerResult = undefined;
       room.rematchRequested = null;
     } else if (action === "leave") {
-      room.playerLeft = player;
-      await roomStorage.set(roomId, room);
-
-      // Delete room after 3 seconds to allow other player to see notification
-      setTimeout(async () => {
+      // If this is the first player to leave, mark them
+      if (!room.playerLeft) {
+        room.playerLeft = player;
+        await roomStorage.set(roomId, room);
+      } else {
+        // Both players left, delete the room
         await roomStorage.delete(roomId, room.chainId);
-      }, 3000);
-
+      }
       return NextResponse.json({ success: true });
     }
 
