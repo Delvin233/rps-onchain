@@ -14,6 +14,7 @@ import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import "~~/styles/globals.css";
+import { registerServiceWorker } from "~~/utils/registerSW";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })));
@@ -55,6 +56,11 @@ export const metadata = {
 };
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+  // Register service worker on client
+  if (typeof window !== "undefined") {
+    registerServiceWorker();
+  }
+
   return (
     <html suppressHydrationWarning className={``}>
       <head>
