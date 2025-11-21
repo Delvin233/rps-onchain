@@ -8,6 +8,7 @@ import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
+import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -17,6 +18,7 @@ export default function MultiplayerGamePage() {
   const router = useRouter();
   const { address, isConnected, chainId } = useAccount();
   const { isMiniApp } = usePlatformDetection();
+  const { refetch: refetchStats } = usePlayerStats(address);
 
   const roomId = params.roomId as string;
   const [isFreeMode, setIsFreeMode] = useState(false);
@@ -273,6 +275,24 @@ export default function MultiplayerGamePage() {
 
           localStorage.setItem("rps_matches", JSON.stringify(matches));
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
+
+          // Save to Redis for stats
+          await fetch("/api/history-fast", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              address,
+              match: {
+                opponent: isCreator ? data.joiner : data.creator,
+                player: address,
+                playerMove: isCreator ? data.creatorMove : data.joinerMove,
+                opponentMove: isCreator ? data.joinerMove : data.creatorMove,
+                result: myResult,
+                timestamp: new Date().toISOString(),
+              },
+            }),
+          });
+          refetchStats();
         }
         setIsSaving(false);
         setGameData(data);
