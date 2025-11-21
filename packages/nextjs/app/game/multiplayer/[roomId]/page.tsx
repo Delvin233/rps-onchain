@@ -641,7 +641,10 @@ export default function MultiplayerGamePage() {
           </p>
         )}
 
-        <div className="flex-1 flex flex-col justify-center" style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)" }}>
+        <div
+          className="flex flex-col"
+          style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)", marginTop: "clamp(1rem, 2vh, 2rem)" }}
+        >
           {moves.map(move => (
             <button
               key={move}
