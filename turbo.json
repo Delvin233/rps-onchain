@@ -3,7 +3,24 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**", "artifacts/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "artifacts/**"],
+      "env": [
+        "TURSO_DATABASE_URL",
+        "TURSO_AUTH_TOKEN",
+        "PINATA_JWT",
+        "EDGE_CONFIG",
+        "ADMIN_SECRET",
+        "BACKEND_PRIVATE_KEY",
+        "CRON_SECRET",
+        "KV_URL",
+        "KV_REST_API_READ_ONLY_TOKEN",
+        "REDIS_URL",
+        "KV_REST_API_TOKEN",
+        "KV_REST_API_URL",
+        "NEYNAR_API_KEY",
+        "JWT_SECRET",
+        "MIGRATION_SECRET"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
