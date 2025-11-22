@@ -30,7 +30,12 @@ export default function PlayModePage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Ready to Play?</h1>
+            <h1
+              className="text-4xl font-bold mb-3 animate-glow"
+              style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+            >
+              Ready to Play?
+            </h1>
           </div>
           {isMiniPay ? (
             <div className="flex justify-center">
@@ -42,7 +47,12 @@ export default function PlayModePage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
+                    style={{
+                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
+                      color: "var(--color-primary-content)",
+                      boxShadow: "0 0 20px var(--color-primary)",
+                    }}
                   >
                     Connect Wallet
                   </button>
@@ -62,7 +72,14 @@ export default function PlayModePage() {
           ← Back to Home
         </button>
         <div className="flex items-center gap-2">
-          <h1 className="font-bold text-glow-primary" style={{ fontSize: "clamp(1.125rem, 4vw, 1.875rem)" }}>
+          <h1
+            className="font-bold"
+            style={{
+              fontSize: "clamp(1.125rem, 4vw, 1.875rem)",
+              color: "var(--color-primary)",
+              textShadow: "0 0 20px var(--color-primary)",
+            }}
+          >
             Choose Game Mode
           </h1>
           <div className="relative">
@@ -92,14 +109,29 @@ export default function PlayModePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-[2vh] max-w-4xl mx-auto">
         <button
           onClick={() => router.push("/play/single")}
-          className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl hover:border-primary/50 hover:scale-105 transition-all duration-200 text-center"
-          style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
+          className="backdrop-blur rounded-xl hover:scale-105 transition-all duration-200 text-center"
+          style={{
+            padding: "clamp(1rem, 3vh, 2rem)",
+            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+            border: "1px solid rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)")}
         >
           <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
-            <div className="rounded-lg bg-primary/10" style={{ padding: "clamp(0.5rem, 2vh, 1rem)" }}>
+            <div
+              className="rounded-lg"
+              style={{
+                padding: "clamp(0.5rem, 2vh, 1rem)",
+                backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
+              }}
+            >
               <User
-                className="text-primary"
-                style={{ width: "clamp(32px, 6vw, 48px)", height: "clamp(32px, 6vw, 48px)" }}
+                style={{
+                  width: "clamp(32px, 6vw, 48px)",
+                  height: "clamp(32px, 6vw, 48px)",
+                  color: "var(--color-primary)",
+                }}
               />
             </div>
             <div>
@@ -118,14 +150,33 @@ export default function PlayModePage() {
 
         <button
           onClick={() => router.push("/play/multiplayer")}
-          className="bg-card/50 backdrop-blur border border-secondary/20 rounded-xl hover:border-secondary/50 hover:scale-105 transition-all duration-200 text-center"
-          style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
+          className="backdrop-blur rounded-xl hover:scale-105 transition-all duration-200 text-center"
+          style={{
+            padding: "clamp(1rem, 3vh, 2rem)",
+            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+            border: "1px solid rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2)",
+          }}
+          onMouseEnter={e =>
+            (e.currentTarget.style.borderColor = "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.5)")
+          }
+          onMouseLeave={e =>
+            (e.currentTarget.style.borderColor = "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2)")
+          }
         >
           <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
-            <div className="rounded-lg bg-secondary/10" style={{ padding: "clamp(0.5rem, 2vh, 1rem)" }}>
+            <div
+              className="rounded-lg"
+              style={{
+                padding: "clamp(0.5rem, 2vh, 1rem)",
+                backgroundColor: "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.1)",
+              }}
+            >
               <Users
-                className="text-secondary"
-                style={{ width: "clamp(32px, 6vw, 48px)", height: "clamp(32px, 6vw, 48px)" }}
+                style={{
+                  width: "clamp(32px, 6vw, 48px)",
+                  height: "clamp(32px, 6vw, 48px)",
+                  color: "var(--color-secondary)",
+                }}
               />
             </div>
             <div>

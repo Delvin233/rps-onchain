@@ -149,7 +149,12 @@ export default function HistoryPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Match History</h1>
+            <h1
+              className="text-4xl font-bold mb-3 animate-glow"
+              style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+            >
+              Match History
+            </h1>
           </div>
           {isMiniPay ? (
             <div className="flex justify-center">
@@ -161,7 +166,12 @@ export default function HistoryPage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
+                    style={{
+                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
+                      color: "var(--color-primary-content)",
+                      boxShadow: "0 0 20px var(--color-primary)",
+                    }}
                   >
                     Connect Wallet
                   </button>
@@ -176,7 +186,12 @@ export default function HistoryPage() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
-      <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary mb-4 break-words">Match History</h1>
+      <h1
+        className="text-lg sm:text-xl md:text-2xl font-bold mb-4 break-words"
+        style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+      >
+        Match History
+      </h1>
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button
           onClick={() => {
@@ -212,7 +227,14 @@ export default function HistoryPage() {
 
             if (isAiMatch) {
               return (
-                <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
+                <div
+                  key={index}
+                  className="backdrop-blur rounded-xl p-4 h-fit"
+                  style={{
+                    backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
                   <div className="mb-3">
                     <p className="font-semibold mb-1">vs AI</p>
                     <p className="text-base-content/60 opacity-80">
@@ -275,7 +297,14 @@ export default function HistoryPage() {
               const hasBlockchainProof = blockchainMatches[match.roomId || ""];
 
               return (
-                <div key={index} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
+                <div
+                  key={index}
+                  className="backdrop-blur rounded-xl p-4 h-fit"
+                  style={{
+                    backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-1">
                       <p className="font-semibold break-words">
