@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStats, updateStats } from "~~/lib/tursoStorage";
-import { redis } from "~~/lib/upstash";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,13 +12,7 @@ export async function GET(request: NextRequest) {
 
     const addressLower = address.toLowerCase();
 
-    // Try Redis cache first
-    const cached = await redis.get(`stats:${addressLower}`);
-    if (cached) {
-      return NextResponse.json({ stats: cached });
-    }
-
-    // Fallback to Turso
+    // Get stats from Turso
     const dbStats = await getStats(addressLower);
     if (dbStats) {
       const totalGames = Number(dbStats.total_games);
@@ -54,8 +47,6 @@ export async function GET(request: NextRequest) {
           winRate: mpGames > 0 ? Math.round((mpWins / mpGames) * 100) : 0,
         },
       };
-      // Cache for 5 minutes
-      await redis.set(`stats:${addressLower}`, stats, { ex: 300 });
       return NextResponse.json({ stats });
     }
 
@@ -98,11 +89,8 @@ export async function POST(request: NextRequest) {
     const isWin = result === "win";
     const isTie = result === "tie";
 
-    // Write to Turso (source of truth)
+    // Write to Turso
     await updateStats(addressLower, isWin, isTie, isAI);
-
-    // Invalidate Redis cache
-    await redis.del(`stats:${addressLower}`);
 
     return NextResponse.json({ success: true });
   } catch (error) {

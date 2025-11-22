@@ -117,6 +117,16 @@
 
   body {
     min-height: 100vh;
+    font-size: calc(1rem * var(--font-size-override, 1));
+  }
+
+  /* Apply spacing to common card-like elements */
+  .card, .bg-card, [class*="card"] {
+    padding: var(--card-padding, 1rem);
+  }
+
+  .flex, .grid {
+    gap: var(--section-gap, 1rem);
   }
 
   /* Override Tailwind font utilities to use theme variables */
@@ -145,10 +155,10 @@
     gap: var(--inner-gap);
   }
 
-  /* Typography - HTML Tags */
+  /* Typography - HTML Tags with font size scaling */
   h1 {
     font-family: var(--font-heading);
-    font-size: 2rem; /* 32px */
+    font-size: calc(2rem * var(--font-size-override, 1)); /* 32px */
     font-weight: 700;
     line-height: 1.1;
     margin-bottom: 0.5rem;
@@ -156,7 +166,7 @@
 
   h2 {
     font-family: var(--font-heading);
-    font-size: 1.5rem; /* 24px */
+    font-size: calc(1.5rem * var(--font-size-override, 1)); /* 24px */
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 0.5rem;
@@ -164,7 +174,7 @@
 
   h3 {
     font-family: var(--font-heading);
-    font-size: 1.25rem; /* 20px */
+    font-size: calc(1.25rem * var(--font-size-override, 1)); /* 20px */
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: 0.5rem;
@@ -172,7 +182,7 @@
 
   h4 {
     font-family: var(--font-heading);
-    font-size: 1.125rem; /* 18px */
+    font-size: calc(1.125rem * var(--font-size-override, 1)); /* 18px */
     font-weight: 600;
     line-height: 1.4;
     margin-bottom: 0.5rem;
@@ -180,11 +190,12 @@
 
   h5, h6 {
     font-family: var(--font-heading);
+    font-size: calc(1rem * var(--font-size-override, 1));
   }
 
   p {
     font-family: var(--font-body);
-    font-size: 1.0625rem; /* 17px */
+    font-size: calc(1.0625rem * var(--font-size-override, 1)); /* 17px */
     line-height: 1.6;
     margin: 1rem 0;
   }
@@ -192,17 +203,17 @@
   button {
     font-family: var(--font-heading);
     font-weight: 600;
-    font-size: 1rem; /* 16px */
+    font-size: calc(1rem * var(--font-size-override, 1)); /* 16px */
   }
 
   input, textarea, select, label {
     font-family: var(--font-body);
-    font-size: 1rem; /* 16px */
+    font-size: calc(1rem * var(--font-size-override, 1)); /* 16px */
   }
 
   code, pre, kbd, samp {
     font-family: var(--font-mono);
-    font-size: 0.9375rem; /* 15px */
+    font-size: calc(0.9375rem * var(--font-size-override, 1)); /* 15px */
   }
 
   /* Cursor styles */
