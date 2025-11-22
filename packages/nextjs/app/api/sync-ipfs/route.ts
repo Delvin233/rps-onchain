@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "~~/lib/upstash";
+import { getMatchHistory, getStats } from "~~/lib/tursoStorage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,16 +11,13 @@ export async function POST(request: NextRequest) {
 
     const addressLower = address.toLowerCase();
 
-    // Get data from Redis (or use provided matches)
+    // Get data from Turso (or use provided matches)
     let matches = providedMatches;
-    const statsData = await redis.get(`stats:${addressLower}`);
-
     if (!matches) {
-      // Fetch from Redis if not provided
-      const redisMatches = await redis.lrange(`history:${addressLower}`, 0, 99);
-      matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+      matches = await getMatchHistory(addressLower);
     }
-    const stats = statsData ? statsData : null;
+
+    const stats = await getStats(addressLower);
     if (!stats) {
       return NextResponse.json({ error: "No stats found" }, { status: 404 });
     }
