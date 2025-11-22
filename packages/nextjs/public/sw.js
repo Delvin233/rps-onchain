@@ -1,62 +1,51 @@
-// Service Worker for offline caching
-const CACHE_NAME = 'rps-onchain-v1';
+const CACHE_NAME = 'rps-v2';
+const RUNTIME_CACHE = 'rps-runtime';
 const STATIC_ASSETS = [
   '/',
   '/play',
   '/profile',
   '/history',
-  '/manifest.json',
-  '/logo.svg',
+  '/game/ai',
+  '/rpsOnchainFavicons/site.webmanifest',
 ];
 
-// Install event - cache static assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => 
+      cache.addAll(STATIC_ASSETS).catch(() => {})
+    )
   );
   self.skipWaiting();
 });
 
-// Activate event - clean old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    })
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((k) => k !== CACHE_NAME && k !== RUNTIME_CACHE).map((k) => caches.delete(k))
+      )
+    )
   );
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+self.addEventListener('fetch', (e) => {
+  const { request } = e;
+  const url = new URL(request.url);
   
-  // Skip API calls (always fetch fresh)
-  if (event.request.url.includes('/api/')) return;
+  if (request.method !== 'GET' || url.pathname.startsWith('/api/')) return;
   
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
+  e.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
       
-      return fetch(event.request).then((response) => {
-        // Cache successful responses
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+      return fetch(request).then((response) => {
+        if (response.status === 200 && url.origin === location.origin) {
+          const clone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone));
         }
         return response;
-      });
+      }).catch(() => caches.match('/'));
     })
   );
 });

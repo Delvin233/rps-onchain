@@ -187,10 +187,28 @@ export const getActiveColorTheme = (): ColorTheme => {
   return COLOR_THEMES[saved] || COLOR_THEMES[DEFAULT_COLOR_THEME];
 };
 
-// Save theme preference
+// Save theme preference and apply immediately
 export const setColorTheme = (themeKey: keyof typeof COLOR_THEMES) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("colorTheme", themeKey);
+
+    // Apply CSS variables immediately
+    const theme = COLOR_THEMES[themeKey];
+    const root = document.documentElement.style;
+    root.setProperty("--theme-primary", theme.primary);
+    root.setProperty("--theme-secondary", theme.secondary);
+    root.setProperty("--theme-background", theme.background);
+    root.setProperty("--theme-background-alt", theme.backgroundAlt);
+    root.setProperty("--theme-card", theme.card);
+    root.setProperty("--theme-text", theme.text);
+    root.setProperty("--color-base-100", theme.backgroundAlt);
+    root.setProperty("--color-base-200", theme.background);
+    root.setProperty("--color-base-300", theme.card);
+    root.setProperty("--color-primary", theme.primary);
+    root.setProperty("--color-secondary", theme.secondary);
+    root.setProperty("--color-base-content", theme.text);
+    document.body.style.backgroundColor = theme.background;
+    document.body.style.color = theme.text;
   }
 };
 

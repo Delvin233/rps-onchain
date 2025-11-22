@@ -10,11 +10,12 @@ A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer mo
 - **Single Player**: Play against AI instantly
 - **Multiplayer**: Create/join rooms with 6-character codes
 - **Unlimited Rematches**: Play again and again with friends
-- **Match History**: Decentralized storage via IPFS (Pinata)
+- **Match History**: Persistent storage via Turso + IPFS backup
 - **Blockchain Verification**: Optional on-chain match publishing
 - **On-Chain Matches**: View all published matches with filters
 - **Gaming UI**: Neon aesthetics with smooth animations
-- **Stats Tracking**: Win/loss records stored on IPFS
+- **Stats Tracking**: Win/loss records stored in Turso database
+- **PWA Support**: Install as mobile app with offline capabilities
 
 ## 🏗 Project Structure
 
@@ -139,20 +140,28 @@ yarn dev            # Start frontend (same as yarn start)
 ### API Routes
 
 - `app/api/username/route.ts` - Username management
-- `app/api/store-match/route.ts` - IPFS match storage via Pinata
-- `app/api/store-blockchain-proof/route.ts` - Blockchain proof storage (Turso)
+- `app/api/stats-fast/route.ts` - Stats with Turso + Redis cache
+- `app/api/store-match/route.ts` - Match storage (Turso + IPFS backup)
+- `app/api/user-matches/route.ts` - Query match history from Turso
+- `app/api/init-db/route.ts` - Initialize Turso database tables
+- `app/api/migrate-data/route.ts` - Migrate Redis data to Turso
+- `app/api/store-blockchain-proof/route.ts` - Blockchain proof storage
 - `app/api/resolve-name/route.ts` - ENS/Basename resolution
-- `app/api/verify/route.ts` - Self Protocol verification callback with Edge Config storage
+- `app/api/verify/route.ts` - Self Protocol verification
 - `app/api/check-verification/route.ts` - Check user verification status
 
 ### Utilities & Libraries
 
 - `utils/gameUtils.ts` - Move hashing and game logic
-- `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
+- `lib/tursoStorage.ts` - Turso storage layer (users, stats, matches)
 - `lib/turso.ts` - Turso SQLite database client
-- `lib/edgeConfigClient.ts` - Edge Config client for verification persistence
+- `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
+- `lib/upstash.ts` - Redis client for caching
+- `lib/edgeConfigClient.ts` - Edge Config client
 - `contexts/AuthContext.tsx` - Unified authentication context
-- `hooks/useSelfProtocol.ts` - Self Protocol integration with QR code generation
+- `hooks/useSelfProtocol.ts` - Self Protocol integration
+- `engine/` - Game engine (StateManager, NetworkSync, GameEngine)
+- `stores/` - Zustand state management (gameStore, userStore)
 
 ## 🌐 Network Configuration
 
@@ -183,12 +192,16 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - ✅ Pivoted to free-to-play model
 - ✅ Removed all betting/paid room functionality
 - ✅ Gaming UI with neon aesthetics and animations
-- ✅ Pinata IPFS integration for match history
+- ✅ Migrated to Turso as primary database (stats, matches, users)
+- ✅ Redis caching layer for fast reads (5min TTL)
+- ✅ IPFS backup storage via Pinata
+- ✅ PWA support with offline capabilities
+- ✅ Game engine architecture with state management
+- ✅ Zustand global state stores
 - ✅ Unlimited rematch system
-- ✅ Stats tracking and history page
-- ✅ Turso database for persistent blockchain proof storage
-- ✅ On-chain matches page with filters (no block range limits)
+- ✅ On-chain matches page with filters
 - ✅ Per-match publishing with ENS/Basename resolution
+- ✅ Performance optimizations (84% faster load, 60 FPS locked)
 
 ## 🔮 Future Enhancements
 
@@ -201,13 +214,16 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 
 ## 🛠 Technical Stack
 
-- **Frontend**: Next.js 13+, React, TypeScript, TailwindCSS
+- **Frontend**: Next.js 15, React 18, TypeScript, TailwindCSS
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
 - **Networks**: Celo Mainnet + Base Mainnet (Multi-chain)
-- **Storage**: IPFS via Pinata, Turso SQLite (5GB)
+- **Database**: Turso SQLite (primary), Redis (cache), IPFS (backup)
+- **State Management**: Zustand with localStorage persistence
+- **Testing**: Vitest + React Testing Library
 - **Identity**: Self Protocol (@selfxyz/core)
 - **Payments**: GoodDollar (G$) tipping
+- **PWA**: Service Worker with offline support
 - **Deployment**: Vercel
 
 ## 📝 Environment Variables
@@ -224,21 +240,52 @@ DEPLOYER_PRIVATE_KEY=your_private_key
 
 ```
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
-PINATA_JWT=your_pinata_jwt_token
-NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
 
-# Turso Database (for blockchain proof storage)
+# Turso Database (primary storage)
 TURSO_DATABASE_URL=libsql://your-database.turso.io
 TURSO_AUTH_TOKEN=your_turso_auth_token
 
-# Edge Config (for verification storage)
+# Redis (caching layer)
+REDIS_URL=your_redis_url
+KV_URL=your_kv_url
+KV_REST_API_TOKEN=your_token
+KV_REST_API_URL=your_url
+
+# IPFS (backup storage)
+PINATA_JWT=your_pinata_jwt_token
+NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud
+
+# Edge Config (verification storage)
 EDGE_CONFIG=https://edge-config.vercel.com/...
 EDGE_CONFIG_ID=ecfg_...
 VERCEL_API_TOKEN=...
 
-# Optional: Backend wallet (not required for free-to-play)
-# BACKEND_PRIVATE_KEY=your_backend_wallet_private_key
+# Optional
+NEYNAR_API_KEY=your_neynar_key
+JWT_SECRET=your_jwt_secret
 ```
+
+## 🗄️ Database Setup
+
+### First-Time Setup
+
+After deploying to production:
+
+1. **Initialize Turso tables**:
+   ```bash
+   curl https://your-domain.com/api/init-db
+   ```
+
+2. **Migrate existing data** (if upgrading from Redis-only):
+   ```bash
+   curl -X POST https://your-domain.com/api/migrate-data
+   ```
+
+### Database Architecture
+
+- **Turso (Primary)**: Users, stats, matches - persistent, ACID-compliant
+- **Redis (Cache)**: 5min TTL for stats, active game rooms
+- **IPFS (Backup)**: Decentralized match storage
 
 ## 🤝 Contributing
 

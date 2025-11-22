@@ -68,3 +68,71 @@ export async function initVerificationsTable() {
     )
   `);
 }
+
+export async function initUsersTable() {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS users (
+      address TEXT PRIMARY KEY,
+      username TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+}
+
+export async function initStatsTable() {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS stats (
+      address TEXT PRIMARY KEY,
+      total_games INTEGER DEFAULT 0,
+      wins INTEGER DEFAULT 0,
+      losses INTEGER DEFAULT 0,
+      ties INTEGER DEFAULT 0,
+      ai_games INTEGER DEFAULT 0,
+      ai_wins INTEGER DEFAULT 0,
+      ai_ties INTEGER DEFAULT 0,
+      multiplayer_games INTEGER DEFAULT 0,
+      multiplayer_wins INTEGER DEFAULT 0,
+      multiplayer_ties INTEGER DEFAULT 0,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Add new columns if they don't exist (migration)
+  try {
+    await turso.execute(`ALTER TABLE stats ADD COLUMN ai_ties INTEGER DEFAULT 0`);
+  } catch {}
+  try {
+    await turso.execute(`ALTER TABLE stats ADD COLUMN multiplayer_ties INTEGER DEFAULT 0`);
+  } catch {}
+}
+
+export async function initMatchesTable() {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS matches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      room_id TEXT NOT NULL,
+      player1 TEXT NOT NULL,
+      player2 TEXT NOT NULL,
+      player1_move TEXT NOT NULL,
+      player2_move TEXT NOT NULL,
+      winner TEXT,
+      game_mode TEXT NOT NULL,
+      timestamp_ms INTEGER NOT NULL,
+      ipfs_hash TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await turso.execute(`CREATE INDEX IF NOT EXISTS idx_matches_player1 ON matches(player1)`);
+  await turso.execute(`CREATE INDEX IF NOT EXISTS idx_matches_player2 ON matches(player2)`);
+  await turso.execute(`CREATE INDEX IF NOT EXISTS idx_matches_timestamp ON matches(timestamp_ms DESC)`);
+}
+
+export async function initAllTables() {
+  await initBlockchainProofsTable();
+  await initUserPreferencesTable();
+  await initVerificationsTable();
+  await initUsersTable();
+  await initStatsTable();
+  await initMatchesTable();
+}
