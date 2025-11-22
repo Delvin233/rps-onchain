@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -7,6 +8,7 @@ import { useGameEngine } from "~~/engine/GameEngine";
 import type { Move } from "~~/engine/types";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
+import { useGameStore } from "~~/stores/gameStore";
 
 export default function MultiplayerGamePage() {
   const params = useParams();
@@ -14,6 +16,9 @@ export default function MultiplayerGamePage() {
   const { address, isConnected } = useAccount();
   const { isMiniApp } = usePlatformDetection();
   const roomId = params.roomId as string;
+
+  // Zustand store
+  const { setRoomId, setGameState, setPlayerMove, setResult, reset } = useGameStore();
 
   // Use game engine
   const { gameData, state, isLoading, submitMove, requestRematch, leaveRoom } = useGameEngine({
@@ -27,6 +32,41 @@ export default function MultiplayerGamePage() {
   // Display names
   const { displayName: player1Name } = useDisplayName(gameData?.player1?.address);
   const { displayName: player2Name } = useDisplayName(gameData?.player2?.address);
+
+  // Sync engine state to Zustand
+  useEffect(() => {
+    setRoomId(roomId);
+    setGameState(state);
+  }, [roomId, state, setRoomId, setGameState]);
+
+  useEffect(() => {
+    if (gameData?.player1?.move) {
+      setPlayerMove(gameData.player1.move);
+    }
+    if (gameData?.result) {
+      setResult(gameData.result);
+    }
+  }, [gameData, setPlayerMove, setResult]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (state === "finished") {
+        reset();
+      }
+    };
+  }, [state, reset]);
+
+  const handleSubmitMove = async (move: Move) => {
+    setPlayerMove(move);
+    await submitMove(move);
+  };
+
+  const handleLeaveRoom = async () => {
+    reset();
+    await leaveRoom();
+    router.push("/play/multiplayer");
+  };
 
   if (!isConnected || !address) {
     return (
@@ -55,7 +95,7 @@ export default function MultiplayerGamePage() {
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60">Share this code with your opponent</p>
         </div>
-        <button onClick={() => leaveRoom()} className="btn btn-error w-full">
+        <button onClick={handleLeaveRoom} className="btn btn-error w-full">
           Cancel Room
         </button>
       </div>
@@ -85,7 +125,7 @@ export default function MultiplayerGamePage() {
           {moves.map(move => (
             <button
               key={move}
-              onClick={() => submitMove(move)}
+              onClick={() => handleSubmitMove(move)}
               disabled={isLoading}
               className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
@@ -156,7 +196,7 @@ export default function MultiplayerGamePage() {
             <button onClick={() => requestRematch()} disabled={isLoading} className="btn btn-primary w-full">
               Play Again
             </button>
-            <button onClick={() => leaveRoom()} disabled={isLoading} className="btn btn-error w-full">
+            <button onClick={handleLeaveRoom} disabled={isLoading} className="btn btn-error w-full">
               Back to Play
             </button>
           </div>
