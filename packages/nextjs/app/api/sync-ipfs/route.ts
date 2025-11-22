@@ -22,10 +22,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No stats found" }, { status: 404 });
     }
 
-    // Get current IPFS hash
-    const hashResponse = await fetch(`${request.nextUrl.origin}/api/user-matches?address=${address}`);
-    const { ipfsHash: currentHash } = await hashResponse.json();
-
     // Store to IPFS
     const pinataResponse = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
       method: "POST",
@@ -51,25 +47,6 @@ export async function POST(request: NextRequest) {
     }
 
     const { IpfsHash } = await pinataResponse.json();
-
-    // Update Edge Config with new hash
-    await fetch(`${request.nextUrl.origin}/api/user-matches`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, ipfsHash: IpfsHash }),
-    });
-
-    // Unpin old file
-    if (currentHash) {
-      try {
-        await fetch(`https://api.pinata.cloud/pinning/unpin/${currentHash}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${process.env.PINATA_JWT}` },
-        });
-      } catch (error) {
-        console.error("Error unpinning old file:", error);
-      }
-    }
 
     return NextResponse.json({ success: true, ipfsHash: IpfsHash });
   } catch (error: any) {

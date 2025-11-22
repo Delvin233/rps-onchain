@@ -21,8 +21,8 @@ export async function getStats(address: string) {
 export async function updateStats(address: string, isWin: boolean, isTie: boolean, isAI: boolean) {
   const addr = address.toLowerCase();
   await turso.execute({
-    sql: `INSERT INTO stats (address, total_games, wins, losses, ties, ai_games, ai_wins, multiplayer_games, multiplayer_wins)
-          VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?)
+    sql: `INSERT INTO stats (address, total_games, wins, losses, ties, ai_games, ai_wins, ai_ties, multiplayer_games, multiplayer_wins, multiplayer_ties)
+          VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(address) DO UPDATE SET
             total_games = total_games + 1,
             wins = wins + ?,
@@ -30,8 +30,10 @@ export async function updateStats(address: string, isWin: boolean, isTie: boolea
             ties = ties + ?,
             ai_games = ai_games + ?,
             ai_wins = ai_wins + ?,
+            ai_ties = ai_ties + ?,
             multiplayer_games = multiplayer_games + ?,
             multiplayer_wins = multiplayer_wins + ?,
+            multiplayer_ties = multiplayer_ties + ?,
             updated_at = CURRENT_TIMESTAMP`,
     args: [
       addr,
@@ -40,15 +42,19 @@ export async function updateStats(address: string, isWin: boolean, isTie: boolea
       isTie ? 1 : 0,
       isAI ? 1 : 0,
       isAI && isWin ? 1 : 0,
+      isAI && isTie ? 1 : 0,
       !isAI ? 1 : 0,
       !isAI && isWin ? 1 : 0,
+      !isAI && isTie ? 1 : 0,
       isWin ? 1 : 0,
       !isWin && !isTie ? 1 : 0,
       isTie ? 1 : 0,
       isAI ? 1 : 0,
       isAI && isWin ? 1 : 0,
+      isAI && isTie ? 1 : 0,
       !isAI ? 1 : 0,
       !isAI && isWin ? 1 : 0,
+      !isAI && isTie ? 1 : 0,
     ],
   });
 }

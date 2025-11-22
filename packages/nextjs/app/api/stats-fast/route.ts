@@ -22,36 +22,36 @@ export async function GET(request: NextRequest) {
     // Fallback to Turso
     const dbStats = await getStats(addressLower);
     if (dbStats) {
+      const totalGames = Number(dbStats.total_games);
+      const wins = Number(dbStats.wins);
+      const losses = Number(dbStats.losses);
+      const ties = Number(dbStats.ties);
+      const aiGames = Number(dbStats.ai_games);
+      const aiWins = Number(dbStats.ai_wins);
+      const aiTies = Number(dbStats.ai_ties || 0);
+      const mpGames = Number(dbStats.multiplayer_games);
+      const mpWins = Number(dbStats.multiplayer_wins);
+      const mpTies = Number(dbStats.multiplayer_ties || 0);
+
       const stats = {
-        totalGames: Number(dbStats.total_games),
-        wins: Number(dbStats.wins),
-        losses: Number(dbStats.losses),
-        ties: Number(dbStats.ties),
-        winRate:
-          Number(dbStats.total_games) > 0 ? Math.round((Number(dbStats.wins) / Number(dbStats.total_games)) * 100) : 0,
+        totalGames,
+        wins,
+        losses,
+        ties,
+        winRate: totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0,
         ai: {
-          totalGames: Number(dbStats.ai_games),
-          wins: Number(dbStats.ai_wins),
-          losses:
-            Number(dbStats.ai_games) -
-            Number(dbStats.ai_wins) -
-            (Number(dbStats.ties) * Number(dbStats.ai_games)) / Number(dbStats.total_games),
-          ties: Math.round((Number(dbStats.ties) * Number(dbStats.ai_games)) / Number(dbStats.total_games)),
-          winRate:
-            Number(dbStats.ai_games) > 0 ? Math.round((Number(dbStats.ai_wins) / Number(dbStats.ai_games)) * 100) : 0,
+          totalGames: aiGames,
+          wins: aiWins,
+          losses: aiGames - aiWins - aiTies,
+          ties: aiTies,
+          winRate: aiGames > 0 ? Math.round((aiWins / aiGames) * 100) : 0,
         },
         multiplayer: {
-          totalGames: Number(dbStats.multiplayer_games),
-          wins: Number(dbStats.multiplayer_wins),
-          losses:
-            Number(dbStats.multiplayer_games) -
-            Number(dbStats.multiplayer_wins) -
-            (Number(dbStats.ties) * Number(dbStats.multiplayer_games)) / Number(dbStats.total_games),
-          ties: Math.round((Number(dbStats.ties) * Number(dbStats.multiplayer_games)) / Number(dbStats.total_games)),
-          winRate:
-            Number(dbStats.multiplayer_games) > 0
-              ? Math.round((Number(dbStats.multiplayer_wins) / Number(dbStats.multiplayer_games)) * 100)
-              : 0,
+          totalGames: mpGames,
+          wins: mpWins,
+          losses: mpGames - mpWins - mpTies,
+          ties: mpTies,
+          winRate: mpGames > 0 ? Math.round((mpWins / mpGames) * 100) : 0,
         },
       };
       // Cache for 5 minutes

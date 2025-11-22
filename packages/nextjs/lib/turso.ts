@@ -90,11 +90,21 @@ export async function initStatsTable() {
       ties INTEGER DEFAULT 0,
       ai_games INTEGER DEFAULT 0,
       ai_wins INTEGER DEFAULT 0,
+      ai_ties INTEGER DEFAULT 0,
       multiplayer_games INTEGER DEFAULT 0,
       multiplayer_wins INTEGER DEFAULT 0,
+      multiplayer_ties INTEGER DEFAULT 0,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Add new columns if they don't exist (migration)
+  try {
+    await turso.execute(`ALTER TABLE stats ADD COLUMN ai_ties INTEGER DEFAULT 0`);
+  } catch {}
+  try {
+    await turso.execute(`ALTER TABLE stats ADD COLUMN multiplayer_ties INTEGER DEFAULT 0`);
+  } catch {}
 }
 
 export async function initMatchesTable() {
