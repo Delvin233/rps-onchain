@@ -144,6 +144,35 @@ export async function POST(req: NextRequest) {
 
       await Promise.all(storePromises);
 
+      // Update stats for both players
+      const statsPromises = [
+        fetch(`${req.nextUrl.origin}/api/stats-fast`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            address: room.creator,
+            result: room.creatorResult,
+            isAI: false,
+          }),
+        }),
+      ];
+
+      if (room.joiner) {
+        statsPromises.push(
+          fetch(`${req.nextUrl.origin}/api/stats-fast`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              address: room.joiner,
+              result: room.joinerResult,
+              isAI: false,
+            }),
+          }),
+        );
+      }
+
+      await Promise.all(statsPromises);
+
       // Batch IPFS uploads to avoid rate limits
       // Only sync to IPFS every 10 games or at 100 games
       const shouldSyncToIPFS = async (address: string) => {
