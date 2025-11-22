@@ -31,13 +31,25 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const platformColors = useMemo(() => {
     switch (platform) {
       case "farcaster":
-        return "border-accent/30 bg-accent/10";
+        return {
+          borderColor: "var(--color-accent)",
+          backgroundColor: "rgba(var(--color-accent-rgb, 168, 85, 247), 0.1)",
+        };
       case "base":
-        return "border-secondary/30 bg-secondary/10";
+        return {
+          borderColor: "var(--color-secondary)",
+          backgroundColor: "rgba(var(--color-secondary-rgb, 110, 231, 183), 0.1)",
+        };
       case "minipay":
-        return "border-primary/30 bg-primary/10";
+        return {
+          borderColor: "var(--color-primary)",
+          backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
+        };
       default:
-        return "border-primary/30 bg-primary/10";
+        return {
+          borderColor: "var(--color-primary)",
+          backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
+        };
     }
   }, [platform]);
 
@@ -149,8 +161,12 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   if (!address) {
     return (
       <div
-        className={`rounded-xl border backdrop-blur ${platformColors}`}
-        style={{ padding: "var(--card-padding, 1rem)" }}
+        className="rounded-xl border backdrop-blur"
+        style={{
+          padding: "var(--card-padding, 1rem)",
+          borderColor: platformColors.borderColor,
+          backgroundColor: platformColors.backgroundColor,
+        }}
       >
         <div className="flex items-center justify-center">
           {isConnecting ? (
@@ -175,8 +191,12 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   return (
     <div
-      className={`rounded-xl border backdrop-blur ${platformColors}`}
-      style={{ padding: "var(--card-padding, 1rem)" }}
+      className="rounded-xl border backdrop-blur"
+      style={{
+        padding: "var(--card-padding, 1rem)",
+        borderColor: platformColors.borderColor,
+        backgroundColor: platformColors.backgroundColor,
+      }}
     >
       <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
         <div className="flex items-center" style={{ gap: "var(--inner-gap, 0.75rem)" }}>

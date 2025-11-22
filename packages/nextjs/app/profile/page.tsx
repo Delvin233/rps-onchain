@@ -7,6 +7,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
+import { MdLightbulbOutline } from "react-icons/md";
 import { useAccount } from "wagmi";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -231,7 +232,16 @@ export default function ProfilePage() {
       </div>
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
-      <div className="bg-gradient-to-br from-success/10 to-success/5 border-2 border-success/50 rounded-xl p-6 mb-4 shadow-lg shadow-success/20">
+      <div
+        className="rounded-xl p-6 mb-4 shadow-lg"
+        style={{
+          background:
+            "linear-gradient(to bottom right, rgba(var(--color-primary-rgb, 16, 185, 129), 0.1), rgba(var(--color-primary-rgb, 16, 185, 129), 0.05))",
+          borderWidth: "2px",
+          borderColor: "var(--color-primary)",
+          boxShadow: "0 10px 15px -3px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)",
+        }}
+      >
         <div className="flex items-center space-x-3 mb-4">
           <span className="text-2xl">💚</span>
           <div>
@@ -244,18 +254,37 @@ export default function ProfilePage() {
           <>
             {entitlement > 0n ? (
               <>
-                <div className="bg-success/10 border border-success/30 rounded-lg p-4 mb-4">
+                <div
+                  className="rounded-lg p-4 mb-4"
+                  style={{
+                    backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
+                    borderWidth: "1px",
+                    borderColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)",
+                  }}
+                >
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
-                  <p className="text-2xl font-bold text-success">{(Number(entitlement) / 1e18).toFixed(2)} G$</p>
+                  <p className="text-2xl font-bold" style={{ color: "var(--color-primary)" }}>
+                    {(Number(entitlement) / 1e18).toFixed(2)} G$
+                  </p>
                 </div>
                 {isWhitelisted === false && (
                   <div className="bg-info/10 border border-info/30 rounded-lg p-3 mb-3">
-                    <p className="text-xs text-info">
-                      💡 First time? Clicking &quot;Claim Now&quot; will redirect you to complete Face Verification
+                    <p className="text-xs text-info flex items-center gap-2">
+                      <MdLightbulbOutline size={16} />
+                      First time? Clicking &quot;Claim Now&quot; will redirect you to complete Face Verification
                     </p>
                   </div>
                 )}
-                <button onClick={handleClaim} disabled={isLoading} className="btn btn-success w-full">
+                <button
+                  onClick={handleClaim}
+                  disabled={isLoading}
+                  className="btn w-full"
+                  style={{
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-primary-content)",
+                    borderColor: "var(--color-primary)",
+                  }}
+                >
                   {isLoading ? "Claiming..." : "Claim Now"}
                 </button>
               </>
