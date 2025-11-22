@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { saveMatch } from "~~/lib/tursoStorage";
 import { redis } from "~~/lib/upstash";
 
 export async function POST(request: NextRequest) {
@@ -12,9 +13,27 @@ export async function POST(request: NextRequest) {
     const addressLower = address.toLowerCase();
     const key = `history:${addressLower}`;
 
+    // Store in Redis (cache)
     await redis.lpush(key, JSON.stringify(match));
     await redis.ltrim(key, 0, 99);
     await redis.expire(key, 60 * 60 * 24 * 7);
+
+    // Store in Turso (persistent)
+    const players = [match.players?.creator, match.players?.joiner].filter(Boolean);
+    if (players.length >= 2) {
+      const winner = typeof match.result === "object" ? match.result.winner : null;
+      await saveMatch({
+        roomId: match.roomId,
+        player1: players[0],
+        player2: players[1],
+        player1Move: match.moves?.creatorMove || "unknown",
+        player2Move: match.moves?.joinerMove || "unknown",
+        winner: winner === "tie" || winner === "Tie" ? null : winner,
+        gameMode: "multiplayer",
+        timestampMs: new Date(match.result?.timestamp || Date.now()).getTime(),
+        ipfsHash: match.ipfsHash,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
