@@ -255,23 +255,8 @@ export default function MultiplayerGamePage() {
         const opponentAddress = isCreator ? data.joiner : data.creator;
         const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
 
-        // Always update stats for both players
-        if (!sessionStorage.getItem(`stats_saved_${matchKey}`)) {
-          await Promise.all([
-            fetch("/api/stats-fast", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ address, result: myResult, isAI: false }),
-            }),
-            fetch("/api/stats-fast", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ address: opponentAddress, result: opponentResult, isAI: false }),
-            }),
-          ]);
-          sessionStorage.setItem(`stats_saved_${matchKey}`, "true");
-          refetchStats();
-        }
+        // Stats are updated server-side in submit-move API
+        refetchStats();
 
         if (data.ipfsHash && !sessionStorage.getItem(`match_saved_${matchKey}`)) {
           const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");
@@ -641,7 +626,10 @@ export default function MultiplayerGamePage() {
           </p>
         )}
 
-        <div className="flex-1 flex flex-col justify-center" style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)" }}>
+        <div
+          className="flex flex-col"
+          style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)", marginTop: "clamp(1rem, 2vh, 2rem)" }}
+        >
           {moves.map(move => (
             <button
               key={move}

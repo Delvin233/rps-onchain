@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { BottomNavigation } from "./BottomNavigation";
 import { OverlayContainer } from "./overlays/OverlayManager";
+import { useAccount } from "wagmi";
 import HistoryPage from "~~/app/history/page";
 
 const mainRoutes = ["/", "/play", "/history", "/profile"];
@@ -11,11 +12,13 @@ const mainRoutes = ["/", "/play", "/history", "/profile"];
 export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { isConnected } = useAccount();
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isInGameArea = pathname?.startsWith("/play") || pathname?.startsWith("/game/");
+  const isInGameArea = pathname?.startsWith("/game/");
+  const shouldHideNav = isInGameArea && isConnected;
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -70,9 +73,11 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
       >
         {children}
       </div>
-      <div className="lg:hidden">
-        <BottomNavigation />
-      </div>
+      {!shouldHideNav && (
+        <div className="lg:hidden">
+          <BottomNavigation />
+        </div>
+      )}
 
       <OverlayContainer type="history">
         <HistoryPage />

@@ -2,18 +2,15 @@ import dynamic from "next/dynamic";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
 import { BaseAppReady } from "~~/components/BaseAppReady";
-import { ColorLoader } from "~~/components/ColorLoader";
-import { FontLoader } from "~~/components/FontLoader";
-import { FontSizeLoader } from "~~/components/FontSizeLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { PreferencesSync } from "~~/components/PreferencesSync";
 import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
-import { SpacingLoader } from "~~/components/SpacingLoader";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import "~~/styles/globals.css";
+import { registerServiceWorker } from "~~/utils/registerSW";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })));
@@ -36,6 +33,12 @@ export const viewport = {
 
 export const metadata = {
   ...baseMetadata,
+  manifest: "/rpsOnchainFavicons/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "RPS-onChain",
+  },
   other: {
     "fc:miniapp": JSON.stringify({
       version: "1",
@@ -55,6 +58,11 @@ export const metadata = {
 };
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+  // Register service worker on client
+  if (typeof window !== "undefined") {
+    registerServiceWorker();
+  }
+
   return (
     <html suppressHydrationWarning className={``}>
       <head>
@@ -65,6 +73,10 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <link rel="manifest" href="/rpsOnchainFavicons/site.webmanifest" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        />
         <link rel="dns-prefetch" href="https://gateway.pinata.cloud" />
         <link rel="dns-prefetch" href="https://forno.celo.org" />
         <link rel="dns-prefetch" href="https://mainnet.base.org" />
@@ -157,10 +169,6 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <BaseAppReady />
 
         <CRTEffect />
-        <ColorLoader />
-        <FontLoader />
-        <FontSizeLoader />
-        <SpacingLoader />
         <ThemeProvider enableSystem>
           <ScaffoldEthAppWithProviders>
             <FarcasterProvider>
