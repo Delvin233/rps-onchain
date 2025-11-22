@@ -37,6 +37,12 @@ export const viewport = {
 
 export const metadata = {
   ...baseMetadata,
+  manifest: "/rpsOnchainFavicons/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "RPS-onChain",
+  },
   other: {
     "fc:miniapp": JSON.stringify({
       version: "1",
