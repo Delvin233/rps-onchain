@@ -3,10 +3,10 @@
 ## 🏗️ Architecture Overview
 
 The app uses a **hybrid storage architecture** combining:
-- **Redis** (via Upstash/Vercel KV) - Real-time game state & fast stats
-- **IPFS** (via Pinata) - Permanent match history storage
-- **Turso** (SQLite) - Persistent blockchain proof storage
-- **Vercel Edge Config** - User match hash pointers
+- **Turso** (SQLite) - Primary database for users, stats, matches, blockchain proofs
+- **Redis** (via Upstash/Vercel KV) - Active game rooms only (temporary)
+- **IPFS** (via Pinata) - Decentralized backup storage
+- **Vercel Edge Config** - Verification status storage
 - **Smart Contracts** (Celo/Base) - On-chain game verification
 - **LocalStorage** - Client-side backup & caching
 
@@ -23,12 +23,12 @@ The app uses a **hybrid storage architecture** combining:
 ┌─────────────────────────────────────────────────────────────────┐
 │                    STORAGE LAYER ROUTING                         │
 ├─────────────────────────────────────────────────────────────────┤
-│  Game State → Redis (1hr TTL)                                   │
-│  Stats → Redis (permanent) + IPFS (daily sync)                  │
-│  Match History → Redis (7 days) + IPFS (permanent)              │
+│  Game State → Redis (1hr TTL, active rooms only)                │
+│  Stats → Turso (primary, direct reads)                          │
+│  Match History → Turso (primary) + Redis cache (7 days)         │
 │  Blockchain Proofs → Turso (permanent, 5GB storage)             │
-│  Match Pointers → Edge Config (permanent)                       │
-│  Backup → LocalStorage (50 matches)                             │
+│  Verification Status → Edge Config (permanent)                  │
+│  Backup → LocalStorage (50 matches) + IPFS (decentralized)      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -55,12 +55,9 @@ User → /play → /play/single → Choose Move → AI Response → Result
 
 3. **Stats update** (`/api/stats-fast/route.ts`)
    ```javascript
-   // Redis operations:
-   - GET stats:${address}
-   - UPDATE totalGames, wins/losses/ties, winRate
-   - SET stats:${address}
-   - LPUSH history:${address} (match data)
-   - LTRIM history:${address} 0 99 (keep last 100)
+   // Turso operations:
+   - UPDATE stats SET total_games = total_games + 1, wins = wins + ?, ...
+   - Separate tracking for AI vs multiplayer (ai_games, ai_wins, ai_ties, multiplayer_games, multiplayer_wins, multiplayer_ties)
    ```
 
 4. **Result displayed**
@@ -69,9 +66,10 @@ User → /play → /play/single → Choose Move → AI Response → Result
    - Match stored in Redis history
 
 #### Data Storage:
-- **Redis**: `stats:${address}` - Instant stats
-- **Redis**: `history:${address}` - Last 100 matches (7-day TTL)
-- **IPFS**: Auto-synced when Redis reaches 100 matches + daily cron job
+- **Turso**: `stats` table - Persistent stats with separate AI/multiplayer tracking
+- **Turso**: `matches` table - All match history
+- **Redis**: `history:${address}` - Cache only (7-day TTL)
+- **IPFS**: Backup storage via daily cron job
 
 ---
 
