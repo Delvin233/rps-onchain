@@ -205,5 +205,13 @@ export default function MultiplayerGamePage() {
     );
   }
 
-  return null;
+  // Loading or idle state
+  return (
+    <div className="p-6 pt-12 pb-24">
+      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="text-base-content/60 mt-4">Loading game...</p>
+      </div>
+    </div>
+  );
 }
