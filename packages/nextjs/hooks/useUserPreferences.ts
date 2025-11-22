@@ -1,8 +1,26 @@
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
+import { setColorTheme } from "~~/styles/colorThemes";
+import { setFontTheme } from "~~/styles/fontThemes";
+import { setSpacingScale } from "~~/styles/spacingThemes";
 
 export const useUserPreferences = () => {
   const { address } = useAccount();
+
+  // Re-apply themes on mount (after page reload)
+  useEffect(() => {
+    const colorTheme = localStorage.getItem("colorTheme");
+    const fontTheme = localStorage.getItem("fontTheme");
+    const spacingScale = localStorage.getItem("spacingScale");
+    const fontSizeOverride = localStorage.getItem("fontSizeOverride");
+
+    if (colorTheme) setColorTheme(colorTheme as any);
+    if (fontTheme) setFontTheme(fontTheme as any);
+    if (spacingScale) setSpacingScale(spacingScale as any);
+    if (fontSizeOverride) {
+      document.documentElement.style.setProperty("--font-size-override", (parseInt(fontSizeOverride) / 100).toString());
+    }
+  }, []);
 
   // Load preferences from database when user connects
   useEffect(() => {

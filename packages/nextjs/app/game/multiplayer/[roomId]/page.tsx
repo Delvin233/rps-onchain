@@ -255,23 +255,8 @@ export default function MultiplayerGamePage() {
         const opponentAddress = isCreator ? data.joiner : data.creator;
         const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
 
-        // Always update stats for both players
-        if (!sessionStorage.getItem(`stats_saved_${matchKey}`)) {
-          await Promise.all([
-            fetch("/api/stats-fast", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ address, result: myResult, isAI: false }),
-            }),
-            fetch("/api/stats-fast", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ address: opponentAddress, result: opponentResult, isAI: false }),
-            }),
-          ]);
-          sessionStorage.setItem(`stats_saved_${matchKey}`, "true");
-          refetchStats();
-        }
+        // Stats are updated server-side in submit-move API
+        refetchStats();
 
         if (data.ipfsHash && !sessionStorage.getItem(`match_saved_${matchKey}`)) {
           const matches = JSON.parse(localStorage.getItem("rps_matches") || "[]");

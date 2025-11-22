@@ -17,7 +17,7 @@ export const MobileLayout = ({ children }: { children: ReactNode }) => {
   const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isInGameArea = pathname?.startsWith("/play") || pathname?.startsWith("/game/");
+  const isInGameArea = pathname?.startsWith("/game/");
   const shouldHideNav = isInGameArea && isConnected;
 
   useEffect(() => {
