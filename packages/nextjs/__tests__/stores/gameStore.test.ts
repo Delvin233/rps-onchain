@@ -9,7 +9,7 @@ describe("gameStore", () => {
   it("initializes with default state", () => {
     const state = useGameStore.getState();
     expect(state.roomId).toBe(null);
-    expect(state.gameState).toBe("idle");
+    expect(state.gameState).toBe("waiting");
     expect(state.playerMove).toBe(null);
   });
 
@@ -19,8 +19,8 @@ describe("gameStore", () => {
   });
 
   it("updates game state", () => {
-    useGameStore.getState().setGameState("choosing");
-    expect(useGameStore.getState().gameState).toBe("choosing");
+    useGameStore.getState().setGameState("ready");
+    expect(useGameStore.getState().gameState).toBe("ready");
   });
 
   it("updates player move", () => {
@@ -44,7 +44,7 @@ describe("gameStore", () => {
 
     const state = useGameStore.getState();
     expect(state.roomId).toBe(null);
-    expect(state.gameState).toBe("idle");
+    expect(state.gameState).toBe("waiting");
     expect(state.playerMove).toBe(null);
   });
 });

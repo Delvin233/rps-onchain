@@ -3,7 +3,7 @@ export type Move = "rock" | "paper" | "scissors";
 export type GameResult = "win" | "lose" | "tie";
 export type GameMode = "single" | "multiplayer";
 
-export type GameState = "idle" | "waiting" | "ready" | "choosing" | "submitted" | "revealing" | "finished";
+export type GameState = "waiting" | "ready" | "playing" | "revealing" | "finished";
 
 export interface Player {
   address: string;

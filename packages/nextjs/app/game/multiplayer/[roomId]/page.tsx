@@ -103,7 +103,7 @@ export default function MultiplayerGamePage() {
   }
 
   // Choose move
-  if (state === "choosing") {
+  if (state === "ready" || state === "playing") {
     return (
       <div className="px-4 py-4 min-h-screen flex flex-col">
         {!isMiniApp && (
@@ -141,7 +141,7 @@ export default function MultiplayerGamePage() {
   }
 
   // Waiting for reveal
-  if (state === "submitted" || state === "revealing") {
+  if (state === "revealing") {
     return (
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
@@ -205,7 +205,7 @@ export default function MultiplayerGamePage() {
     );
   }
 
-  // Loading or idle state
+  // Loading state
   return (
     <div className="p-6 pt-12 pb-24">
       <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">

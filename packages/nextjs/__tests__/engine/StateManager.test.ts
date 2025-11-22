@@ -9,7 +9,7 @@ describe("StateManager", () => {
   });
 
   it("initializes with idle state", () => {
-    expect(stateManager.state).toBe("idle");
+    expect(stateManager.state).toBe("waiting");
   });
 
   it("allows valid transitions", () => {
@@ -19,12 +19,12 @@ describe("StateManager", () => {
 
   it("prevents invalid transitions", () => {
     expect(stateManager.transition("finished")).toBe(false);
-    expect(stateManager.state).toBe("idle");
+    expect(stateManager.state).toBe("waiting");
   });
 
   it("allows transition chain", () => {
-    stateManager.transition("choosing");
-    stateManager.transition("submitted");
+    stateManager.transition("ready");
+    stateManager.transition("playing");
     stateManager.transition("revealing");
     stateManager.transition("finished");
     expect(stateManager.state).toBe("finished");
@@ -50,13 +50,13 @@ describe("StateManager", () => {
     expect(count).toBe(1);
 
     unsubscribe();
-    stateManager.transition("choosing");
+    stateManager.transition("ready");
     expect(count).toBe(1);
   });
 
   it("resets to idle", () => {
-    stateManager.transition("choosing");
+    stateManager.transition("ready");
     stateManager.reset();
-    expect(stateManager.state).toBe("idle");
+    expect(stateManager.state).toBe("waiting");
   });
 });

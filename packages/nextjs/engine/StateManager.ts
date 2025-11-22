@@ -2,20 +2,18 @@ import type { GameState } from "./types";
 
 // Valid state transitions
 const TRANSITIONS: Record<GameState, GameState[]> = {
-  idle: ["waiting", "choosing"],
-  waiting: ["choosing", "idle"],
-  ready: ["choosing"],
-  choosing: ["submitted"],
-  submitted: ["revealing"],
+  waiting: ["ready"],
+  ready: ["playing"],
+  playing: ["revealing"],
   revealing: ["finished"],
-  finished: ["choosing", "idle"],
+  finished: ["ready", "waiting"],
 };
 
 export class StateManager {
-  private currentState: GameState = "idle";
+  private currentState: GameState = "waiting";
   private listeners: Array<(state: GameState) => void> = [];
 
-  constructor(initialState: GameState = "idle") {
+  constructor(initialState: GameState = "waiting") {
     this.currentState = initialState;
   }
 
@@ -55,7 +53,7 @@ export class StateManager {
   }
 
   reset(): void {
-    this.currentState = "idle";
+    this.currentState = "waiting";
     this.notifyListeners();
   }
 }

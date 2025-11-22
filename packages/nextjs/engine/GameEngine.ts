@@ -25,7 +25,7 @@ export class GameEngine {
 
   // Public API
   async submitMove(move: Move): Promise<boolean> {
-    if (this.stateManager.state !== "choosing") {
+    if (this.stateManager.state !== "ready" && this.stateManager.state !== "playing") {
       console.warn("Cannot submit move in current state");
       return false;
     }
@@ -33,7 +33,7 @@ export class GameEngine {
     const result = await this.network.submitMove(move);
 
     if (result.success) {
-      this.stateManager.transition("submitted");
+      this.stateManager.transition("playing");
       return true;
     }
 
@@ -46,7 +46,7 @@ export class GameEngine {
 
   async acceptRematch(): Promise<void> {
     await this.network.acceptRematch();
-    this.stateManager.transition("choosing");
+    this.stateManager.transition("ready");
   }
 
   async leaveRoom(): Promise<void> {

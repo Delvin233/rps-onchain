@@ -17,7 +17,7 @@ describe("GameEngine", () => {
   });
 
   it("initializes with idle state", () => {
-    expect(engine.getState()).toBe("idle");
+    expect(engine.getState()).toBe("waiting");
   });
 
   it("calculates win correctly", () => {
@@ -50,7 +50,7 @@ describe("GameEngine", () => {
     engine["handleServerUpdate"]({
       roomId: "TEST123",
       mode: "multiplayer",
-      state: "choosing",
+      state: "ready",
       player1: { address: "0x123", isReady: true },
     });
 
