@@ -3,6 +3,8 @@
 ![RPS-onChain](packages/nextjs/public/rpsOnchainLogo.png)
 A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support (Celo + Base). Built with scaffold-eth-2.
 
+### Available on Farcaster at: https://farcaster.xyz/miniapps/e7MMsOYu-YxM/rps-onchain
+
 ## Game Features
 
 - **Wallet Authentication**: RainbowKit + Wagmi integration
@@ -140,7 +142,7 @@ yarn dev            # Start frontend (same as yarn start)
 ### API Routes
 
 - `app/api/username/route.ts` - Username management
-- `app/api/stats-fast/route.ts` - Stats with Turso + Redis cache
+- `app/api/stats-fast/route.ts` - Stats from Turso (direct reads)
 - `app/api/store-match/route.ts` - Match storage (Turso + IPFS backup)
 - `app/api/user-matches/route.ts` - Query match history from Turso
 - `app/api/init-db/route.ts` - Initialize Turso database tables
@@ -156,12 +158,14 @@ yarn dev            # Start frontend (same as yarn start)
 - `lib/tursoStorage.ts` - Turso storage layer (users, stats, matches)
 - `lib/turso.ts` - Turso SQLite database client
 - `lib/pinataStorage.ts` - IPFS storage utilities (Pinata)
-- `lib/upstash.ts` - Redis client for caching
+- `lib/upstash.ts` - Redis client for active game rooms
 - `lib/edgeConfigClient.ts` - Edge Config client
 - `contexts/AuthContext.tsx` - Unified authentication context
 - `hooks/useSelfProtocol.ts` - Self Protocol integration
-- `engine/` - Game engine (StateManager, NetworkSync, GameEngine)
-- `stores/` - Zustand state management (gameStore, userStore)
+- `hooks/useGoodDollarClaim.ts` - GoodDollar UBI claim integration
+- `styles/colorThemes.ts` - Dynamic color theme system
+- `styles/fontThemes.ts` - Dynamic font theme system
+- `styles/spacingThemes.ts` - Dynamic spacing scale system
 
 ## 🌐 Network Configuration
 
@@ -193,22 +197,25 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - ✅ Removed all betting/paid room functionality
 - ✅ Gaming UI with neon aesthetics and animations
 - ✅ Migrated to Turso as primary database (stats, matches, users)
-- ✅ Redis caching layer for fast reads (5min TTL)
+- ✅ Redis for active game rooms only (no stats caching)
 - ✅ IPFS backup storage via Pinata
 - ✅ PWA support with offline capabilities
-- ✅ Game engine architecture with state management
-- ✅ Zustand global state stores
+- ✅ Dynamic theme system (colors, fonts, spacing)
 - ✅ Unlimited rematch system
 - ✅ On-chain matches page with filters
 - ✅ Per-match publishing with ENS/Basename resolution
 - ✅ Performance optimizations (84% faster load, 60 FPS locked)
+- ✅ GoodDollar UBI daily claims integration
+- ✅ Self Protocol human verification
+- ✅ Farcaster & Base miniapp support
+- ✅ MiniPay integration for Celo
 
 ## 🔮 Future Enhancements
 
 - Tournament brackets with multi-round matches
 - Global leaderboards & player statistics
 - Achievement system
-- Real-time multiplayer lobbies
+- Real-time multiplayer lobbies (Random matchmaking)
 - Mobile app development
 - Optional betting mode (future)
 
@@ -218,8 +225,8 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 - **Wallet**: RainbowKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
 - **Networks**: Celo Mainnet + Base Mainnet (Multi-chain)
-- **Database**: Turso SQLite (primary), Redis (cache), IPFS (backup)
-- **State Management**: Zustand with localStorage persistence
+- **Database**: Turso SQLite (primary), Redis (active rooms), IPFS (backup)
+- **Themes**: Dynamic color/font/spacing with CSS variables
 - **Testing**: Vitest + React Testing Library
 - **Identity**: Self Protocol (@selfxyz/core)
 - **Payments**: GoodDollar (G$) tipping
@@ -272,6 +279,7 @@ JWT_SECRET=your_jwt_secret
 After deploying to production:
 
 1. **Initialize Turso tables**:
+
    ```bash
    curl https://your-domain.com/api/init-db
    ```
@@ -284,8 +292,8 @@ After deploying to production:
 ### Database Architecture
 
 - **Turso (Primary)**: Users, stats, matches - persistent, ACID-compliant
-- **Redis (Cache)**: 5min TTL for stats, active game rooms
-- **IPFS (Backup)**: Decentralized match storage
+- **Redis (Temporary)**: Active game rooms, 7-day match history cache
+- **IPFS (Backup)**: Decentralized match storage via Pinata
 
 ## 🤝 Contributing
 

@@ -9,6 +9,11 @@ export async function upsertUser(address: string, username?: string) {
   });
 }
 
+export async function getAllUsers() {
+  const result = await turso.execute("SELECT address FROM users");
+  return result.rows.map(row => row.address as string);
+}
+
 // Stats
 export async function getStats(address: string) {
   const result = await turso.execute({

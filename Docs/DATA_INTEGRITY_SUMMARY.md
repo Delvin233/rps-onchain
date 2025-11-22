@@ -8,10 +8,10 @@
 - ✅ User stats (before IPFS upload)
 - ✅ Cron job (daily sync)
 
-### **Layer 2: Auto-Sync**
-- ✅ AI games: At 100 matches
-- ✅ Multiplayer: Every 10 games
-- ✅ Prevents data loss from Redis LTRIM
+### **Layer 2: Turso Primary Storage**
+- ✅ All games saved to Turso immediately
+- ✅ Persistent, ACID-compliant database
+- ✅ No data loss from expiry
 
 ### **Layer 3: Batch Uploads**
 - ✅ Reduces IPFS uploads by 90%
@@ -35,41 +35,43 @@
 ### **AI Games:**
 
 ```
-Game → Redis
+Game → Turso (permanent)
   ↓
-Every 100 games → Auto-sync to IPFS
+Redis cache (last 100, 7-day TTL)
   ↓
-Daily cron → Backup all to IPFS
+Daily cron → Backup to IPFS
   ↓
-History page → Merge Redis + IPFS (deduplicated)
+History page → Fetch from Turso (deduplicated)
 ```
 
 **Protections:**
-- ✅ Auto-sync prevents loss at 100 games
-- ✅ Daily cron catches games 1-99
-- ✅ Deduplication prevents duplicates
-- ✅ Redis TTL: 7 days (safety buffer)
+- ✅ Turso stores all games permanently
+- ✅ Redis cache for fast access
+- ✅ Daily IPFS backup for decentralization
+- ✅ SQL indexes for fast queries
 
 ---
 
 ### **Multiplayer Games:**
 
 ```
-Game → Redis + IPFS (batched)
+Game → Turso (permanent)
   ↓
-Every 10 games → Sync to IPFS
+Redis cache (last 100, 7-day TTL)
   ↓
-Daily cron → Backup all to IPFS
+LocalStorage backup (client-side)
   ↓
-History page → Merge Redis + IPFS + LocalStorage (deduplicated)
+Daily cron → Backup to IPFS
+  ↓
+History page → Fetch from Turso (deduplicated)
 ```
 
 **Protections:**
-- ✅ First game synced immediately
-- ✅ Batch sync every 10 games
-- ✅ LocalStorage backup (client-side)
-- ✅ Daily cron catches all
-- ✅ Deduplication at every step
+- ✅ Turso stores all games permanently
+- ✅ Redis cache for fast access
+- ✅ LocalStorage for offline access
+- ✅ Daily IPFS backup
+- ✅ Deduplication at query time
 
 ---
 
@@ -78,13 +80,13 @@ History page → Merge Redis + IPFS + LocalStorage (deduplicated)
 | Edge Case | Detection | Handling | Result |
 |-----------|-----------|----------|--------|
 | **Duplicate matches** | Unique key check | Map deduplication | ✅ No duplicates |
-| **Redis expires** | Check list length | Use IPFS data | ✅ No data loss |
+| **Redis expires** | Check Turso | Fetch from Turso | ✅ No data loss |
 | **IPFS upload fails** | Try-catch | Log + retry tomorrow | ✅ Graceful failure |
 | **Rate limit hit** | Batch + delay | 500ms between syncs | ✅ No rate limits |
 | **Concurrent syncs** | Vercel Cron | Queue mechanism | ✅ No conflicts |
 | **Malformed data** | JSON parse try-catch | Skip invalid | ✅ Valid data preserved |
 | **Stats mismatch** | Recalculate | Use match count | ✅ Always accurate |
-| **IPFS hash missing** | Fetch error | Start fresh | ✅ Recreate from Redis |
+| **IPFS hash missing** | Fetch error | Start fresh | ✅ Recreate from Turso |
 | **User plays during cron** | Snapshot | Next cron catches | ✅ Eventual consistency |
 | **Empty user** | Check list length | Skip sync | ✅ No empty files |
 
@@ -114,13 +116,13 @@ key = `room-${roomId}-${gamesCount}`
    - Merges LocalStorage + Redis + IPFS
    - Deduplicates before display
 
-2. **API** (`/api/history/route.ts`):
-   - Merges Redis + IPFS
-   - Deduplicates before returning
+2. **API** (`/api/user-matches/route.ts`):
+   - Fetches from Turso
+   - Deduplicates at query time
 
-3. **User Stats** (`/api/user-stats/route.ts`):
-   - Merges existing IPFS + new match
-   - Deduplicates before uploading
+3. **Stats** (`/api/stats-fast/route.ts`):
+   - Direct Turso reads
+   - Separate AI/multiplayer tracking
 
 4. **Cron Job** (`/api/cron/sync-all/route.ts`):
    - Deduplicates Redis matches
@@ -143,10 +145,10 @@ key = `room-${roomId}-${gamesCount}`
 
 | Source | Duplicates Possible? | Handled By |
 |--------|---------------------|------------|
+| Turso | No (UNIQUE constraints) | Database |
 | Redis | No (LPUSH unique) | N/A |
 | IPFS | Yes (multiple syncs) | Map deduplication |
 | LocalStorage | No (client-side only) | N/A |
-| Merge | Yes (3 sources) | Unique key Map |
 
 ---
 
@@ -170,10 +172,10 @@ key = `room-${roomId}-${gamesCount}`
 
 ## 🔧 Configuration Summary
 
-### **Auto-Sync Thresholds:**
+### **Storage Thresholds:**
 ```javascript
-AI_SYNC_THRESHOLD = 100 games
-MULTIPLAYER_SYNC_INTERVAL = 10 games
+TURSO_STORAGE = Unlimited (5GB free tier)
+REDIS_CACHE_LIMIT = 100 matches
 ```
 
 ### **Rate Limiting:**
@@ -184,9 +186,10 @@ RATE_LIMIT = 2 uploads/second (Pinata: 3/sec)
 
 ### **Data Retention:**
 ```javascript
-REDIS_TTL = 7 days
+TURSO_RETENTION = Permanent
+REDIS_TTL = 7 days (cache only)
 REDIS_HISTORY_LIMIT = 100 matches
-IPFS_HISTORY_LIMIT = 100 matches (per sync)
+IPFS_BACKUP = Daily cron
 LOCALSTORAGE_LIMIT = 50 matches
 ```
 
@@ -200,10 +203,10 @@ CRON_SCHEDULE = "0 2 * * *" // Daily at 2 AM UTC
 ## 🎉 Final Guarantees
 
 ### **Data Integrity:**
-- ✅ No duplicates shown to users
-- ✅ No data loss from Redis expiry
-- ✅ No missing matches
-- ✅ Stats always accurate
+- ✅ No duplicates (Turso UNIQUE constraints)
+- ✅ No data loss (Turso permanent storage)
+- ✅ No missing matches (SQL indexes)
+- ✅ Stats always accurate (separate AI/multiplayer tracking)
 
 ### **Performance:**
 - ✅ Fast gameplay (minimal IPFS calls)
@@ -239,9 +242,10 @@ CRON_SCHEDULE = "0 2 * * *" // Daily at 2 AM UTC
 ## 🎯 Conclusion
 
 **The app provides:**
-- ✅ **Zero data loss** (multiple backup layers)
-- ✅ **Zero duplicates** (deduplication everywhere)
-- ✅ **Zero rate limits** (smart batching)
-- ✅ **Zero manual work** (automatic syncs)
+- ✅ **Zero data loss** (Turso primary + IPFS backup)
+- ✅ **Zero duplicates** (database constraints)
+- ✅ **Zero expiry** (permanent storage)
+- ✅ **Zero manual work** (automatic backups)
+- ✅ **Fast queries** (SQL indexes)
 
-**Result:** Rock-solid data integrity for unlimited gameplay! 🎮🎉
+**Result:** Rock-solid data integrity with Turso primary storage! 🎮🎉

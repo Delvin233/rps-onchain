@@ -294,7 +294,11 @@ export default function Home() {
 
           <button
             onClick={() => router.push("/play")}
-            className="w-full max-w-md mx-auto bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 flex items-center justify-center space-x-2 mb-8"
+            className="w-full max-w-md mx-auto hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 flex items-center justify-center space-x-2 mb-8"
+            style={{
+              background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)`,
+              color: "var(--color-primary-content)",
+            }}
           >
             <Play size={20} />
             <span>Play Now</span>
