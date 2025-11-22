@@ -53,6 +53,24 @@ export const getSpacingScale = (): SpacingScale => {
 export const setSpacingScale = (scaleKey: keyof typeof SPACING_SCALES) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("spacingScale", scaleKey);
+
+    // Apply CSS variables immediately
+    const scale = SPACING_SCALES[scaleKey];
+    const root = document.documentElement.style;
+
+    // Convert Tailwind classes to CSS values
+    const paddingMap: Record<string, string> = { "p-3": "0.75rem", "p-4": "1rem", "p-6": "1.5rem" };
+    const gapMap: Record<string, string> = {
+      "gap-2": "0.5rem",
+      "gap-3": "0.75rem",
+      "gap-4": "1rem",
+      "gap-6": "1.5rem",
+    };
+
+    root.setProperty("--card-padding", paddingMap[scale.cardPadding] || "1rem");
+    root.setProperty("--card-gap", gapMap[scale.cardGap.replace("space-y-", "gap-")] || "0.75rem");
+    root.setProperty("--section-gap", gapMap[scale.sectionGap] || "1rem");
+    root.setProperty("--inner-gap", gapMap[scale.innerGap] || "0.75rem");
   }
 };
 

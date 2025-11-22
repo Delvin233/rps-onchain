@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "~~/lib/upstash";
+import { getStats, updateStats } from "~~/lib/tursoStorage";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,26 +12,57 @@ export async function GET(request: NextRequest) {
 
     const addressLower = address.toLowerCase();
 
-    const statsData = await redis.get(`stats:${addressLower}`);
-    const stats = statsData
-      ? (statsData as any)
-      : {
-          totalGames: 0,
-          wins: 0,
-          losses: 0,
-          ties: 0,
-          winRate: 0,
-          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-          multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-        };
+    // Get stats from Turso
+    const dbStats = await getStats(addressLower);
+    if (dbStats) {
+      const totalGames = Number(dbStats.total_games);
+      const wins = Number(dbStats.wins);
+      const losses = Number(dbStats.losses);
+      const ties = Number(dbStats.ties);
+      const aiGames = Number(dbStats.ai_games);
+      const aiWins = Number(dbStats.ai_wins);
+      const aiTies = Number(dbStats.ai_ties || 0);
+      const mpGames = Number(dbStats.multiplayer_games);
+      const mpWins = Number(dbStats.multiplayer_wins);
+      const mpTies = Number(dbStats.multiplayer_ties || 0);
 
-    // Ensure ai and multiplayer exist for backward compatibility
-    if (!stats.ai) stats.ai = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
-    if (!stats.multiplayer) stats.multiplayer = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
+      const stats = {
+        totalGames,
+        wins,
+        losses,
+        ties,
+        winRate: totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0,
+        ai: {
+          totalGames: aiGames,
+          wins: aiWins,
+          losses: aiGames - aiWins - aiTies,
+          ties: aiTies,
+          winRate: aiGames > 0 ? Math.round((aiWins / aiGames) * 100) : 0,
+        },
+        multiplayer: {
+          totalGames: mpGames,
+          wins: mpWins,
+          losses: mpGames - mpWins - mpTies,
+          ties: mpTies,
+          winRate: mpGames > 0 ? Math.round((mpWins / mpGames) * 100) : 0,
+        },
+      };
+      return NextResponse.json({ stats });
+    }
 
-    return NextResponse.json({ stats });
+    // No stats found
+    const emptyStats = {
+      totalGames: 0,
+      wins: 0,
+      losses: 0,
+      ties: 0,
+      winRate: 0,
+      ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+      multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+    };
+    return NextResponse.json({ stats: emptyStats });
   } catch (error) {
-    console.error("Error fetching fast stats:", error);
+    console.error("Error fetching stats:", error);
     return NextResponse.json({
       stats: {
         totalGames: 0,
@@ -55,46 +86,15 @@ export async function POST(request: NextRequest) {
     }
 
     const addressLower = address.toLowerCase();
+    const isWin = result === "win";
+    const isTie = result === "tie";
 
-    // Get current stats
-    const statsData = await redis.get(`stats:${addressLower}`);
-    const stats: any = statsData
-      ? (statsData as any)
-      : {
-          totalGames: 0,
-          wins: 0,
-          losses: 0,
-          ties: 0,
-          winRate: 0,
-          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-          multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-        };
+    // Write to Turso
+    await updateStats(addressLower, isWin, isTie, isAI);
 
-    // Ensure ai and multiplayer exist
-    if (!stats.ai) stats.ai = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
-    if (!stats.multiplayer) stats.multiplayer = { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 };
-
-    // Update overall stats
-    stats.totalGames++;
-    if (result === "win") stats.wins++;
-    else if (result === "lose") stats.losses++;
-    else if (result === "tie") stats.ties++;
-    stats.winRate = stats.totalGames > 0 ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
-
-    // Update AI or multiplayer stats
-    const gameType = isAI ? stats.ai : stats.multiplayer;
-    gameType.totalGames++;
-    if (result === "win") gameType.wins++;
-    else if (result === "lose") gameType.losses++;
-    else if (result === "tie") gameType.ties++;
-    gameType.winRate = gameType.totalGames > 0 ? Math.round((gameType.wins / gameType.totalGames) * 100) : 0;
-
-    // Store updated stats
-    await redis.set(`stats:${addressLower}`, stats);
-
-    return NextResponse.json({ success: true, stats });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error updating fast stats:", error);
+    console.error("Error updating stats:", error);
     return NextResponse.json({ error: "Failed to update stats" }, { status: 500 });
   }
 }

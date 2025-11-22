@@ -17,3 +17,15 @@ export function numberToMove(num: number): string {
   const moves = { 1: "rock", 2: "paper", 3: "scissors" };
   return moves[num as keyof typeof moves];
 }
+
+export function determineWinner(playerMove: string, opponentMove: string): "win" | "lose" | "tie" {
+  if (playerMove === opponentMove) return "tie";
+
+  const winConditions: Record<string, string> = {
+    rock: "scissors",
+    scissors: "paper",
+    paper: "rock",
+  };
+
+  return winConditions[playerMove] === opponentMove ? "win" : "lose";
+}

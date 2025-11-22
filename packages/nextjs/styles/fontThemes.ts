@@ -115,10 +115,27 @@ export const getActiveTheme = (): FontTheme => {
   return FONT_THEMES[saved] || FONT_THEMES[DEFAULT_FONT_THEME];
 };
 
-// Save theme preference (no auto-reload, user must click Save button)
+// Save theme preference and apply immediately
 export const setFontTheme = (themeKey: keyof typeof FONT_THEMES) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("fontTheme", themeKey);
+
+    // Apply CSS variables immediately
+    const theme = FONT_THEMES[themeKey];
+    const root = document.documentElement.style;
+    root.setProperty("--font-heading", `'${theme.heading}', system-ui, sans-serif`);
+    root.setProperty("--font-body", `'${theme.body}', system-ui, sans-serif`);
+    root.setProperty("--font-mono", `'${theme.mono}', monospace`);
+    root.setProperty("--font-size-multiplier", (theme.fontSizeMultiplier || 1).toString());
+    document.body.style.fontFamily = `'${theme.body}', system-ui, sans-serif`;
+
+    // Load font if not already loaded
+    if (!document.querySelector(`link[href="${theme.googleFontsUrl}"]`)) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = theme.googleFontsUrl;
+      document.head.appendChild(link);
+    }
   }
 };
 

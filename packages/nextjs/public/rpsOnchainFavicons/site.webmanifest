@@ -1,11 +1,32 @@
 {
   "name": "RPS-onChain",
   "short_name": "RPS",
-  "icons": [
-    { "src": "/rpsOnchainFavicons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/rpsOnchainFavicons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
-  ],
+  "description": "Rock Paper Scissors on-chain game with AI and multiplayer modes",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
   "theme_color": "#10b981",
   "background_color": "#0a0a0a",
-  "display": "standalone"
+  "icons": [
+    { "src": "/rpsOnchainFavicons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/rpsOnchainFavicons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["games", "entertainment"],
+  "shortcuts": [
+    {
+      "name": "Play vs AI",
+      "short_name": "AI",
+      "description": "Play against AI",
+      "url": "/game/ai",
+      "icons": [{ "src": "/rpsOnchainFavicons/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Multiplayer",
+      "short_name": "PvP",
+      "description": "Play with friends",
+      "url": "/play",
+      "icons": [{ "src": "/rpsOnchainFavicons/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }
