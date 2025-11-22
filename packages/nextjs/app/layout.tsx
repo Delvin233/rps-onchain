@@ -2,14 +2,10 @@ import dynamic from "next/dynamic";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
 import { BaseAppReady } from "~~/components/BaseAppReady";
-import { ColorLoader } from "~~/components/ColorLoader";
-import { FontLoader } from "~~/components/FontLoader";
-import { FontSizeLoader } from "~~/components/FontSizeLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { PreferencesSync } from "~~/components/PreferencesSync";
 import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
-import { SpacingLoader } from "~~/components/SpacingLoader";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
@@ -169,10 +165,6 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <BaseAppReady />
 
         <CRTEffect />
-        <ColorLoader />
-        <FontLoader />
-        <FontSizeLoader />
-        <SpacingLoader />
         <ThemeProvider enableSystem>
           <ScaffoldEthAppWithProviders>
             <FarcasterProvider>
