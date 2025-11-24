@@ -26,6 +26,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { enrichedUser } = useFarcaster();
   const { displayName: apiDisplayName, pfpUrl: apiPfpUrl, ensType } = useDisplayName(address);
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
+  const [showBalance, setShowBalance] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const platformColors = useMemo(() => {
@@ -199,7 +200,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       }}
     >
       <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
-        <div className="flex items-center" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
+        <div className="flex items-center min-w-0 flex-1" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
           {avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -220,15 +221,15 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
           >
             {displayName.slice(0, 2).toUpperCase()}
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p
-              className="font-semibold text-base-content flex items-center gap-1"
+              className="font-semibold text-base-content flex items-center gap-1 truncate"
               style={{
                 fontFamily: "var(--font-heading)",
                 fontSize: "calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
             >
-              {displayName}
+              <span className="truncate">{displayName}</span>
               {ensType && (
                 <span
                   className={`text-xs ${
@@ -254,20 +255,26 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                 </span>
               )}
             </p>
-            <div className="flex items-center gap-2">
-              <p
-                className="text-base-content/60"
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setShowBalance(!showBalance)}
+                className="text-base-content/60 hover:text-base-content transition-colors cursor-pointer"
                 style={{
                   fontFamily: "var(--font-body)",
                   fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
                 }}
               >
                 {balanceLoading ? (
                   <span className="loading loading-dots loading-xs"></span>
-                ) : (
+                ) : showBalance ? (
                   `${balance?.formatted.slice(0, 6)} ${balance?.symbol}`
+                ) : (
+                  "••••••"
                 )}
-              </p>
+              </button>
               <div className="flex items-center gap-1">
                 <span
                   className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
@@ -314,7 +321,10 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               </button>
 
               {showNetworkMenu && (
-                <div className="absolute right-0 top-8 bg-base-100 border border-border rounded-lg shadow-lg z-50 min-w-32">
+                <div
+                  className="absolute right-0 top-8 bg-base-100 border border-border rounded-lg shadow-lg min-w-32"
+                  style={{ zIndex: 9999 }}
+                >
                   <button
                     onClick={() => handleNetworkSwitch(celo.id)}
                     className={`w-full text-left hover:bg-base-200 first:rounded-t-lg ${

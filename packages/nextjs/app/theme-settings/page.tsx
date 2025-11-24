@@ -52,7 +52,12 @@ export default function ThemeSettingsPage() {
             <ArrowLeft size={20} />
           </button>
           <Palette className="text-primary" size={32} />
-          <h1 className="text-3xl font-bold text-glow-primary">Theme Settings</h1>
+          <h1
+            className="text-3xl font-bold"
+            style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+          >
+            Theme Settings
+          </h1>
         </div>
 
         <p className="text-base-content/60 mb-6">Customize your gaming experience with colors, fonts and spacing.</p>

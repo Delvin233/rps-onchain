@@ -75,7 +75,7 @@ export default function PlayModePage() {
           <h1
             className="font-bold"
             style={{
-              fontSize: "clamp(1.125rem, 4vw, 1.875rem)",
+              fontSize: "calc(clamp(1.125rem, 4vw, 1.875rem) * var(--font-size-override, 1))",
               color: "var(--color-primary)",
               textShadow: "0 0 20px var(--color-primary)",
             }}
@@ -137,11 +137,17 @@ export default function PlayModePage() {
             <div>
               <h2
                 className="font-semibold"
-                style={{ fontSize: "clamp(1rem, 3vw, 1.25rem)", marginBottom: "clamp(0.25rem, 1vh, 0.5rem)" }}
+                style={{
+                  fontSize: "calc(clamp(1rem, 3vw, 1.25rem) * var(--font-size-override, 1))",
+                  marginBottom: "clamp(0.25rem, 1vh, 0.5rem)",
+                }}
               >
                 Single Player
               </h2>
-              <p className="text-base-content/60" style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}>
+              <p
+                className="text-base-content/60"
+                style={{ fontSize: "calc(clamp(0.75rem, 2.5vw, 0.875rem) * var(--font-size-override, 1))" }}
+              >
                 Play against AI - Free & Instant
               </p>
             </div>
@@ -182,11 +188,17 @@ export default function PlayModePage() {
             <div>
               <h2
                 className="font-semibold"
-                style={{ fontSize: "clamp(1rem, 3vw, 1.25rem)", marginBottom: "clamp(0.25rem, 1vh, 0.5rem)" }}
+                style={{
+                  fontSize: "calc(clamp(1rem, 3vw, 1.25rem) * var(--font-size-override, 1))",
+                  marginBottom: "clamp(0.25rem, 1vh, 0.5rem)",
+                }}
               >
                 Multiplayer
               </h2>
-              <p className="text-base-content/60" style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}>
+              <p
+                className="text-base-content/60"
+                style={{ fontSize: "calc(clamp(0.75rem, 2.5vw, 0.875rem) * var(--font-size-override, 1))" }}
+              >
                 Play with friends - Free & Fun
               </p>
             </div>

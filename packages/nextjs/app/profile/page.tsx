@@ -26,6 +26,26 @@ export default function ProfilePage() {
   const { isHumanVerified } = useAuth();
   const { isMiniApp, isBaseApp, isMiniPay, isFarcaster } = usePlatformDetection();
 
+  useEffect(() => {
+    if (!address && isMiniPay && typeof window !== "undefined") {
+      const shown = sessionStorage.getItem("minipay_reconnect_toast");
+      if (!shown) {
+        sessionStorage.setItem("minipay_reconnect_toast", "true");
+        toast("Navigate to Home to reconnect your wallet", {
+          duration: 5000,
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-primary)",
+          },
+        });
+      }
+    }
+    if (address && isMiniPay) {
+      sessionStorage.removeItem("minipay_reconnect_toast");
+    }
+  }, [address, isMiniPay]);
+
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isBaseApp) return "base";
     if (isMiniPay) return "minipay";
@@ -107,8 +127,12 @@ export default function ProfilePage() {
         <div className="text-center max-w-md">
           <div className="mb-8">
             <h1
-              className="text-4xl font-bold mb-3 animate-glow"
-              style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+              className="font-bold mb-3 animate-glow"
+              style={{
+                fontSize: "calc(2.25rem * var(--font-size-override, 1))",
+                color: "var(--color-primary)",
+                textShadow: "0 0 20px var(--color-primary)",
+              }}
             >
               Profile
             </h1>
@@ -123,8 +147,9 @@ export default function ProfilePage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
+                    className="w-full hover:scale-105 transform transition-all duration-200 font-semibold rounded-xl py-4 px-6"
                     style={{
+                      fontSize: "calc(1.125rem * var(--font-size-override, 1))",
                       background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
                       color: "var(--color-primary-content)",
                       boxShadow: "0 0 20px var(--color-primary)",
@@ -144,8 +169,12 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
       <h1
-        className="text-3xl font-bold mb-6"
-        style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+        className="font-bold mb-6"
+        style={{
+          fontSize: "calc(1.875rem * var(--font-size-override, 1))",
+          color: "var(--color-primary)",
+          textShadow: "0 0 20px var(--color-primary)",
+        }}
       >
         Profile
       </h1>
@@ -180,9 +209,14 @@ export default function ProfilePage() {
             border: "1px solid var(--color-border)",
           }}
         >
-          <p className="text-sm text-base-content/60 mb-2">Wallet Address</p>
+          <p
+            className="text-base-content/60 mb-2"
+            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+          >
+            Wallet Address
+          </p>
           <div className="flex items-center justify-between">
-            <code className="text-sm font-mono">
+            <code className="font-mono" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
               {address.slice(0, 10)}...{address.slice(-8)}
             </code>
             <button onClick={copyAddress} className="btn btn-sm btn-ghost">
@@ -199,7 +233,12 @@ export default function ProfilePage() {
             border: "1px solid var(--color-border)",
           }}
         >
-          <p className="text-sm text-base-content/60 mb-2">Display Name</p>
+          <p
+            className="text-base-content/60 mb-2"
+            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+          >
+            Display Name
+          </p>
           <div className="flex items-center gap-3">
             {pfpUrl && (
               <Image
@@ -215,7 +254,7 @@ export default function ProfilePage() {
                 }}
               />
             )}
-            <p className="text-lg font-semibold">
+            <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
               {displayName}
               {hasEns && (
                 <span
@@ -281,7 +320,7 @@ export default function ProfilePage() {
         }}
       >
         <div className="flex items-center space-x-3 mb-4">
-          <span className="text-2xl">💚</span>
+          <span style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))" }}>💚</span>
           <div>
             <p className="font-semibold">Daily UBI Claim</p>
             <p className="text-xs text-base-content/60">Claim your GoodDollar (G$) tokens on CELO Network</p>
@@ -301,7 +340,10 @@ export default function ProfilePage() {
                   }}
                 >
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
-                  <p className="text-2xl font-bold" style={{ color: "var(--color-primary)" }}>
+                  <p
+                    className="font-bold"
+                    style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))", color: "var(--color-primary)" }}
+                  >
                     {(Number(entitlement) / 1e18).toFixed(2)} G$
                   </p>
                 </div>
@@ -330,7 +372,9 @@ export default function ProfilePage() {
               <>
                 <div className="bg-base-200 rounded-lg p-4 mb-4">
                   <p className="text-sm text-base-content/60 mb-1">Next claim available in</p>
-                  <p className="text-xl font-bold">{timeUntilClaim || "Checking..."}</p>
+                  <p className="font-bold" style={{ fontSize: "calc(1.25rem * var(--font-size-override, 1))" }}>
+                    {timeUntilClaim || "Checking..."}
+                  </p>
                 </div>
                 <button disabled className="btn btn-disabled w-full">
                   Claim Unavailable
