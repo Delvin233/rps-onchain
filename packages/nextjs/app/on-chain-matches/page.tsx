@@ -82,34 +82,34 @@ export default function OnChainMatchesPage() {
         const contract = deployedContracts[chainId as 42220 | 8453].RPSOnline;
         const roomsForChain = Array.from(publishedRooms.values()).filter(r => r.chainId === chainId);
 
-        for (const { roomId, txHash } of roomsForChain) {
-          const [matchHistory, roomStats] = await Promise.all([
-            client.readContract({
-              address: contract.address,
-              abi: contract.abi,
-              functionName: "getMatchHistory",
-              args: [roomId],
-            }),
-            client.readContract({
-              address: contract.address,
-              abi: contract.abi,
-              functionName: "getRoomStats",
-              args: [roomId],
-            }),
-          ]);
+        const roomPromises = roomsForChain.map(async ({ roomId, txHash }) => {
+          try {
+            const [matchHistory, roomStats] = await Promise.all([
+              client.readContract({
+                address: contract.address,
+                abi: contract.abi,
+                functionName: "getMatchHistory",
+                args: [roomId],
+              }),
+              client.readContract({
+                address: contract.address,
+                abi: contract.abi,
+                functionName: "getRoomStats",
+                args: [roomId],
+              }),
+            ]);
 
-          if (!matchHistory || !roomStats || (matchHistory as any[]).length === 0) continue;
+            if (!matchHistory || !roomStats || (matchHistory as any[]).length === 0) return null;
 
-          const [, player1, player2] = roomStats as [bigint, string, string];
+            const [, player1, player2] = roomStats as [bigint, string, string];
 
-          {
             // Resolve names
             const [name1Res, name2Res] = await Promise.all([
               fetch(`/api/resolve-name?address=${player1}`).then(r => r.json()),
               fetch(`/api/resolve-name?address=${player2}`).then(r => r.json()),
             ]);
 
-            allMatches.push({
+            return {
               roomId: roomId as string,
               chainId,
               chainName,
@@ -124,12 +124,21 @@ export default function OnChainMatchesPage() {
                 player2Move: m.player2Move,
                 timestamp: Number(m.timestamp),
               })),
-            });
+            };
+          } catch (error) {
+            console.error(`Error fetching room ${roomId}:`, error);
+            return null;
           }
-        }
+        });
+
+        const roomResults = await Promise.all(roomPromises);
+        roomResults.forEach(result => {
+          if (result) {
+            allMatches.push(result);
+          }
+        });
       } catch (error) {
         console.error(`Error fetching ${chainName} matches:`, error);
-        // Continue to next chain
       }
     }
 
@@ -196,7 +205,14 @@ export default function OnChainMatchesPage() {
 
   const openExternalLink = (url: string) => {
     if (isMiniPay || isBaseApp || isFarcasterFrame) {
-      window.location.href = url;
+      // Create temporary anchor element to trigger external browser
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     } else {
       window.open(url, "_blank", "noopener,noreferrer");
     }
