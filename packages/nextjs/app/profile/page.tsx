@@ -201,12 +201,7 @@ export default function ProfilePage() {
       {/* User Details - 2 columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Wallet Info */}
-        <div
-          className="rounded-xl p-6 bg-card/50 border border-border"
-          style={{
-            border: "1px solid var(--color-border)",
-          }}
-        >
+        <div className="rounded-xl p-6 bg-card/50 border border-border">
           <p
             className="text-base-content/60 mb-2"
             style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
@@ -224,12 +219,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Display Name */}
-        <div
-          className="rounded-xl p-6 bg-card/50 border border-border"
-          style={{
-            border: "1px solid var(--color-border)",
-          }}
-        >
+        <div className="rounded-xl p-6 bg-card/50 border border-border">
           <p
             className="text-base-content/60 mb-2"
             style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
