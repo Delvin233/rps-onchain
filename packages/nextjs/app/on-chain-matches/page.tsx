@@ -210,17 +210,32 @@ export default function OnChainMatchesPage() {
             <ArrowLeft size={20} />
           </button>
           <Shield className="text-primary" size={32} />
-          <h1 className="text-3xl font-bold text-glow-primary">On-Chain Verified Matches</h1>
+          <h1
+            className="font-bold"
+            style={{
+              fontSize: "calc(1.875rem * var(--font-size-override, 1))",
+              color: "var(--color-primary)",
+              textShadow: "0 0 20px var(--color-primary)",
+            }}
+          >
+            On-Chain Verified Matches
+          </h1>
         </div>
-        <p className="text-base-content/60 mb-6">
+        <p className="text-base-content/60 mb-6" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
           All matches published to the blockchain are permanently verified and publicly viewable.
           {isBaseApp && (
-            <span className="block mt-2 text-warning text-sm">
+            <span
+              className="block mt-2 text-warning"
+              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+            >
               ⚠️ Base app only shows matches published on Base network.
             </span>
           )}
           {isMiniPay && (
-            <span className="block mt-2 text-warning text-sm">
+            <span
+              className="block mt-2 text-warning"
+              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+            >
               ⚠️ MiniPay only shows matches published on Celo network.
             </span>
           )}
@@ -230,7 +245,9 @@ export default function OnChainMatchesPage() {
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Filter size={20} className="text-primary" />
-            <h2 className="font-semibold">Filters</h2>
+            <h2 className="font-semibold" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
+              Filters
+            </h2>
             {(filters.search || filters.dateFrom || filters.dateTo || filters.chain !== "all") && (
               <button onClick={clearFilters} className="btn btn-xs btn-ghost ml-auto">
                 <X size={14} /> Clear
@@ -269,7 +286,7 @@ export default function OnChainMatchesPage() {
               {!isMiniPay && <option value="base">Base</option>}
             </select>
           </div>
-          <p className="text-xs text-base-content/60 mt-3">
+          <p className="text-base-content/60 mt-3" style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}>
             Showing {filteredMatches.length} of {matches.length} matches
           </p>
         </div>
@@ -277,11 +294,13 @@ export default function OnChainMatchesPage() {
         {isLoading ? (
           <div className="text-center py-12">
             <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-base-content/60 mt-4">Loading on-chain matches...</p>
+            <p className="text-base-content/60 mt-4" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
+              Loading on-chain matches...
+            </p>
           </div>
         ) : filteredMatches.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-base-content/60">
+            <p className="text-base-content/60" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
               {matches.length === 0 ? "No on-chain matches found yet." : "No matches match your filters."}
             </p>
           </div>
@@ -293,7 +312,12 @@ export default function OnChainMatchesPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="badge badge-primary badge-sm flex-shrink-0">{match.chainName}</span>
-                      <span className="text-xs text-base-content/60 truncate">Room: {match.roomId}</span>
+                      <span
+                        className="text-base-content/60 truncate"
+                        style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                      >
+                        Room: {match.roomId}
+                      </span>
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
                       {match.txHash && (
@@ -318,14 +342,30 @@ export default function OnChainMatchesPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="bg-base-200 p-2 rounded-lg">
-                      <p className="text-xs text-base-content/60 mb-1">Player 1</p>
-                      <p className="text-sm font-semibold truncate">
+                      <p
+                        className="text-base-content/60 mb-1"
+                        style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                      >
+                        Player 1
+                      </p>
+                      <p
+                        className="font-semibold truncate"
+                        style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                      >
                         {match.player1Name || `${match.player1.slice(0, 8)}...${match.player1.slice(-4)}`}
                       </p>
                     </div>
                     <div className="bg-base-200 p-2 rounded-lg">
-                      <p className="text-xs text-base-content/60 mb-1">Player 2</p>
-                      <p className="text-sm font-semibold truncate">
+                      <p
+                        className="text-base-content/60 mb-1"
+                        style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                      >
+                        Player 2
+                      </p>
+                      <p
+                        className="font-semibold truncate"
+                        style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                      >
                         {match.player2Name || `${match.player2.slice(0, 8)}...${match.player2.slice(-4)}`}
                       </p>
                     </div>
@@ -345,13 +385,36 @@ export default function OnChainMatchesPage() {
                       <div key={mIdx} className="bg-base-200 p-3 rounded-lg">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold uppercase text-sm">{m.player1Move}</span>
-                            <span className="text-base-content/60">vs</span>
-                            <span className="font-bold uppercase text-sm">{m.player2Move}</span>
+                            <span
+                              className="font-bold uppercase"
+                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                            >
+                              {m.player1Move}
+                            </span>
+                            <span
+                              className="text-base-content/60"
+                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                            >
+                              vs
+                            </span>
+                            <span
+                              className="font-bold uppercase"
+                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                            >
+                              {m.player2Move}
+                            </span>
                           </div>
-                          <span className="font-semibold text-success text-sm truncate">Winner: {winnerName}</span>
+                          <span
+                            className="font-semibold text-success truncate"
+                            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                          >
+                            Winner: {winnerName}
+                          </span>
                         </div>
-                        <p className="text-xs text-base-content/60 mt-2">
+                        <p
+                          className="text-base-content/60 mt-2"
+                          style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                        >
                           {new Date(m.timestamp * 1000).toLocaleString()}
                         </p>
                       </div>

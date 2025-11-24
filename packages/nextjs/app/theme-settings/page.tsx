@@ -60,7 +60,9 @@ export default function ThemeSettingsPage() {
           </h1>
         </div>
 
-        <p className="text-base-content/60 mb-6">Customize your gaming experience with colors, fonts and spacing.</p>
+        <p className="text-base-content/60 mb-6" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
+          Customize your gaming experience with colors, fonts and spacing.
+        </p>
 
         <div className="mb-4">
           <ColorThemeSelector />
@@ -100,12 +102,16 @@ export default function ThemeSettingsPage() {
 
         {!address && (
           <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 mb-4 text-center">
-            <p className="text-sm text-warning">💡 Connect wallet to sync preferences across devices</p>
+            <p className="text-warning" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
+              💡 Connect wallet to sync preferences across devices
+            </p>
           </div>
         )}
 
         <div className="bg-card/30 backdrop-blur border border-border/50 rounded-xl p-6 text-center">
-          <p className="text-base-content/60">Color themes are now available above!</p>
+          <p className="text-base-content/60" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
+            Color themes are now available above!
+          </p>
         </div>
       </div>
     </div>
