@@ -74,7 +74,6 @@ export default function PlayModePage() {
             style={{
               fontSize: "calc(clamp(1.125rem, 4vw, 1.875rem) * var(--font-size-override, 1))",
               color: "var(--color-primary)",
-              textShadow: "0 0 20px var(--color-primary)",
             }}
           >
             Choose Game Mode

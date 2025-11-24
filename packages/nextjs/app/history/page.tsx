@@ -186,7 +186,7 @@ export default function HistoryPage() {
     <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
       <h1
         className="text-lg sm:text-xl md:text-2xl font-bold mb-4 break-words"
-        style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+        style={{ color: "var(--color-primary)" }}
       >
         Match History
       </h1>

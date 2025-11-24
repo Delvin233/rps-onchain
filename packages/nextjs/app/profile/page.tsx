@@ -172,7 +172,6 @@ export default function ProfilePage() {
         style={{
           fontSize: "calc(1.875rem * var(--font-size-override, 1))",
           color: "var(--color-primary)",
-          textShadow: "0 0 20px var(--color-primary)",
         }}
       >
         Profile
