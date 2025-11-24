@@ -150,24 +150,9 @@ export default function Home() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-12">
-            <div
-              className="backdrop-blur rounded-xl p-6 transition-all duration-200"
-              style={{
-                backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                border: "1px solid rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)",
-              }}
-              onMouseEnter={e =>
-                (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")
-              }
-              onMouseLeave={e =>
-                (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)")
-              }
-            >
+            <div className="bg-card/50 backdrop-blur rounded-xl p-6 border border-primary/20 transition-all duration-200 hover:border-primary/50">
               <div className="flex items-start space-x-4">
-                <div
-                  className="p-3 rounded-lg mt-1"
-                  style={{ backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)" }}
-                >
+                <div className="p-3 rounded-lg bg-primary/10">
                   <Target size={24} style={{ color: "var(--color-primary)" }} />
                 </div>
                 <div>
@@ -179,24 +164,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div
-              className="backdrop-blur rounded-xl p-6 transition-all duration-200"
-              style={{
-                backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                border: "1px solid rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2)",
-              }}
-              onMouseEnter={e =>
-                (e.currentTarget.style.borderColor = "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.5)")
-              }
-              onMouseLeave={e =>
-                (e.currentTarget.style.borderColor = "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2)")
-              }
-            >
+            <div className="bg-card/50 backdrop-blur rounded-xl p-6 border border-secondary/20 transition-all duration-200 hover:border-secondary/50">
               <div className="flex items-start space-x-4">
-                <div
-                  className="p-3 rounded-lg mt-1"
-                  style={{ backgroundColor: "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.1)" }}
-                >
+                <div className="p-3 rounded-lg bg-secondary/10">
                   <Coins size={24} style={{ color: "var(--color-secondary)" }} />
                 </div>
                 <div>
@@ -208,24 +178,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div
-              className="backdrop-blur rounded-xl p-6 transition-all duration-200"
-              style={{
-                backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                border: "1px solid rgba(var(--color-accent-rgb, 59, 130, 246), 0.2)",
-              }}
-              onMouseEnter={e =>
-                (e.currentTarget.style.borderColor = "rgba(var(--color-accent-rgb, 59, 130, 246), 0.5)")
-              }
-              onMouseLeave={e =>
-                (e.currentTarget.style.borderColor = "rgba(var(--color-accent-rgb, 59, 130, 246), 0.2)")
-              }
-            >
+            <div className="bg-card/50 backdrop-blur rounded-xl p-6 border border-accent/20 transition-all duration-200 hover:border-accent/50">
               <div className="flex items-start space-x-4">
-                <div
-                  className="p-3 rounded-lg mt-1"
-                  style={{ backgroundColor: "rgba(var(--color-accent-rgb, 59, 130, 246), 0.1)" }}
-                >
+                <div className="p-3 rounded-lg bg-accent/10">
                   <TrendingUp size={24} style={{ color: "var(--color-accent)" }} />
                 </div>
                 <div>
@@ -256,14 +211,7 @@ export default function Home() {
             )}
           </div>
 
-          <div
-            className="rounded-xl p-6 lg:col-span-2 max-w-2xl mx-auto"
-            style={{
-              background:
-                "linear-gradient(to bottom right, rgba(var(--color-primary-rgb, 16, 185, 129), 0.1), rgba(var(--color-secondary-rgb, 251, 146, 60), 0.1))",
-              border: "1px solid rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)",
-            }}
-          >
+          <div className="bg-card/50 rounded-xl p-6 lg:col-span-2 max-w-2xl mx-auto backdrop-blur border border-primary/30">
             <h3 className="text-lg font-bold mb-4 text-center">How to Play</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
@@ -312,13 +260,7 @@ export default function Home() {
               <MiniAppAccount platform={getPlatform()} />
             </div>
           ) : (
-            <div
-              className="backdrop-blur rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto"
-              style={{
-                backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                border: "1px solid rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)",
-              }}
-            >
+            <div className="bg-card/50 backdrop-blur rounded-xl p-6 text-center mb-6 max-w-2xl mx-auto border border-primary/30">
               <div className="flex items-center justify-center gap-3 mb-1">
                 {pfpUrl && (
                   <Image

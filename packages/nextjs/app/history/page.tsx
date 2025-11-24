@@ -299,14 +299,7 @@ export default function HistoryPage() {
                 const hasBlockchainProof = blockchainMatches[match.roomId || ""];
 
                 return (
-                  <div
-                    key={index}
-                    className="backdrop-blur rounded-xl p-4 h-fit"
-                    style={{
-                      backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                      border: "1px solid var(--color-border)",
-                    }}
-                  >
+                  <div key={index} className="bg-card/50 backdrop-blur rounded-xl p-4 h-fit border border-border">
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold break-words">
