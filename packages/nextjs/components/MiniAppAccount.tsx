@@ -162,7 +162,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   if (!address) {
     return (
       <div
-        className="rounded-xl border backdrop-blur"
+        className="rounded-xl border"
         style={{
           padding: "var(--card-padding, 1rem)",
           borderColor: platformColors.borderColor,
@@ -192,7 +192,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   return (
     <div
-      className="rounded-xl border backdrop-blur relative"
+      className="rounded-xl border relative"
       style={{
         padding: "var(--card-padding, 1rem)",
         borderColor: platformColors.borderColor,

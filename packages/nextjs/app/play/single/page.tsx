@@ -128,7 +128,7 @@ export default function SinglePlayerPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Single Player</h1>
+            <h1 className="text-4xl font-bold mb-3 animate-glow">Single Player</h1>
             <p className="text-base-content/70">Connect Wallet</p>
           </div>
           {isMiniPayCheck ? (
@@ -160,7 +160,7 @@ export default function SinglePlayerPage() {
         <button onClick={() => handleNavigation("/play")} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary ml-2 break-words">Single Player</h1>
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold ml-2 break-words">Single Player</h1>
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">

@@ -150,10 +150,7 @@ export default function HistoryPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1
-              className="text-4xl font-bold mb-3 animate-glow"
-              style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
-            >
+            <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Match History
             </h1>
           </div>
@@ -231,7 +228,7 @@ export default function HistoryPage() {
                 return (
                   <div
                     key={index}
-                    className="backdrop-blur rounded-xl p-4 h-fit"
+                    className="rounded-xl p-4 h-fit"
                     style={{
                       backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
                       border: "1px solid var(--color-border)",
@@ -299,7 +296,7 @@ export default function HistoryPage() {
                 const hasBlockchainProof = blockchainMatches[match.roomId || ""];
 
                 return (
-                  <div key={index} className="bg-card/50 backdrop-blur rounded-xl p-4 h-fit border border-border">
+                  <div key={index} className="bg-card/50 rounded-xl p-4 h-fit border border-border">
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold break-words">

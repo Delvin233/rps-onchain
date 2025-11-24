@@ -131,7 +131,6 @@ export default function ProfilePage() {
               style={{
                 fontSize: "calc(2.25rem * var(--font-size-override, 1))",
                 color: "var(--color-primary)",
-                textShadow: "0 0 20px var(--color-primary)",
               }}
             >
               Profile
@@ -283,7 +282,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Verification Status */}
-      <div className="bg-card/50 backdrop-blur rounded-xl p-6 mb-4 border border-border">
+      <div className="bg-card/50 rounded-xl p-6 mb-4 border border-border">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Shield className={isHumanVerified ? "text-success" : "text-warning"} size={24} />
@@ -303,7 +302,7 @@ export default function ProfilePage() {
       </div>
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
-      <div className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary backdrop-blur">
+      <div className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary">
         <div className="flex items-center space-x-3 mb-4">
           <span style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))" }}>💚</span>
           <div>
@@ -370,7 +369,7 @@ export default function ProfilePage() {
       {/* Theme Settings Link */}
       <button
         onClick={() => router.push("/theme-settings")}
-        className="backdrop-blur rounded-xl p-4 w-full text-left transition-all mt-4"
+        className="rounded-xl p-4 w-full text-left transition-all mt-4"
         style={{
           backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
           border: "1px solid var(--color-border)",

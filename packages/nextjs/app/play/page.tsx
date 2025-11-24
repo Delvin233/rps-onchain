@@ -30,10 +30,7 @@ export default function PlayModePage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto">
           <div className="mb-8">
-            <h1
-              className="text-4xl font-bold mb-3 animate-glow"
-              style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
-            >
+            <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Ready to Play?
             </h1>
           </div>
@@ -109,7 +106,7 @@ export default function PlayModePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-[2vh] max-w-4xl mx-auto">
         <button
           onClick={() => router.push("/play/single")}
-          className="backdrop-blur rounded-xl hover:scale-105 transition-all duration-200 text-center"
+          className="rounded-xl hover:scale-105 transition-all duration-200 text-center"
           style={{
             padding: "clamp(1rem, 3vh, 2rem)",
             backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
@@ -156,7 +153,7 @@ export default function PlayModePage() {
 
         <button
           onClick={() => router.push("/play/multiplayer")}
-          className="backdrop-blur rounded-xl hover:scale-105 transition-all duration-200 text-center"
+          className="rounded-xl hover:scale-105 transition-all duration-200 text-center"
           style={{
             padding: "clamp(1rem, 3vh, 2rem)",
             backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",

@@ -23,7 +23,7 @@ export const ColorThemeSelector = () => {
   };
 
   return (
-    <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+    <div className="bg-card/50 border border-border rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
         <Palette size={20} className="text-primary" />
         <h3 className="font-semibold">Color Theme</h3>

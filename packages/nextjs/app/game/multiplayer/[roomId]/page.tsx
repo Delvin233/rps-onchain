@@ -557,7 +557,7 @@ export default function MultiplayerGamePage() {
   if (!isConnected || !address) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">Please connect your wallet to play</p>
           <button onClick={() => handleNavigation("/")} className="btn btn-primary">
             Go Home
@@ -591,8 +591,8 @@ export default function MultiplayerGamePage() {
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
+        <h1 className="text-2xl font-bold mb-6">Waiting for Opponent...</h1>
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60">Share this code with your opponent</p>
         </div>
@@ -612,7 +612,7 @@ export default function MultiplayerGamePage() {
           </div>
         )}
         <h1
-          className="font-bold text-glow-primary"
+          className="font-bold"
           style={{
             fontSize: "calc(clamp(1.25rem, 4vw, 1.875rem) * var(--font-size-override, 1))",
             marginBottom: "clamp(1rem, 2vh, 1.5rem)",
@@ -641,7 +641,7 @@ export default function MultiplayerGamePage() {
               key={move}
               onClick={() => submitMove(move)}
               disabled={isSubmitting}
-              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
               <p
@@ -665,7 +665,7 @@ export default function MultiplayerGamePage() {
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
+        <h1 className="text-2xl font-bold mb-6">Waiting for Reveal...</h1>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
             Your move: <span className="font-bold uppercase">{selectedMove}</span>
@@ -690,8 +690,8 @@ export default function MultiplayerGamePage() {
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+        <h1 className="text-2xl font-bold mb-6">Game Over</h1>
+        <div className="bg-card/50 border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
               <p className="text-xs text-base-content/60 mb-1">{myName}</p>

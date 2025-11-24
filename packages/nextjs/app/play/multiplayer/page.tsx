@@ -226,7 +226,6 @@ export default function MultiplayerPage() {
               style={{
                 fontSize: "calc(2.25rem * var(--font-size-override, 1))",
                 color: "var(--color-primary)",
-                textShadow: "0 0 20px var(--color-primary)",
               }}
             >
               Multiplayer
