@@ -432,7 +432,6 @@ export default function HistoryPage() {
               fetchOnChainData={fetchOnChainData}
             />
           </div>
-          <div className="modal-backdrop" onClick={() => setShowOnChainModal(null)}></div>
         </div>
       )}
     </div>
