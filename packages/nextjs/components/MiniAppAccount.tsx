@@ -192,11 +192,12 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   return (
     <div
-      className="rounded-xl border backdrop-blur"
+      className="rounded-xl border backdrop-blur relative"
       style={{
         padding: "var(--card-padding, 1rem)",
         borderColor: platformColors.borderColor,
         backgroundColor: platformColors.backgroundColor,
+        zIndex: 10,
       }}
     >
       <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
