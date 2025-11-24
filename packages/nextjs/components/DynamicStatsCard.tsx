@@ -12,7 +12,7 @@ interface StatsCardProps {
 export function StatsCard({ title, value, subtitle, icon: Icon, index }: StatsCardProps) {
   return (
     <div
-      className="bg-card/50 backdrop-blur border border-border rounded-xl p-3 hover:border-primary/50 transition-all duration-200 animate-fade-in"
+      className="bg-card/50 border border-border rounded-xl p-3 hover:border-primary/50 transition-all duration-200 animate-fade-in"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-center justify-between">

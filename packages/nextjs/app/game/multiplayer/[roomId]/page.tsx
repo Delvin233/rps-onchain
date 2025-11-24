@@ -557,7 +557,7 @@ export default function MultiplayerGamePage() {
   if (!isConnected || !address) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">Please connect your wallet to play</p>
           <button onClick={() => handleNavigation("/")} className="btn btn-primary">
             Go Home
@@ -570,7 +570,7 @@ export default function MultiplayerGamePage() {
   if (errorCount > 10) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
           <p className="text-lg text-error mb-4">Room connection lost</p>
           <p className="text-sm text-base-content/60 mb-6">
             The room may have expired or the server connection was interrupted.
@@ -591,8 +591,8 @@ export default function MultiplayerGamePage() {
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Opponent...</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center mb-4">
+        <h1 className="text-2xl font-bold mb-6">Waiting for Opponent...</h1>
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
           <p className="text-base-content/60">Share this code with your opponent</p>
         </div>
@@ -612,7 +612,7 @@ export default function MultiplayerGamePage() {
           </div>
         )}
         <h1
-          className="font-bold text-glow-primary"
+          className="font-bold"
           style={{
             fontSize: "calc(clamp(1.25rem, 4vw, 1.875rem) * var(--font-size-override, 1))",
             marginBottom: "clamp(1rem, 2vh, 1.5rem)",
@@ -641,7 +641,7 @@ export default function MultiplayerGamePage() {
               key={move}
               onClick={() => submitMove(move)}
               disabled={isSubmitting}
-              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
               <p
@@ -665,8 +665,8 @@ export default function MultiplayerGamePage() {
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Waiting for Reveal...</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <h1 className="text-2xl font-bold mb-6">Waiting for Reveal...</h1>
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
             Your move: <span className="font-bold uppercase">{selectedMove}</span>
           </p>
@@ -690,8 +690,8 @@ export default function MultiplayerGamePage() {
             <RainbowKitCustomConnectButton />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-glow-primary mb-6">Game Over</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+        <h1 className="text-2xl font-bold mb-6">Game Over</h1>
+        <div className="bg-card/50 border border-border rounded-xl p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
               <p className="text-xs text-base-content/60 mb-1">{myName}</p>
@@ -795,7 +795,7 @@ export default function MultiplayerGamePage() {
 
         {showPublishModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+            <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
               <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
               <p className="text-base-content/80 mb-6">
                 You will be asked to sign a transaction to publish this match result on-chain. This only requires gas
@@ -824,7 +824,7 @@ export default function MultiplayerGamePage() {
     <>
       {showPublishModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
             <p className="text-base-content/80 mb-6">
               You will be asked to sign a transaction to publish this match result on-chain. This only requires gas fees
@@ -848,7 +848,7 @@ export default function MultiplayerGamePage() {
 
       {showExitConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full shadow-glow-warning">
+          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4 text-warning">Leave Game?</h3>
             <p className="text-base-content/80 mb-6">
               You have an active game. Leaving will forfeit the match. Are you sure?

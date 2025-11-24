@@ -52,10 +52,7 @@ export default function ThemeSettingsPage() {
             <ArrowLeft size={20} />
           </button>
           <Palette className="text-primary" size={32} />
-          <h1
-            className="text-3xl font-bold"
-            style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
-          >
+          <h1 className="text-3xl font-bold" style={{ color: "var(--color-primary)" }}>
             Theme Settings
           </h1>
         </div>
@@ -108,7 +105,7 @@ export default function ThemeSettingsPage() {
           </div>
         )}
 
-        <div className="bg-card/30 backdrop-blur border border-border/50 rounded-xl p-6 text-center">
+        <div className="bg-card/30 border border-border/50 rounded-xl p-6 text-center">
           <p className="text-base-content/60" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
             Color themes are now available above!
           </p>

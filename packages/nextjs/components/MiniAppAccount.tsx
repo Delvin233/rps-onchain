@@ -29,28 +29,16 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const [showBalance, setShowBalance] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const platformColors = useMemo(() => {
+  const platformBorderColor = useMemo(() => {
     switch (platform) {
       case "farcaster":
-        return {
-          borderColor: "var(--color-accent)",
-          backgroundColor: "rgba(var(--color-accent-rgb, 168, 85, 247), 0.1)",
-        };
+        return "var(--color-accent)"; // Purple
       case "base":
-        return {
-          borderColor: "var(--color-secondary)",
-          backgroundColor: "rgba(var(--color-secondary-rgb, 110, 231, 183), 0.1)",
-        };
+        return "var(--color-secondary)"; // Teal
       case "minipay":
-        return {
-          borderColor: "var(--color-primary)",
-          backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
-        };
+        return "var(--color-primary)"; // Green
       default:
-        return {
-          borderColor: "var(--color-primary)",
-          backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
-        };
+        return "var(--color-primary)";
     }
   }, [platform]);
 
@@ -162,11 +150,10 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   if (!address) {
     return (
       <div
-        className="rounded-xl border backdrop-blur"
+        className="rounded-xl border bg-card/50"
         style={{
           padding: "var(--card-padding, 1rem)",
-          borderColor: platformColors.borderColor,
-          backgroundColor: platformColors.backgroundColor,
+          borderColor: platformBorderColor,
         }}
       >
         <div className="flex items-center justify-center">
@@ -192,11 +179,10 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
 
   return (
     <div
-      className="rounded-xl border backdrop-blur relative"
+      className="rounded-xl border relative bg-card/50"
       style={{
         padding: "var(--card-padding, 1rem)",
-        borderColor: platformColors.borderColor,
-        backgroundColor: platformColors.backgroundColor,
+        borderColor: platformBorderColor,
         zIndex: 10,
       }}
     >

@@ -150,10 +150,7 @@ export default function HistoryPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1
-              className="text-4xl font-bold mb-3 animate-glow"
-              style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
-            >
+            <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Match History
             </h1>
           </div>
@@ -189,7 +186,7 @@ export default function HistoryPage() {
     <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
       <h1
         className="text-lg sm:text-xl md:text-2xl font-bold mb-4 break-words"
-        style={{ color: "var(--color-primary)", textShadow: "0 0 20px var(--color-primary)" }}
+        style={{ color: "var(--color-primary)" }}
       >
         Match History
       </h1>
@@ -229,14 +226,7 @@ export default function HistoryPage() {
 
               if (isAiMatch) {
                 return (
-                  <div
-                    key={index}
-                    className="backdrop-blur rounded-xl p-4 h-fit"
-                    style={{
-                      backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                      border: "1px solid var(--color-border)",
-                    }}
-                  >
+                  <div key={index} className="rounded-xl p-4 h-fit bg-card/50 border border-border">
                     <div className="mb-3">
                       <p className="font-semibold mb-1">vs AI</p>
                       <p className="text-base-content/60 opacity-80">
@@ -299,14 +289,7 @@ export default function HistoryPage() {
                 const hasBlockchainProof = blockchainMatches[match.roomId || ""];
 
                 return (
-                  <div
-                    key={index}
-                    className="backdrop-blur rounded-xl p-4 h-fit"
-                    style={{
-                      backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                      border: "1px solid var(--color-border)",
-                    }}
-                  >
+                  <div key={index} className="bg-card/50 rounded-xl p-4 h-fit border border-border">
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold break-words">
@@ -432,7 +415,6 @@ export default function HistoryPage() {
               fetchOnChainData={fetchOnChainData}
             />
           </div>
-          <div className="modal-backdrop" onClick={() => setShowOnChainModal(null)}></div>
         </div>
       )}
     </div>

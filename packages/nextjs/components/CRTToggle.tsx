@@ -19,7 +19,7 @@ export const CRTToggle = () => {
   };
 
   return (
-    <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+    <div className="bg-card/50 border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <RiTvLine className="text-primary" size={24} />

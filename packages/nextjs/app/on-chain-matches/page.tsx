@@ -231,7 +231,6 @@ export default function OnChainMatchesPage() {
             style={{
               fontSize: "calc(1.875rem * var(--font-size-override, 1))",
               color: "var(--color-primary)",
-              textShadow: "0 0 20px var(--color-primary)",
             }}
           >
             On-Chain Verified Matches
@@ -258,7 +257,7 @@ export default function OnChainMatchesPage() {
         </p>
 
         {/* Filters */}
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 mb-6">
+        <div className="bg-card/50 border border-border rounded-xl p-4 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Filter size={20} className="text-primary" />
             <h2 className="font-semibold" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
@@ -323,7 +322,7 @@ export default function OnChainMatchesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredMatches.map((match, idx) => (
-              <div key={idx} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 h-fit">
+              <div key={idx} className="bg-card/50 border border-border rounded-xl p-4 h-fit">
                 <div className="flex flex-col gap-3 mb-3">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">

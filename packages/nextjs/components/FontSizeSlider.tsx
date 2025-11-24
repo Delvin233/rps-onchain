@@ -29,7 +29,7 @@ export const FontSizeSlider = () => {
   };
 
   return (
-    <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+    <div className="bg-card/50 border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <RxFontSize className="text-primary" size={20} />
