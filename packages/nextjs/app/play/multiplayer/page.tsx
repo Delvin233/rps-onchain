@@ -221,8 +221,19 @@ export default function MultiplayerPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Multiplayer</h1>
-            <p className="text-base-content/70">Connect Wallet to Play</p>
+            <h1
+              className="font-bold mb-3 animate-glow"
+              style={{
+                fontSize: "calc(2.25rem * var(--font-size-override, 1))",
+                color: "var(--color-primary)",
+                textShadow: "0 0 20px var(--color-primary)",
+              }}
+            >
+              Multiplayer
+            </h1>
+            <p className="text-base-content/70" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
+              Connect Wallet to Play
+            </p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
@@ -234,7 +245,8 @@ export default function MultiplayerPage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
                   >
                     Connect Wallet
                   </button>
@@ -253,7 +265,14 @@ export default function MultiplayerPage() {
         <button onClick={() => router.push("/play")} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary break-words flex-1 min-w-0">
+        <h1
+          className="font-bold break-words flex-1 min-w-0"
+          style={{
+            fontSize: "calc(clamp(1.125rem, 3vw, 1.5rem) * var(--font-size-override, 1))",
+            color: "var(--color-primary)",
+            textShadow: "0 0 20px var(--color-primary)",
+          }}
+        >
           Multiplayer
         </h1>
       </div>
@@ -265,7 +284,10 @@ export default function MultiplayerPage() {
 
       <div className="space-y-6">
         <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6">
-          <h2 className="flex items-center space-x-2 text-lg font-semibold mb-4">
+          <h2
+            className="flex items-center space-x-2 font-semibold mb-4"
+            style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
+          >
             <Plus size={20} />
             <span>Create Room</span>
           </h2>
@@ -281,13 +303,21 @@ export default function MultiplayerPage() {
         </div>
 
         <div className="bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-6">
-          <h2 className="flex items-center space-x-2 text-lg font-semibold mb-4">
+          <h2
+            className="flex items-center space-x-2 font-semibold mb-4"
+            style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
+          >
             <Users size={20} />
             <span>Join Room</span>
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-base-content/60 block mb-1">Room Code</label>
+              <label
+                className="text-base-content/60 block mb-1"
+                style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+              >
+                Room Code
+              </label>
               <input
                 value={roomCode}
                 onChange={e => setRoomCode(e.target.value.toUpperCase())}
@@ -295,10 +325,20 @@ export default function MultiplayerPage() {
                 placeholder="XXXXXX"
                 maxLength={6}
               />
-              {checkingRoom && <p className="text-xs text-base-content/60 mt-2">Checking room...</p>}
+              {checkingRoom && (
+                <p
+                  className="text-base-content/60 mt-2"
+                  style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                >
+                  Checking room...
+                </p>
+              )}
               {roomInfo && roomInfo.chainId && roomInfo.chainId !== chainId && (
                 <div className="mt-3 p-3 bg-warning/10 border border-warning/30 rounded-lg">
-                  <p className="text-sm text-warning mb-2">
+                  <p
+                    className="text-warning mb-2"
+                    style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                  >
                     Room is on {roomInfo.chainId === celo.id ? "Celo" : "Base"}
                   </p>
                   <button
@@ -313,7 +353,10 @@ export default function MultiplayerPage() {
               {roomInfo && (
                 <div className="mt-3 p-3 bg-base-200 rounded-lg">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm text-base-content/80">
+                    <p
+                      className="text-base-content/80"
+                      style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                    >
                       Creator: {creatorName}
                       {creatorHasEns && (
                         <span
@@ -350,7 +393,10 @@ export default function MultiplayerPage() {
                     )}
                   </div>
                   {roomInfo.creatorVerified && (
-                    <div className="flex items-center gap-1 text-success text-sm">
+                    <div
+                      className="flex items-center gap-1 text-success"
+                      style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                    >
                       <Shield size={14} />
                       <span>Verified Human</span>
                     </div>
@@ -377,8 +423,13 @@ export default function MultiplayerPage() {
       {showCreateConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
-            <h3 className="text-xl font-bold mb-4 text-primary">Confirm Room Creation</h3>
-            <p className="text-base-content/80 mb-6">
+            <h3
+              className="font-bold mb-4 text-primary"
+              style={{ fontSize: "calc(1.25rem * var(--font-size-override, 1))" }}
+            >
+              Confirm Room Creation
+            </h3>
+            <p className="text-base-content/80 mb-6" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
               You will be asked to sign a transaction to create your game room on-chain. This is free and only requires
               gas fees.
             </p>
@@ -397,11 +448,24 @@ export default function MultiplayerPage() {
       {showJoinConfirm && roomInfo && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-secondary/30 rounded-xl p-6 max-w-md w-full shadow-glow-secondary">
-            <h3 className="text-xl font-bold mb-4 text-secondary">Confirm Room Join</h3>
+            <h3
+              className="font-bold mb-4 text-secondary"
+              style={{ fontSize: "calc(1.25rem * var(--font-size-override, 1))" }}
+            >
+              Confirm Room Join
+            </h3>
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
-              <p className="text-sm text-base-content/60 mb-1">Room Creator</p>
+              <p
+                className="text-base-content/60 mb-1"
+                style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+              >
+                Room Creator
+              </p>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-base-content text-base font-semibold">
+                <p
+                  className="text-base-content font-semibold"
+                  style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}
+                >
                   {creatorName}
                   {creatorHasEns && (
                     <span
@@ -438,11 +502,16 @@ export default function MultiplayerPage() {
               {roomInfo.creatorVerified && (
                 <div className="flex items-center gap-2 text-success">
                   <Shield size={16} />
-                  <span className="text-sm font-semibold">Verified Human</span>
+                  <span className="font-semibold" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
+                    Verified Human
+                  </span>
                 </div>
               )}
             </div>
-            <p className="text-base-content/80 mb-6 text-sm">
+            <p
+              className="text-base-content/80 mb-6"
+              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+            >
               You will be asked to sign a transaction to join this room. This is free and only requires gas fees.
             </p>
             <div className="flex gap-3">

@@ -123,6 +123,9 @@
   /* Apply spacing to common card-like elements */
   .card, .bg-card, [class*="card"] {
     padding: var(--card-padding, 1rem);
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .flex, .grid {
@@ -204,6 +207,9 @@
     font-family: var(--font-heading);
     font-weight: 600;
     font-size: calc(1rem * var(--font-size-override, 1)); /* 16px */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   input, textarea, select, label {

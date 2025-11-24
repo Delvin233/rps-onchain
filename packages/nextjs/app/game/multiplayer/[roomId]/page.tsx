@@ -613,14 +613,20 @@ export default function MultiplayerGamePage() {
         )}
         <h1
           className="font-bold text-glow-primary"
-          style={{ fontSize: "clamp(1.25rem, 4vw, 1.875rem)", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}
+          style={{
+            fontSize: "calc(clamp(1.25rem, 4vw, 1.875rem) * var(--font-size-override, 1))",
+            marginBottom: "clamp(1rem, 2vh, 1.5rem)",
+          }}
         >
           Choose Your Move
         </h1>
         {!isFreeMode && (
           <p
             className="text-center text-base-content/60"
-            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1rem)", marginBottom: "clamp(1rem, 2vh, 1.5rem)" }}
+            style={{
+              fontSize: "calc(clamp(0.875rem, 2.5vw, 1rem) * var(--font-size-override, 1))",
+              marginBottom: "clamp(1rem, 2vh, 1.5rem)",
+            }}
           >
             Bet: {betAmount} CELO
           </p>
@@ -638,7 +644,10 @@ export default function MultiplayerGamePage() {
               className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
-              <p className="font-semibold capitalize" style={{ fontSize: "clamp(1rem, 3vw, 1.5rem)" }}>
+              <p
+                className="font-semibold capitalize"
+                style={{ fontSize: "calc(clamp(1rem, 3vw, 1.5rem) * var(--font-size-override, 1))" }}
+              >
                 {move}
               </p>
             </button>

@@ -26,6 +26,26 @@ export default function ProfilePage() {
   const { isHumanVerified } = useAuth();
   const { isMiniApp, isBaseApp, isMiniPay, isFarcaster } = usePlatformDetection();
 
+  useEffect(() => {
+    if (!address && isMiniPay && typeof window !== "undefined") {
+      const shown = sessionStorage.getItem("minipay_reconnect_toast");
+      if (!shown) {
+        sessionStorage.setItem("minipay_reconnect_toast", "true");
+        toast("Navigate to Home to reconnect your wallet", {
+          duration: 5000,
+          style: {
+            background: "var(--color-base-100)",
+            color: "var(--color-base-content)",
+            border: "1px solid var(--color-primary)",
+          },
+        });
+      }
+    }
+    if (address && isMiniPay) {
+      sessionStorage.removeItem("minipay_reconnect_toast");
+    }
+  }, [address, isMiniPay]);
+
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isBaseApp) return "base";
     if (isMiniPay) return "minipay";
@@ -106,7 +126,16 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Profile</h1>
+            <h1
+              className="font-bold mb-3 animate-glow"
+              style={{
+                fontSize: "calc(2.25rem * var(--font-size-override, 1))",
+                color: "var(--color-primary)",
+                textShadow: "0 0 20px var(--color-primary)",
+              }}
+            >
+              Profile
+            </h1>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
@@ -118,7 +147,13 @@ export default function ProfilePage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    className="w-full hover:scale-105 transform transition-all duration-200 font-semibold rounded-xl py-4 px-6"
+                    style={{
+                      fontSize: "calc(1.125rem * var(--font-size-override, 1))",
+                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
+                      color: "var(--color-primary-content)",
+                      boxShadow: "0 0 20px var(--color-primary)",
+                    }}
                   >
                     Connect Wallet
                   </button>
@@ -133,7 +168,16 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
-      <h1 className="text-3xl font-bold text-glow-primary mb-6">Profile</h1>
+      <h1
+        className="font-bold mb-6"
+        style={{
+          fontSize: "calc(1.875rem * var(--font-size-override, 1))",
+          color: "var(--color-primary)",
+          textShadow: "0 0 20px var(--color-primary)",
+        }}
+      >
+        Profile
+      </h1>
 
       {/* Mobile Wallet Button */}
       {isMiniApp ? (
@@ -141,7 +185,14 @@ export default function ProfilePage() {
           <MiniAppAccount platform={getPlatform()} />
         </div>
       ) : (
-        <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 rounded-xl p-6 mb-4 lg:hidden">
+        <div
+          className="rounded-xl p-6 mb-4 lg:hidden"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(var(--color-primary-rgb, 16, 185, 129), 0.2), rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2))",
+            border: "1px solid rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)",
+          }}
+        >
           <div className="flex items-center justify-center">
             <RainbowKitCustomConnectButton />
           </div>
@@ -151,10 +202,21 @@ export default function ProfilePage() {
       {/* User Details - 2 columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Wallet Info */}
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
-          <p className="text-sm text-base-content/60 mb-2">Wallet Address</p>
+        <div
+          className="backdrop-blur rounded-xl p-6"
+          style={{
+            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          <p
+            className="text-base-content/60 mb-2"
+            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+          >
+            Wallet Address
+          </p>
           <div className="flex items-center justify-between">
-            <code className="text-sm font-mono">
+            <code className="font-mono" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
               {address.slice(0, 10)}...{address.slice(-8)}
             </code>
             <button onClick={copyAddress} className="btn btn-sm btn-ghost">
@@ -164,8 +226,19 @@ export default function ProfilePage() {
         </div>
 
         {/* Display Name */}
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
-          <p className="text-sm text-base-content/60 mb-2">Display Name</p>
+        <div
+          className="backdrop-blur rounded-xl p-6"
+          style={{
+            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          <p
+            className="text-base-content/60 mb-2"
+            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+          >
+            Display Name
+          </p>
           <div className="flex items-center gap-3">
             {pfpUrl && (
               <Image
@@ -181,7 +254,7 @@ export default function ProfilePage() {
                 }}
               />
             )}
-            <p className="text-lg font-semibold">
+            <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
               {displayName}
               {hasEns && (
                 <span
@@ -211,7 +284,11 @@ export default function ProfilePage() {
 
       {/* Verification Status */}
       <div
-        className={`bg-card/50 backdrop-blur border rounded-xl p-6 mb-4 ${isHumanVerified ? "border-success/50" : "border-warning/50"}`}
+        className="backdrop-blur rounded-xl p-6 mb-4"
+        style={{
+          backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+          border: `1px solid ${isHumanVerified ? "rgba(34, 197, 94, 0.5)" : "rgba(234, 179, 8, 0.5)"}`,
+        }}
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -243,7 +320,7 @@ export default function ProfilePage() {
         }}
       >
         <div className="flex items-center space-x-3 mb-4">
-          <span className="text-2xl">💚</span>
+          <span style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))" }}>💚</span>
           <div>
             <p className="font-semibold">Daily UBI Claim</p>
             <p className="text-xs text-base-content/60">Claim your GoodDollar (G$) tokens on CELO Network</p>
@@ -263,7 +340,10 @@ export default function ProfilePage() {
                   }}
                 >
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
-                  <p className="text-2xl font-bold" style={{ color: "var(--color-primary)" }}>
+                  <p
+                    className="font-bold"
+                    style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))", color: "var(--color-primary)" }}
+                  >
                     {(Number(entitlement) / 1e18).toFixed(2)} G$
                   </p>
                 </div>
@@ -292,7 +372,9 @@ export default function ProfilePage() {
               <>
                 <div className="bg-base-200 rounded-lg p-4 mb-4">
                   <p className="text-sm text-base-content/60 mb-1">Next claim available in</p>
-                  <p className="text-xl font-bold">{timeUntilClaim || "Checking..."}</p>
+                  <p className="font-bold" style={{ fontSize: "calc(1.25rem * var(--font-size-override, 1))" }}>
+                    {timeUntilClaim || "Checking..."}
+                  </p>
                 </div>
                 <button disabled className="btn btn-disabled w-full">
                   Claim Unavailable
@@ -310,7 +392,13 @@ export default function ProfilePage() {
       {/* Theme Settings Link */}
       <button
         onClick={() => router.push("/theme-settings")}
-        className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 w-full text-left hover:border-primary/50 transition-all mt-4"
+        className="backdrop-blur rounded-xl p-4 w-full text-left transition-all mt-4"
+        style={{
+          backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
+          border: "1px solid var(--color-border)",
+        }}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--color-border)")}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

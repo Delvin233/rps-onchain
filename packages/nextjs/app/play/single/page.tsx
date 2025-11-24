@@ -175,7 +175,10 @@ export default function SinglePlayerPage() {
         >
           <p
             className="text-center text-base-content/60"
-            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1rem)", marginBottom: "clamp(0.5rem, 1vh, 1rem)" }}
+            style={{
+              fontSize: "calc(clamp(0.875rem, 2.5vw, 1rem) * var(--font-size-override, 1))",
+              marginBottom: "clamp(0.5rem, 1vh, 1rem)",
+            }}
           >
             Choose your move
           </p>
@@ -187,7 +190,10 @@ export default function SinglePlayerPage() {
               className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
-              <p className="font-semibold capitalize" style={{ fontSize: "clamp(1rem, 3vw, 1.5rem)" }}>
+              <p
+                className="font-semibold capitalize"
+                style={{ fontSize: "calc(clamp(1rem, 3vw, 1.5rem) * var(--font-size-override, 1))" }}
+              >
                 {move}
               </p>
             </button>
