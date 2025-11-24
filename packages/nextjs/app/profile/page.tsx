@@ -367,13 +367,7 @@ export default function ProfilePage() {
       {/* Theme Settings Link */}
       <button
         onClick={() => router.push("/theme-settings")}
-        className="rounded-xl p-4 w-full text-left transition-all mt-4"
-        style={{
-          backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-          border: "1px solid var(--color-border)",
-        }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--color-border)")}
+        className="rounded-xl p-4 w-full text-left transition-all mt-4 bg-card/50 border border-border hover:border-primary/50"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

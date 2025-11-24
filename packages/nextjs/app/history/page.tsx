@@ -226,14 +226,7 @@ export default function HistoryPage() {
 
               if (isAiMatch) {
                 return (
-                  <div
-                    key={index}
-                    className="rounded-xl p-4 h-fit"
-                    style={{
-                      backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                      border: "1px solid var(--color-border)",
-                    }}
-                  >
+                  <div key={index} className="rounded-xl p-4 h-fit bg-card/50 border border-border">
                     <div className="mb-3">
                       <p className="font-semibold mb-1">vs AI</p>
                       <p className="text-base-content/60 opacity-80">

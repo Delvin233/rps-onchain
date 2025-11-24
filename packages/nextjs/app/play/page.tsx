@@ -106,14 +106,10 @@ export default function PlayModePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-[2vh] max-w-4xl mx-auto">
         <button
           onClick={() => router.push("/play/single")}
-          className="rounded-xl hover:scale-105 transition-all duration-200 text-center"
+          className="rounded-xl hover:scale-105 transition-all duration-200 text-center bg-card/50 border border-primary/20 hover:border-primary/50"
           style={{
             padding: "clamp(1rem, 3vh, 2rem)",
-            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-            border: "1px solid rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)",
           }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)")}
         >
           <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
             <div
@@ -153,18 +149,10 @@ export default function PlayModePage() {
 
         <button
           onClick={() => router.push("/play/multiplayer")}
-          className="rounded-xl hover:scale-105 transition-all duration-200 text-center"
+          className="rounded-xl hover:scale-105 transition-all duration-200 text-center bg-card/50 border border-secondary/20 hover:border-secondary/50"
           style={{
             padding: "clamp(1rem, 3vh, 2rem)",
-            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-            border: "1px solid rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2)",
           }}
-          onMouseEnter={e =>
-            (e.currentTarget.style.borderColor = "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.5)")
-          }
-          onMouseLeave={e =>
-            (e.currentTarget.style.borderColor = "rgba(var(--color-secondary-rgb, 251, 146, 60), 0.2)")
-          }
         >
           <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
             <div

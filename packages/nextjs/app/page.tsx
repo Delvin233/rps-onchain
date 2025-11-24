@@ -333,14 +333,7 @@ export default function Home() {
           {stats.isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {[1, 2, 3].map(i => (
-                <div
-                  key={i}
-                  className="rounded-xl p-3"
-                  style={{
-                    backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                    border: "1px solid var(--color-border)",
-                  }}
-                >
+                <div key={i} className="rounded-xl p-3 bg-card/50 border border-border">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="skeleton h-3 w-20 mb-2"></div>
@@ -359,16 +352,10 @@ export default function Home() {
                 return (
                   <div
                     key={stat.title}
-                    className="rounded-xl p-3 transition-all duration-200 animate-fade-in"
+                    className="rounded-xl p-4 mb-3 bg-card/50 border border-border hover:border-primary/50 animate-fade-in transition-all"
                     style={{
-                      backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-                      border: "1px solid var(--color-border)",
                       animationDelay: `${index * 100}ms`,
                     }}
-                    onMouseEnter={e =>
-                      (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")
-                    }
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--color-border)")}
                   >
                     <div className="flex items-center justify-between">
                       <div>
