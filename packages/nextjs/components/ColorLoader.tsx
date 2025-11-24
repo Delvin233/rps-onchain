@@ -55,13 +55,30 @@ export const ColorLoader = () => {
         .border-primary { border-color: var(--theme-primary) !important; }
         .border-secondary { border-color: var(--theme-secondary) !important; }
         .border-border { border-color: var(--theme-border) !important; }
-        .text-glow-primary { text-shadow: 0 0 10px var(--theme-primary)80 !important; }
-        .shadow-glow-primary { box-shadow: 0 0 20px var(--theme-primary)50 !important; }
+        .text-glow-primary { color: var(--theme-primary) !important; }
+        .shadow-glow-primary { box-shadow: none !important; }
         .bg-gradient-primary { background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%) !important; }
         .btn-primary { background-color: var(--theme-primary) !important; border-color: var(--theme-primary) !important; }
         .btn-secondary { background-color: var(--theme-secondary) !important; border-color: var(--theme-secondary) !important; }
         .btn-accent { background-color: var(--theme-accent) !important; border-color: var(--theme-accent) !important; }
         .badge-primary { background-color: var(--theme-primary) !important; border-color: var(--theme-primary) !important; }
+        /* Opacity support for MiniPay */
+        .bg-card\\/50 { background-color: rgba(var(--theme-card-rgb, 30, 41, 59), 0.5) !important; }
+        .bg-primary\\/10 { background-color: rgba(var(--theme-primary-rgb, 16, 185, 129), 0.1) !important; }
+        .bg-primary\\/20 { background-color: rgba(var(--theme-primary-rgb, 16, 185, 129), 0.2) !important; }
+        .bg-secondary\\/10 { background-color: rgba(var(--theme-secondary-rgb, 251, 146, 60), 0.1) !important; }
+        .bg-secondary\\/20 { background-color: rgba(var(--theme-secondary-rgb, 251, 146, 60), 0.2) !important; }
+        .bg-accent\\/10 { background-color: rgba(var(--theme-accent-rgb, 59, 130, 246), 0.1) !important; }
+        .bg-accent\\/20 { background-color: rgba(var(--theme-accent-rgb, 59, 130, 246), 0.2) !important; }
+        .bg-info\\/10 { background-color: rgba(var(--theme-accent-rgb, 59, 130, 246), 0.1) !important; }
+        .border-primary\\/20 { border-color: rgba(var(--theme-primary-rgb, 16, 185, 129), 0.2) !important; }
+        .border-primary\\/30 { border-color: rgba(var(--theme-primary-rgb, 16, 185, 129), 0.3) !important; }
+        .border-primary\\/50 { border-color: rgba(var(--theme-primary-rgb, 16, 185, 129), 0.5) !important; }
+        .border-secondary\\/20 { border-color: rgba(var(--theme-secondary-rgb, 251, 146, 60), 0.2) !important; }
+        .border-secondary\\/50 { border-color: rgba(var(--theme-secondary-rgb, 251, 146, 60), 0.5) !important; }
+        .border-accent\\/20 { border-color: rgba(var(--theme-accent-rgb, 59, 130, 246), 0.2) !important; }
+        .border-accent\\/50 { border-color: rgba(var(--theme-accent-rgb, 59, 130, 246), 0.5) !important; }
+        .border-info\\/30 { border-color: rgba(var(--theme-accent-rgb, 59, 130, 246), 0.3) !important; }
       `;
       document.head.appendChild(style);
     }

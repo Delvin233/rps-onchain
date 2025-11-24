@@ -128,7 +128,7 @@ export default function SinglePlayerPage() {
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-glow-primary mb-3 animate-glow">Single Player</h1>
+            <h1 className="text-4xl font-bold mb-3 animate-glow">Single Player</h1>
             <p className="text-base-content/70">Connect Wallet</p>
           </div>
           {isMiniPayCheck ? (
@@ -141,7 +141,7 @@ export default function SinglePlayerPage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
                   >
                     Connect Wallet
                   </button>
@@ -160,7 +160,7 @@ export default function SinglePlayerPage() {
         <button onClick={() => handleNavigation("/play")} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-glow-primary ml-2 break-words">Single Player</h1>
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold ml-2 break-words">Single Player</h1>
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
@@ -187,7 +187,7 @@ export default function SinglePlayerPage() {
               key={move}
               onClick={() => playGame(move)}
               disabled={isPlaying}
-              className="w-full bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
               <p
@@ -201,7 +201,7 @@ export default function SinglePlayerPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6">
+          <div className="bg-card/50 border border-border rounded-xl p-6">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="text-center">
                 <p className="text-sm text-base-content/60 mb-2">You</p>
@@ -241,7 +241,7 @@ export default function SinglePlayerPage() {
 
       {showExitConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full shadow-glow-warning">
+          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4 text-warning">Leave Game?</h3>
             <p className="text-base-content/80 mb-6">You have an active game. Are you sure you want to leave?</p>
             <div className="flex gap-3">

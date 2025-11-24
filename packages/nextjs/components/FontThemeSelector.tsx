@@ -23,7 +23,7 @@ export const FontThemeSelector = () => {
   };
 
   return (
-    <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4">
+    <div className="bg-card/50 border border-border rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
         <ImFont className="text-primary" size={20} />
         <h3 className="font-semibold">Font Theme</h3>

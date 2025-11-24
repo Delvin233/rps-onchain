@@ -131,7 +131,6 @@ export default function ProfilePage() {
               style={{
                 fontSize: "calc(2.25rem * var(--font-size-override, 1))",
                 color: "var(--color-primary)",
-                textShadow: "0 0 20px var(--color-primary)",
               }}
             >
               Profile
@@ -173,7 +172,6 @@ export default function ProfilePage() {
         style={{
           fontSize: "calc(1.875rem * var(--font-size-override, 1))",
           color: "var(--color-primary)",
-          textShadow: "0 0 20px var(--color-primary)",
         }}
       >
         Profile
@@ -202,13 +200,7 @@ export default function ProfilePage() {
       {/* User Details - 2 columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Wallet Info */}
-        <div
-          className="backdrop-blur rounded-xl p-6"
-          style={{
-            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-            border: "1px solid var(--color-border)",
-          }}
-        >
+        <div className="rounded-xl p-6 bg-card/50 border border-border">
           <p
             className="text-base-content/60 mb-2"
             style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
@@ -226,13 +218,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Display Name */}
-        <div
-          className="backdrop-blur rounded-xl p-6"
-          style={{
-            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-            border: "1px solid var(--color-border)",
-          }}
-        >
+        <div className="rounded-xl p-6 bg-card/50 border border-border">
           <p
             className="text-base-content/60 mb-2"
             style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
@@ -283,13 +269,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Verification Status */}
-      <div
-        className="backdrop-blur rounded-xl p-6 mb-4"
-        style={{
-          backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-          border: `1px solid ${isHumanVerified ? "rgba(34, 197, 94, 0.5)" : "rgba(234, 179, 8, 0.5)"}`,
-        }}
-      >
+      <div className="bg-card/50 rounded-xl p-6 mb-4 border border-border">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Shield className={isHumanVerified ? "text-success" : "text-warning"} size={24} />
@@ -309,16 +289,7 @@ export default function ProfilePage() {
       </div>
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
-      <div
-        className="rounded-xl p-6 mb-4 shadow-lg"
-        style={{
-          background:
-            "linear-gradient(to bottom right, rgba(var(--color-primary-rgb, 16, 185, 129), 0.1), rgba(var(--color-primary-rgb, 16, 185, 129), 0.05))",
-          borderWidth: "2px",
-          borderColor: "var(--color-primary)",
-          boxShadow: "0 10px 15px -3px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)",
-        }}
-      >
+      <div className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary">
         <div className="flex items-center space-x-3 mb-4">
           <span style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))" }}>💚</span>
           <div>
@@ -331,14 +302,7 @@ export default function ProfilePage() {
           <>
             {entitlement > 0n ? (
               <>
-                <div
-                  className="rounded-lg p-4 mb-4"
-                  style={{
-                    backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)",
-                    borderWidth: "1px",
-                    borderColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)",
-                  }}
-                >
+                <div className="rounded-lg p-4 mb-4 bg-primary/10 border border-primary/30">
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
                   <p
                     className="font-bold"
@@ -392,13 +356,7 @@ export default function ProfilePage() {
       {/* Theme Settings Link */}
       <button
         onClick={() => router.push("/theme-settings")}
-        className="backdrop-blur rounded-xl p-4 w-full text-left transition-all mt-4"
-        style={{
-          backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
-          border: "1px solid var(--color-border)",
-        }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)")}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--color-border)")}
+        className="rounded-xl p-4 w-full text-left transition-all mt-4 bg-card/50 border border-border hover:border-primary/50"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
