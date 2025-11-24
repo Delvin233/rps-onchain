@@ -9,8 +9,18 @@ export const useDisplayName = (address: string | undefined) => {
   const { data: mainnetEns } = useEnsName({ address, chainId: mainnet.id });
   const { basename } = useBasename(address);
 
+  // Platform detection for cache isolation
+  const platform =
+    typeof window !== "undefined"
+      ? window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview")
+        ? "base"
+        : (window as any).ethereum?.isMiniPay
+          ? "minipay"
+          : "web"
+      : "web";
+
   const { data: farcasterData } = useQuery({
-    queryKey: ["resolve-name", address],
+    queryKey: ["resolve-name", address, platform],
     queryFn: async () => {
       if (!address) return { name: null, pfp: null };
       const res = await fetch(`/api/resolve-name?address=${address}`);
@@ -18,8 +28,8 @@ export const useDisplayName = (address: string | undefined) => {
       return { name: data.name || null, pfp: data.pfp || null };
     },
     enabled: !!address,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 1 * 60 * 1000, // 1 minute (reduced from 5)
+    gcTime: 2 * 60 * 1000, // 2 minutes (reduced from 10)
   });
 
   // Priority: mainnet ENS > basename > farcaster > wallet
