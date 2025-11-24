@@ -570,7 +570,7 @@ export default function MultiplayerGamePage() {
   if (errorCount > 10) {
     return (
       <div className="p-6 pt-12 pb-24">
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
           <p className="text-lg text-error mb-4">Room connection lost</p>
           <p className="text-sm text-base-content/60 mb-6">
             The room may have expired or the server connection was interrupted.
@@ -666,7 +666,7 @@ export default function MultiplayerGamePage() {
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Waiting for Reveal...</h1>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-6 text-center">
+        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
           <p className="text-lg mb-4">
             Your move: <span className="font-bold uppercase">{selectedMove}</span>
           </p>
@@ -795,7 +795,7 @@ export default function MultiplayerGamePage() {
 
         {showPublishModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+            <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
               <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
               <p className="text-base-content/80 mb-6">
                 You will be asked to sign a transaction to publish this match result on-chain. This only requires gas
@@ -824,7 +824,7 @@ export default function MultiplayerGamePage() {
     <>
       {showPublishModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
             <p className="text-base-content/80 mb-6">
               You will be asked to sign a transaction to publish this match result on-chain. This only requires gas fees
@@ -848,7 +848,7 @@ export default function MultiplayerGamePage() {
 
       {showExitConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full shadow-glow-warning">
+          <div className="bg-base-100 border border-warning/30 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4 text-warning">Leave Game?</h3>
             <p className="text-base-content/80 mb-6">
               You have an active game. Leaving will forfeit the match. Are you sure?

@@ -202,9 +202,8 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Wallet Info */}
         <div
-          className="backdrop-blur rounded-xl p-6"
+          className="rounded-xl p-6 bg-card/50 border border-border"
           style={{
-            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
             border: "1px solid var(--color-border)",
           }}
         >
@@ -226,9 +225,8 @@ export default function ProfilePage() {
 
         {/* Display Name */}
         <div
-          className="backdrop-blur rounded-xl p-6"
+          className="rounded-xl p-6 bg-card/50 border border-border"
           style={{
-            backgroundColor: "rgba(var(--color-card-rgb, 30, 41, 59), 0.5)",
             border: "1px solid var(--color-border)",
           }}
         >

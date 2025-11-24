@@ -118,7 +118,7 @@ export const BottomNavigation = () => {
                 }
               }}
               className={`flex flex-col items-center justify-center p-2 min-w-0 touch-target transition-all duration-200 cursor-pointer ${
-                active ? "text-primary shadow-glow-primary" : "text-base-content/60 hover:text-base-content"
+                active ? "text-primary" : "text-base-content/60 hover:text-base-content"
               }`}
             >
               <Icon size={24} className={`mb-1 transition-transform duration-200 ${active && "scale-110"}`} />

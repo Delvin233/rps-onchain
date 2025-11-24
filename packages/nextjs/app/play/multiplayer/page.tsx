@@ -244,7 +244,7 @@ export default function MultiplayerPage() {
                 {({ openConnectModal }) => (
                   <button
                     onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 font-semibold shadow-glow-primary rounded-xl py-4 px-6"
+                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 font-semibold rounded-xl py-4 px-6"
                     style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
                   >
                     Connect Wallet
@@ -282,7 +282,7 @@ export default function MultiplayerPage() {
       )}
 
       <div className="space-y-6">
-        <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-6">
+        <div className="bg-card/50 border border-primary/20 rounded-xl p-6">
           <h2
             className="flex items-center space-x-2 font-semibold mb-4"
             style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
@@ -301,7 +301,7 @@ export default function MultiplayerPage() {
           </div>
         </div>
 
-        <div className="bg-card/50 backdrop-blur border border-secondary/20 rounded-xl p-6">
+        <div className="bg-card/50 border border-secondary/20 rounded-xl p-6">
           <h2
             className="flex items-center space-x-2 font-semibold mb-4"
             style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
@@ -421,7 +421,7 @@ export default function MultiplayerPage() {
 
       {showCreateConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full shadow-glow-primary">
+          <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
             <h3
               className="font-bold mb-4 text-primary"
               style={{ fontSize: "calc(1.25rem * var(--font-size-override, 1))" }}
@@ -446,7 +446,7 @@ export default function MultiplayerPage() {
 
       {showJoinConfirm && roomInfo && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-base-100 border border-secondary/30 rounded-xl p-6 max-w-md w-full shadow-glow-secondary">
+          <div className="bg-base-100 border border-secondary/30 rounded-xl p-6 max-w-md w-full">
             <h3
               className="font-bold mb-4 text-secondary"
               style={{ fontSize: "calc(1.25rem * var(--font-size-override, 1))" }}
