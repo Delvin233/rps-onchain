@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
 import { BaseAppReady } from "~~/components/BaseAppReady";
+import { HideLoader } from "~~/components/HideLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { PreferencesSync } from "~~/components/PreferencesSync";
 import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
@@ -66,21 +67,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning className={``}>
       <head>
-        <link rel="icon" href="/rpsOnchainFavicons/favicon.ico" sizes="any" />
-        <link rel="icon" href="/rpsOnchainFavicons/favicon-16x16.png" type="image/png" sizes="16x16" />
-        <link rel="icon" href="/rpsOnchainFavicons/favicon-32x32.png" type="image/png" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/rpsOnchainFavicons/apple-touch-icon.png" />
-        <link rel="manifest" href="/rpsOnchainFavicons/site.webmanifest" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-        />
-        <link rel="dns-prefetch" href="https://gateway.pinata.cloud" />
-        <link rel="dns-prefetch" href="https://forno.celo.org" />
-        <link rel="dns-prefetch" href="https://mainnet.base.org" />
+        {/* CRITICAL: Theme script must run FIRST to prevent flash */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -165,9 +152,62 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             `,
           }}
         />
+        <link rel="icon" href="/rpsOnchainFavicons/favicon.ico" sizes="any" />
+        <link rel="icon" href="/rpsOnchainFavicons/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="icon" href="/rpsOnchainFavicons/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/rpsOnchainFavicons/apple-touch-icon.png" />
+        <link rel="manifest" href="/rpsOnchainFavicons/site.webmanifest" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        />
+        <link rel="dns-prefetch" href="https://gateway.pinata.cloud" />
+        <link rel="dns-prefetch" href="https://forno.celo.org" />
+        <link rel="dns-prefetch" href="https://mainnet.base.org" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              /* Loading skeleton with theme colors */
+              #app-loading {
+                position: fixed;
+                inset: 0;
+                background: var(--theme-background, #0a0a0a);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                transition: opacity 0.3s ease-out;
+              }
+              #app-loading.loaded {
+                opacity: 0;
+                pointer-events: none;
+              }
+              .loading-spinner {
+                width: 48px;
+                height: 48px;
+                border: 4px solid var(--theme-card, #1f1f1f);
+                border-top-color: var(--theme-primary, #10b981);
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+              }
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `,
+          }}
+        />
       </head>
       <body>
+        {/* Loading skeleton - hidden once React hydrates */}
+        <div id="app-loading">
+          <div className="loading-spinner"></div>
+        </div>
+
         <BaseAppReady />
+        <HideLoader />
 
         <CRTEffect />
         <ThemeProvider enableSystem>

@@ -32,9 +32,9 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const platformBorderColor = useMemo(() => {
     switch (platform) {
       case "farcaster":
-        return "var(--color-accent)"; // Purple
+        return "#a855f7"; // Purple (Farcaster brand color)
       case "base":
-        return "var(--color-secondary)"; // Teal
+        return "var(--color-secondary)"; // Blue/Teal
       case "minipay":
         return "var(--color-primary)"; // Green
       default:
@@ -183,7 +183,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
       style={{
         padding: "var(--card-padding, 1rem)",
         borderColor: platformBorderColor,
-        zIndex: 10,
+        zIndex: showNetworkMenu ? 9999 : 10,
       }}
     >
       <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
