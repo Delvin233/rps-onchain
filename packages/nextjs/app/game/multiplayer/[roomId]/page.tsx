@@ -514,7 +514,7 @@ export default function MultiplayerGamePage() {
       const tx = await publishMatchContract({
         functionName: "publishMatch",
         args: [roomId, winner, gameData.creatorMove, gameData.joinerMove],
-        dataSuffix: referralTag ? `0x${referralTag}` : undefined,
+        dataSuffix: referralTag ? referralTag : undefined,
       });
 
       // Submit referral to Divvi

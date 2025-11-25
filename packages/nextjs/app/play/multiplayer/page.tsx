@@ -112,7 +112,7 @@ export default function MultiplayerPage() {
         const txHash = await createGameContract({
           functionName: "createGame",
           args: [data.roomId],
-          dataSuffix: referralTag ? `0x${referralTag}` : undefined,
+          dataSuffix: referralTag ? referralTag : undefined,
         });
 
         // Submit referral to Divvi
@@ -166,7 +166,7 @@ export default function MultiplayerPage() {
       const txHash = await joinGameContract({
         functionName: "joinGame",
         args: [roomCode],
-        dataSuffix: referralTag ? `0x${referralTag}` : undefined,
+        dataSuffix: referralTag ? referralTag : undefined,
       });
 
       // Submit referral to Divvi
