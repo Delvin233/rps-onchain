@@ -9,6 +9,7 @@ import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
+import { getDivviReferralTag, submitDivviReferral } from "~~/utils/divviUtils";
 
 type Move = "rock" | "paper" | "scissors";
 type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
@@ -507,10 +508,19 @@ export default function MultiplayerGamePage() {
       const matchKey = `${roomId}_${gameData.creatorMove}_${gameData.joinerMove}_${Date.now()}`;
       const baseMatchKey = `${roomId}_${gameData.creatorMove}_${gameData.joinerMove}`;
 
+      // Generate Divvi referral tag
+      const referralTag = await getDivviReferralTag(address);
+
       const tx = await publishMatchContract({
         functionName: "publishMatch",
         args: [roomId, winner, gameData.creatorMove, gameData.joinerMove],
+        dataSuffix: referralTag ? referralTag : undefined,
       });
+
+      // Submit referral to Divvi
+      if (tx && referralTag && chainId) {
+        await submitDivviReferral(tx, chainId);
+      }
 
       // Store tx hash to match history with unique match key
       if (tx && chainId) {
