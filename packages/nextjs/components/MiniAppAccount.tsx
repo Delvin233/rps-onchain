@@ -184,6 +184,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
         padding: "var(--card-padding, 1rem)",
         borderColor: platformBorderColor,
         zIndex: showNetworkMenu ? 9999 : 10,
+        overflow: showNetworkMenu ? "visible" : "hidden",
       }}
     >
       {/* Row 1: Avatar + Username + Actions */}
@@ -209,15 +210,21 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
           >
             {displayName.slice(0, 2).toUpperCase()}
           </div>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 overflow-hidden">
             <p
-              className="font-semibold text-base-content flex items-center gap-1 truncate"
+              className="font-semibold text-base-content flex items-center gap-1"
               style={{
                 fontFamily: "var(--font-heading)",
                 fontSize: "calc(0.875rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
             >
-              <span className="truncate">{displayName}</span>
+              <span
+                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                style={{ maxWidth: "100%" }}
+                title={displayName}
+              >
+                {displayName}
+              </span>
               {ensType && (
                 <span
                   className={`text-xs flex-shrink-0 ${
@@ -246,30 +253,30 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
           </div>
         </div>
 
-        <div className="flex items-center flex-shrink-0" style={{ gap: "var(--inner-gap, 0.5rem)" }}>
+        <div className="flex items-center flex-shrink-0" style={{ gap: "0.25rem" }}>
           <button
             onClick={handleCopyAddress}
-            className="btn btn-xs btn-ghost"
+            className="btn btn-xs btn-ghost p-1 min-h-0 h-auto"
             title="Copy address"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            <Copy size={12} />
+            <Copy size={14} />
           </button>
 
           {canSwitchNetworks && (
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowNetworkMenu(!showNetworkMenu)}
-                className="btn btn-xs btn-ghost flex items-center"
+                className="btn btn-xs btn-ghost flex items-center p-1 min-h-0 h-auto"
                 style={{
-                  gap: "var(--inner-gap, 0.25rem)",
+                  gap: "0.25rem",
                   fontFamily: "var(--font-body)",
                   fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                 }}
                 disabled={switchPending}
               >
-                {switchPending ? <span className="loading loading-spinner loading-xs"></span> : <Network size={12} />}
-                <span>{chain?.name}</span>
+                {switchPending ? <span className="loading loading-spinner loading-xs"></span> : <Network size={14} />}
+                <span className="whitespace-nowrap">{chain?.name}</span>
                 <ChevronDown size={10} />
               </button>
 
