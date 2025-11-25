@@ -186,6 +186,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
         zIndex: showNetworkMenu ? 9999 : 10,
       }}
     >
+      {/* Row 1: Avatar + Username + Actions */}
       <div className="flex items-center justify-between" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
         <div className="flex items-center min-w-0 flex-1" style={{ gap: "var(--inner-gap, 0.75rem)" }}>
           {avatarUrl ? (
@@ -194,7 +195,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               alt={displayName}
               width={40}
               height={40}
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
               onError={e => {
                 // Fallback to text avatar on image error
                 const target = e.target as HTMLImageElement;
@@ -204,7 +205,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
             />
           ) : null}
           <div
-            className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold ${avatarUrl ? "hidden" : ""}`}
+            className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold flex-shrink-0 ${avatarUrl ? "hidden" : ""}`}
           >
             {displayName.slice(0, 2).toUpperCase()}
           </div>
@@ -219,7 +220,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               <span className="truncate">{displayName}</span>
               {ensType && (
                 <span
-                  className={`text-xs ${
+                  className={`text-xs flex-shrink-0 ${
                     ensType === "mainnet"
                       ? "text-success"
                       : ensType === "basename"
@@ -242,54 +243,19 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                 </span>
               )}
             </p>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setShowBalance(!showBalance)}
-                className="text-base-content/60 hover:text-base-content transition-colors cursor-pointer"
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                }}
-              >
-                {balanceLoading ? (
-                  <span className="loading loading-dots loading-xs"></span>
-                ) : showBalance ? (
-                  `${balance?.formatted.slice(0, 6)} ${balance?.symbol}`
-                ) : (
-                  "••••••"
-                )}
-              </button>
-              <div className="flex items-center gap-1">
-                <span
-                  className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
-                  }}
-                >
-                  {chain?.name?.toUpperCase() || (balance?.symbol === "cUSD" ? "CELO" : "UNKNOWN")}
-                </span>
-                {platform === "minipay" && (
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded bg-warning/20 text-warning flex items-center gap-0.5"
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "calc(0.6rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
-                    }}
-                    title="Gas fees paid in cUSD"
-                  >
-                    <MdLocalGasStation size={10} /> cUSD
-                  </span>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 
-        <div className="flex items-center" style={{ gap: "var(--inner-gap, 0.5rem)" }}>
+        <div className="flex items-center flex-shrink-0" style={{ gap: "var(--inner-gap, 0.5rem)" }}>
+          <button
+            onClick={handleCopyAddress}
+            className="btn btn-xs btn-ghost"
+            title="Copy address"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            <Copy size={12} />
+          </button>
+
           {canSwitchNetworks && (
             <div className="relative" ref={menuRef}>
               <button
@@ -344,15 +310,55 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               )}
             </div>
           )}
+        </div>
+      </div>
 
-          <button
-            onClick={handleCopyAddress}
-            className="btn btn-xs btn-ghost"
-            title="Copy address"
-            style={{ fontFamily: "var(--font-body)" }}
+      {/* Row 2: Balance + Network Badge */}
+      <div
+        className="flex items-center gap-2 flex-wrap"
+        style={{ marginTop: "var(--inner-gap, 0.5rem)", marginLeft: "calc(40px + var(--inner-gap, 0.75rem))" }}
+      >
+        <button
+          onClick={() => setShowBalance(!showBalance)}
+          className="text-base-content/60 hover:text-base-content transition-colors cursor-pointer"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+            background: "none",
+            border: "none",
+            padding: 0,
+          }}
+        >
+          {balanceLoading ? (
+            <span className="loading loading-dots loading-xs"></span>
+          ) : showBalance ? (
+            `${balance?.formatted.slice(0, 6)} ${balance?.symbol}`
+          ) : (
+            "••••••"
+          )}
+        </button>
+        <div className="flex items-center gap-1">
+          <span
+            className="text-xs font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+            }}
           >
-            <Copy size={12} />
-          </button>
+            {chain?.name?.toUpperCase() || (balance?.symbol === "cUSD" ? "CELO" : "UNKNOWN")}
+          </span>
+          {platform === "minipay" && (
+            <span
+              className="text-xs px-1.5 py-0.5 rounded bg-warning/20 text-warning flex items-center gap-0.5"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "calc(0.6rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
+              }}
+              title="Gas fees paid in cUSD"
+            >
+              <MdLocalGasStation size={10} /> cUSD
+            </span>
+          )}
         </div>
       </div>
     </div>
