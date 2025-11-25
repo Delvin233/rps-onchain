@@ -11,6 +11,7 @@ import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
+import { getDivviReferralTag, submitDivviReferral } from "~~/utils/divviUtils";
 
 export default function MultiplayerPage() {
   const router = useRouter();
@@ -105,10 +106,20 @@ export default function MultiplayerPage() {
 
       const data = await response.json();
       if (data.roomId) {
-        await createGameContract({
+        // Generate Divvi referral tag
+        const referralTag = await getDivviReferralTag(address);
+
+        const txHash = await createGameContract({
           functionName: "createGame",
           args: [data.roomId],
+          dataSuffix: referralTag ? `0x${referralTag}` : undefined,
         });
+
+        // Submit referral to Divvi
+        if (txHash && referralTag) {
+          await submitDivviReferral(txHash, chainId);
+        }
+
         router.push(`/game/multiplayer/${data.roomId}?mode=free`);
       }
     } catch (error: any) {
@@ -149,11 +160,19 @@ export default function MultiplayerPage() {
         throw new Error("Room no longer exists");
       }
 
-      // Sign blockchain transaction FIRST
-      await joinGameContract({
+      // Sign blockchain transaction FIRST with Divvi referral tag
+      const referralTag = await getDivviReferralTag(address);
+
+      const txHash = await joinGameContract({
         functionName: "joinGame",
         args: [roomCode],
+        dataSuffix: referralTag ? `0x${referralTag}` : undefined,
       });
+
+      // Submit referral to Divvi
+      if (txHash && referralTag) {
+        await submitDivviReferral(txHash, chainId);
+      }
 
       // THEN update Redis after blockchain confirms
       const verifyRes = await fetch(`/api/check-verification?address=${address}`);
