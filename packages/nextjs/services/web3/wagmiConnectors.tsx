@@ -26,6 +26,12 @@ export const wagmiConnectors = () => {
   }
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isBaseApp = window.ethereum?.isBaseApp || window.location.href.includes("base.dev/preview");
+
+  // In Base app (including preview), return empty array - farcasterMiniApp connector handles everything
+  if (isBaseApp) {
+    return [];
+  }
 
   const walletGroups = [
     {
