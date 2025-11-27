@@ -115,6 +115,9 @@ export default function MultiplayerPage() {
           dataSuffix: referralTag ? referralTag : undefined,
         });
 
+        console.log("✅ Transaction sent! Hash:", txHash);
+        console.log("🔍 View on BaseScan:", `https://basescan.org/tx/${txHash}`);
+
         // Submit referral to Divvi
         if (txHash && referralTag) {
           await submitDivviReferral(txHash, chainId);
