@@ -89,6 +89,9 @@ export default function MultiplayerPage() {
   const createRoom = async () => {
     if (!address || isCreating) return;
 
+    console.log("🎮 Creating room with chainId:", chainId);
+    console.log("👤 Address:", address);
+
     setIsCreating(true);
     setShowCreateConfirm(false);
     try {
@@ -108,6 +111,9 @@ export default function MultiplayerPage() {
       if (data.roomId) {
         // Generate Divvi referral tag
         const referralTag = await getDivviReferralTag(address);
+
+        console.log("📝 Calling createGame with roomId:", data.roomId);
+        console.log("🏷️ Referral tag:", referralTag);
 
         const txHash = await createGameContract({
           functionName: "createGame",
