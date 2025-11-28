@@ -23,33 +23,19 @@ export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisp
 
   const formattedBalance = Number(formatEther(balance.value));
   const nativeSymbol = currentChain?.nativeCurrency?.symbol || balance.symbol;
-
-  if (format === "full") {
-    return (
-      <button
-        onClick={() => setIsHidden(!isHidden)}
-        className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-3 py-1.5 transition-all flex items-center gap-1.5 whitespace-nowrap`}
-        type="button"
-        title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
-        style={{ fontSize: "1.5rem" }}
-      >
-        <span className="text-xs text-base-content/60">{isUnsupportedChain ? "⚠️" : "Bal:"}</span>
-        <span className="font-bold">{isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}</span>
-      </button>
-    );
-  }
+  const balanceText = isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`;
 
   return (
     <button
       onClick={() => setIsHidden(!isHidden)}
-      className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-3 py-1.5 transition-all`}
+      className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-3 py-1.5 transition-all ${format === "full" ? "flex items-center gap-1.5 whitespace-nowrap" : ""}`}
       type="button"
       title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
-      style={{ fontSize: "1.5rem" }}
     >
-      <span className="font-bold">
-        {isUnsupportedChain && "⚠️ "}
-        {isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}
+      {format === "full" && <span className="text-sm text-base-content/60">{isUnsupportedChain ? "⚠️" : "Bal:"}</span>}
+      <span className="font-bold" style={{ fontSize: "2rem" }}>
+        {format === "compact" && isUnsupportedChain && "⚠️ "}
+        {balanceText}
       </span>
     </button>
   );
