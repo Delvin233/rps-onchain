@@ -43,11 +43,11 @@ export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisp
   return (
     <button
       onClick={() => setIsHidden(!isHidden)}
-      className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-2 py-1 transition-all`}
+      className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-3 py-1.5 transition-all`}
       type="button"
       title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
     >
-      <span className="text-sm font-bold">
+      <span className="text-base font-bold">
         {isUnsupportedChain && "⚠️ "}
         {isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}
       </span>
