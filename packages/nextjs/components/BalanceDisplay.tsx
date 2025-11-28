@@ -31,11 +31,10 @@ export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisp
         className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-3 py-1.5 transition-all flex items-center gap-1.5 whitespace-nowrap`}
         type="button"
         title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
+        style={{ fontSize: "1.5rem" }}
       >
         <span className="text-xs text-base-content/60">{isUnsupportedChain ? "⚠️" : "Bal:"}</span>
-        <span className="text-lg font-bold">
-          {isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}
-        </span>
+        <span className="font-bold">{isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}</span>
       </button>
     );
   }
@@ -46,8 +45,9 @@ export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisp
       className={`${isUnsupportedChain ? "bg-error/10 border-error/30" : "bg-primary/10 border-primary/30"} hover:opacity-80 border rounded-lg px-3 py-1.5 transition-all`}
       type="button"
       title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
+      style={{ fontSize: "1.5rem" }}
     >
-      <span className="text-2xl font-bold">
+      <span className="font-bold">
         {isUnsupportedChain && "⚠️ "}
         {isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}
       </span>
