@@ -37,7 +37,7 @@ export const SelfVerificationModal = ({ isOpen, onClose }: SelfVerificationModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-base-100/95 border border-primary/30 rounded-xl p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-glow-primary">Prove You&apos;re Human</h3>
