@@ -47,7 +47,7 @@ export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisp
       type="button"
       title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
     >
-      <span className="text-lg font-bold">
+      <span className="text-2xl font-bold">
         {isUnsupportedChain && "⚠️ "}
         {isHidden ? "****" : `${formattedBalance.toFixed(4)} ${nativeSymbol}`}
       </span>
