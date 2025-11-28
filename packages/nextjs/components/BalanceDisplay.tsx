@@ -32,8 +32,12 @@ export const BalanceDisplay = memo(({ address, format = "compact" }: BalanceDisp
       type="button"
       title={isUnsupportedChain ? "Unsupported network. Switch to Celo or Base" : ""}
     >
-      {format === "full" && <span className="text-sm text-base-content/60">{isUnsupportedChain ? "⚠️" : "Bal:"}</span>}
-      <span className="font-bold" style={{ fontSize: "2rem" }}>
+      {format === "full" && (
+        <span style={{ fontSize: "0.75rem" }} className="text-base-content/60">
+          {isUnsupportedChain ? "⚠️" : "Bal:"}
+        </span>
+      )}
+      <span style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
         {format === "compact" && isUnsupportedChain && "⚠️ "}
         {balanceText}
       </span>
