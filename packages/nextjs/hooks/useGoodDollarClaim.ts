@@ -38,6 +38,10 @@ export const useGoodDollarClaim = () => {
     try {
       return await claimSDK.checkEntitlement();
     } catch (error) {
+      // Silently handle Fuse network errors
+      if (error?.toString().includes("fuse-rpc")) {
+        return { amount: 0n };
+      }
       console.error("Error checking entitlement:", error);
       return { amount: 0n };
     }
@@ -48,6 +52,10 @@ export const useGoodDollarClaim = () => {
     try {
       return await claimSDK.nextClaimTime();
     } catch (error) {
+      // Silently handle Fuse network errors
+      if (error?.toString().includes("fuse-rpc")) {
+        return null;
+      }
       console.error("Error getting next claim time:", error);
       return null;
     }

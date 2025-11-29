@@ -537,3 +537,119 @@
     max-width: 800px !important;
   }
 }
+
+/* AppKit Modal Backdrop - Match app modal style */
+w3m-modal::part(overlay),
+wui-modal::part(overlay) {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* AppKit Modal Card - Match app theme */
+w3m-modal,
+wui-modal {
+  --w3m-background: var(--theme-card) !important;
+  --w3m-color-fg-1: var(--theme-text) !important;
+  --w3m-color-bg-1: var(--theme-card) !important;
+  --w3m-color-bg-2: var(--theme-bg) !important;
+}
+
+/* Note: AppKit uses shadow DOM, so most styling must be done via themeVariables in appkitConfig.tsx */
+
+/* AppKit Button Styling - Use dynamic theme colors */
+appkit-button {
+  --w3m-accent: var(--color-primary) !important;
+  --w3m-color-mix: var(--color-primary) !important;
+  --w3m-border-radius-master: 0.75rem !important;
+}
+
+appkit-button button {
+  background: var(--color-primary) !important;
+  color: var(--color-primary-content) !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+appkit-button button:hover {
+  transform: scale(1.05) !important;
+  opacity: 0.9 !important;
+}
+
+/* AppKit Modal Styling - Match app design */
+w3m-modal,
+appkit-modal,
+wcm-modal,
+w3m-router,
+appkit-router {
+  --w3m-accent: var(--color-primary) !important;
+  --w3m-color-mix: var(--color-primary) !important;
+  --w3m-border-radius-master: 0.75rem !important;
+  --wui-border-radius-xxs: 0.75rem !important;
+  --wui-border-radius-xs: 0.75rem !important;
+  --wui-border-radius-s: 0.75rem !important;
+  --wui-border-radius-m: 0.75rem !important;
+  --wui-border-radius-l: 0.75rem !important;
+  --wui-border-radius-3xl: 0.75rem !important;
+  --w3m-background: var(--color-base-100) !important;
+  --w3m-z-index: 1000 !important;
+}
+
+/* Modal backdrop blur */
+w3m-modal::part(overlay),
+appkit-modal::part(overlay),
+wcm-modal::part(overlay) {
+  backdrop-filter: blur(8px) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Modal container border radius */
+w3m-modal::part(container),
+appkit-modal::part(container),
+wcm-modal::part(container) {
+  border-radius: 0.75rem !important;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1)) !important;
+}
+
+/* All modal internal elements */
+w3m-modal *,
+appkit-modal *,
+wcm-modal *,
+wui-card,
+wui-list-item,
+wui-button,
+wui-input-text,
+wui-flex,
+w3m-card,
+appkit-card,
+wcm-card {
+  border-radius: 0.75rem !important;
+}
+
+/* Wallet buttons and list items */
+w3m-modal button,
+appkit-modal button,
+wcm-modal button,
+w3m-modal wui-list-wallet,
+appkit-modal wui-list-wallet,
+w3m-modal wui-list-item,
+appkit-modal wui-list-item {
+  border-radius: 0.75rem !important;
+}
+
+/* Input fields */
+w3m-modal input,
+appkit-modal input,
+wcm-modal input {
+  border-radius: 0.75rem !important;
+}
+
+/* Ensure DaisyUI modals also have consistent backdrop */
+.modal {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.modal-box {
+  border-radius: 0.75rem !important;
+}

@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { celo } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { LoginButton } from "~~/components/LoginButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
@@ -249,27 +248,14 @@ export default function MultiplayerPage() {
             >
               Multiplayer
             </h1>
-            <p className="text-base-content/70" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
-              Connect Wallet to Play
-            </p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 font-semibold rounded-xl py-4 px-6"
-                    style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>
@@ -295,7 +281,7 @@ export default function MultiplayerPage() {
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
-          <RainbowKitCustomConnectButton />
+          <LoginButton size="sm" />
         </div>
       )}
 
