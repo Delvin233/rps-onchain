@@ -2,22 +2,22 @@
 
 ## Overview
 
-`MiniAppAccount` is a custom Wagmi-based wallet UI component designed specifically for miniapp environments (Farcaster, Base app, MiniPay). It replaces RainbowKit's default UI with a platform-optimized interface that respects each platform's constraints and design patterns.
+`MiniAppAccount` is a custom Wagmi-based wallet UI component designed specifically for miniapp environments (Farcaster, Base app, MiniPay). It provides a platform-optimized interface that respects each platform's constraints and design patterns, working alongside AppKit for wallet connections.
 
 ## Why It Was Made
 
-### Problems with RainbowKit in Miniapps
+### Why Custom Component for Miniapps
 
-1. **Too Heavy**: RainbowKit's full modal UI is overkill for miniapps where users are already connected
-2. **Platform Constraints**: Miniapps run in iframes with restricted permissions (clipboard API, network switching)
-3. **Identity Mismatch**: RainbowKit doesn't understand platform-specific identities (Farcaster usernames, Basenames)
-4. **Network Restrictions**: Base app only supports Base network, MiniPay only supports Celo - RainbowKit allows switching
-5. **Design Inconsistency**: RainbowKit's modal doesn't match miniapp design patterns
+1. **Platform Constraints**: Miniapps run in iframes with restricted permissions (clipboard API, network switching)
+2. **Identity Integration**: Displays platform-specific identities (Farcaster usernames, Basenames)
+3. **Network Restrictions**: Base app only supports Base network, MiniPay only supports Celo
+4. **Design Consistency**: Matches miniapp design patterns and constraints
+5. **Lightweight**: Minimal UI for already-connected users
 
 ### Solution
 
 A lightweight, platform-aware component that:
-- Uses Wagmi hooks directly (no RainbowKit dependency)
+- Uses Wagmi hooks directly with AppKit
 - Respects platform network restrictions
 - Resolves platform-specific identities
 - Handles iframe permission issues
@@ -199,7 +199,7 @@ export default function MyPage() {
       {isMiniApp ? (
         <MiniAppAccount platform={getPlatform()} />
       ) : (
-        <RainbowKitConnectButton />
+        <appkit-button />
       )}
     </div>
   );
@@ -441,11 +441,11 @@ const handleNetworkSwitch = useCallback(async (chainId: number) => {
 }, [switchChain, toastStyle]);
 ```
 
-## Comparison: RainbowKit vs MiniAppAccount
+## Comparison: Reown AppKit vs MiniAppAccount
 
-| Feature | RainbowKit | MiniAppAccount |
-|---------|-----------|----------------|
-| Bundle Size | ~200KB | ~5KB |
+| Feature | Reown AppKit | MiniAppAccount |
+|---------|--------------|----------------|
+| Bundle Size | Standard | ~5KB |
 | Platform Awareness | ❌ | ✅ |
 | Network Restrictions | ❌ | ✅ |
 | Network Badge | ❌ | ✅ |
@@ -458,13 +458,11 @@ const handleNetworkSwitch = useCallback(async (chainId: number) => {
 
 ## Migration Guide
 
-### From RainbowKit to MiniAppAccount
+### Using MiniAppAccount with AppKit
 
-**Before:**
+**For regular web:**
 ```typescript
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-
-<ConnectButton />
+<appkit-button />
 ```
 
 **After:**
@@ -484,7 +482,7 @@ const { isMiniApp } = usePlatformDetection();
 ## Best Practices
 
 1. **Always detect platform first** - Don't hardcode platform prop
-2. **Use conditional rendering** - Show RainbowKit for web, MiniAppAccount for miniapps
+2. **Use conditional rendering** - Show AppKit for web, MiniAppAccount for miniapps
 3. **Test in all environments** - Farcaster, Base app preview, MiniPay, regular web
 4. **Handle loading states** - Show skeleton while connecting
 5. **Provide fallbacks** - Clipboard, identity resolution, network switching
@@ -564,7 +562,7 @@ const { chain } = useAccount();
 - [MINIAPP_INTEGRATION.md](./MINIAPP_INTEGRATION.md) - Full miniapp integration guide
 - [PERFORMANCE_OPTIMIZATIONS.md](./PERFORMANCE_OPTIMIZATIONS.md) - Performance best practices
 - [Wagmi Documentation](https://wagmi.sh) - Wagmi hooks reference
-- [RainbowKit Documentation](https://rainbowkit.com) - RainbowKit comparison
+- [Reown AppKit Documentation](https://docs.reown.com/appkit/overview) - Reown AppKit reference
 
 ## License
 

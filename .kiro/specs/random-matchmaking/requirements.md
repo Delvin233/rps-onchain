@@ -4,44 +4,48 @@
 
 This document outlines the requirements for a Random Matchmaking system for the RPS (Rock Paper Scissors) game. The system will allow users to be automatically paired with random opponents for competitive Best-of-5 match series, separate from the existing room-based multiplayer system.
 
+**Key Design Decision:** The matchmaking lobby is network-agnostic. Users can enter the lobby from any network (Celo or Base) by signing a message. Matches are played entirely off-chain. Only the winner can publish the final result on-chain to their network of choice, creating incentive to win and preventing duplicate records.
+
 ## Glossary
 
 - **Matchmaking System**: The automated system that pairs players together for competitive matches
 - **Match Series**: A Best-of-5 competition between two players (first to win 3 rounds wins)
-- **Matchmaking Queue**: A waiting list of players seeking opponents on a specific blockchain network
+- **Matchmaking Lobby**: A network-agnostic waiting area where players from any network can be paired together
 - **Round**: A single game of rock-paper-scissors within a match series
-- **Network**: The blockchain network (Celo or Base) on which the game contract is deployed
+- **Network**: The blockchain network (Celo or Base) on which results can be published
 - **MiniPay**: Opera's mobile wallet that only supports Celo network
 - **Base App**: Applications running within the Base ecosystem that only support Base network
-- **Consent Transaction**: An on-chain transaction that a user signs to enter a match series
-- **RPSBestOfFive Contract**: The new smart contract that handles multi-round match series
+- **Lobby Entry Signature**: An off-chain signature that authenticates a user entering the matchmaking lobby
+- **Publish Transaction**: An on-chain transaction that the winner signs to record the match result
+- **RPSBestOfFive Contract**: The new smart contract that handles multi-round match series result publishing
 - **RPSGame Contract**: The existing smart contract that handles single-game room-based matches
 
 ## Requirements
 
 ### Requirement 1
 
-**User Story:** As a player, I want to find a random opponent quickly, so that I can play competitive matches without browsing through room lists.
+**User Story:** As a player, I want to find a random opponent quickly regardless of which network I'm on, so that I can play competitive matches without browsing through room lists or worrying about network compatibility.
 
 #### Acceptance Criteria
 
-1. WHEN a user clicks the "Find Match" button THEN the Matchmaking System SHALL add the user to the Matchmaking Queue for their current Network
-2. WHEN a user is in the Matchmaking Queue THEN the Matchmaking System SHALL display a "Searching for opponent..." status with a cancel option
-3. WHEN two users are in the same Network's Matchmaking Queue THEN the Matchmaking System SHALL pair them together within 5 seconds
-4. WHEN a user clicks "Cancel Search" THEN the Matchmaking System SHALL remove the user from the Matchmaking Queue immediately
-5. WHEN a match is found THEN the Matchmaking System SHALL notify both players and display opponent information
+1. WHEN a user clicks the "Find Match" button THEN the Matchmaking System SHALL prompt the user to sign a Lobby Entry Signature
+2. WHEN a user signs the Lobby Entry Signature THEN the Matchmaking System SHALL add the user to the global Matchmaking Lobby
+3. WHEN a user is in the Matchmaking Lobby THEN the Matchmaking System SHALL display a "Searching for opponent..." status with a cancel option
+4. WHEN two or more users are in the Matchmaking Lobby THEN the Matchmaking System SHALL pair them together within 5 seconds
+5. WHEN a user clicks "Cancel Search" THEN the Matchmaking System SHALL remove the user from the Matchmaking Lobby immediately
+6. WHEN a match is found THEN the Matchmaking System SHALL notify both players and display opponent information
 
 ### Requirement 2
 
-**User Story:** As a player, I want to play a Best-of-5 series with minimal transaction signatures, so that I have a smooth gaming experience without constant wallet interruptions.
+**User Story:** As a player, I want to play a Best-of-5 series entirely off-chain with no transaction signatures during gameplay, so that I have a smooth gaming experience without wallet interruptions.
 
 #### Acceptance Criteria
 
-1. WHEN two players are paired THEN the Matchmaking System SHALL prompt both players to sign a Consent Transaction to enter the Match Series
-2. WHEN both players sign the Consent Transaction within 30 seconds THEN the RPSBestOfFive Contract SHALL create a new Match Series
-3. WHEN a Match Series is created THEN the Matchmaking System SHALL allow players to play up to 5 Rounds without additional signatures
-4. WHEN a player wins 3 Rounds THEN the Matchmaking System SHALL declare that player the winner and end the Match Series
-5. WHEN all 5 Rounds are played THEN the Matchmaking System SHALL determine the winner based on who won more Rounds
+1. WHEN two players are paired THEN the Matchmaking System SHALL immediately start the Match Series without requiring any on-chain transactions
+2. WHEN a Match Series starts THEN the Matchmaking System SHALL allow players to play up to 5 Rounds without any wallet signatures
+3. WHEN a player wins 3 Rounds THEN the Matchmaking System SHALL declare that player the winner and end the Match Series
+4. WHEN all 5 Rounds are played THEN the Matchmaking System SHALL determine the winner based on who won more Rounds
+5. WHEN a Match Series ends THEN only the winner SHALL be able to publish the result on-chain
 
 ### Requirement 3
 
@@ -57,15 +61,16 @@ This document outlines the requirements for a Random Matchmaking system for the 
 
 ### Requirement 4
 
-**User Story:** As a player, I want to publish the final match result on-chain, so that my victories are permanently recorded and I can earn Divvi referral rewards.
+**User Story:** As a winner, I want to publish the final match result on-chain to my preferred network, so that my victory is permanently recorded and I can earn Divvi referral rewards.
 
 #### Acceptance Criteria
 
-1. WHEN a Match Series ends THEN the Matchmaking System SHALL display a "Publish Result" button to both players
-2. WHEN either player clicks "Publish Result" THEN the Matchmaking System SHALL prompt that player to sign a publish transaction
-3. WHEN the publish transaction is signed THEN the RPSBestOfFive Contract SHALL record the complete Match Series result on-chain
-4. WHEN the Match Series result is published THEN the Matchmaking System SHALL submit the transaction to Divvi for referral tracking
-5. WHEN the result is published THEN the Matchmaking System SHALL display the final series outcome to both players
+1. WHEN a Match Series ends THEN the Matchmaking System SHALL display a "Publish Result" button only to the winner
+2. WHEN the winner clicks "Publish Result" THEN the Matchmaking System SHALL allow them to choose which network (Celo or Base) to publish on
+3. WHEN the winner selects a network THEN the Matchmaking System SHALL prompt them to switch to that network if not already connected
+4. WHEN the winner signs the Publish Transaction THEN the RPSBestOfFive Contract SHALL record the complete Match Series result on-chain
+5. WHEN the Match Series result is published THEN the Matchmaking System SHALL submit the transaction to Divvi for referral tracking
+6. WHEN the result is published THEN the Matchmaking System SHALL display the final series outcome to both players
 
 ### Requirement 5
 
@@ -75,21 +80,23 @@ This document outlines the requirements for a Random Matchmaking system for the 
 
 1. WHEN a Match Series ends THEN the Matchmaking System SHALL display two options: "Rematch" and "Find New Match"
 2. WHEN a player clicks "Rematch" THEN the Matchmaking System SHALL wait for the opponent's decision for 30 seconds
-3. WHEN both players click "Rematch" within 30 seconds THEN the Matchmaking System SHALL start a new Match Series with roles swapped
-4. WHEN a player clicks "Find New Match" THEN the Matchmaking System SHALL return that player to the Matchmaking Queue
-5. WHEN the rematch timeout expires without both players accepting THEN the Matchmaking System SHALL return both players to the Matchmaking Queue
+3. WHEN both players click "Rematch" within 30 seconds THEN the Matchmaking System SHALL start a new Match Series immediately
+4. WHEN a player clicks "Find New Match" THEN the Matchmaking System SHALL return that player to the Matchmaking Lobby
+5. WHEN the rematch timeout expires without both players accepting THEN the Matchmaking System SHALL return both players to the Matchmaking Lobby
 
 ### Requirement 6
 
-**User Story:** As a player on MiniPay or Base App, I want matchmaking to work seamlessly on my restricted network, so that I don't encounter network compatibility issues.
+**User Story:** As a player on MiniPay or Base App, I want to play against anyone regardless of their network, so that I have access to the full player pool and faster matchmaking.
 
 #### Acceptance Criteria
 
-1. WHEN a user accesses the game from MiniPay THEN the Matchmaking System SHALL only show Celo Network matchmaking options
-2. WHEN a user accesses the game from Base App THEN the Matchmaking System SHALL only show Base Network matchmaking options
-3. WHEN a user accesses the game from web or Farcaster THEN the Matchmaking System SHALL allow the user to choose between Celo and Base Networks
-4. WHEN a user is in a Matchmaking Queue THEN the Matchmaking System SHALL only pair them with users on the same Network
-5. WHEN a user switches Networks on web or Farcaster THEN the Matchmaking System SHALL remove them from the previous Network's queue and update the UI
+1. WHEN a user accesses the game from MiniPay THEN the Matchmaking System SHALL allow them to enter the global Matchmaking Lobby
+2. WHEN a user accesses the game from Base App THEN the Matchmaking System SHALL allow them to enter the global Matchmaking Lobby
+3. WHEN a user accesses the game from web or Farcaster THEN the Matchmaking System SHALL allow them to enter the global Matchmaking Lobby
+4. WHEN users from different networks are in the Matchmaking Lobby THEN the Matchmaking System SHALL pair them together without network restrictions
+5. WHEN a MiniPay user wins a match THEN the Matchmaking System SHALL only allow them to publish on Celo (their only supported network)
+6. WHEN a Base App user wins a match THEN the Matchmaking System SHALL only allow them to publish on Base (their only supported network)
+7. WHEN a web or Farcaster user wins a match THEN the Matchmaking System SHALL allow them to choose between Celo and Base for publishing
 
 ### Requirement 7
 
@@ -97,11 +104,10 @@ This document outlines the requirements for a Random Matchmaking system for the 
 
 #### Acceptance Criteria
 
-1. WHEN a user views the matchmaking card THEN the Matchmaking System SHALL display the current number of players in the queue for each available Network
-2. WHEN the queue count changes THEN the Matchmaking System SHALL update the displayed count within 5 seconds
-3. WHEN a user is on MiniPay THEN the Matchmaking System SHALL display only the Celo queue count
-4. WHEN a user is on Base App THEN the Matchmaking System SHALL display only the Base queue count
-5. WHEN a user is on web or Farcaster THEN the Matchmaking System SHALL display queue counts for both Networks
+1. WHEN a user views the matchmaking card THEN the Matchmaking System SHALL display the current number of players in the global Matchmaking Lobby
+2. WHEN the lobby count changes THEN the Matchmaking System SHALL update the displayed count within 5 seconds
+3. WHEN a user is on any platform (MiniPay, Base App, web, or Farcaster) THEN the Matchmaking System SHALL display the same global lobby count
+4. WHEN the lobby count is displayed THEN the Matchmaking System SHALL show players from all networks combined
 
 ### Requirement 8
 
@@ -129,15 +135,15 @@ This document outlines the requirements for a Random Matchmaking system for the 
 
 ### Requirement 10
 
-**User Story:** As a player, I want my matchmaking games to generate Divvi referral rewards, so that I can earn rewards for my gameplay activity.
+**User Story:** As a winner, I want my matchmaking victory to generate Divvi referral rewards, so that I can earn rewards for my competitive gameplay.
 
 #### Acceptance Criteria
 
-1. WHEN a player signs the Consent Transaction THEN the Matchmaking System SHALL include a Divvi referral tag in the transaction data
-2. WHEN a player publishes a Match Series result THEN the Matchmaking System SHALL include a Divvi referral tag in the transaction data
-3. WHEN a transaction with a Divvi referral tag is completed THEN the Matchmaking System SHALL call submitReferral to register it with Divvi
-4. WHEN submitReferral is called THEN the Matchmaking System SHALL include the transaction hash and Network chain ID
-5. WHEN Divvi referral submission fails THEN the Matchmaking System SHALL log the error but not prevent the game from continuing
+1. WHEN a winner publishes a Match Series result THEN the Matchmaking System SHALL include a Divvi referral tag in the Publish Transaction data
+2. WHEN the Publish Transaction with a Divvi referral tag is completed THEN the Matchmaking System SHALL call submitReferral to register it with Divvi
+3. WHEN submitReferral is called THEN the Matchmaking System SHALL include the transaction hash and the Network chain ID
+4. WHEN Divvi referral submission fails THEN the Matchmaking System SHALL log the error but not prevent the game from continuing
+5. WHEN a loser does not publish THEN the Matchmaking System SHALL not generate any Divvi referral for that match
 
 ### Requirement 11
 
@@ -145,7 +151,7 @@ This document outlines the requirements for a Random Matchmaking system for the 
 
 #### Acceptance Criteria
 
-1. WHEN a match is found and one player does not sign the Consent Transaction within 30 seconds THEN the Matchmaking System SHALL cancel the match and return both players to the queue
+1. WHEN a match is found and one player does not accept within 15 seconds THEN the Matchmaking System SHALL cancel the match and return both players to the lobby
 2. WHEN a player disconnects during a Match Series THEN the Matchmaking System SHALL wait 60 seconds for reconnection
 3. WHEN a disconnected player does not reconnect within 60 seconds THEN the Matchmaking System SHALL declare the remaining player the winner by forfeit
 4. WHEN a player is declared winner by forfeit THEN the Matchmaking System SHALL allow them to publish the result
@@ -158,10 +164,8 @@ This document outlines the requirements for a Random Matchmaking system for the 
 #### Acceptance Criteria
 
 1. WHEN a Match Series is published on-chain THEN the Matchmaking System SHALL record the series result in the player statistics database
-2. WHEN a user views the home page stats section THEN the Matchmaking System SHALL display matchmaking statistics alongside existing game statistics
-3. WHEN a user views the home page stats section THEN the Matchmaking System SHALL display their total matchmaking wins, losses, and win rate
+2. WHEN a user views the home page stats section THEN the Matchmaking System SHALL display global matchmaking statistics alongside existing game statistics
+3. WHEN a user views the home page stats section THEN the Matchmaking System SHALL display their total matchmaking wins, losses, and win rate across all networks
 4. WHEN a user views the home page stats section THEN the Matchmaking System SHALL display their current win streak and best win streak for matchmaking
-5. WHEN a user views the home page stats section THEN the Matchmaking System SHALL display matchmaking statistics separately for each Network (Celo and Base)
-6. WHEN a user on MiniPay views the matchmaking card THEN the Matchmaking System SHALL display only their Celo Network statistics
-7. WHEN a user on Base App views the matchmaking card THEN the Matchmaking System SHALL display only their Base Network statistics
-8. WHEN a user on web or Farcaster views the matchmaking card THEN the Matchmaking System SHALL display statistics for both Celo and Base Networks in separate sections
+5. WHEN a user views detailed stats THEN the Matchmaking System SHALL optionally show a breakdown of wins/losses per network (Celo vs Base)
+6. WHEN a user on any platform views the matchmaking card THEN the Matchmaking System SHALL display their global matchmaking statistics

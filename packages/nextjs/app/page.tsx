@@ -3,14 +3,17 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
+import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
+
+// Force dynamic rendering to prevent SSR issues with AppKit
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   const { address } = useAccount();
@@ -22,7 +25,6 @@ export default function Home() {
   const { context, isMiniAppReady } = useFarcaster();
   const { connect, connectors } = useConnect();
 
-  const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
   const isBaseApp =
     typeof window !== "undefined" &&
     (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
@@ -36,35 +38,48 @@ export default function Home() {
     return "farcaster"; // Fallback
   };
 
-  // Auto-connect Farcaster users when miniapp context is ready
+  // Auto-connect for miniapps
   useEffect(() => {
-    if (!address && isMiniAppReady && farcasterConnector && context) {
-      connect({ connector: farcasterConnector });
-    }
-  }, [isMiniAppReady, farcasterConnector, context, address, connect]);
+    if (address || !isMiniApp) return;
 
-  // Auto-connect MiniPay users
-  useEffect(() => {
-    if (!address && isMiniPay && typeof window !== "undefined" && window.ethereum) {
-      window.ethereum
-        .request({ method: "eth_requestAccounts", params: [] })
+    // MiniPay: Auto-connect via injected provider
+    if (isMiniPay && typeof window !== "undefined" && window.ethereum) {
+      (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
           connect({ connector: injected() });
         })
         .catch(console.error);
     }
-  }, [isMiniPay, address, connect]);
+    // Farcaster/Base app: Auto-connect via injected or first available connector
+    else if ((isMiniAppReady && context) || isBaseApp) {
+      const injectedConnector = connectors.find(c => c.type === "injected");
+      if (injectedConnector) {
+        connect({ connector: injectedConnector });
+      }
+    }
+  }, [isMiniApp, isMiniPay, isMiniAppReady, isBaseApp, context, address, connect, connectors]);
 
-  // Force Base network for Base app users only (not Farcaster)
+  // Enforce network restrictions for miniapps
   useEffect(() => {
-    if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
+    if (!address) return;
+
+    // Base app: Force Base network
+    if (isBaseApp && chainId !== 8453) {
       try {
         switchChain({ chainId: 8453 });
       } catch (error) {
         console.error("Failed to switch to Base:", error);
       }
     }
-  }, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
+    // MiniPay: Force Celo network
+    else if (isMiniPay && chainId !== 42220) {
+      try {
+        switchChain({ chainId: 42220 });
+      } catch (error) {
+        console.error("Failed to switch to Celo:", error);
+      }
+    }
+  }, [isBaseApp, isMiniPay, address, chainId, switchChain]);
 
   useEffect(() => {
     if (address) {
@@ -127,22 +142,8 @@ export default function Home() {
           )}
 
           {!isMiniApp && (
-            <div className="mb-12 max-w-md mx-auto space-y-3">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
-                      color: "var(--color-primary-content)",
-                      boxShadow: "0 0 20px var(--color-primary)",
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+            <div className="mb-12 flex justify-center w-full">
+              <LoginButton />
             </div>
           )}
 

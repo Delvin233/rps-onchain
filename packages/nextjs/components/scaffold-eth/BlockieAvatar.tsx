@@ -1,17 +1,19 @@
 "use client";
 
-import { AvatarComponent } from "@rainbow-me/rainbowkit";
+import Image from "next/image";
 import { blo } from "blo";
 
-// Custom Avatar for RainbowKit
-export const BlockieAvatar: AvatarComponent = ({ address, ensImage, size }) => (
-  // Don't want to use nextJS Image here (and adding remote patterns for the URL)
-  // eslint-disable-next-line @next/next/no-img-element
-  <img
-    className="rounded-full"
-    src={ensImage || blo(address as `0x${string}`)}
-    width={size}
-    height={size}
-    alt={`${address} avatar`}
-  />
-);
+type BlockieAvatarProps = {
+  address: string;
+  ensImage?: string | null;
+  size?: number;
+};
+
+/**
+ * Custom Avatar component that uses blo to generate blockie avatars
+ */
+export const BlockieAvatar = ({ address, ensImage, size = 24 }: BlockieAvatarProps) => {
+  const imgSrc = ensImage || blo(address as `0x${string}`);
+
+  return <Image className="rounded-full" src={imgSrc} width={size} height={size} alt={`${address} avatar`} />;
+};

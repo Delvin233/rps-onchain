@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { LoginButton } from "~~/components/LoginButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
@@ -566,12 +566,11 @@ export default function MultiplayerGamePage() {
 
   if (!isConnected || !address) {
     return (
-      <div className="p-6 pt-12 pb-24">
-        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
-          <p className="text-lg mb-4">Please connect your wallet to play</p>
-          <button onClick={() => handleNavigation("/")} className="btn btn-primary">
-            Go Home
-          </button>
+      <div className="p-6 pt-12 pb-24 flex items-center justify-center min-h-screen">
+        <div className="bg-card/50 border border-border rounded-xl p-8 text-center max-w-md w-full">
+          <div className="flex justify-center">
+            <LoginButton />
+          </div>
         </div>
       </div>
     );
@@ -598,7 +597,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <RainbowKitCustomConnectButton />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Waiting for Opponent...</h1>
@@ -618,7 +617,7 @@ export default function MultiplayerGamePage() {
       <div className="px-4 py-4 min-h-screen flex flex-col">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <RainbowKitCustomConnectButton />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1
@@ -672,7 +671,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <RainbowKitCustomConnectButton />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Waiting for Reveal...</h1>
@@ -697,7 +696,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <RainbowKitCustomConnectButton />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Game Over</h1>

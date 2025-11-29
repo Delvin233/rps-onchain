@@ -7,7 +7,7 @@ A free-to-play decentralized Rock Paper Scissors game with AI and multiplayer mo
 
 ## Game Features
 
-- **Wallet Authentication**: RainbowKit + Wagmi integration
+- **Wallet Authentication**: Reown AppKit + Wagmi integration
 - **Free to Play**: No betting, just pure fun
 - **Single Player**: Play against AI instantly
 - **Multiplayer**: Create/join rooms with 6-character codes
@@ -222,7 +222,7 @@ Contract addresses are auto-exported to `contracts/deployedContracts.ts` after d
 ## 🛠 Technical Stack
 
 - **Frontend**: Next.js 15, React 18, TypeScript, TailwindCSS
-- **Wallet**: RainbowKit, Wagmi, Viem
+- **Wallet**: Reown AppKit, Wagmi, Viem
 - **Blockchain**: Hardhat, Solidity
 - **Networks**: Celo Mainnet + Base Mainnet (Multi-chain)
 - **Database**: Turso SQLite (primary), Redis (active rooms), IPFS (backup)
