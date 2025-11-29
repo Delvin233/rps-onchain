@@ -1,4 +1,3 @@
-import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
 import { Chain, http } from "viem";
@@ -40,11 +39,9 @@ export const wagmiAdapter = new WagmiAdapter({
   ) as any,
 });
 
-// Export wagmi config with Farcaster connector added
-export const appkitWagmiConfig = {
-  ...wagmiAdapter.wagmiConfig,
-  connectors: [...(wagmiAdapter.wagmiConfig.connectors || []), farcasterMiniApp()],
-} as any;
+// Export wagmi config - AppKit manages connectors internally
+// We just add Farcaster connector separately in the app
+export const appkitWagmiConfig = wagmiAdapter.wagmiConfig;
 
 // Create the modal (only on client side)
 if (typeof window !== "undefined") {
@@ -52,7 +49,7 @@ if (typeof window !== "undefined") {
   const rootStyles = getComputedStyle(document.documentElement);
   const primaryColor = rootStyles.getPropertyValue("--color-primary").trim() || "#10b981";
 
-  createAppKit({
+  const appkit = createAppKit({
     adapters: [wagmiAdapter],
     projectId,
     networks: enabledChains as any,
@@ -83,4 +80,7 @@ if (typeof window !== "undefined") {
     // Allow unsupported chains for flexibility
     allowUnsupportedChain: false,
   });
+
+  // Expose theme instance for dynamic updates
+  (window as any).__appkit_theme__ = appkit;
 }

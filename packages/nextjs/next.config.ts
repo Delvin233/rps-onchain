@@ -31,10 +31,10 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
-              "font-src 'self' data: https://fonts.gstatic.com",
+              "font-src 'self' data: https://fonts.gstatic.com https://fonts.cdnfonts.com",
               "connect-src 'self' * wss: ws: https: http: data: blob:",
               "frame-ancestors 'self' https://farcaster.xyz https://warpcast.com https://www.base.dev https://base.dev https://app.base.dev https://base.org https://rpsonchain.xyz https://www.rpsonchain.xyz",
               "worker-src 'self' blob:",
@@ -52,10 +52,11 @@ const nextConfig: NextConfig = {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
 
-    // Fix for @wagmi/connectors porto import issue
+    // Fix for @wagmi/connectors and MetaMask SDK issues
     config.resolve.alias = {
       ...config.resolve.alias,
       porto: false,
+      "@react-native-async-storage/async-storage": false,
     };
 
     return config;

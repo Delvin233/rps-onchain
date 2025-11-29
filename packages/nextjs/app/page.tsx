@@ -12,7 +12,7 @@ import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
 export default function Home() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const router = useRouter();
@@ -20,6 +20,11 @@ export default function Home() {
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const { context, isMiniAppReady } = useFarcaster();
   const { connect, connectors } = useConnect();
+
+  // Debug logging
+  useEffect(() => {
+    console.log("Auth state:", { address, isConnected, chainId });
+  }, [address, isConnected, chainId]);
 
   const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
   const isBaseApp =

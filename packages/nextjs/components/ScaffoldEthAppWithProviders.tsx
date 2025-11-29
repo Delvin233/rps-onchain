@@ -68,6 +68,20 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
 
   useEffect(() => {
     setMounted(true);
+
+    // Register Farcaster connector on client side
+    if (typeof window !== "undefined") {
+      import("@farcaster/miniapp-wagmi-connector")
+        .then(({ farcasterMiniApp }) => {
+          const connector = farcasterMiniApp();
+          // Add to wagmi config connectors if not already present
+          const connectors = appkitWagmiConfig.connectors as any[];
+          if (!connectors.find((c: any) => c.id === "farcasterMiniApp")) {
+            connectors.push(connector);
+          }
+        })
+        .catch(console.error);
+    }
   }, []);
 
   // Prevent hydration mismatch on mobile
