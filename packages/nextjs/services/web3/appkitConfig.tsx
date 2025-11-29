@@ -39,8 +39,7 @@ export const wagmiAdapter = new WagmiAdapter({
   ) as any,
 });
 
-// Export wagmi config - AppKit manages connectors internally
-// We just add Farcaster connector separately in the app
+// Use wagmi config directly from adapter - AppKit manages this
 export const appkitWagmiConfig = wagmiAdapter.wagmiConfig;
 
 // Create the modal (only on client side)
