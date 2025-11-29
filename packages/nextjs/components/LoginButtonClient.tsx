@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppKit } from "@reown/appkit/react";
+import { useAccount } from "wagmi";
 
 interface LoginButtonClientProps {
   size?: "sm" | "lg";
@@ -8,11 +9,15 @@ interface LoginButtonClientProps {
 
 export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
   const { open } = useAppKit();
+  const { address, isConnected } = useAccount();
 
   const sizeClasses =
     size === "sm"
       ? "text-sm font-semibold rounded-lg py-2 px-6"
       : "text-lg font-semibold rounded-xl py-4 w-full max-w-md";
+
+  // Format address for display
+  const displayText = isConnected && address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Login";
 
   return (
     <button
@@ -23,7 +28,7 @@ export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
         color: "var(--color-primary-content)",
       }}
     >
-      Login
+      {displayText}
     </button>
   );
 };

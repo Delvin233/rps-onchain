@@ -239,14 +239,14 @@ export const Header = memo(() => {
           <div className="max-w-xs">
             <MiniAppAccount platform={getPlatform()} />
           </div>
-        ) : (
+        ) : address ? (
           <>
             <BalanceDisplay address={address} />
             <UsernameDisplay />
-            <LoginButton size="sm" />
           </>
+        ) : (
+          <LoginButton size="sm" />
         )}
-        {!isMiniApp && !address && <LoginButton size="sm" />}
         {isLocalNetwork && <FaucetButton />}
       </div>
     </div>

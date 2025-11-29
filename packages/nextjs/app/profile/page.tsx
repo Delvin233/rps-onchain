@@ -123,7 +123,7 @@ export default function ProfilePage() {
   if (!address) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="text-center max-w-md w-full">
+        <div className="text-center max-w-md mx-auto">
           <div className="mb-8">
             <h1
               className="font-bold mb-3 animate-glow"

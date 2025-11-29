@@ -28,7 +28,7 @@ export default function PlayModePage() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto">
+        <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Ready to Play?
