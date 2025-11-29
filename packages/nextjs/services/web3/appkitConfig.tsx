@@ -48,6 +48,10 @@ export const appkitWagmiConfig = {
 
 // Create the modal (only on client side)
 if (typeof window !== "undefined") {
+  // Get theme colors from CSS variables
+  const rootStyles = getComputedStyle(document.documentElement);
+  const primaryColor = rootStyles.getPropertyValue("--color-primary").trim() || "#10b981";
+
   createAppKit({
     adapters: [wagmiAdapter],
     projectId,
@@ -58,6 +62,13 @@ if (typeof window !== "undefined") {
       analytics: true,
       swaps: true,
       onramp: true,
+    },
+    // Theme customization to match your app
+    themeMode: "dark",
+    themeVariables: {
+      "--w3m-color-mix": primaryColor,
+      "--w3m-accent": primaryColor,
+      "--w3m-border-radius-master": "12px",
     },
     // Featured wallets for better UX
     featuredWalletIds: [

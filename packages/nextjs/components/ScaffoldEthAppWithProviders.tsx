@@ -7,10 +7,12 @@ import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
+import { useAppKitThemeSync } from "~~/hooks/useAppKitThemeSync";
 import { appkitWagmiConfig } from "~~/services/web3/appkitConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
+  useAppKitThemeSync(); // Sync AppKit theme with app theme
 
   return (
     <>
