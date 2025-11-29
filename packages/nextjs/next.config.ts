@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/favicon.ico",
+        destination: "/rpsOnchainFavicons/favicon.ico",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

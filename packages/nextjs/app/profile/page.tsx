@@ -134,7 +134,6 @@ export default function ProfilePage() {
             >
               Profile
             </h1>
-            <p className="text-base-content/70">Login</p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
@@ -177,7 +176,7 @@ export default function ProfilePage() {
           }}
         >
           <div className="flex items-center justify-center">
-            <appkit-button />
+            <LoginButton size="sm" />
           </div>
         </div>
       )}

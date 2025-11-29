@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { User, Users } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { useAccount } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 
 export default function PlayModePage() {
   const router = useRouter();
@@ -38,8 +39,8 @@ export default function PlayModePage() {
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <appkit-button />
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>

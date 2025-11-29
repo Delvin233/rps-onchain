@@ -568,7 +568,6 @@ export default function MultiplayerGamePage() {
     return (
       <div className="p-6 pt-12 pb-24 flex items-center justify-center min-h-screen">
         <div className="bg-card/50 border border-border rounded-xl p-8 text-center max-w-md w-full">
-          <p className="text-lg mb-6">Login</p>
           <div className="flex justify-center">
             <LoginButton />
           </div>
@@ -598,7 +597,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <appkit-button />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Waiting for Opponent...</h1>
@@ -618,7 +617,7 @@ export default function MultiplayerGamePage() {
       <div className="px-4 py-4 min-h-screen flex flex-col">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <appkit-button />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1
@@ -672,7 +671,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <appkit-button />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Waiting for Reveal...</h1>
@@ -697,7 +696,7 @@ export default function MultiplayerGamePage() {
       <div className="p-6 pt-12 pb-24">
         {!isMiniApp && (
           <div className="flex justify-end mb-4 lg:hidden">
-            <appkit-button />
+            <LoginButton size="sm" />
           </div>
         )}
         <h1 className="text-2xl font-bold mb-6">Game Over</h1>

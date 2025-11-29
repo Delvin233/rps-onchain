@@ -128,7 +128,6 @@ export default function SinglePlayerPage() {
         <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow">Single Player</h1>
-            <p className="text-base-content/70">Login</p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
@@ -154,7 +153,7 @@ export default function SinglePlayerPage() {
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
-          <appkit-button />
+          <LoginButton size="sm" />
         </div>
       )}
 

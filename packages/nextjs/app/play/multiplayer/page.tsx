@@ -248,9 +248,6 @@ export default function MultiplayerPage() {
             >
               Multiplayer
             </h1>
-            <p className="text-base-content/70" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
-              Login
-            </p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
@@ -284,7 +281,7 @@ export default function MultiplayerPage() {
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
-          <appkit-button />
+          <LoginButton size="sm" />
         </div>
       )}
 

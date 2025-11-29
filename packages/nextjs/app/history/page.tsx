@@ -153,7 +153,6 @@ export default function HistoryPage() {
             <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Match History
             </h1>
-            <p className="text-base-content/70">Login</p>
           </div>
           {isMiniPay ? (
             <div className="flex justify-center">
