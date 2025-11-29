@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: https: blob:",
               "font-src 'self' data: https://fonts.gstatic.com https://fonts.cdnfonts.com https://fonts.reown.com",
               "connect-src 'self' * wss: ws: https: http: data: blob:",
-              "frame-src 'self' https://vercel.live",
+              "frame-src 'self' https://vercel.live https://secure.walletconnect.org https://secure.reown.com",
               "frame-ancestors 'self' https://farcaster.xyz https://warpcast.com https://www.base.dev https://base.dev https://app.base.dev https://base.org https://rpsonchain.xyz https://www.rpsonchain.xyz",
               "worker-src 'self' blob:",
             ].join("; "),
