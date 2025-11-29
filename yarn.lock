@@ -384,22 +384,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@base-org/account@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@base-org/account@npm:1.1.1"
-  dependencies:
-    "@noble/hashes": 1.4.0
-    clsx: 1.2.1
-    eventemitter3: 5.0.1
-    idb-keyval: 6.2.1
-    ox: 0.6.9
-    preact: 10.24.2
-    viem: ^2.31.7
-    zustand: 5.0.3
-  checksum: f2eae7b3e9ab88c181e0902f952611812fd3f2d9fe092e9082d5c6fcee1e77445eb8090b01d7104963263c44a2f320536d45521a5a935febde1405a01cb6c496
-  languageName: node
-  linkType: hard
-
 "@base-org/account@npm:2.4.0":
   version: 2.4.0
   resolution: "@base-org/account@npm:2.4.0"
@@ -2020,15 +2004,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gemini-wallet/core@npm:0.2.0":
-  version: 0.2.0
-  resolution: "@gemini-wallet/core@npm:0.2.0"
+"@gemini-wallet/core@npm:0.3.2":
+  version: 0.3.2
+  resolution: "@gemini-wallet/core@npm:0.3.2"
   dependencies:
     "@metamask/rpc-errors": 7.0.2
     eventemitter3: 5.0.1
   peerDependencies:
     viem: ">=2.0.0"
-  checksum: 0301be3d5eb05cabf4a88c820a5317e129433416bd18f661d178fd9dfab4a7288c74fbe506955c3578a2d89883025b1115cdcc9f27d24c562ad92f2b57fcb177
+  checksum: a74a60548a7e35ae6b3c1a0a4a1289baa7b646be5846508e432cc87735691994de806c7dca4961b5d77ee04652fa0cc18e3a67376da886aeebb5d4a5409c96be
   languageName: node
   linkType: hard
 
@@ -3109,13 +3093,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/sdk-communication-layer@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@metamask/sdk-communication-layer@npm:0.32.0"
+"@metamask/sdk-analytics@npm:0.0.5":
+  version: 0.0.5
+  resolution: "@metamask/sdk-analytics@npm:0.0.5"
   dependencies:
+    openapi-fetch: ^0.13.5
+  checksum: dcbc07fa4ce7e487f7f37164739513d6a39018c5fc2b53efbc7b880ed4c2fd24e3d4e92ef9f171561179f2434301e31c8919fb13a645f2943698060795ead967
+  languageName: node
+  linkType: hard
+
+"@metamask/sdk-communication-layer@npm:0.33.1":
+  version: 0.33.1
+  resolution: "@metamask/sdk-communication-layer@npm:0.33.1"
+  dependencies:
+    "@metamask/sdk-analytics": 0.0.5
     bufferutil: ^4.0.8
     date-fns: ^2.29.3
-    debug: ^4.3.4
+    debug: 4.3.4
     utf-8-validate: ^5.0.2
     uuid: ^8.3.2
   peerDependencies:
@@ -3124,32 +3118,33 @@ __metadata:
     eventemitter2: ^6.4.9
     readable-stream: ^3.6.2
     socket.io-client: ^4.5.1
-  checksum: 4981d97d1d1b7aa48176fbee8ca0dae8ab4df27e9434c380c28c5e2022ff3b775e283a08cc3512c27e76e4e54d906797cbe3b70670a0c9763632bc471776ced1
+  checksum: cc79345be52fe933d4f693a9b0ef37dd9a1db3550ddcaaec7d2e51cc130c33403af968a78a6d8dd51255c59b37f933977736f8a4eeee67a4f5554c569607b213
   languageName: node
   linkType: hard
 
-"@metamask/sdk-install-modal-web@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@metamask/sdk-install-modal-web@npm:0.32.0"
+"@metamask/sdk-install-modal-web@npm:0.32.1":
+  version: 0.32.1
+  resolution: "@metamask/sdk-install-modal-web@npm:0.32.1"
   dependencies:
     "@paulmillr/qr": ^0.2.1
-  checksum: 78f8d6db286853524466ed667962a611415f7677938f5a0dab4cf66ca2a801f46b5c6764731c7f492878ff6293fa0ddd8cb3a0e0a582793a2504354273f8c34d
+  checksum: f8cbaa7f22d097cf5ea39132cd09c7ce9b314bec1ea3d01547ee5205fcbebb68f896b0a0194f5d84614dafff21cdfcf017070fd1ae3b888d1e1c986a0dafb289
   languageName: node
   linkType: hard
 
-"@metamask/sdk@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@metamask/sdk@npm:0.32.0"
+"@metamask/sdk@npm:0.33.1":
+  version: 0.33.1
+  resolution: "@metamask/sdk@npm:0.33.1"
   dependencies:
     "@babel/runtime": ^7.26.0
     "@metamask/onboarding": ^1.0.1
     "@metamask/providers": 16.1.0
-    "@metamask/sdk-communication-layer": 0.32.0
-    "@metamask/sdk-install-modal-web": 0.32.0
+    "@metamask/sdk-analytics": 0.0.5
+    "@metamask/sdk-communication-layer": 0.33.1
+    "@metamask/sdk-install-modal-web": 0.32.1
     "@paulmillr/qr": ^0.2.1
     bowser: ^2.9.0
     cross-fetch: ^4.0.0
-    debug: ^4.3.4
+    debug: 4.3.4
     eciesjs: ^0.4.11
     eth-rpc-errors: ^4.0.3
     eventemitter2: ^6.4.9
@@ -3160,7 +3155,7 @@ __metadata:
     tslib: ^2.6.0
     util: ^0.12.4
     uuid: ^8.3.2
-  checksum: 2b05e1316667471f47d3f03deae5fa6c493d6511406e034edc2aab003d5d9f12b1344f5ec37027bcda26ac1dd752b9d9923c925d17d8df3305f4f89574c5ed44
+  checksum: 40dca7ff0331e80008e94e56fe009a590ab8b96fc68ea48ceb8fb7ba1e8bfc492e0e66033e80be932d27acae7034cd55c07e54ff051586d1c3f37d5a0b7edda7
   languageName: node
   linkType: hard
 
@@ -5217,6 +5212,7 @@ __metadata:
     "@vercel/edge-config": ^1.4.3
     "@vercel/kv": ^1.0.1
     "@vitejs/plugin-react": ^5.1.1
+    "@wagmi/core": ^2.16.4
     abitype: 1.0.6
     autoprefixer: ~10.4.20
     bgipfs: ~0.0.12
@@ -5250,7 +5246,7 @@ __metadata:
     vercel: ~39.1.3
     viem: ^2.21.0
     vitest: ^4.0.13
-    wagmi: 2.16.4
+    wagmi: ^2.16.4
     zustand: ~5.0.0
   languageName: unknown
   linkType: soft
@@ -7828,26 +7824,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/connectors@npm:5.9.4":
-  version: 5.9.4
-  resolution: "@wagmi/connectors@npm:5.9.4"
+"@wagmi/connectors@npm:6.2.0":
+  version: 6.2.0
+  resolution: "@wagmi/connectors@npm:6.2.0"
   dependencies:
-    "@base-org/account": 1.1.1
+    "@base-org/account": 2.4.0
     "@coinbase/wallet-sdk": 4.3.6
-    "@gemini-wallet/core": 0.2.0
-    "@metamask/sdk": 0.32.0
+    "@gemini-wallet/core": 0.3.2
+    "@metamask/sdk": 0.33.1
     "@safe-global/safe-apps-provider": 0.18.6
     "@safe-global/safe-apps-sdk": 9.1.0
     "@walletconnect/ethereum-provider": 2.21.1
     cbw-sdk: "npm:@coinbase/wallet-sdk@3.9.3"
+    porto: 0.2.35
   peerDependencies:
-    "@wagmi/core": 2.19.0
+    "@wagmi/core": 2.22.1
     typescript: ">=5.0.4"
     viem: 2.x
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 11468e455d34a82b8dba1b306134cd80250dd8f790952f1a1faad9713ec4e0b04248720bfcab8df27c5bb0855755c03dc8b6e2aee29062af39aa21887d240378
+  checksum: 43881cb0ca5f757754bd3783b355a6e517dbcfe1520a0c91fc12a951ab01fc785012c82618a89f069e70e76228091b06d73f709e0eef7101ab4dbb2ab1385189
   languageName: node
   linkType: hard
 
@@ -7889,9 +7886,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/core@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@wagmi/core@npm:2.19.0"
+"@wagmi/core@npm:2.22.1, @wagmi/core@npm:^2.16.4":
+  version: 2.22.1
+  resolution: "@wagmi/core@npm:2.22.1"
   dependencies:
     eventemitter3: 5.0.1
     mipd: 0.0.7
@@ -7905,7 +7902,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 73b55eb28372bf774eab102cb8efd0bf7ea5024a3c0a3020790c9cd65b2aade3f42412b235d8ee932a85b6d1e1f4f4d905f2aad35811f144f6a4a11fb9f400e3
+  checksum: 5f9621024cb2a86825d6d1c62bb0d795f10dc60a16b4cc9ac78c72533889066a00c37ef8582169d5533d7d4061440397b1fa4cf86e69424036759e3413b6a765
   languageName: node
   linkType: hard
 
@@ -10822,6 +10819,18 @@ __metadata:
   dependencies:
     ms: ^2.1.1
   checksum: 1e681f5cce94ba10f8dde74b20b42e4d8cf0d2a6700f4c165bb3bb6885565ef5ca5885bf07e704974a835f2415ff095a63164f539988a1f07e8a69fe8b1d65ad
+  languageName: node
+  linkType: hard
+
+"debug@npm:4.3.4":
+  version: 4.3.4
+  resolution: "debug@npm:4.3.4"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 3dbad3f94ea64f34431a9cbf0bafb61853eda57bff2880036153438f50fb5a84f27683ba0d8e5426bf41a8c6ff03879488120cf5b3a761e77953169c0600a708
   languageName: node
   linkType: hard
 
@@ -14049,6 +14058,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hono@npm:^4.10.3":
+  version: 4.10.7
+  resolution: "hono@npm:4.10.7"
+  checksum: 363d83b48ab932f0635ed743c1ccaf41728a8385a39ca2fc00f331b363f3e1bffa74fd1808fae1c489f49746cd9aab53bf88958d899c0aeb3e6ccaa7d167b5c8
+  languageName: node
+  linkType: hard
+
 "hoopy@npm:^0.1.4":
   version: 0.1.4
   resolution: "hoopy@npm:0.1.4"
@@ -16959,7 +16975,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mipd@npm:0.0.7":
+"mipd@npm:0.0.7, mipd@npm:^0.0.7":
   version: 0.0.7
   resolution: "mipd@npm:0.0.7"
   peerDependencies:
@@ -17061,6 +17077,13 @@ __metadata:
   version: 2.1.1
   resolution: "ms@npm:2.1.1"
   checksum: 0078a23cd916a9a7435c413caa14c57d4b4f6e2470e0ab554b6964163c8a4436448ac7ae020e883685475da6b6796cc396b670f579cb275db288a21e3e57721e
+  languageName: node
+  linkType: hard
+
+"ms@npm:2.1.2":
+  version: 2.1.2
+  resolution: "ms@npm:2.1.2"
+  checksum: 673cdb2c3133eb050c745908d8ce632ed2c02d85640e2edb3ace856a2266a813b30c613569bf3354fdf4ea7d1a1494add3bfa95e2713baa27d0c2c71fc44f58f
   languageName: node
   linkType: hard
 
@@ -18009,6 +18032,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"openapi-fetch@npm:^0.13.5":
+  version: 0.13.8
+  resolution: "openapi-fetch@npm:0.13.8"
+  dependencies:
+    openapi-typescript-helpers: ^0.0.15
+  checksum: 8bdca4befdaa6106cbe1feb7aa211328f724f260ace5e37b69640442d28b63fdf59170eeda001757f9745a1e6c1e857d597848976eca2b6e16db1cd01d1c5575
+  languageName: node
+  linkType: hard
+
+"openapi-typescript-helpers@npm:^0.0.15":
+  version: 0.0.15
+  resolution: "openapi-typescript-helpers@npm:0.0.15"
+  checksum: feec0f25d708aaacc086dafd3e21001329b47984f30e24877b34d053fbccd52f3b3a19b1715fda2ed5afaca7056872576eed7de8f64855d2472507dc6df626ca
+  languageName: node
+  linkType: hard
+
 "opener@npm:^1.5.2":
   version: 1.5.2
   resolution: "opener@npm:1.5.2"
@@ -18177,6 +18216,27 @@ __metadata:
     typescript:
       optional: true
   checksum: 412f443924ca0400142b287afb97b688cc5fadab1f8ef3f1e586a970c696a39dfaf335444efc5fa85a76d322d35d7023ff5e0c8667cb9ba4a297244ebfacf23e
+  languageName: node
+  linkType: hard
+
+"ox@npm:^0.9.6":
+  version: 0.9.17
+  resolution: "ox@npm:0.9.17"
+  dependencies:
+    "@adraffy/ens-normalize": ^1.11.0
+    "@noble/ciphers": ^1.3.0
+    "@noble/curves": 1.9.1
+    "@noble/hashes": ^1.8.0
+    "@scure/bip32": ^1.7.0
+    "@scure/bip39": ^1.6.0
+    abitype: ^1.0.9
+    eventemitter3: 5.0.1
+  peerDependencies:
+    typescript: ">=5.4.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: d5ec8d0d6f141a5e7b52613050dd95a745dc751b689e4f5a6faf99e16fc9b5193241e92aa1cd127351769968b41db1718c4738b210464bffa0538aa300a50a07
   languageName: node
   linkType: hard
 
@@ -18768,6 +18828,50 @@ __metadata:
   version: 2.1.11
   resolution: "pony-cause@npm:2.1.11"
   checksum: 4aaa9ddab8f8225b5cbb32f7329a71b73679074579fa91f9e9d6853d398f3c2872de979519e1525c0c91d53afc82c32fddb76e379d19157e69ef1f7064523dfa
+  languageName: node
+  linkType: hard
+
+"porto@npm:0.2.35":
+  version: 0.2.35
+  resolution: "porto@npm:0.2.35"
+  dependencies:
+    hono: ^4.10.3
+    idb-keyval: ^6.2.1
+    mipd: ^0.0.7
+    ox: ^0.9.6
+    zod: ^4.1.5
+    zustand: ^5.0.1
+  peerDependencies:
+    "@tanstack/react-query": ">=5.59.0"
+    "@wagmi/core": ">=2.16.3"
+    expo-auth-session: ">=7.0.8"
+    expo-crypto: ">=15.0.7"
+    expo-web-browser: ">=15.0.8"
+    react: ">=18"
+    react-native: ">=0.81.4"
+    typescript: ">=5.4.0"
+    viem: ">=2.37.0"
+    wagmi: ">=2.0.0"
+  peerDependenciesMeta:
+    "@tanstack/react-query":
+      optional: true
+    expo-auth-session:
+      optional: true
+    expo-crypto:
+      optional: true
+    expo-web-browser:
+      optional: true
+    react:
+      optional: true
+    react-native:
+      optional: true
+    typescript:
+      optional: true
+    wagmi:
+      optional: true
+  bin:
+    porto: dist/cli/bin/index.js
+  checksum: abf70fa7867c7e075f0cbc3c3281fed6611f35026a6fe9cdcfaf15ec3db9a7dd109ad8b087126923f97bfdb49114b48e5715292addaf38b4105b656345653509
   languageName: node
   linkType: hard
 
@@ -22959,12 +23063,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wagmi@npm:2.16.4":
-  version: 2.16.4
-  resolution: "wagmi@npm:2.16.4"
+"wagmi@npm:^2.16.4":
+  version: 2.19.5
+  resolution: "wagmi@npm:2.19.5"
   dependencies:
-    "@wagmi/connectors": 5.9.4
-    "@wagmi/core": 2.19.0
+    "@wagmi/connectors": 6.2.0
+    "@wagmi/core": 2.22.1
     use-sync-external-store: 1.4.0
   peerDependencies:
     "@tanstack/react-query": ">=5.0.0"
@@ -22974,7 +23078,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: f7e8af6a36069c0455157395f415d4c701339d04b8a1c3b7607e86df704a7a2c2b924a576a9266353acb4c9903b2de966fbd2044ba766cf2ba0877ec4a6e52fd
+  checksum: 6a0b0f7f91ddf37f6d7f6db919afa1d512a0bca693606552f902761f37e20e1ef154f9664fd1291cb02c71dd19b02c06ebf91f70f99318d71a705cefe3454cb3
   languageName: node
   linkType: hard
 
@@ -23707,6 +23811,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zod@npm:^4.1.5":
+  version: 4.1.13
+  resolution: "zod@npm:4.1.13"
+  checksum: e5459280d46567df0adc188b0c687d425e616a206d4a73ee3bacf62d246f5546e24ef45790c7c4762d3ce7659c5e41052a29445d32d0d272410be9fe23162d03
+  languageName: node
+  linkType: hard
+
 "zustand@npm:5.0.0":
   version: 5.0.0
   resolution: "zustand@npm:5.0.0"
@@ -23749,7 +23860,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:~5.0.0":
+"zustand@npm:^5.0.1, zustand@npm:~5.0.0":
   version: 5.0.8
   resolution: "zustand@npm:5.0.8"
   peerDependencies:

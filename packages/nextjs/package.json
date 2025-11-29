@@ -38,6 +38,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge-config": "^1.4.3",
     "@vercel/kv": "^1.0.1",
+    "@wagmi/core": "^2.16.4",
     "blo": "~1.2.0",
     "daisyui": "5.0.9",
     "ethers": "^6.15.0",
@@ -56,7 +57,7 @@
     "redis": "^5.9.0",
     "usehooks-ts": "~3.1.0",
     "viem": "^2.21.0",
-    "wagmi": "2.16.4",
+    "wagmi": "^2.16.4",
     "zustand": "~5.0.0"
   },
   "devDependencies": {

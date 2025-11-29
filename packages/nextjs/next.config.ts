@@ -51,6 +51,13 @@ const nextConfig: NextConfig = {
   webpack: config => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
+
+    // Fix for @wagmi/connectors porto import issue
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      porto: false,
+    };
+
     return config;
   },
 };
