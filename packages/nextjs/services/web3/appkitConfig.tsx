@@ -1,5 +1,4 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { createAppKit } from "@reown/appkit/react";
 import { http } from "viem";
 import scaffoldConfig from "~~/scaffold.config";
 
@@ -14,14 +13,6 @@ const projectId = scaffoldConfig.walletConnectProjectId;
 if (!projectId) {
   throw new Error("Project ID is not defined");
 }
-
-// Metadata for the app
-const metadata = {
-  name: "RPS-onChain",
-  description: "Rock Paper Scissors on-chain game with AI single player mode and PVP mode",
-  url: typeof window !== "undefined" ? window.location.origin : "https://www.rpsonchain.xyz",
-  icons: ["https://www.rpsonchain.xyz/rpsOnchainLogo.png"],
-};
 
 // Set up the Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
@@ -38,56 +29,3 @@ export const wagmiAdapter = new WagmiAdapter({
 
 // Use wagmi config directly from adapter - AppKit manages this
 export const appkitWagmiConfig = wagmiAdapter.wagmiConfig;
-
-// Create the modal (only on client side)
-if (typeof window !== "undefined") {
-  // Wait for DOM to be ready before reading CSS variables
-  const initAppKit = () => {
-    const rootStyles = getComputedStyle(document.documentElement);
-    const primaryColor = rootStyles.getPropertyValue("--color-primary").trim() || "#10b981";
-
-    createAppKit({
-      adapters: [wagmiAdapter],
-      projectId,
-      networks: enabledChains as any,
-      defaultNetwork: enabledChains[0] as any,
-      metadata,
-      features: {
-        analytics: true,
-        swaps: true, // Re-enable swaps for better UX
-        onramp: true, // Re-enable onramp for non-web3 users
-        email: true, // Enable email login for non-web3 savvy users
-        socials: ["google", "x", "discord", "farcaster"], // Enable social logins
-      },
-      // Theme customization to match your app
-      themeMode: "dark",
-      themeVariables: {
-        "--w3m-accent": primaryColor,
-        "--w3m-color-mix": primaryColor,
-        "--w3m-color-mix-strength": 20,
-        "--w3m-border-radius-master": "0.75rem",
-        "--w3m-z-index": 1000,
-      },
-      allWallets: "SHOW",
-      // Featured wallets for better UX
-      featuredWalletIds: [
-        "c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96", // MetaMask
-        "4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0", // Trust Wallet
-        "fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa", // Coinbase Wallet
-      ],
-      // Enable wallet guide for new users
-      enableWalletGuide: true,
-      // Enable mobile fullscreen for better PWA experience
-      enableMobileFullScreen: true,
-      // Allow unsupported chains for flexibility
-      allowUnsupportedChain: false,
-    });
-  };
-
-  // Initialize after DOM is ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAppKit);
-  } else {
-    initAppKit();
-  }
-}

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
+import { Web3Provider } from "~~/components/Web3Provider";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { useAppKitThemeSync } from "~~/hooks/useAppKitThemeSync";
@@ -75,10 +76,12 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
     return (
       <WagmiProvider config={appkitWagmiConfig}>
         <QueryClientProvider client={queryClient}>
-          <FarcasterProvider>
-            <ProgressBar height="3px" color="#2299dd" />
-            <ScaffoldEthApp>{children}</ScaffoldEthApp>
-          </FarcasterProvider>
+          <Web3Provider>
+            <FarcasterProvider>
+              <ProgressBar height="3px" color="#2299dd" />
+              <ScaffoldEthApp>{children}</ScaffoldEthApp>
+            </FarcasterProvider>
+          </Web3Provider>
         </QueryClientProvider>
       </WagmiProvider>
     );
@@ -87,10 +90,12 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   return (
     <WagmiProvider config={appkitWagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <FarcasterProvider>
-          <ProgressBar height="3px" color="#2299dd" />
-          <ScaffoldEthApp>{children}</ScaffoldEthApp>
-        </FarcasterProvider>
+        <Web3Provider>
+          <FarcasterProvider>
+            <ProgressBar height="3px" color="#2299dd" />
+            <ScaffoldEthApp>{children}</ScaffoldEthApp>
+          </FarcasterProvider>
+        </Web3Provider>
       </QueryClientProvider>
     </WagmiProvider>
   );
