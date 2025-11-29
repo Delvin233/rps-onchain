@@ -38,7 +38,6 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge-config": "^1.4.3",
     "@vercel/kv": "^1.0.1",
-    "@wagmi/core": "^3.0.0",
     "blo": "~1.2.0",
     "burner-connector": "0.0.18",
     "daisyui": "5.0.9",
@@ -57,7 +56,7 @@
     "react-icons": "^5.5.0",
     "redis": "^5.9.0",
     "usehooks-ts": "~3.1.0",
-    "viem": "2.34.0",
+    "viem": "^2.21.0",
     "wagmi": "2.16.4",
     "zustand": "~5.0.0"
   },

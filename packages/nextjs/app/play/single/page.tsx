@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 type Move = "rock" | "paper" | "scissors";
@@ -154,7 +153,7 @@ export default function SinglePlayerPage() {
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
-          <RainbowKitCustomConnectButton />
+          <appkit-button />
         </div>
       )}
 

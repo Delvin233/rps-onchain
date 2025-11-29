@@ -9,7 +9,6 @@ import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
 import { useAccount } from "wagmi";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
@@ -176,7 +175,7 @@ export default function ProfilePage() {
           }}
         >
           <div className="flex items-center justify-center">
-            <RainbowKitCustomConnectButton />
+            <appkit-button />
           </div>
         </div>
       )}

@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { FaucetButton } from "~~/components/scaffold-eth";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -242,10 +242,10 @@ export const Header = memo(() => {
           <>
             <BalanceDisplay address={address} />
             <UsernameDisplay />
-            <RainbowKitCustomConnectButton />
+            <appkit-button />
           </>
         )}
-        {!isMiniApp && !address && <RainbowKitCustomConnectButton />}
+        {!isMiniApp && !address && <appkit-button />}
         {isLocalNetwork && <FaucetButton />}
       </div>
     </div>

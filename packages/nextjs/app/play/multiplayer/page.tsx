@@ -6,7 +6,6 @@ import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { celo } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
@@ -284,7 +283,7 @@ export default function MultiplayerPage() {
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
-          <RainbowKitCustomConnectButton />
+          <appkit-button />
         </div>
       )}
 

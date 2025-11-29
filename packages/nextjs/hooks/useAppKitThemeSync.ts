@@ -21,7 +21,6 @@ export function useAppKitThemeSync() {
         "--w3m-color-mix": primaryColor,
         "--w3m-accent": primaryColor,
         "--w3m-border-radius-master": "12px",
-        "--w3m-z-index": 9999,
       });
     };
 

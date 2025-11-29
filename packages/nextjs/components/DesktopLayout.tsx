@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { History, Home, Play, Shield, User } from "lucide-react";
 import toast from "react-hot-toast";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 export const DesktopLayout = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
@@ -74,7 +73,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
                 })}
               </div>
             </div>
-            <RainbowKitCustomConnectButton />
+            <appkit-button />
           </div>
         </div>
       </nav>

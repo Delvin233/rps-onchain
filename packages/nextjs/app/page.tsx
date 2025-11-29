@@ -45,8 +45,7 @@ export default function Home() {
   // Auto-connect MiniPay users
   useEffect(() => {
     if (!address && isMiniPay && typeof window !== "undefined" && window.ethereum) {
-      window.ethereum
-        .request({ method: "eth_requestAccounts", params: [] })
+      (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
           connect({ connector: injected() });
         })
