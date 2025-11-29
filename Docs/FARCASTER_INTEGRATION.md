@@ -49,11 +49,13 @@ import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 
 export function Providers({ children }) {
   return (
-    <RainbowKitProvider>
-      <FarcasterProvider>
-        {children}
-      </FarcasterProvider>
-    </RainbowKitProvider>
+    <WagmiProvider config={appkitWagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <FarcasterProvider>
+          {children}
+        </FarcasterProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 ```

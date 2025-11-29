@@ -39,7 +39,6 @@
     "@vercel/edge-config": "^1.4.3",
     "@vercel/kv": "^1.0.1",
     "blo": "~1.2.0",
-    "burner-connector": "0.0.18",
     "daisyui": "5.0.9",
     "ethers": "^6.15.0",
     "ipfs-http-client": "^60.0.1",
