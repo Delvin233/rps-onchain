@@ -12,6 +12,9 @@ import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
 
+// Force dynamic rendering to prevent SSR issues with AppKit
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const { address } = useAccount();
   const chainId = useChainId();
