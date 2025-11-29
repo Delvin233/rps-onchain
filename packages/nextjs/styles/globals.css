@@ -537,3 +537,12 @@
     max-width: 800px !important;
   }
 }
+
+/* AppKit Modal Backdrop - Make it transparent */
+w3m-modal::part(overlay) {
+  background: transparent !important;
+}
+
+wui-modal::part(overlay) {
+  background: transparent !important;
+}

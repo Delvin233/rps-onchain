@@ -1,15 +1,12 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
-import { Chain, http } from "viem";
-import { mainnet } from "viem/chains";
+import { http } from "viem";
 import scaffoldConfig from "~~/scaffold.config";
 
 const { targetNetworks } = scaffoldConfig;
 
-// We always want to have mainnet enabled (ENS resolution, ETH price, etc). But only once.
-export const enabledChains = targetNetworks.find((network: Chain) => network.id === 1)
-  ? targetNetworks
-  : ([...targetNetworks, mainnet] as const);
+// Use only the configured target networks (Celo and Base)
+export const enabledChains = targetNetworks;
 
 // Get projectId from scaffold config
 const projectId = scaffoldConfig.walletConnectProjectId;
@@ -67,6 +64,7 @@ if (typeof window !== "undefined") {
         "--w3m-color-mix": primaryColor,
         "--w3m-color-mix-strength": 40,
         "--w3m-border-radius-master": "12px",
+        "--w3m-z-index": 1000,
       },
       // Featured wallets for better UX
       featuredWalletIds: [
