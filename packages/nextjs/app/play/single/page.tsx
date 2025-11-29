@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -137,16 +136,7 @@ export default function SinglePlayerPage() {
             </div>
           ) : (
             <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+              <appkit-button />
             </div>
           )}
         </div>

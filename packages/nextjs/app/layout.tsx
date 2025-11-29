@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
 import { BaseAppReady } from "~~/components/BaseAppReady";
 import { HideLoader } from "~~/components/HideLoader";

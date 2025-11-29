@@ -3,7 +3,6 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
@@ -142,22 +141,7 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 font-semibold rounded-xl py-4 px-6"
-                    style={{
-                      fontSize: "calc(1.125rem * var(--font-size-override, 1))",
-                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
-                      color: "var(--color-primary-content)",
-                      boxShadow: "0 0 20px var(--color-primary)",
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+              <appkit-button />
             </div>
           )}
         </div>

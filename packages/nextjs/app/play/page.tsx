@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { User, Users } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { useAccount } from "wagmi";
@@ -40,21 +39,7 @@ export default function PlayModePage() {
             </div>
           ) : (
             <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
-                      color: "var(--color-primary-content)",
-                      boxShadow: "0 0 20px var(--color-primary)",
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+              <appkit-button />
             </div>
           )}
         </div>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { celo } from "viem/chains";
@@ -259,17 +258,7 @@ export default function MultiplayerPage() {
             </div>
           ) : (
             <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 font-semibold rounded-xl py-4 px-6"
-                    style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+              <appkit-button />
             </div>
           )}
         </div>

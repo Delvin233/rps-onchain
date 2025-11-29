@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
@@ -128,21 +127,7 @@ export default function Home() {
 
           {!isMiniApp && (
             <div className="mb-12 max-w-md mx-auto space-y-3">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
-                      color: "var(--color-primary-content)",
-                      boxShadow: "0 0 20px var(--color-primary)",
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+              <appkit-button />
             </div>
           )}
 

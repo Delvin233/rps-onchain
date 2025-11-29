@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
@@ -160,21 +159,7 @@ export default function HistoryPage() {
             </div>
           ) : (
             <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
-                      color: "var(--color-primary-content)",
-                      boxShadow: "0 0 20px var(--color-primary)",
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+              <appkit-button />
             </div>
           )}
         </div>
