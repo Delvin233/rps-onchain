@@ -14,7 +14,7 @@ export function useAppKitThemeSync() {
   }, []);
 
   useEffect(() => {
-    if (!mounted || typeof window === "undefined") return;
+    if (!mounted) return;
 
     // Sync theme function - updates AppKit CSS variables
     const syncTheme = () => {

@@ -25,7 +25,7 @@ const metadata = {
 
 // Set up the Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
-  ssr: true,
+  ssr: false, // Disable SSR to prevent social login timeouts
   projectId,
   networks: enabledChains as any,
   transports: Object.fromEntries(
@@ -54,8 +54,10 @@ if (typeof window !== "undefined") {
       metadata,
       features: {
         analytics: true,
-        swaps: true,
-        onramp: true,
+        swaps: true, // Re-enable swaps for better UX
+        onramp: true, // Re-enable onramp for non-web3 users
+        email: true, // Enable email login for non-web3 savvy users
+        socials: ["google", "x", "discord", "farcaster"], // Enable social logins
       },
       // Theme customization to match your app
       themeMode: "dark",
