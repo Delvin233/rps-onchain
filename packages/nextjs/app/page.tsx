@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
 import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
+import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -19,9 +20,8 @@ export default function Home() {
   const stats = usePlayerStats(address);
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const { context, isMiniAppReady } = useFarcaster();
-  const { connect, connectors } = useConnect();
+  const { connect } = useConnect();
 
-  const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
   const isBaseApp =
     typeof window !== "undefined" &&
     (window.location.ancestorOrigins?.[0]?.includes("base.dev") || window.location.href.includes("base.dev/preview"));
@@ -35,13 +35,6 @@ export default function Home() {
     return "farcaster"; // Fallback
   };
 
-  // Auto-connect Farcaster users when miniapp context is ready
-  useEffect(() => {
-    if (!address && isMiniAppReady && farcasterConnector && context) {
-      connect({ connector: farcasterConnector });
-    }
-  }, [isMiniAppReady, farcasterConnector, context, address, connect]);
-
   // Auto-connect MiniPay users
   useEffect(() => {
     if (!address && isMiniPay && typeof window !== "undefined" && window.ethereum) {
@@ -53,16 +46,27 @@ export default function Home() {
     }
   }, [isMiniPay, address, connect]);
 
-  // Force Base network for Base app users only (not Farcaster)
+  // Enforce network restrictions for miniapps
   useEffect(() => {
-    if (isBaseApp && !isMiniAppReady && address && chainId !== 8453) {
+    if (!address) return;
+
+    // Base app: Force Base network
+    if (isBaseApp && chainId !== 8453) {
       try {
         switchChain({ chainId: 8453 });
       } catch (error) {
         console.error("Failed to switch to Base:", error);
       }
     }
-  }, [isBaseApp, isMiniAppReady, address, chainId, switchChain]);
+    // MiniPay: Force Celo network
+    else if (isMiniPay && chainId !== 42220) {
+      try {
+        switchChain({ chainId: 42220 });
+      } catch (error) {
+        console.error("Failed to switch to Celo:", error);
+      }
+    }
+  }, [isBaseApp, isMiniPay, address, chainId, switchChain]);
 
   useEffect(() => {
     if (address) {
@@ -125,8 +129,8 @@ export default function Home() {
           )}
 
           {!isMiniApp && (
-            <div className="mb-12 max-w-md mx-auto space-y-3">
-              <appkit-button />
+            <div className="mb-12 max-w-md mx-auto">
+              <LoginButton />
             </div>
           )}
 

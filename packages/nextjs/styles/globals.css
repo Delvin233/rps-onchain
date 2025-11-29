@@ -554,31 +554,4 @@ wui-modal {
   --w3m-color-bg-2: var(--theme-bg) !important;
 }
 
-/* AppKit Button Customization */
-appkit-button {
-  --w3m-accent: var(--color-primary) !important;
-}
-
-appkit-button::part(button) {
-  background: var(--color-primary) !important;
-  color: var(--color-primary-content) !important;
-  border-radius: 0.75rem !important;
-  padding: 0.75rem 1.5rem !important;
-  font-weight: 600 !important;
-  transition: all 0.2s ease !important;
-}
-
-appkit-button::part(button):hover {
-  transform: scale(1.05) !important;
-  opacity: 0.9 !important;
-}
-
-/* Change "Connect Wallet" text to "Login" */
-appkit-button::part(button)::before {
-  content: "Login" !important;
-  display: block !important;
-}
-
-appkit-button::part(button) > * {
-  display: none !important;
-}
+/* Note: AppKit uses shadow DOM, so most styling must be done via themeVariables in appkitConfig.tsx */
