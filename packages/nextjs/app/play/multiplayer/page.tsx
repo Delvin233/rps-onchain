@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { celo } from "viem/chains";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
@@ -248,7 +249,7 @@ export default function MultiplayerPage() {
               Multiplayer
             </h1>
             <p className="text-base-content/70" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
-              Connect Wallet to Play
+              Login
             </p>
           </div>
           {isMiniPayCheck ? (
@@ -256,8 +257,8 @@ export default function MultiplayerPage() {
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <appkit-button />
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>

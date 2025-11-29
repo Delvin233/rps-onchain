@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
@@ -565,12 +566,12 @@ export default function MultiplayerGamePage() {
 
   if (!isConnected || !address) {
     return (
-      <div className="p-6 pt-12 pb-24">
-        <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
-          <p className="text-lg mb-4">Please connect your wallet to play</p>
-          <button onClick={() => handleNavigation("/")} className="btn btn-primary">
-            Go Home
-          </button>
+      <div className="p-6 pt-12 pb-24 flex items-center justify-center min-h-screen">
+        <div className="bg-card/50 border border-border rounded-xl p-8 text-center max-w-md w-full">
+          <p className="text-lg mb-6">Login</p>
+          <div className="flex justify-center">
+            <LoginButton />
+          </div>
         </div>
       </div>
     );

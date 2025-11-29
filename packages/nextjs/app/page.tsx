@@ -142,7 +142,7 @@ export default function Home() {
           )}
 
           {!isMiniApp && (
-            <div className="mb-12 max-w-md mx-auto">
+            <div className="mb-12 flex justify-center w-full">
               <LoginButton />
             </div>
           )}

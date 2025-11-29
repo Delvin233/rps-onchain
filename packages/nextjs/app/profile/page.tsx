@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
 import { useAccount } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -122,7 +123,7 @@ export default function ProfilePage() {
   if (!address) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="text-center max-w-md">
+        <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1
               className="font-bold mb-3 animate-glow"
@@ -133,14 +134,15 @@ export default function ProfilePage() {
             >
               Profile
             </h1>
+            <p className="text-base-content/70">Login</p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <appkit-button />
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>

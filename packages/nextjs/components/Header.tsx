@@ -9,6 +9,7 @@ import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { BalanceDisplay } from "~~/components/BalanceDisplay";
+import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { FaucetButton } from "~~/components/scaffold-eth";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
@@ -242,10 +243,10 @@ export const Header = memo(() => {
           <>
             <BalanceDisplay address={address} />
             <UsernameDisplay />
-            <appkit-button />
+            <LoginButton size="sm" />
           </>
         )}
-        {!isMiniApp && !address && <appkit-button />}
+        {!isMiniApp && !address && <LoginButton size="sm" />}
         {isLocalNetwork && <FaucetButton />}
       </div>
     </div>

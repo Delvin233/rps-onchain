@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { useAccount } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
@@ -147,19 +148,20 @@ export default function HistoryPage() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="text-center max-w-md">
+        <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Match History
             </h1>
+            <p className="text-base-content/70">Login</p>
           </div>
           {isMiniPay ? (
             <div className="flex justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <appkit-button />
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>

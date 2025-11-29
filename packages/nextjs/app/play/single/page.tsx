@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 type Move = "rock" | "paper" | "scissors";
@@ -124,18 +125,18 @@ export default function SinglePlayerPage() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
-        <div className="text-center max-w-md">
+        <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow">Single Player</h1>
-            <p className="text-base-content/70">Connect Wallet</p>
+            <p className="text-base-content/70">Login</p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <appkit-button />
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>
