@@ -20,7 +20,7 @@ export default function Home() {
   const stats = usePlayerStats(address);
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const { context, isMiniAppReady } = useFarcaster();
-  const { connect } = useConnect();
+  const { connect, connectors } = useConnect();
 
   const isBaseApp =
     typeof window !== "undefined" &&
@@ -35,16 +35,26 @@ export default function Home() {
     return "farcaster"; // Fallback
   };
 
-  // Auto-connect MiniPay users
+  // Auto-connect for miniapps
   useEffect(() => {
-    if (!address && isMiniPay && typeof window !== "undefined" && window.ethereum) {
+    if (address || !isMiniApp) return;
+
+    // MiniPay: Auto-connect via injected provider
+    if (isMiniPay && typeof window !== "undefined" && window.ethereum) {
       (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
           connect({ connector: injected() });
         })
         .catch(console.error);
     }
-  }, [isMiniPay, address, connect]);
+    // Farcaster/Base app: Auto-connect via injected or first available connector
+    else if ((isMiniAppReady && context) || isBaseApp) {
+      const injectedConnector = connectors.find(c => c.type === "injected");
+      if (injectedConnector) {
+        connect({ connector: injectedConnector });
+      }
+    }
+  }, [isMiniApp, isMiniPay, isMiniAppReady, isBaseApp, context, address, connect, connectors]);
 
   // Enforce network restrictions for miniapps
   useEffect(() => {
