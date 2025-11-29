@@ -538,11 +538,47 @@
   }
 }
 
-/* AppKit Modal Backdrop - Make it transparent */
-w3m-modal::part(overlay) {
-  background: transparent !important;
+/* AppKit Modal Backdrop - Match app modal style */
+w3m-modal::part(overlay),
+wui-modal::part(overlay) {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
-wui-modal::part(overlay) {
-  background: transparent !important;
+/* AppKit Modal Card - Match app theme */
+w3m-modal,
+wui-modal {
+  --w3m-background: var(--theme-card) !important;
+  --w3m-color-fg-1: var(--theme-text) !important;
+  --w3m-color-bg-1: var(--theme-card) !important;
+  --w3m-color-bg-2: var(--theme-bg) !important;
+}
+
+/* AppKit Button Customization */
+appkit-button {
+  --w3m-accent: var(--color-primary) !important;
+}
+
+appkit-button::part(button) {
+  background: var(--color-primary) !important;
+  color: var(--color-primary-content) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+appkit-button::part(button):hover {
+  transform: scale(1.05) !important;
+  opacity: 0.9 !important;
+}
+
+/* Change "Connect Wallet" text to "Login" */
+appkit-button::part(button)::before {
+  content: "Login" !important;
+  display: block !important;
+}
+
+appkit-button::part(button) > * {
+  display: none !important;
 }
