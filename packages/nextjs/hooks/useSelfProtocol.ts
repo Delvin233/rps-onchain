@@ -31,8 +31,17 @@ export const useSelfProtocol = () => {
   }, []);
 
   useEffect(() => {
+    // Reset state when address changes
+    setIsVerified(false);
+    setUserProof(null);
+
     if (address && mounted && typeof window !== "undefined") {
-      fetch(`/api/check-verification?address=${address}`)
+      fetch(`/api/check-verification?address=${address}`, {
+        cache: "no-store", // Don't use browser cache
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      })
         .then(res => res.json())
         .then(data => {
           if (data.verified) {

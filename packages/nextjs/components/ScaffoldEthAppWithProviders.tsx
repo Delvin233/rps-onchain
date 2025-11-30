@@ -69,6 +69,10 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
 
   useEffect(() => {
     setMounted(true);
+    // Expose queryClient globally for cache invalidation
+    if (typeof window !== "undefined") {
+      (window as any).__queryClient = queryClient;
+    }
   }, []);
 
   // Prevent hydration mismatch on mobile

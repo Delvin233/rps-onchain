@@ -88,9 +88,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [walletAddress, farcasterContext, mounted]);
 
-  // Set current user address globally for theme components
+  // Set current user address globally for theme components and clear caches on address change
   useEffect(() => {
     if (mounted && typeof window !== "undefined") {
+      const previousAddress = (window as any).__currentUserAddress;
+
+      // If address changed, clear any cached data
+      if (previousAddress && previousAddress !== address) {
+        console.log(`[AuthContext] Address changed from ${previousAddress} to ${address}, clearing caches`);
+
+        // Clear React Query cache for the old address
+        if ((window as any).__queryClient) {
+          (window as any).__queryClient.invalidateQueries();
+        }
+      }
+
       (window as any).__currentUserAddress = address;
     }
   }, [mounted, address]);
