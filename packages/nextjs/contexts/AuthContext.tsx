@@ -65,32 +65,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Compute values before any conditional returns
-  // Prioritize Farcaster auth when in Farcaster context
-  const farcasterAddress = (farcasterContext as any)?.connectedAddress;
-
-  // Check if we're actually IN a Farcaster miniapp (not just SDK ready)
-  const isInFarcasterMiniapp = isMiniAppReady && !!farcasterContext;
-
-  // Determine auth method and address with proper priority
-  // If we're in a Farcaster miniapp context, ONLY use Farcaster auth
-  const authMethod: AuthMethod = isInFarcasterMiniapp
-    ? farcasterUser
-      ? "farcaster"
-      : null // In miniapp: only farcaster auth
-    : farcasterUser
-      ? "farcaster"
-      : walletConnected
-        ? "wallet"
-        : null; // Outside miniapp: farcaster or wallet
-
-  const isAuthenticated = !!farcasterUser || (!isInFarcasterMiniapp && walletConnected);
+  // Priority: Farcaster user takes precedence (for miniapp), then wallet
+  const authMethod: AuthMethod = farcasterUser ? "farcaster" : walletConnected ? "wallet" : null;
+  const isAuthenticated = !!farcasterUser || walletConnected;
   const isFarcasterConnected = !!farcasterUser;
 
-  // Address priority: Farcaster address if in miniapp, otherwise wallet address
-  const address = isInFarcasterMiniapp
-    ? farcasterAddress // In miniapp: only use Farcaster address
-    : farcasterAddress || walletAddress || null; // Outside miniapp: prefer Farcaster, fallback to wallet
+  // Use Farcaster address if user exists, otherwise use wallet address
+  const farcasterAddress = (farcasterContext as any)?.connectedAddress;
+  const address = farcasterUser ? farcasterAddress : walletAddress;
 
   // Check verification status
   useEffect(() => {
@@ -98,15 +80,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const checkAddress = walletAddress || (farcasterContext as any)?.connectedAddress;
-
-    if (checkAddress && mounted) {
-      fetch(`/api/check-verification?address=${checkAddress}`)
+    // Use the computed address from our priority logic
+    if (address && mounted) {
+      fetch(`/api/check-verification?address=${address}`)
         .then(res => res.json())
         .then(data => setIsHumanVerified(data.verified || false))
         .catch(() => setIsHumanVerified(false));
     }
-  }, [walletAddress, farcasterContext, mounted]);
+  }, [address, mounted]);
 
   // Set current user address globally for theme components and clear caches on address change
   useEffect(() => {
