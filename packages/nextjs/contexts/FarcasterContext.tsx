@@ -57,8 +57,10 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
               throw new Error("Failed to fetch user data");
             })
             .then(userData => {
-              // Get custody address or first verified address
-              const connectedAddress = userData.custody_address || userData.verifications?.[0] || null;
+              // Prioritize verified addresses over custody address
+              // Verified addresses are the wallets the user has connected
+              const connectedAddress = userData.verifications?.[0] || userData.custody_address || null;
+              console.log("[Farcaster] User data:", userData);
               console.log("[Farcaster] Fetched wallet address:", connectedAddress);
 
               // Update with enriched data
