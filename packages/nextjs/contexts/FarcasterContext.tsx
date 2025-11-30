@@ -30,11 +30,15 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
     try {
       const ctx = await sdk.context;
       if (ctx) {
+        console.log("[Farcaster] Full SDK context:", ctx);
+        console.log("[Farcaster] Context keys:", Object.keys(ctx));
+
         // Add connectedAddress to context if available
         const contextWithAddress = {
           ...ctx,
           connectedAddress: (ctx as any).client?.primaryAddress || (ctx as any).wallet?.address || null,
         };
+        console.log("[Farcaster] Connected address:", contextWithAddress.connectedAddress);
         setContext(contextWithAddress as any);
 
         // Always fetch from API to ensure we have username
