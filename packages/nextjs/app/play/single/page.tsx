@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { useAccount } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
+import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 type Move = "rock" | "paper" | "scissors";
@@ -13,7 +13,7 @@ const TAB_ID = typeof window !== "undefined" ? `tab_${Date.now()}_${Math.random(
 
 export default function SinglePlayerPage() {
   const router = useRouter();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useConnectedAddress();
   const { isMiniApp } = usePlatformDetection();
   const [playerMove, setPlayerMove] = useState<Move | null>(null);
   const [aiMove, setAiMove] = useState<Move | null>(null);

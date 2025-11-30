@@ -7,10 +7,10 @@ import { Copy, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
-import { useAccount } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useAuth } from "~~/contexts/AuthContext";
+import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { useGoodDollarClaim } from "~~/hooks/useGoodDollarClaim";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
@@ -21,7 +21,7 @@ const SelfVerificationModal = lazy(() =>
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { address } = useAccount();
+  const { address } = useConnectedAddress();
   const { isHumanVerified } = useAuth();
   const { isMiniApp, isBaseApp, isMiniPay, isFarcaster } = usePlatformDetection();
 

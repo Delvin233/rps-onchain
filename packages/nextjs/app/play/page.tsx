@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Users } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
-import { useAccount } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
+import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 
 export default function PlayModePage() {
   const router = useRouter();
-  const { isConnected, isConnecting } = useAccount();
+  const { isConnected, isConnecting } = useConnectedAddress();
   const [showTooltip, setShowTooltip] = useState(false);
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
 

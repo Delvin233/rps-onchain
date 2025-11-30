@@ -5,16 +5,17 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Shield, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { celo } from "viem/chains";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useChainId, useSwitchChain } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 import { getDivviReferralTag, submitDivviReferral } from "~~/utils/divviUtils";
 
 export default function MultiplayerPage() {
   const router = useRouter();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useConnectedAddress();
   const chainId = useChainId();
   const [roomCode, setRoomCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);

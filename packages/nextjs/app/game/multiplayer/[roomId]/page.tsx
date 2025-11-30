@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAccount } from "wagmi";
+import { useChainId } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
@@ -17,7 +18,8 @@ type GameStatus = "waiting" | "ready" | "playing" | "revealing" | "finished";
 export default function MultiplayerGamePage() {
   const params = useParams();
   const router = useRouter();
-  const { address, isConnected, chainId } = useAccount();
+  const { address, isConnected } = useConnectedAddress();
+  const chainId = useChainId();
   const { isMiniApp } = usePlatformDetection();
   const { refetch: refetchStats } = usePlayerStats(address);
 

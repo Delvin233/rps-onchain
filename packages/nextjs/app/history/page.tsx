@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
-import { useAccount } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
+import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 
 export default function HistoryPage() {
-  const { address, isConnected, isConnecting } = useAccount();
+  const { address, isConnected, isConnecting } = useConnectedAddress();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
