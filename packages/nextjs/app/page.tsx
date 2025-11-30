@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
-import { useAccount, useChainId, useConnect, useSwitchChain } from "wagmi";
+import { useAccount, useChainId, useConnect, useReconnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
@@ -24,6 +24,7 @@ export default function Home() {
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const { context, isMiniAppReady } = useFarcaster();
   const { connect, connectors } = useConnect();
+  const { reconnect } = useReconnect();
 
   const isBaseApp =
     typeof window !== "undefined" &&
@@ -38,11 +39,16 @@ export default function Home() {
     return "farcaster"; // Fallback
   };
 
+  // Auto-reconnect on mount for all users
+  useEffect(() => {
+    reconnect();
+  }, [reconnect]);
+
   // Auto-connect for miniapps
   useEffect(() => {
     if (address || !isMiniApp) return;
 
-    // MiniPay: Auto-connect via injected provider
+    // MiniPay: Auto-connect via injected provider (keep original working logic)
     if (isMiniPay && typeof window !== "undefined" && window.ethereum) {
       (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
@@ -50,12 +56,35 @@ export default function Home() {
         })
         .catch(console.error);
     }
-    // Farcaster/Base app: Auto-connect via injected or first available connector
+    // Farcaster/Base app: Auto-connect via injected connector
     else if ((isMiniAppReady && context) || isBaseApp) {
-      const injectedConnector = connectors.find(c => c.type === "injected");
-      if (injectedConnector) {
-        connect({ connector: injectedConnector });
-      }
+      const autoConnect = async () => {
+        try {
+          console.log(
+            "Available connectors:",
+            connectors.map(c => ({ id: c.id, type: c.type, name: c.name })),
+          );
+
+          // Try to connect with injected() directly like MiniPay
+          if (typeof window !== "undefined" && window.ethereum) {
+            await connect({ connector: injected() });
+          } else {
+            // Fallback: find injected connector from list
+            const injectedConnector = connectors.find(c => c.id === "injected" || c.type === "injected");
+            if (injectedConnector) {
+              await connect({ connector: injectedConnector });
+            } else {
+              console.error("No injected connector found");
+            }
+          }
+        } catch (error) {
+          console.error("Auto-connect failed:", error);
+        }
+      };
+
+      // Small delay to ensure connectors are ready
+      const timer = setTimeout(autoConnect, 500);
+      return () => clearTimeout(timer);
     }
   }, [isMiniApp, isMiniPay, isMiniAppReady, isBaseApp, context, address, connect, connectors]);
 
