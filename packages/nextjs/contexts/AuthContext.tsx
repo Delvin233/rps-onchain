@@ -66,14 +66,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   // Priority: Farcaster user takes precedence (for miniapp), then wallet
-  const authMethod: AuthMethod = farcasterUser ? "farcaster" : walletConnected ? "wallet" : null;
-  const isAuthenticated = !!farcasterUser || walletConnected;
-  const isFarcasterConnected = !!farcasterUser;
-
-  // Use Farcaster address if user exists, otherwise use wallet address
-  // Only use farcaster address if it's actually available to prevent undefined flashing
+  // Only use Farcaster if we have both user AND address to prevent flashing
   const farcasterAddress = (farcasterContext as any)?.connectedAddress;
-  const address = farcasterUser && farcasterAddress ? farcasterAddress : walletAddress;
+  const hasFarcasterAuth = !!farcasterUser && !!farcasterAddress;
+
+  // When in Farcaster context, ignore wallet connections to prevent conflicts
+  // This prevents MetaMask from interfering when using Farcaster auth
+  const authMethod: AuthMethod = hasFarcasterAuth ? "farcaster" : walletConnected ? "wallet" : null;
+  const isAuthenticated = hasFarcasterAuth || walletConnected;
+  const isFarcasterConnected = hasFarcasterAuth;
+
+  // Use Farcaster address if fully authenticated, otherwise use wallet address
+  // When Farcaster is active, completely ignore the wallet address
+  const address = hasFarcasterAuth ? farcasterAddress : walletAddress;
 
   // Check verification status
   useEffect(() => {
@@ -96,13 +101,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (mounted && typeof window !== "undefined") {
-      // Only update if we have a real address and it's different from the stable one
-      if (address && address !== stableAddress) {
-        const previousAddress = (window as any).__currentUserAddress;
+      // Normalize address to lowercase for comparison
+      const normalizedAddress = address?.toLowerCase();
+      const normalizedStable = stableAddress?.toLowerCase();
 
-        // Only clear cache if address actually changed and both are defined
-        // This prevents clearing on initial undefined -> address transition
-        if (previousAddress && previousAddress !== address && previousAddress !== "undefined") {
+      // Only update if we have a real address and it's different from the stable one (case-insensitive)
+      if (normalizedAddress && normalizedAddress !== normalizedStable) {
+        const previousAddress = (window as any).__currentUserAddress;
+        const normalizedPrevious = previousAddress?.toLowerCase();
+
+        // Only clear cache if address actually changed (case-insensitive) and both are defined
+        // This prevents clearing on initial undefined -> address transition or case-only changes
+        if (normalizedPrevious && normalizedPrevious !== normalizedAddress && normalizedPrevious !== "undefined") {
           console.log(`[AuthContext] Address changed from ${previousAddress} to ${address}, clearing caches`);
 
           // Clear React Query cache for the old address
