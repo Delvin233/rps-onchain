@@ -21,8 +21,11 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   // Use auth address (which includes Farcaster) or fall back to wagmi address
   const address = authAddress || wagmiAddress;
 
+  // State-based chain selection for Farcaster users (no wallet connection)
+  const [farcasterChainId, setFarcasterChainId] = useState<number>(celo.id);
+
   // Default to Celo for Farcaster users (no wallet connection)
-  const activeChain = chain || (authMethod === "farcaster" ? celo : undefined);
+  const activeChain = chain || (authMethod === "farcaster" ? (farcasterChainId === base.id ? base : celo) : undefined);
   const cUSD_ADDRESS = "0x765DE816845861e75A25fCA122bb6898B8B1282a" as `0x${string}`;
   const { data: balance, isLoading: balanceLoading } = useBalance({
     address: address as `0x${string}` | undefined,
@@ -127,18 +130,29 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const handleNetworkSwitch = useCallback(
     async (chainId: number) => {
       try {
-        await switchChain({ chainId });
-        setShowNetworkMenu(false);
-        toast.success(`Switched to ${chainId === celo.id ? "Celo" : "Base"}`, {
-          duration: 2000,
-          style: toastStyle,
-        });
+        // For Farcaster users without wallet connection, use state-based switching
+        if (authMethod === "farcaster" && !chain) {
+          setFarcasterChainId(chainId);
+          setShowNetworkMenu(false);
+          toast.success(`Switched to ${chainId === celo.id ? "Celo" : "Base"}`, {
+            duration: 2000,
+            style: toastStyle,
+          });
+        } else {
+          // For wallet users, use wagmi's switchChain
+          await switchChain({ chainId });
+          setShowNetworkMenu(false);
+          toast.success(`Switched to ${chainId === celo.id ? "Celo" : "Base"}`, {
+            duration: 2000,
+            style: toastStyle,
+          });
+        }
       } catch {
         toast.error("Failed to switch network");
         setShowNetworkMenu(false);
       }
     },
-    [switchChain, toastStyle],
+    [authMethod, chain, switchChain, toastStyle],
   );
 
   // Close menu when clicking outside
