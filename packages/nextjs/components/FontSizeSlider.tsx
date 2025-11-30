@@ -6,8 +6,14 @@ import { RxFontSize } from "react-icons/rx";
 export const FontSizeSlider = () => {
   const [fontSize, setFontSize] = useState(100);
 
+  const getUserKey = () => {
+    const address = localStorage.getItem("currentUserAddress") || "default";
+    return address.toLowerCase();
+  };
+
   useEffect(() => {
-    const saved = localStorage.getItem("fontSizeOverride");
+    const userKey = getUserKey();
+    const saved = localStorage.getItem(`fontSizeOverride_${userKey}`);
     if (saved) {
       setFontSize(parseInt(saved));
     }
@@ -16,7 +22,8 @@ export const FontSizeSlider = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     setFontSize(value);
-    localStorage.setItem("fontSizeOverride", value.toString());
+    const userKey = getUserKey();
+    localStorage.setItem(`fontSizeOverride_${userKey}`, value.toString());
 
     // Apply immediately
     document.documentElement.style.setProperty("--font-size-override", (value / 100).toString());
@@ -24,7 +31,8 @@ export const FontSizeSlider = () => {
 
   const resetToDefault = () => {
     setFontSize(100);
-    localStorage.removeItem("fontSizeOverride");
+    const userKey = getUserKey();
+    localStorage.removeItem(`fontSizeOverride_${userKey}`);
     document.documentElement.style.setProperty("--font-size-override", "1");
   };
 

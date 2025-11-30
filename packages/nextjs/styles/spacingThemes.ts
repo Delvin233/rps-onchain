@@ -41,18 +41,28 @@ export const SPACING_SCALES: Record<string, SpacingScale> = {
 
 export const DEFAULT_SPACING_SCALE = "comfortable";
 
+// Get current user address from localStorage (set by wallet connection)
+const getCurrentUserKey = (): string => {
+  if (typeof window === "undefined") return "";
+  // Try to get the connected address from various sources
+  const address = localStorage.getItem("currentUserAddress") || "default";
+  return address.toLowerCase();
+};
+
 export const getSpacingScale = (): SpacingScale => {
   if (typeof window === "undefined") {
     return SPACING_SCALES[DEFAULT_SPACING_SCALE];
   }
 
-  const saved = localStorage.getItem("spacingScale") as keyof typeof SPACING_SCALES;
+  const userKey = getCurrentUserKey();
+  const saved = localStorage.getItem(`spacingScale_${userKey}`) as keyof typeof SPACING_SCALES;
   return SPACING_SCALES[saved] || SPACING_SCALES[DEFAULT_SPACING_SCALE];
 };
 
 export const setSpacingScale = (scaleKey: keyof typeof SPACING_SCALES) => {
   if (typeof window !== "undefined") {
-    localStorage.setItem("spacingScale", scaleKey);
+    const userKey = getCurrentUserKey();
+    localStorage.setItem(`spacingScale_${userKey}`, scaleKey);
 
     // Apply CSS variables immediately
     const scale = SPACING_SCALES[scaleKey];

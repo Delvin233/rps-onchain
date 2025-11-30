@@ -7,7 +7,8 @@ export const CRTEffect = () => {
 
   useEffect(() => {
     const checkCRT = () => {
-      const enabled = localStorage.getItem("crtEffect") === "true";
+      const userKey = (localStorage.getItem("currentUserAddress") || "default").toLowerCase();
+      const enabled = localStorage.getItem(`crtEffect_${userKey}`) === "true";
       setCrtEnabled(enabled);
 
       if (enabled) {

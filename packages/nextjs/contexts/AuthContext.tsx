@@ -88,6 +88,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [walletAddress, farcasterContext, mounted]);
 
+  // Set current user address in localStorage for theme preferences
+  useEffect(() => {
+    if (mounted && address) {
+      localStorage.setItem("currentUserAddress", address.toLowerCase());
+    }
+  }, [mounted, address]);
+
   // Debug logging
   useEffect(() => {
     if (mounted) {

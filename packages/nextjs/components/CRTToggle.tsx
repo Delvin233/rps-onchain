@@ -6,15 +6,22 @@ import { RiTvLine } from "react-icons/ri";
 export const CRTToggle = () => {
   const [crtEnabled, setCrtEnabled] = useState(false);
 
+  const getUserKey = () => {
+    const address = localStorage.getItem("currentUserAddress") || "default";
+    return address.toLowerCase();
+  };
+
   useEffect(() => {
-    const saved = localStorage.getItem("crtEffect");
+    const userKey = getUserKey();
+    const saved = localStorage.getItem(`crtEffect_${userKey}`);
     setCrtEnabled(saved === "true");
   }, []);
 
   const toggleCRT = () => {
     const newValue = !crtEnabled;
     setCrtEnabled(newValue);
-    localStorage.setItem("crtEffect", String(newValue));
+    const userKey = getUserKey();
+    localStorage.setItem(`crtEffect_${userKey}`, String(newValue));
     window.dispatchEvent(new Event("storage"));
   };
 
