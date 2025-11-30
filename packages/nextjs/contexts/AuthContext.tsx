@@ -69,9 +69,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Prioritize Farcaster auth when in Farcaster context
   const farcasterAddress = (farcasterContext as any)?.connectedAddress;
 
+  // Check if we're actually IN a Farcaster miniapp (not just SDK ready)
+  const isInFarcasterMiniapp = isMiniAppReady && !!farcasterContext;
+
   // Determine auth method and address with proper priority
   // If we're in a Farcaster miniapp context, ONLY use Farcaster auth
-  const authMethod: AuthMethod = isMiniAppReady
+  const authMethod: AuthMethod = isInFarcasterMiniapp
     ? farcasterUser
       ? "farcaster"
       : null // In miniapp: only farcaster auth
@@ -81,11 +84,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ? "wallet"
         : null; // Outside miniapp: farcaster or wallet
 
-  const isAuthenticated = !!farcasterUser || (!isMiniAppReady && walletConnected);
+  const isAuthenticated = !!farcasterUser || (!isInFarcasterMiniapp && walletConnected);
   const isFarcasterConnected = !!farcasterUser;
 
   // Address priority: Farcaster address if in miniapp, otherwise wallet address
-  const address = isMiniAppReady
+  const address = isInFarcasterMiniapp
     ? farcasterAddress // In miniapp: only use Farcaster address
     : farcasterAddress || walletAddress || null; // Outside miniapp: prefer Farcaster, fallback to wallet
 
