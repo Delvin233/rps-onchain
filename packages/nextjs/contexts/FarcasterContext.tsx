@@ -3,6 +3,7 @@
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { Context } from "@farcaster/miniapp-core";
 import sdk from "@farcaster/miniapp-sdk";
+import { useAccount, useConnect } from "wagmi";
 
 interface EnrichedUser {
   fid: number;
@@ -25,6 +26,8 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<Context.MiniAppContext | null>(null);
   const [enrichedUser, setEnrichedUser] = useState<EnrichedUser | null>(null);
   const [isMiniAppReady, setIsMiniAppReady] = useState(false);
+  const { connect, connectors } = useConnect();
+  const { isConnected } = useAccount();
 
   const setMiniAppReady = useCallback(async () => {
     try {
@@ -90,6 +93,23 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
       setMiniAppReady();
     }
   }, [isMiniAppReady, setMiniAppReady]);
+
+  // Auto-connect Farcaster wallet when in miniapp and not already connected
+  useEffect(() => {
+    if (isMiniAppReady && context?.user && !isConnected) {
+      const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
+
+      if (farcasterConnector) {
+        console.log("[Farcaster] Auto-connecting Farcaster wallet connector");
+        connect({ connector: farcasterConnector });
+      } else {
+        console.warn(
+          "[Farcaster] Farcaster connector not found in available connectors:",
+          connectors.map(c => c.id),
+        );
+      }
+    }
+  }, [isMiniAppReady, context, isConnected, connectors, connect]);
 
   const handleAddMiniApp = useCallback(async () => {
     try {
