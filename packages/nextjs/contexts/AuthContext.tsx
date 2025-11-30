@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 import sdk from "@farcaster/miniapp-sdk";
+import { useAccount } from "wagmi";
 
 type AuthMethod = "wallet" | "farcaster" | null;
 
@@ -18,17 +18,17 @@ interface AuthContextType {
   isAuthenticated: boolean;
   address: string | null;
   authMethod: AuthMethod;
-  
+
   // Farcaster Auth
   isFarcasterReady: boolean;
   farcasterUser: FarcasterUser | null;
   isFarcasterConnected: boolean;
   connectFarcaster: () => Promise<void>;
-  
+
   // Self Protocol Verification
   isHumanVerified: boolean;
   verifySelf: () => Promise<void>;
-  
+
   // General
   isLoading: boolean;
   error: string | null;
@@ -39,15 +39,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
-  
+
   // Farcaster state
   const [isFarcasterReady, setIsFarcasterReady] = useState(false);
   const [farcasterContext, setFarcasterContext] = useState<any>(null);
   const [farcasterUser, setFarcasterUser] = useState<FarcasterUser | null>(null);
-  
+
   // Verification state
   const [isHumanVerified, setIsHumanVerified] = useState(false);
-  
+
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +58,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const context = await sdk.context;
         if (context) {
-          setFarcasterContext(context);
+          // Add connectedAddress to context
+          const contextWithAddress = {
+            ...context,
+            connectedAddress: (context as any).client?.primaryAddress || (context as any).wallet?.address || null,
+          };
+          setFarcasterContext(contextWithAddress);
           setFarcasterUser({
             fid: context.user.fid,
             username: context.user.username,
@@ -80,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setMounted(true);
     const checkAddress = walletAddress || farcasterContext?.connectedAddress;
-    
+
     if (checkAddress && mounted) {
       fetch(`/api/check-verification?address=${checkAddress}`)
         .then(res => res.json())
@@ -186,7 +191,7 @@ export const useAuth = () => {
 
 // Convenience hooks
 export const useWalletAuth = () => {
-  const { isAuthenticated, address, authMethod } = useAuth();
+  const { address, authMethod } = useAuth();
   return {
     isConnected: authMethod === "wallet",
     address: authMethod === "wallet" ? address : null,

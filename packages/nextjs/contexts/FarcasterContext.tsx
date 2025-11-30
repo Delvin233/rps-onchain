@@ -30,7 +30,12 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
     try {
       const ctx = await sdk.context;
       if (ctx) {
-        setContext(ctx);
+        // Add connectedAddress to context if available
+        const contextWithAddress = {
+          ...ctx,
+          connectedAddress: (ctx as any).client?.primaryAddress || (ctx as any).wallet?.address || null,
+        };
+        setContext(contextWithAddress as any);
 
         // Always fetch from API to ensure we have username
         if (ctx.user) {
@@ -66,6 +71,7 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
           }
         }
       }
+      await sdk.actions.ready();
     } catch (err) {
       console.error("[Farcaster] SDK initialization error:", err);
     } finally {
