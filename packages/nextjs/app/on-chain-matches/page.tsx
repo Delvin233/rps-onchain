@@ -29,6 +29,7 @@ export default function OnChainMatchesPage() {
   const [matches, setMatches] = useState<OnChainMatch[]>([]);
   const [filteredMatches, setFilteredMatches] = useState<OnChainMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState({ current: 0, total: 0 });
   const isBaseApp = typeof window !== "undefined" && window.location.ancestorOrigins?.[0]?.includes("base.dev");
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
   const isFarcasterFrame = typeof window !== "undefined" && window.parent !== window;
@@ -82,75 +83,89 @@ export default function OnChainMatchesPage() {
         const contract = deployedContracts[chainId as 42220 | 8453].RPSOnline;
         const roomsForChain = Array.from(publishedRooms.values()).filter(r => r.chainId === chainId);
 
-        const roomPromises = roomsForChain.map(async ({ roomId, txHash }) => {
-          try {
-            const [matchHistory, roomStats] = await Promise.all([
-              client.readContract({
-                address: contract.address,
-                abi: contract.abi,
-                functionName: "getMatchHistory",
-                args: [roomId],
-              }),
-              client.readContract({
-                address: contract.address,
-                abi: contract.abi,
-                functionName: "getRoomStats",
-                args: [roomId],
-              }),
-            ]);
+        setLoadingProgress({ current: 0, total: roomsForChain.length });
 
-            if (!matchHistory || !roomStats || (matchHistory as any[]).length === 0) return null;
+        // Process in batches of 5 to avoid overwhelming the RPC
+        const BATCH_SIZE = 5;
+        for (let i = 0; i < roomsForChain.length; i += BATCH_SIZE) {
+          const batch = roomsForChain.slice(i, i + BATCH_SIZE);
 
-            const [, player1, player2] = roomStats as [bigint, string, string];
+          const batchPromises = batch.map(async ({ roomId, txHash }) => {
+            try {
+              const [matchHistory, roomStats] = await Promise.all([
+                client.readContract({
+                  address: contract.address,
+                  abi: contract.abi,
+                  functionName: "getMatchHistory",
+                  args: [roomId],
+                }),
+                client.readContract({
+                  address: contract.address,
+                  abi: contract.abi,
+                  functionName: "getRoomStats",
+                  args: [roomId],
+                }),
+              ]);
 
-            // Resolve names
-            const [name1Res, name2Res] = await Promise.all([
-              fetch(`/api/resolve-name?address=${player1}`).then(r => r.json()),
-              fetch(`/api/resolve-name?address=${player2}`).then(r => r.json()),
-            ]);
+              if (!matchHistory || !roomStats || (matchHistory as any[]).length === 0) return null;
 
-            return {
-              roomId: roomId as string,
-              chainId,
-              chainName,
-              player1: player1 as string,
-              player2: player2 as string,
-              player1Name: name1Res.name,
-              player2Name: name2Res.name,
-              txHash,
-              matches: (matchHistory as any[]).map(m => ({
-                winner: m.winner,
-                player1Move: m.player1Move,
-                player2Move: m.player2Move,
-                timestamp: Number(m.timestamp),
-              })),
-            };
-          } catch (error) {
-            console.error(`Error fetching room ${roomId}:`, error);
-            return null;
-          }
-        });
+              const [, player1, player2] = roomStats as [bigint, string, string];
 
-        const roomResults = await Promise.all(roomPromises);
-        roomResults.forEach(result => {
-          if (result) {
-            allMatches.push(result);
-          }
-        });
+              // Resolve names
+              const [name1Res, name2Res] = await Promise.all([
+                fetch(`/api/resolve-name?address=${player1}`)
+                  .then(r => r.json())
+                  .catch(() => ({ name: null })),
+                fetch(`/api/resolve-name?address=${player2}`)
+                  .then(r => r.json())
+                  .catch(() => ({ name: null })),
+              ]);
+
+              return {
+                roomId: roomId as string,
+                chainId,
+                chainName,
+                player1: player1 as string,
+                player2: player2 as string,
+                player1Name: name1Res.name,
+                player2Name: name2Res.name,
+                txHash,
+                matches: (matchHistory as any[]).map(m => ({
+                  winner: m.winner,
+                  player1Move: m.player1Move,
+                  player2Move: m.player2Move,
+                  timestamp: Number(m.timestamp),
+                })),
+              };
+            } catch (error) {
+              console.error(`Error fetching room ${roomId}:`, error);
+              return null;
+            }
+          });
+
+          const batchResults = await Promise.all(batchPromises);
+          batchResults.forEach(result => {
+            if (result) {
+              allMatches.push(result);
+            }
+          });
+
+          setLoadingProgress({ current: i + batch.length, total: roomsForChain.length });
+
+          // Update UI with partial results
+          const sorted = [...allMatches].sort((a, b) => {
+            const aTime = Math.max(...a.matches.map(m => m.timestamp));
+            const bTime = Math.max(...b.matches.map(m => m.timestamp));
+            return bTime - aTime;
+          });
+          setMatches(sorted);
+          setFilteredMatches(sorted);
+        }
       } catch (error) {
         console.error(`Error fetching ${chainName} matches:`, error);
       }
     }
 
-    // Sort by latest match timestamp
-    allMatches.sort((a, b) => {
-      const aTime = Math.max(...a.matches.map(m => m.timestamp));
-      const bTime = Math.max(...b.matches.map(m => m.timestamp));
-      return bTime - aTime;
-    });
-
-    setMatches(allMatches);
-    setFilteredMatches(allMatches);
     setIsLoading(false);
   };
 
@@ -306,11 +321,16 @@ export default function OnChainMatchesPage() {
           </p>
         </div>
 
-        {isLoading ? (
+        {isLoading && matches.length === 0 ? (
           <div className="text-center py-12">
             <span className="loading loading-spinner loading-lg text-primary"></span>
             <p className="text-base-content/60 mt-4" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
               Loading on-chain matches...
+              {loadingProgress.total > 0 && (
+                <span className="block mt-2">
+                  {loadingProgress.current} / {loadingProgress.total}
+                </span>
+              )}
             </p>
           </div>
         ) : filteredMatches.length === 0 ? (
