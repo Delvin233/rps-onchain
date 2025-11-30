@@ -2,24 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { Ruler } from "lucide-react";
+import { useAuth } from "~~/contexts/AuthContext";
 import { getSpacingOptions, getSpacingScale, setSpacingScale } from "~~/styles/spacingThemes";
 
 export const SpacingScaleSelector = () => {
+  const { address } = useAuth();
   const [currentScale, setCurrentScale] = useState("");
   const scaleOptions = getSpacingOptions();
 
   useEffect(() => {
-    const scale = getSpacingScale();
-    const current = scaleOptions.find(opt => scale.name === opt.label);
-    if (current) {
-      setCurrentScale(current.value);
+    if (address) {
+      const scale = getSpacingScale(address);
+      const current = scaleOptions.find(opt => scale.name === opt.label);
+      if (current) {
+        setCurrentScale(current.value);
+      }
     }
-  }, [scaleOptions]);
+  }, [scaleOptions, address]);
 
   const handleScaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!address) return;
     const newScale = e.target.value;
     setCurrentScale(newScale);
-    setSpacingScale(newScale as any);
+    setSpacingScale(newScale as any, address);
   };
 
   return (

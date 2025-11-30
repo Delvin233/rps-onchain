@@ -2,24 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { Palette } from "lucide-react";
+import { useAuth } from "~~/contexts/AuthContext";
 import { getActiveColorTheme, getColorThemeOptions, setColorTheme } from "~~/styles/colorThemes";
 
 export const ColorThemeSelector = () => {
+  const { address } = useAuth();
   const [currentTheme, setCurrentTheme] = useState("");
   const themeOptions = getColorThemeOptions();
 
   useEffect(() => {
-    const theme = getActiveColorTheme();
-    const current = themeOptions.find(opt => theme.name === opt.label);
-    if (current) {
-      setCurrentTheme(current.value);
+    if (address) {
+      const theme = getActiveColorTheme(address);
+      const current = themeOptions.find(opt => theme.name === opt.label);
+      if (current) {
+        setCurrentTheme(current.value);
+      }
     }
-  }, [themeOptions]);
+  }, [themeOptions, address]);
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!address) return;
     const newTheme = e.target.value;
     setCurrentTheme(newTheme);
-    setColorTheme(newTheme as any);
+    setColorTheme(newTheme as any, address);
   };
 
   return (

@@ -177,29 +177,21 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
 // 🎨 DEFAULT THEME
 export const DEFAULT_COLOR_THEME: keyof typeof COLOR_THEMES = "delvin233";
 
-// Get current user address from localStorage (set by wallet connection)
-const getCurrentUserKey = (): string => {
-  if (typeof window === "undefined") return "";
-  // Try to get the connected address from various sources
-  const address = localStorage.getItem("currentUserAddress") || "default";
-  return address.toLowerCase();
-};
-
 // Get theme from localStorage or use default
-export const getActiveColorTheme = (): ColorTheme => {
+export const getActiveColorTheme = (address?: string | null): ColorTheme => {
   if (typeof window === "undefined") {
     return COLOR_THEMES[DEFAULT_COLOR_THEME];
   }
 
-  const userKey = getCurrentUserKey();
+  const userKey = address ? address.toLowerCase() : "default";
   const saved = localStorage.getItem(`colorTheme_${userKey}`) as keyof typeof COLOR_THEMES;
   return COLOR_THEMES[saved] || COLOR_THEMES[DEFAULT_COLOR_THEME];
 };
 
 // Save theme preference and apply immediately
-export const setColorTheme = (themeKey: keyof typeof COLOR_THEMES) => {
+export const setColorTheme = (themeKey: keyof typeof COLOR_THEMES, address?: string | null) => {
   if (typeof window !== "undefined") {
-    const userKey = getCurrentUserKey();
+    const userKey = address ? address.toLowerCase() : "default";
     localStorage.setItem(`colorTheme_${userKey}`, themeKey);
 
     // Apply CSS variables immediately

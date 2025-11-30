@@ -105,29 +105,21 @@ export const FONT_THEMES: Record<string, FontTheme> = {
 // 🎨 DEFAULT THEME
 export const DEFAULT_FONT_THEME: keyof typeof FONT_THEMES = "futuristic";
 
-// Get current user address from localStorage (set by wallet connection)
-const getCurrentUserKey = (): string => {
-  if (typeof window === "undefined") return "";
-  // Try to get the connected address from various sources
-  const address = localStorage.getItem("currentUserAddress") || "default";
-  return address.toLowerCase();
-};
-
 // Get theme from localStorage or use default
-export const getActiveTheme = (): FontTheme => {
+export const getActiveTheme = (address?: string | null): FontTheme => {
   if (typeof window === "undefined") {
     return FONT_THEMES[DEFAULT_FONT_THEME];
   }
 
-  const userKey = getCurrentUserKey();
+  const userKey = address ? address.toLowerCase() : "default";
   const saved = localStorage.getItem(`fontTheme_${userKey}`) as keyof typeof FONT_THEMES;
   return FONT_THEMES[saved] || FONT_THEMES[DEFAULT_FONT_THEME];
 };
 
 // Save theme preference and apply immediately
-export const setFontTheme = (themeKey: keyof typeof FONT_THEMES) => {
+export const setFontTheme = (themeKey: keyof typeof FONT_THEMES, address?: string | null) => {
   if (typeof window !== "undefined") {
-    const userKey = getCurrentUserKey();
+    const userKey = address ? address.toLowerCase() : "default";
     localStorage.setItem(`fontTheme_${userKey}`, themeKey);
 
     // Apply CSS variables immediately

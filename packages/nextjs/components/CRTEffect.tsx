@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "~~/contexts/AuthContext";
 
 export const CRTEffect = () => {
+  const { address } = useAuth();
   const [crtEnabled, setCrtEnabled] = useState(false);
 
   useEffect(() => {
     const checkCRT = () => {
-      const userKey = (localStorage.getItem("currentUserAddress") || "default").toLowerCase();
+      if (!address) {
+        setCrtEnabled(false);
+        return;
+      }
+      const userKey = address.toLowerCase();
       const enabled = localStorage.getItem(`crtEffect_${userKey}`) === "true";
       setCrtEnabled(enabled);
 
@@ -25,7 +31,7 @@ export const CRTEffect = () => {
       window.removeEventListener("storage", checkCRT);
       document.body.classList.remove("crt-active");
     };
-  }, []);
+  }, [address]);
 
   if (!crtEnabled) return null;
 

@@ -2,25 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { RiTvLine } from "react-icons/ri";
+import { useAuth } from "~~/contexts/AuthContext";
 
 export const CRTToggle = () => {
+  const { address } = useAuth();
   const [crtEnabled, setCrtEnabled] = useState(false);
 
-  const getUserKey = () => {
-    const address = localStorage.getItem("currentUserAddress") || "default";
-    return address.toLowerCase();
-  };
-
   useEffect(() => {
-    const userKey = getUserKey();
-    const saved = localStorage.getItem(`crtEffect_${userKey}`);
-    setCrtEnabled(saved === "true");
-  }, []);
+    if (address) {
+      const userKey = address.toLowerCase();
+      const saved = localStorage.getItem(`crtEffect_${userKey}`);
+      setCrtEnabled(saved === "true");
+    }
+  }, [address]);
 
   const toggleCRT = () => {
+    if (!address) return;
     const newValue = !crtEnabled;
     setCrtEnabled(newValue);
-    const userKey = getUserKey();
+    const userKey = address.toLowerCase();
     localStorage.setItem(`crtEffect_${userKey}`, String(newValue));
     window.dispatchEvent(new Event("storage"));
   };

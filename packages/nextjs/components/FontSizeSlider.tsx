@@ -2,27 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { RxFontSize } from "react-icons/rx";
+import { useAuth } from "~~/contexts/AuthContext";
 
 export const FontSizeSlider = () => {
+  const { address } = useAuth();
   const [fontSize, setFontSize] = useState(100);
 
-  const getUserKey = () => {
-    const address = localStorage.getItem("currentUserAddress") || "default";
-    return address.toLowerCase();
-  };
-
   useEffect(() => {
-    const userKey = getUserKey();
-    const saved = localStorage.getItem(`fontSizeOverride_${userKey}`);
-    if (saved) {
-      setFontSize(parseInt(saved));
+    if (address) {
+      const userKey = address.toLowerCase();
+      const saved = localStorage.getItem(`fontSizeOverride_${userKey}`);
+      if (saved) {
+        setFontSize(parseInt(saved));
+      }
     }
-  }, []);
+  }, [address]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!address) return;
     const value = parseInt(e.target.value);
     setFontSize(value);
-    const userKey = getUserKey();
+    const userKey = address.toLowerCase();
     localStorage.setItem(`fontSizeOverride_${userKey}`, value.toString());
 
     // Apply immediately
@@ -30,8 +30,9 @@ export const FontSizeSlider = () => {
   };
 
   const resetToDefault = () => {
+    if (!address) return;
     setFontSize(100);
-    const userKey = getUserKey();
+    const userKey = address.toLowerCase();
     localStorage.removeItem(`fontSizeOverride_${userKey}`);
     document.documentElement.style.setProperty("--font-size-override", "1");
   };
