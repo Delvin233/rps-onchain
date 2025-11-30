@@ -16,14 +16,18 @@ interface MiniAppAccountProps {
 }
 
 export function MiniAppAccount({ platform }: MiniAppAccountProps) {
-  const { address: authAddress } = useAuth();
+  const { address: authAddress, authMethod } = useAuth();
   const { address: wagmiAddress, chain, isConnecting } = useAccount();
   // Use auth address (which includes Farcaster) or fall back to wagmi address
   const address = authAddress || wagmiAddress;
+
+  // Default to Celo for Farcaster users (no wallet connection)
+  const activeChain = chain || (authMethod === "farcaster" ? celo : undefined);
   const cUSD_ADDRESS = "0x765DE816845861e75A25fCA122bb6898B8B1282a" as `0x${string}`;
   const { data: balance, isLoading: balanceLoading } = useBalance({
     address: address as `0x${string}` | undefined,
     token: platform === "minipay" ? cUSD_ADDRESS : undefined,
+    chainId: activeChain?.id, // Explicitly specify chain for Farcaster users
   });
   const { data: ensName } = useEnsName({ address: address as `0x${string}` | undefined });
   const { switchChain, isPending: switchPending } = useSwitchChain();
@@ -283,7 +287,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                 disabled={switchPending}
               >
                 {switchPending ? <span className="loading loading-spinner loading-xs"></span> : <Network size={14} />}
-                <span className="whitespace-nowrap">{chain?.name}</span>
+                <span className="whitespace-nowrap">{activeChain?.name}</span>
                 <ChevronDown size={10} />
               </button>
 
@@ -295,30 +299,30 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                   <button
                     onClick={() => handleNetworkSwitch(celo.id)}
                     className={`w-full text-left hover:bg-base-200 first:rounded-t-lg ${
-                      chain?.id === celo.id ? "bg-primary/10 text-primary" : ""
+                      activeChain?.id === celo.id ? "bg-primary/10 text-primary" : ""
                     }`}
                     style={{
                       padding: "var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)",
                       fontFamily: "var(--font-body)",
                       fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                     }}
-                    disabled={chain?.id === celo.id}
+                    disabled={activeChain?.id === celo.id}
                   >
-                    Celo {chain?.id === celo.id && "✓"}
+                    Celo {activeChain?.id === celo.id && "✓"}
                   </button>
                   <button
                     onClick={() => handleNetworkSwitch(base.id)}
                     className={`w-full text-left hover:bg-base-200 last:rounded-b-lg ${
-                      chain?.id === base.id ? "bg-primary/10 text-primary" : ""
+                      activeChain?.id === base.id ? "bg-primary/10 text-primary" : ""
                     }`}
                     style={{
                       padding: "var(--inner-gap, 0.5rem) var(--inner-gap, 0.75rem)",
                       fontFamily: "var(--font-body)",
                       fontSize: "calc(0.75rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                     }}
-                    disabled={chain?.id === base.id}
+                    disabled={activeChain?.id === base.id}
                   >
-                    Base {chain?.id === base.id && "✓"}
+                    Base {activeChain?.id === base.id && "✓"}
                   </button>
                 </div>
               )}
@@ -359,7 +363,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
             }}
           >
-            {chain?.name?.toUpperCase() || (balance?.symbol === "cUSD" ? "CELO" : "UNKNOWN")}
+            {activeChain?.name?.toUpperCase() || "CELO"}
           </span>
           {platform === "minipay" && (
             <span
