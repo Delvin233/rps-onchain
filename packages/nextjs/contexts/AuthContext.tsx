@@ -71,8 +71,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isFarcasterConnected = !!farcasterUser;
 
   // Use Farcaster address if user exists, otherwise use wallet address
+  // Only use farcaster address if it's actually available to prevent undefined flashing
   const farcasterAddress = (farcasterContext as any)?.connectedAddress;
-  const address = farcasterUser ? farcasterAddress : walletAddress;
+  const address = farcasterUser && farcasterAddress ? farcasterAddress : walletAddress;
 
   // Check verification status
   useEffect(() => {
@@ -90,23 +91,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [address, mounted]);
 
   // Set current user address globally for theme components and clear caches on address change
+  // Use a ref to track the last stable address to prevent rapid switching
+  const [stableAddress, setStableAddress] = useState<string | null>(null);
+
   useEffect(() => {
     if (mounted && typeof window !== "undefined") {
-      const previousAddress = (window as any).__currentUserAddress;
+      // Only update if we have a real address and it's different from the stable one
+      if (address && address !== stableAddress) {
+        const previousAddress = (window as any).__currentUserAddress;
 
-      // If address changed, clear any cached data
-      if (previousAddress && previousAddress !== address) {
-        console.log(`[AuthContext] Address changed from ${previousAddress} to ${address}, clearing caches`);
+        // Only clear cache if address actually changed and both are defined
+        // This prevents clearing on initial undefined -> address transition
+        if (previousAddress && previousAddress !== address && previousAddress !== "undefined") {
+          console.log(`[AuthContext] Address changed from ${previousAddress} to ${address}, clearing caches`);
 
-        // Clear React Query cache for the old address
-        if ((window as any).__queryClient) {
-          (window as any).__queryClient.invalidateQueries();
+          // Clear React Query cache for the old address
+          if ((window as any).__queryClient) {
+            (window as any).__queryClient.invalidateQueries();
+          }
         }
-      }
 
-      (window as any).__currentUserAddress = address;
+        (window as any).__currentUserAddress = address;
+        setStableAddress(address);
+      }
     }
-  }, [mounted, address]);
+  }, [mounted, address, stableAddress]);
 
   // Debug logging
   useEffect(() => {

@@ -33,37 +33,18 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         console.log("[Farcaster] Full SDK context:", ctx);
         console.log("[Farcaster] Client object:", (ctx as any).client);
 
-        // Set basic user data immediately from SDK
+        // Fetch user's verified addresses from Neynar first
         if (ctx.user) {
-          setEnrichedUser({
-            fid: ctx.user.fid,
-            username: ctx.user.username || `fid-${ctx.user.fid}`,
-            displayName: ctx.user.displayName || ctx.user.username || `User ${ctx.user.fid}`,
-            pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
-          });
-        }
-
-        // Set initial context without address
-        setContext(ctx as any);
-
-        // Fetch user's verified addresses from Neynar (async, don't block)
-        if (ctx.user) {
-          // Fetch enriched data in background
-          fetch(`/api/farcaster/user?fid=${ctx.user.fid}`)
-            .then(response => {
-              if (response.ok) {
-                return response.json();
-              }
-              throw new Error("Failed to fetch user data");
-            })
-            .then(userData => {
+          try {
+            const response = await fetch(`/api/farcaster/user?fid=${ctx.user.fid}`);
+            if (response.ok) {
+              const userData = await response.json();
               // Prioritize verified addresses over custody address
-              // Verified addresses are the wallets the user has connected
               const connectedAddress = userData.verifications?.[0] || userData.custody_address || null;
               console.log("[Farcaster] User data:", userData);
               console.log("[Farcaster] Fetched wallet address:", connectedAddress);
 
-              // Update with enriched data
+              // Set everything at once to prevent multiple re-renders
               setEnrichedUser({
                 fid: ctx.user.fid,
                 username: userData.username || ctx.user.username || `fid-${ctx.user.fid}`,
@@ -72,17 +53,28 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
                 pfpUrl: userData.pfp_url || ctx.user.pfpUrl || "/placeholder-avatar.png",
               });
 
-              // Update context with address
+              // Set context with address in one go
               const contextWithAddress = {
                 ...ctx,
                 connectedAddress,
               };
               setContext(contextWithAddress as any);
-            })
-            .catch(error => {
-              console.error("Failed to fetch user data:", error);
-              // Keep the basic SDK data we already set
+            } else {
+              throw new Error("Failed to fetch user data");
+            }
+          } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            // Fallback to basic SDK data
+            setEnrichedUser({
+              fid: ctx.user.fid,
+              username: ctx.user.username || `fid-${ctx.user.fid}`,
+              displayName: ctx.user.displayName || ctx.user.username || `User ${ctx.user.fid}`,
+              pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
             });
+            setContext(ctx as any);
+          }
+        } else {
+          setContext(ctx as any);
         }
       }
       await sdk.actions.ready();
