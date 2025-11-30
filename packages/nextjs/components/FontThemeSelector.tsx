@@ -2,28 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { ImFont } from "react-icons/im";
-import { useAuth } from "~~/contexts/AuthContext";
 import { getActiveTheme, getThemeOptions, setFontTheme } from "~~/styles/fontThemes";
 
 export const FontThemeSelector = () => {
-  const { address } = useAuth();
   const [currentTheme, setCurrentTheme] = useState("");
   const themeOptions = getThemeOptions();
 
   useEffect(() => {
-    if (address) {
-      const theme = getActiveTheme(address);
-      const current = themeOptions.find(opt => theme.name === opt.label);
-      if (current) {
-        setCurrentTheme(current.value);
-      }
+    const address = typeof window !== "undefined" ? (window as any).__currentUserAddress : null;
+    const theme = getActiveTheme(address);
+    const current = themeOptions.find(opt => theme.name === opt.label);
+    if (current) {
+      setCurrentTheme(current.value);
     }
-  }, [themeOptions, address]);
+  }, [themeOptions]);
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (!address) return;
     const newTheme = e.target.value;
     setCurrentTheme(newTheme);
+    const address = typeof window !== "undefined" ? (window as any).__currentUserAddress : null;
     setFontTheme(newTheme as any, address);
   };
 

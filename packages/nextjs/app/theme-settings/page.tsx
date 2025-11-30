@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Palette, Save } from "lucide-react";
 import toast from "react-hot-toast";
@@ -16,26 +16,88 @@ export default function ThemeSettingsPage() {
   const { address } = useAccount();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Auto-load preferences from cloud if local storage is empty
+  useEffect(() => {
+    if (!address) return;
+
+    const userKey = address.toLowerCase();
+    const hasLocalPrefs = localStorage.getItem(`colorTheme_${userKey}`);
+
+    // Only auto-load if user has no local preferences
+    if (!hasLocalPrefs) {
+      fetch(`/api/user-preferences?address=${address}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.preferences) {
+            const { colorTheme, fontTheme, spacingScale, fontSizeOverride, crtEffect } = data.preferences;
+            localStorage.setItem(`colorTheme_${userKey}`, colorTheme);
+            localStorage.setItem(`fontTheme_${userKey}`, fontTheme);
+            localStorage.setItem(`spacingScale_${userKey}`, spacingScale);
+            localStorage.setItem(`fontSizeOverride_${userKey}`, fontSizeOverride.toString());
+            localStorage.setItem(`crtEffect_${userKey}`, crtEffect.toString());
+            toast.success("Loaded your saved preferences from cloud");
+            setTimeout(() => window.location.reload(), 1000);
+          }
+        })
+        .catch(err => console.error("Failed to auto-load preferences:", err));
+    }
+  }, [address]);
+
+  const handleLoadPreferences = async () => {
+    if (!address) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/user-preferences?address=${address}`);
+      const data = await response.json();
+
+      if (data.preferences) {
+        const userKey = address.toLowerCase();
+        const { colorTheme, fontTheme, spacingScale, fontSizeOverride, crtEffect } = data.preferences;
+
+        // Apply preferences to localStorage
+        localStorage.setItem(`colorTheme_${userKey}`, colorTheme);
+        localStorage.setItem(`fontTheme_${userKey}`, fontTheme);
+        localStorage.setItem(`spacingScale_${userKey}`, spacingScale);
+        localStorage.setItem(`fontSizeOverride_${userKey}`, fontSizeOverride.toString());
+        localStorage.setItem(`crtEffect_${userKey}`, crtEffect.toString());
+
+        toast.success("Preferences loaded from cloud! Reloading...");
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        toast.error("No saved preferences found in cloud");
+      }
+    } catch (error) {
+      console.error("Failed to load preferences:", error);
+      toast.error("Failed to load preferences");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSavePreferences = async () => {
     if (!address) return;
 
     setSaving(true);
     try {
-      const colorTheme = localStorage.getItem("colorTheme") || "delvin233";
-      const fontTheme = localStorage.getItem("fontTheme") || "futuristic";
-      const spacingScale = localStorage.getItem("spacingScale") || "comfortable";
-      const fontSizeOverride = parseInt(localStorage.getItem("fontSizeOverride") || "100");
+      const userKey = address.toLowerCase();
+      const colorTheme = localStorage.getItem(`colorTheme_${userKey}`) || "delvin233";
+      const fontTheme = localStorage.getItem(`fontTheme_${userKey}`) || "futuristic";
+      const spacingScale = localStorage.getItem(`spacingScale_${userKey}`) || "comfortable";
+      const fontSizeOverride = parseInt(localStorage.getItem(`fontSizeOverride_${userKey}`) || "100");
+      const crtEffect = localStorage.getItem(`crtEffect_${userKey}`) === "true";
 
       await fetch("/api/user-preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, colorTheme, fontTheme, spacingScale, fontSizeOverride }),
+        body: JSON.stringify({ address, colorTheme, fontTheme, spacingScale, fontSizeOverride, crtEffect }),
       });
 
       setSaved(true);
-      toast.success("Preferences saved! Reloading...");
-      setTimeout(() => window.location.reload(), 1000);
+      toast.success("Preferences saved to cloud!");
+      setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error("Failed to save preferences:", error);
       toast.error("Failed to save preferences");
@@ -82,19 +144,24 @@ export default function ThemeSettingsPage() {
         </div>
 
         {address && (
-          <button onClick={handleSavePreferences} disabled={saving || saved} className="btn btn-primary w-full mb-4">
-            {saved ? (
-              <>
-                <Check size={20} />
-                Saved to Cloud!
-              </>
-            ) : (
-              <>
-                <Save size={20} />
-                {saving ? "Saving..." : "Save Preferences to Cloud"}
-              </>
-            )}
-          </button>
+          <>
+            <button onClick={handleSavePreferences} disabled={saving || saved} className="btn btn-primary w-full mb-4">
+              {saved ? (
+                <>
+                  <Check size={20} />
+                  Saved to Cloud!
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  {saving ? "Saving..." : "Save Preferences to Cloud"}
+                </>
+              )}
+            </button>
+            <button onClick={handleLoadPreferences} disabled={loading} className="btn btn-outline btn-sm w-full mb-4">
+              {loading ? "Loading..." : "🔄 Restore from Cloud (Overwrite Local)"}
+            </button>
+          </>
         )}
 
         {!address && (

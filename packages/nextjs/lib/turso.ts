@@ -29,6 +29,7 @@ export async function initUserPreferencesTable() {
       font_theme TEXT DEFAULT 'futuristic',
       spacing_scale TEXT DEFAULT 'comfortable',
       font_size_override INTEGER DEFAULT 100,
+      crt_effect INTEGER DEFAULT 0,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -51,6 +52,11 @@ export async function initUserPreferencesTable() {
   }
   try {
     await turso.execute(`ALTER TABLE user_preferences ADD COLUMN font_size_override INTEGER DEFAULT 100`);
+  } catch {
+    // Column already exists, ignore
+  }
+  try {
+    await turso.execute(`ALTER TABLE user_preferences ADD COLUMN crt_effect INTEGER DEFAULT 0`);
   } catch {
     // Column already exists, ignore
   }

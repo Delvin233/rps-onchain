@@ -88,6 +88,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [walletAddress, farcasterContext, mounted]);
 
+  // Set current user address globally for theme components
+  useEffect(() => {
+    if (mounted && typeof window !== "undefined") {
+      (window as any).__currentUserAddress = address;
+    }
+  }, [mounted, address]);
+
   // Debug logging
   useEffect(() => {
     if (mounted) {
