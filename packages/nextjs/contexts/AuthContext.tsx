@@ -66,9 +66,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   // Compute values before any conditional returns
-  const address = walletAddress || (farcasterContext as any)?.connectedAddress || null;
-  const authMethod: AuthMethod = walletConnected ? "wallet" : farcasterUser ? "farcaster" : null;
-  const isAuthenticated = walletConnected || !!farcasterUser;
+  // Prioritize Farcaster auth when in Farcaster context
+  const address = (farcasterContext as any)?.connectedAddress || walletAddress || null;
+  const authMethod: AuthMethod = farcasterUser ? "farcaster" : walletConnected ? "wallet" : null;
+  const isAuthenticated = !!farcasterUser || walletConnected;
   const isFarcasterConnected = !!farcasterUser;
 
   // Check verification status
