@@ -31,22 +31,19 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
       const ctx = await sdk.context;
       if (ctx) {
         console.log("[Farcaster] Full SDK context:", ctx);
-        console.log("[Farcaster] Context keys:", Object.keys(ctx));
+        console.log("[Farcaster] Client object:", (ctx as any).client);
 
-        // Add connectedAddress to context if available
-        const contextWithAddress = {
-          ...ctx,
-          connectedAddress: (ctx as any).client?.primaryAddress || (ctx as any).wallet?.address || null,
-        };
-        console.log("[Farcaster] Connected address:", contextWithAddress.connectedAddress);
-        setContext(contextWithAddress as any);
-
-        // Always fetch from API to ensure we have username
+        // Fetch user's verified addresses from Neynar
+        let connectedAddress = null;
         if (ctx.user) {
           try {
             const response = await fetch(`/api/farcaster/user?fid=${ctx.user.fid}`);
             if (response.ok) {
               const userData = await response.json();
+              // Get custody address or first verified address
+              connectedAddress = userData.custody_address || userData.verifications?.[0] || null;
+              console.log("[Farcaster] Fetched wallet address:", connectedAddress);
+
               setEnrichedUser({
                 fid: ctx.user.fid,
                 username: userData.username || ctx.user.username || `fid-${ctx.user.fid}`,
@@ -74,6 +71,13 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
             });
           }
         }
+
+        // Add connectedAddress to context
+        const contextWithAddress = {
+          ...ctx,
+          connectedAddress,
+        };
+        setContext(contextWithAddress as any);
       }
       await sdk.actions.ready();
     } catch (err) {
