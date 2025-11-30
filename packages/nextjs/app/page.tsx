@@ -55,21 +55,23 @@ export default function Home() {
     });
   }, [address, authMethod, isAuthenticated, isMiniApp, isMiniAppReady, isLoading, stats.isLoading]);
 
-  // Auto-connect for MiniPay only
-  // Farcaster/Base apps use their SDK context address automatically via AuthContext
+  // Auto-connect for Base app and MiniPay
+  // Farcaster users are already authenticated via AuthContext
   useEffect(() => {
     if (address) return;
 
-    // Only auto-connect wallet for MiniPay
-    // Farcaster users are already authenticated via AuthContext
-    if (isMiniPay && typeof window !== "undefined" && window.ethereum && authMethod !== "farcaster") {
+    // Auto-connect wallet for Base app and MiniPay (not Farcaster)
+    if ((isBaseApp || isMiniPay) && typeof window !== "undefined" && window.ethereum && authMethod !== "farcaster") {
+      console.log("[HomePage] Auto-connecting for", isBaseApp ? "Base app" : "MiniPay");
       (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
           connect({ connector: injected() });
         })
-        .catch(console.error);
+        .catch((error: Error) => {
+          console.error("[HomePage] Auto-connect failed:", error);
+        });
     }
-  }, [isMiniPay, address, connect, authMethod]);
+  }, [isBaseApp, isMiniPay, address, connect, authMethod]);
 
   // Enforce network restrictions for miniapps
   useEffect(() => {
