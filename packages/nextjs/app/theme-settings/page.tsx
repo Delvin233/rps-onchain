@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Palette, Save } from "lucide-react";
 import toast from "react-hot-toast";
+import { MdSettingsBackupRestore } from "react-icons/md";
 import { useAccount } from "wagmi";
 import { CRTToggle } from "~~/components/CRTToggle";
 import { ColorThemeSelector } from "~~/components/ColorThemeSelector";
@@ -158,8 +159,19 @@ export default function ThemeSettingsPage() {
                 </>
               )}
             </button>
-            <button onClick={handleLoadPreferences} disabled={loading} className="btn btn-outline btn-sm w-full mb-4">
-              {loading ? "Loading..." : "🔄 Restore from Cloud (Overwrite Local)"}
+            <button
+              onClick={handleLoadPreferences}
+              disabled={loading}
+              className="btn btn-outline btn-sm w-full mb-4 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                "Loading..."
+              ) : (
+                <>
+                  <MdSettingsBackupRestore size={18} />
+                  Restore from Cloud (Overwrite Local)
+                </>
+              )}
             </button>
           </>
         )}
