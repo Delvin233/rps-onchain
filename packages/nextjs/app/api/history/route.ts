@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { get } from "@vercel/edge-config";
+import { getMatchHistory } from "~~/lib/tursoStorage";
 import { redis } from "~~/lib/upstash";
 
 export async function GET(request: NextRequest) {
@@ -16,6 +17,32 @@ export async function GET(request: NextRequest) {
     // Fetch from Redis (fast, last 100 matches)
     const redisMatches = await redis.lrange(`history:${addressLower}`, 0, 99);
     const parsedRedisMatches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+
+    // Fetch from Turso (persistent database)
+    let tursoMatches: any[] = [];
+    try {
+      const tursoRows = await getMatchHistory(addressLower, 200);
+      tursoMatches = tursoRows.map((row: any) => ({
+        roomId: row.room_id,
+        players: {
+          creator: row.player1,
+          joiner: row.player2,
+        },
+        moves: {
+          creatorMove: row.player1_move,
+          joinerMove: row.player2_move,
+        },
+        result: {
+          winner: row.winner || "tie",
+          timestamp: row.timestamp_ms,
+        },
+        timestamp: row.timestamp_ms,
+        ipfsHash: row.ipfs_hash,
+        opponent: row.player2 === addressLower ? row.player1 : row.player2,
+      }));
+    } catch (error) {
+      console.error("Error fetching from Turso:", error);
+    }
 
     // Fetch IPFS hash from Edge Config
     const ipfsHash = (await get(`matches_${addressLower}`)) as string | null;
@@ -37,7 +64,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Merge and deduplicate
-    const allMatches = [...parsedRedisMatches, ...ipfsMatches];
+    const allMatches = [...parsedRedisMatches, ...tursoMatches, ...ipfsMatches];
     const uniqueMatches = Array.from(
       new Map(
         allMatches.map(m => {
