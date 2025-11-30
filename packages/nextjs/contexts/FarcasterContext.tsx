@@ -96,16 +96,25 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
 
   // Auto-connect Farcaster wallet when in miniapp and not already connected
   useEffect(() => {
+    console.log("[Farcaster] Auto-connect check:", {
+      isMiniAppReady,
+      hasUser: !!context?.user,
+      isConnected,
+      availableConnectors: connectors.map(c => ({ id: c.id, name: c.name })),
+    });
+
     if (isMiniAppReady && context?.user && !isConnected) {
-      const farcasterConnector = connectors.find(c => c.id === "farcasterMiniApp");
+      const farcasterConnector = connectors.find(
+        c => c.id === "farcasterMiniApp" || c.name?.toLowerCase().includes("farcaster"),
+      );
 
       if (farcasterConnector) {
-        console.log("[Farcaster] Auto-connecting Farcaster wallet connector");
+        console.log("[Farcaster] Auto-connecting Farcaster wallet connector:", farcasterConnector.id);
         connect({ connector: farcasterConnector });
       } else {
         console.warn(
-          "[Farcaster] Farcaster connector not found in available connectors:",
-          connectors.map(c => c.id),
+          "[Farcaster] Farcaster connector not found. Available connectors:",
+          connectors.map(c => ({ id: c.id, name: c.name })),
         );
       }
     }
