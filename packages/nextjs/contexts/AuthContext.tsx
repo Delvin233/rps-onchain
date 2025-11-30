@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useFarcaster } from "./FarcasterContext";
 import sdk from "@farcaster/miniapp-sdk";
 import { useAccount } from "wagmi";
 
@@ -40,10 +41,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
 
-  // Farcaster state
-  const [isFarcasterReady, setIsFarcasterReady] = useState(false);
-  const [farcasterContext, setFarcasterContext] = useState<any>(null);
-  const [farcasterUser, setFarcasterUser] = useState<FarcasterUser | null>(null);
+  // Use FarcasterContext instead of duplicating SDK initialization
+  const { context: farcasterContext, enrichedUser, isMiniAppReady } = useFarcaster();
+
+  // Map enriched user to farcaster user format - wrapped in useMemo to prevent recreating on every render
+  const farcasterUser: FarcasterUser | null = useMemo(
+    () =>
+      enrichedUser
+        ? {
+            fid: enrichedUser.fid,
+            username: enrichedUser.username,
+            displayName: enrichedUser.displayName,
+            pfpUrl: enrichedUser.pfpUrl,
+          }
+        : null,
+    [enrichedUser],
+  );
 
   // Verification state
   const [isHumanVerified, setIsHumanVerified] = useState(false);
@@ -52,39 +65,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize Farcaster SDK
-  useEffect(() => {
-    const initFarcaster = async () => {
-      try {
-        const context = await sdk.context;
-        if (context) {
-          // Add connectedAddress to context
-          const contextWithAddress = {
-            ...context,
-            connectedAddress: (context as any).client?.primaryAddress || (context as any).wallet?.address || null,
-          };
-          setFarcasterContext(contextWithAddress);
-          setFarcasterUser({
-            fid: context.user.fid,
-            username: context.user.username,
-            displayName: context.user.displayName,
-            pfpUrl: context.user.pfpUrl,
-          });
-        }
-        await sdk.actions.ready();
-        setIsFarcasterReady(true);
-      } catch (err) {
-        console.error("Farcaster SDK init error:", err);
-        setIsFarcasterReady(false);
-      }
-    };
-    initFarcaster();
-  }, []);
+  // Compute values before any conditional returns
+  const address = walletAddress || (farcasterContext as any)?.connectedAddress || null;
+  const authMethod: AuthMethod = walletConnected ? "wallet" : farcasterUser ? "farcaster" : null;
+  const isAuthenticated = walletConnected || !!farcasterUser;
+  const isFarcasterConnected = !!farcasterUser;
 
   // Check verification status
   useEffect(() => {
     setMounted(true);
-    const checkAddress = walletAddress || farcasterContext?.connectedAddress;
+  }, []);
+
+  useEffect(() => {
+    const checkAddress = walletAddress || (farcasterContext as any)?.connectedAddress;
 
     if (checkAddress && mounted) {
       fetch(`/api/check-verification?address=${checkAddress}`)
@@ -93,6 +86,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .catch(() => setIsHumanVerified(false));
     }
   }, [walletAddress, farcasterContext, mounted]);
+
+  // Debug logging
+  useEffect(() => {
+    if (farcasterUser) {
+      console.log("[AuthContext] Farcaster user detected:", farcasterUser);
+      console.log("[AuthContext] Address:", address);
+      console.log("[AuthContext] Auth method:", authMethod);
+    }
+  }, [farcasterUser, address, authMethod]);
 
   const connectFarcaster = async () => {
     try {
@@ -133,40 +135,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Handled in profile page with Self Protocol
   };
 
-  if (!mounted) {
-    return (
-      <AuthContext.Provider
-        value={{
-          isAuthenticated: false,
-          address: null,
-          authMethod: null,
-          isFarcasterReady: false,
-          farcasterUser: null,
-          isFarcasterConnected: false,
-          connectFarcaster: async () => {},
-          isHumanVerified: false,
-          verifySelf: async () => {},
-          isLoading: false,
-          error: null,
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
-  const address = walletAddress || farcasterContext?.connectedAddress || null;
-  const authMethod: AuthMethod = walletConnected ? "wallet" : farcasterUser ? "farcaster" : null;
-  const isAuthenticated = walletConnected || !!farcasterUser;
-  const isFarcasterConnected = !!farcasterUser;
-
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
         address,
         authMethod,
-        isFarcasterReady,
+        isFarcasterReady: isMiniAppReady,
         farcasterUser,
         isFarcasterConnected,
         connectFarcaster,
