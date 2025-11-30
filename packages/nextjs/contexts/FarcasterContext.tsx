@@ -26,10 +26,19 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<Context.MiniAppContext | null>(null);
   const [enrichedUser, setEnrichedUser] = useState<EnrichedUser | null>(null);
   const [isMiniAppReady, setIsMiniAppReady] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const { connect, connectors } = useConnect();
   const { isConnected } = useAccount();
 
   const setMiniAppReady = useCallback(async () => {
+    // Prevent multiple initializations
+    if (isInitialized) {
+      console.log("[Farcaster] Already initialized, skipping");
+      return;
+    }
+
+    setIsInitialized(true);
+
     try {
       const ctx = await sdk.context;
       if (ctx) {
@@ -86,13 +95,14 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsMiniAppReady(true);
     }
-  }, []);
+  }, [isInitialized]);
 
   useEffect(() => {
     if (!isMiniAppReady) {
       setMiniAppReady();
     }
-  }, [isMiniAppReady, setMiniAppReady]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMiniAppReady]);
 
   // Auto-connect Farcaster wallet when in miniapp and not already connected
   useEffect(() => {
