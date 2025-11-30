@@ -68,18 +68,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Track if we're still initializing Farcaster context
+  const isInitializing = useMemo(
+    () => !mounted || (isMiniAppReady && !!farcasterContext && !farcasterUser),
+    [mounted, isMiniAppReady, farcasterContext, farcasterUser],
+  );
+
   // Priority: Farcaster user takes precedence (for miniapp), then wallet
   // Only use Farcaster if we have both user AND address to prevent flashing
-  const hasFarcasterAuth = !!farcasterUser && !!farcasterAddress;
+  // Memoize to prevent recalculation on every render
+  const hasFarcasterAuth = useMemo(() => !!farcasterUser && !!farcasterAddress, [farcasterUser, farcasterAddress]);
 
   // When in Farcaster context, ignore wallet connections to prevent conflicts
   // This prevents MetaMask from interfering when using Farcaster auth
-  const authMethod: AuthMethod = hasFarcasterAuth ? "farcaster" : walletConnected ? "wallet" : null;
-  const isAuthenticated = hasFarcasterAuth || walletConnected;
+  const authMethod: AuthMethod = useMemo(
+    () => (hasFarcasterAuth ? "farcaster" : walletConnected ? "wallet" : null),
+    [hasFarcasterAuth, walletConnected],
+  );
+
+  const isAuthenticated = useMemo(() => hasFarcasterAuth || walletConnected, [hasFarcasterAuth, walletConnected]);
+
   const isFarcasterConnected = hasFarcasterAuth;
 
   // Use Farcaster address if fully authenticated, otherwise use wallet address
-  const address = hasFarcasterAuth ? farcasterAddress : walletAddress;
+  const address = useMemo(
+    () => (hasFarcasterAuth ? farcasterAddress : walletAddress),
+    [hasFarcasterAuth, farcasterAddress, walletAddress],
+  );
 
   // Check verification status
   useEffect(() => {
@@ -191,7 +206,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         connectFarcaster,
         isHumanVerified,
         verifySelf,
-        isLoading,
+        isLoading: isLoading || isInitializing,
         error,
       }}
     >
