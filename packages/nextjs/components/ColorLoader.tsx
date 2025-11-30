@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "~~/contexts/AuthContext";
 import { getActiveColorTheme } from "~~/styles/colorThemes";
 
 export const ColorLoader = () => {
+  const { address } = useAuth();
+
   useEffect(() => {
-    const colorTheme = getActiveColorTheme();
+    const colorTheme = getActiveColorTheme(address);
     const root = document.documentElement;
 
     // Set CSS variables directly
@@ -82,7 +85,7 @@ export const ColorLoader = () => {
       `;
       document.head.appendChild(style);
     }
-  }, []);
+  }, [address]);
 
   return null;
 };

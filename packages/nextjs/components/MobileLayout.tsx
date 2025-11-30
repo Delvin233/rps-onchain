@@ -1,69 +1,65 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { BottomNavigation } from "./BottomNavigation";
 import { OverlayContainer } from "./overlays/OverlayManager";
 import { useAccount } from "wagmi";
 import HistoryPage from "~~/app/history/page";
 
-const mainRoutes = ["/", "/play", "/history", "/profile"];
-
 export const MobileLayout = ({ children }: { children: ReactNode }) => {
-  const router = useRouter();
   const pathname = usePathname();
   const { isConnected } = useAccount();
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isInGameArea = pathname?.startsWith("/game/");
   const shouldHideNav = isInGameArea && isConnected;
 
-  useEffect(() => {
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartX.current = e.touches[0].clientX;
-    };
+  // Swipe navigation disabled - will be re-enabled later
+  // useEffect(() => {
+  //   const handleTouchStart = (e: TouchEvent) => {
+  //     touchStartX.current = e.touches[0].clientX;
+  //   };
 
-    const handleTouchEnd = (e: TouchEvent) => {
-      touchEndX.current = e.changedTouches[0].clientX;
-      handleSwipe();
-    };
+  //   const handleTouchEnd = (e: TouchEvent) => {
+  //     touchEndX.current = e.changedTouches[0].clientX;
+  //     handleSwipe();
+  //   };
 
-    const handleSwipe = () => {
-      const swipeDistance = touchStartX.current - touchEndX.current;
-      const minSwipeDistance = 80;
+  //   const handleSwipe = () => {
+  //     const swipeDistance = touchStartX.current - touchEndX.current;
+  //     const minSwipeDistance = 80;
 
-      if (Math.abs(swipeDistance) < minSwipeDistance) return;
+  //     if (Math.abs(swipeDistance) < minSwipeDistance) return;
 
-      // Block all swipes in game area
-      if (isInGameArea) {
-        return;
-      }
+  //     // Block all swipes in game area
+  //     if (isInGameArea) {
+  //       return;
+  //     }
 
-      const currentIndex = mainRoutes.indexOf(pathname);
-      if (currentIndex === -1) return;
+  //     const currentIndex = mainRoutes.indexOf(pathname);
+  //     if (currentIndex === -1) return;
 
-      if (swipeDistance > 0 && currentIndex < mainRoutes.length - 1) {
-        router.push(mainRoutes[currentIndex + 1]);
-      } else if (swipeDistance < 0 && currentIndex > 0) {
-        router.push(mainRoutes[currentIndex - 1]);
-      }
-    };
+  //     if (swipeDistance > 0 && currentIndex < mainRoutes.length - 1) {
+  //       router.push(mainRoutes[currentIndex + 1]);
+  //     } else if (swipeDistance < 0 && currentIndex > 0) {
+  //       router.push(mainRoutes[currentIndex - 1]);
+  //     }
+  //   };
 
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("touchstart", handleTouchStart);
-      container.addEventListener("touchend", handleTouchEnd);
-    }
+  //   const container = containerRef.current;
+  //   if (container) {
+  //     container.addEventListener("touchstart", handleTouchStart);
+  //     container.addEventListener("touchend", handleTouchEnd);
+  //   }
 
-    return () => {
-      if (container) {
-        container.removeEventListener("touchstart", handleTouchStart);
-        container.removeEventListener("touchend", handleTouchEnd);
-      }
-    };
-  }, [pathname, router, isInGameArea]);
+  //   return () => {
+  //     if (container) {
+  //       container.removeEventListener("touchstart", handleTouchStart);
+  //       container.removeEventListener("touchend", handleTouchEnd);
+  //     }
+  //   };
+  // }, [pathname, router, isInGameArea]);
 
   return (
     <>

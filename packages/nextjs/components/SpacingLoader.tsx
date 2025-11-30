@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "~~/contexts/AuthContext";
 import { getSpacingScale } from "~~/styles/spacingThemes";
 
 export const SpacingLoader = () => {
+  const { address } = useAuth();
+
   useEffect(() => {
-    const spacing = getSpacingScale();
+    const spacing = getSpacingScale(address);
 
     const spacingMap: Record<string, string> = {
       "p-3": "0.75rem",
@@ -46,7 +49,7 @@ export const SpacingLoader = () => {
         // Element already removed
       }
     };
-  }, []);
+  }, [address]);
 
   return null;
 };

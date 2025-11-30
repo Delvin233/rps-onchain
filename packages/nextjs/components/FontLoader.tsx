@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "~~/contexts/AuthContext";
 import { getActiveTheme } from "~~/styles/fontThemes";
 
 export const FontLoader = () => {
+  const { address } = useAuth();
+
   useEffect(() => {
-    const fontTheme = getActiveTheme();
+    const fontTheme = getActiveTheme(address);
     const root = document.documentElement;
     const sizeMultiplier = fontTheme.fontSizeMultiplier || 1;
 
@@ -43,7 +46,7 @@ export const FontLoader = () => {
       `;
       document.head.appendChild(style);
     }
-  }, []);
+  }, [address]);
 
   return null;
 };
