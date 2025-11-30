@@ -4,11 +4,14 @@ import { useMemo, useState } from "react";
 import { ClaimSDK, IdentitySDK } from "@goodsdks/citizen-sdk";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 
-export const useGoodDollarClaim = () => {
-  const { address } = useAccount();
+export const useGoodDollarClaim = (claimAddress?: string) => {
+  const { address: walletAddress } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Use provided address (e.g., Farcaster address) or fall back to wallet address
+  const address = (claimAddress || walletAddress) as `0x${string}` | undefined;
 
   const claimSDK = useMemo(() => {
     if (!address || !publicClient || !walletClient) return null;
@@ -76,7 +79,7 @@ export const useGoodDollarClaim = () => {
     if (!address || !publicClient || !walletClient) return null;
     try {
       return new IdentitySDK({
-        account: address,
+        account: address as `0x${string}`,
         publicClient,
         walletClient,
         env: "production",

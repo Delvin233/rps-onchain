@@ -3,7 +3,7 @@
 import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useFarcaster } from "./FarcasterContext";
 import sdk from "@farcaster/miniapp-sdk";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 
 type AuthMethod = "wallet" | "farcaster" | null;
 
@@ -40,7 +40,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
-  const { disconnect } = useDisconnect();
 
   // Use FarcasterContext instead of duplicating SDK initialization
   const { context: farcasterContext, enrichedUser, isMiniAppReady } = useFarcaster();
@@ -80,26 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isFarcasterConnected = hasFarcasterAuth;
 
   // Use Farcaster address if fully authenticated, otherwise use wallet address
-  // When Farcaster is active, completely ignore the wallet address
   const address = hasFarcasterAuth ? farcasterAddress : walletAddress;
-
-  // Disconnect wallet when Farcaster auth becomes active to prevent conflicts
-  useEffect(() => {
-    if (mounted && hasFarcasterAuth && walletConnected) {
-      console.log("[AuthContext] Farcaster auth active, disconnecting wallet to prevent conflicts");
-      disconnect();
-    }
-  }, [mounted, hasFarcasterAuth, walletConnected, disconnect]);
-
-  // Clear Farcaster state when wallet connects and we're not in Farcaster context
-  // This handles the reverse case: switching from Farcaster tab to MetaMask tab
-  useEffect(() => {
-    if (mounted && walletConnected && !hasFarcasterAuth && farcasterContext?.user) {
-      // If wallet is connected but Farcaster context still has a user (shouldn't happen in real miniapp)
-      // This means we're outside the Farcaster environment but state persists
-      console.log("[AuthContext] Wallet connected outside Farcaster context, prioritizing wallet");
-    }
-  }, [mounted, walletConnected, hasFarcasterAuth, farcasterContext]);
 
   // Check verification status
   useEffect(() => {

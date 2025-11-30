@@ -55,13 +55,25 @@ export default function Home() {
     });
   }, [address, authMethod, isAuthenticated, isMiniApp, isMiniAppReady, isLoading, stats.isLoading]);
 
-  // Auto-connect for Base app and MiniPay
-  // Farcaster users are already authenticated via AuthContext
+  // Auto-connect for all miniapps (Base, MiniPay, and Farcaster)
   useEffect(() => {
     if (address) return;
 
-    // Auto-connect wallet for Base app and MiniPay (not Farcaster)
-    if ((isBaseApp || isMiniPay) && typeof window !== "undefined" && window.ethereum && authMethod !== "farcaster") {
+    // Auto-connect for Farcaster miniapp
+    if (isMiniAppReady && context && authMethod === "farcaster") {
+      console.log("[HomePage] Auto-connecting Farcaster wallet");
+      // Find the Farcaster connector and connect it
+      import("@farcaster/miniapp-wagmi-connector")
+        .then(({ farcasterMiniApp }) => {
+          const farcasterConnector = farcasterMiniApp();
+          connect({ connector: farcasterConnector });
+        })
+        .catch((error: Error) => {
+          console.error("[HomePage] Farcaster connector failed:", error);
+        });
+    }
+    // Auto-connect wallet for Base app and MiniPay
+    else if ((isBaseApp || isMiniPay) && typeof window !== "undefined" && window.ethereum) {
       console.log("[HomePage] Auto-connecting for", isBaseApp ? "Base app" : "MiniPay");
       (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
@@ -71,7 +83,7 @@ export default function Home() {
           console.error("[HomePage] Auto-connect failed:", error);
         });
     }
-  }, [isBaseApp, isMiniPay, address, connect, authMethod]);
+  }, [isBaseApp, isMiniPay, isMiniAppReady, context, address, connect, authMethod]);
 
   // Enforce network restrictions for miniapps
   useEffect(() => {
