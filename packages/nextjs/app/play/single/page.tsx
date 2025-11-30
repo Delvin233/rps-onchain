@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import { useAccount } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { LoginButton } from "~~/components/LoginButton";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
 type Move = "rock" | "paper" | "scissors";
@@ -126,27 +125,17 @@ export default function SinglePlayerPage() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center p-6">
-        <div className="text-center max-w-md">
+        <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow">Single Player</h1>
-            <p className="text-base-content/70">Connect Wallet</p>
           </div>
           {isMiniPayCheck ? (
             <div className="flex justify-center">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full bg-gradient-primary hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>
@@ -164,7 +153,7 @@ export default function SinglePlayerPage() {
       </div>
       {!isMiniApp && (
         <div className="flex justify-end mb-6 lg:hidden">
-          <RainbowKitCustomConnectButton />
+          <LoginButton size="sm" />
         </div>
       )}
 

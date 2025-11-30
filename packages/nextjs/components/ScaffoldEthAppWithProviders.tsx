@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
-import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { Web3Provider } from "~~/components/Web3Provider";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { useAppKitThemeSync } from "~~/hooks/useAppKitThemeSync";
+import { appkitWagmiConfig } from "~~/services/web3/appkitConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
+  useAppKitThemeSync(); // Sync AppKit theme with app theme
 
   return (
     <>
@@ -65,8 +65,6 @@ export const queryClient = new QueryClient({
 });
 
 export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -76,47 +74,28 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   // Prevent hydration mismatch on mobile
   if (!mounted) {
     return (
-      <WagmiProvider config={wagmiConfig}>
+      <WagmiProvider config={appkitWagmiConfig}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider theme={lightTheme()}>
+          <Web3Provider>
             <FarcasterProvider>
               <ProgressBar height="3px" color="#2299dd" />
               <ScaffoldEthApp>{children}</ScaffoldEthApp>
             </FarcasterProvider>
-          </RainbowKitProvider>
+          </Web3Provider>
         </QueryClientProvider>
       </WagmiProvider>
     );
   }
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={appkitWagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          avatar={BlockieAvatar}
-          theme={
-            mounted
-              ? isDarkMode
-                ? darkTheme({
-                    accentColor: "#34d399",
-                    accentColorForeground: "#0c0a09",
-                    borderRadius: "large",
-                    overlayBlur: "small",
-                  })
-                : lightTheme({
-                    accentColor: "#93bbfb",
-                    accentColorForeground: "#212638",
-                    borderRadius: "large",
-                    overlayBlur: "small",
-                  })
-              : lightTheme()
-          }
-        >
+        <Web3Provider>
           <FarcasterProvider>
             <ProgressBar height="3px" color="#2299dd" />
             <ScaffoldEthApp>{children}</ScaffoldEthApp>
           </FarcasterProvider>
-        </RainbowKitProvider>
+        </Web3Provider>
       </QueryClientProvider>
     </WagmiProvider>
   );

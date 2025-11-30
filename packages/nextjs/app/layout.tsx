@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import "@rainbow-me/rainbowkit/styles.css";
 import { Analytics } from "@vercel/analytics/next";
 import { BaseAppReady } from "~~/components/BaseAppReady";
 import { HideLoader } from "~~/components/HideLoader";
@@ -167,6 +166,29 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <link rel="dns-prefetch" href="https://gateway.pinata.cloud" />
         <link rel="dns-prefetch" href="https://forno.celo.org" />
         <link rel="dns-prefetch" href="https://mainnet.base.org" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Suppress known non-critical console errors
+              (function() {
+                const originalError = console.error;
+                console.error = function(...args) {
+                  const msg = args[0]?.toString() || '';
+                  // Filter out known non-critical errors
+                  if (
+                    msg.includes('fuse-rpc.gateway.pokt.network') ||
+                    msg.includes('Cross-Origin-Opener-Policy') ||
+                    msg.includes('preloaded using link preload') ||
+                    msg.includes('Minified React error #418')
+                  ) {
+                    return;
+                  }
+                  originalError.apply(console, args);
+                };
+              })();
+            `,
+          }}
+        />
         <style
           dangerouslySetInnerHTML={{
             __html: `

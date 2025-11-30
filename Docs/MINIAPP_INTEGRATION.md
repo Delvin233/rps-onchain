@@ -43,7 +43,7 @@ const getTargetNetworks = (): readonly Chain[] => {
 ## Custom MiniApp UI
 
 ### MiniAppAccount Component
-Replaces RainbowKit with platform-specific styling:
+Provides platform-specific wallet UI alongside AppKit:
 
 ```tsx
 // components/MiniAppAccount.tsx

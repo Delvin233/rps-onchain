@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { User, Users } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { useAccount } from "wagmi";
+import { LoginButton } from "~~/components/LoginButton";
 
 export default function PlayModePage() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function PlayModePage() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto">
+        <div className="text-center max-w-md w-full">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
               Ready to Play?
@@ -39,22 +39,8 @@ export default function PlayModePage() {
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : (
-            <div className="w-full">
-              <ConnectButton.Custom>
-                {({ openConnectModal }) => (
-                  <button
-                    onClick={openConnectModal}
-                    className="w-full hover:scale-105 transform transition-all duration-200 text-lg font-semibold rounded-xl py-4 px-6"
-                    style={{
-                      background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
-                      color: "var(--color-primary-content)",
-                      boxShadow: "0 0 20px var(--color-primary)",
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
-              </ConnectButton.Custom>
+            <div className="w-full flex justify-center">
+              <LoginButton />
             </div>
           )}
         </div>
