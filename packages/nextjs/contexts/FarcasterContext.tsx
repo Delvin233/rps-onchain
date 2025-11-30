@@ -95,10 +95,10 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
 
   const handleAddMiniApp = useCallback(async () => {
     try {
-      const result = await sdk.actions.addFrame();
+      const result = await sdk.actions.addMiniApp();
       return result || null;
     } catch (error) {
-      console.error("[error] adding frame", error);
+      console.error("[error] adding mini app", error);
       return null;
     }
   }, []);

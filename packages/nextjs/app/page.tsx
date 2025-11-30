@@ -4,10 +4,11 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
-import { useAccount, useChainId, useConnect, useReconnect, useSwitchChain } from "wagmi";
+import { useChainId, useConnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
+import { useAuth } from "~~/contexts/AuthContext";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
@@ -16,15 +17,14 @@ import { usePlayerStats } from "~~/hooks/usePlayerStats";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const { address } = useAccount();
+  const { address, authMethod } = useAuth();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const router = useRouter();
-  const stats = usePlayerStats(address);
-  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
+  const stats = usePlayerStats(address ?? undefined);
+  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address ?? undefined);
   const { context, isMiniAppReady } = useFarcaster();
   const { connect } = useConnect();
-  const { reconnect } = useReconnect();
 
   const isBaseApp =
     typeof window !== "undefined" &&
@@ -39,31 +39,21 @@ export default function Home() {
     return "farcaster"; // Fallback
   };
 
-  // Auto-reconnect on mount for all users
-  useEffect(() => {
-    reconnect();
-  }, [reconnect]);
-
-  // Auto-connect for miniapps
+  // Auto-connect for MiniPay only
+  // Farcaster/Base apps use their SDK context address automatically via AuthContext
   useEffect(() => {
     if (address) return;
 
-    // MiniPay: Auto-connect via injected provider
-    if (isMiniPay && typeof window !== "undefined" && window.ethereum) {
+    // Only auto-connect wallet for MiniPay
+    // Farcaster users are already authenticated via AuthContext
+    if (isMiniPay && typeof window !== "undefined" && window.ethereum && authMethod !== "farcaster") {
       (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
           connect({ connector: injected() });
         })
         .catch(console.error);
     }
-    // Farcaster/Base app: Check if they have ethereum provider
-    else if ((isMiniAppReady && context) || isBaseApp) {
-      if (typeof window !== "undefined" && window.ethereum) {
-        // They have a wallet extension, auto-connect
-        connect({ connector: injected() });
-      }
-    }
-  }, [isMiniPay, isMiniAppReady, isBaseApp, context, address, connect]);
+  }, [isMiniPay, address, connect, authMethod]);
 
   // Enforce network restrictions for miniapps
   useEffect(() => {
