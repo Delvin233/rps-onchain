@@ -90,12 +90,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Debug logging
   useEffect(() => {
-    if (farcasterUser) {
-      console.log("[AuthContext] Farcaster user detected:", farcasterUser);
-      console.log("[AuthContext] Address:", address);
-      console.log("[AuthContext] Auth method:", authMethod);
+    if (mounted) {
+      console.log("[AuthContext] Mounted state:");
+      console.log("  - Farcaster user:", farcasterUser);
+      console.log("  - Address:", address);
+      console.log("  - Auth method:", authMethod);
+      console.log("  - Is authenticated:", isAuthenticated);
+      console.log("  - Wallet connected:", walletConnected);
     }
-  }, [farcasterUser, address, authMethod]);
+  }, [mounted, farcasterUser, address, authMethod, isAuthenticated, walletConnected]);
 
   const connectFarcaster = async () => {
     try {

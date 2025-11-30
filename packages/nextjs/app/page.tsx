@@ -17,7 +17,7 @@ import { usePlayerStats } from "~~/hooks/usePlayerStats";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const { address, authMethod } = useAuth();
+  const { address, authMethod, isAuthenticated } = useAuth();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const router = useRouter();
@@ -32,12 +32,28 @@ export default function Home() {
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
   const isMiniApp = (isMiniAppReady && !!context) || isBaseApp || isMiniPay;
 
+  // Show loading state while Farcaster SDK is initializing
+  const isLoading = isMiniApp && !isMiniAppReady;
+
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isBaseApp) return "base";
     if (isMiniPay) return "minipay";
     if (isMiniAppReady && context) return "farcaster";
     return "farcaster"; // Fallback
   };
+
+  // Debug logging
+  useEffect(() => {
+    console.log("[HomePage] State:", {
+      address,
+      authMethod,
+      isAuthenticated,
+      isMiniApp,
+      isMiniAppReady,
+      isLoading,
+      statsLoading: stats.isLoading,
+    });
+  }, [address, authMethod, isAuthenticated, isMiniApp, isMiniAppReady, isLoading, stats.isLoading]);
 
   // Auto-connect for MiniPay only
   // Farcaster/Base apps use their SDK context address automatically via AuthContext
@@ -116,7 +132,26 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-base-200">
-      {!address ? (
+      {isLoading ? (
+        <div className="pt-8 lg:py-8">
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="text-5xl lg:text-6xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
+              RPS-onChain
+            </h1>
+            <p className="text-base lg:text-lg text-base-content/60">
+              {isBaseApp
+                ? "Free-to-play Rock Paper Scissors on Base."
+                : isMiniPay
+                  ? "Free-to-play Rock Paper Scissors on Celo."
+                  : "Free-to-play Rock Paper Scissors on Celo & Base."}
+            </p>
+          </div>
+          <div className="mb-6 flex flex-col items-center justify-center gap-3">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <p className="text-sm text-base-content/60">Connecting to Farcaster...</p>
+          </div>
+        </div>
+      ) : !address ? (
         <div className="pt-8 lg:py-8">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl lg:text-6xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
