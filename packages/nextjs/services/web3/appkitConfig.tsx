@@ -1,3 +1,4 @@
+import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { http } from "viem";
 import scaffoldConfig from "~~/scaffold.config";
@@ -14,7 +15,7 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-// Set up the Wagmi Adapter
+// Set up the Wagmi Adapter with Farcaster connector
 export const wagmiAdapter = new WagmiAdapter({
   ssr: false, // Disable SSR to prevent social login timeouts
   projectId,
@@ -25,6 +26,7 @@ export const wagmiAdapter = new WagmiAdapter({
       return [chain.id, http(rpcOverrideUrl)];
     }),
   ) as any,
+  connectors: [farcasterMiniApp()],
 });
 
 // Use wagmi config directly from adapter - AppKit manages this
