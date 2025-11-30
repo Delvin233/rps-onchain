@@ -341,123 +341,132 @@ export default function OnChainMatchesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredMatches.map((match, idx) => (
-              <div key={idx} className="bg-card/50 border border-border rounded-xl p-4 h-fit">
-                <div className="flex flex-col gap-3 mb-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="badge badge-primary badge-sm flex-shrink-0">{match.chainName}</span>
-                      <span
-                        className="text-base-content/60 truncate"
-                        style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
-                      >
-                        Room: {match.roomId}
-                      </span>
-                    </div>
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      {match.txHash && (
-                        <button
-                          onClick={() =>
-                            openExternalLink(
-                              `${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`,
-                            )
-                          }
-                          className="btn btn-xs btn-primary"
-                        >
-                          <ExternalLink size={12} /> TX
-                        </button>
-                      )}
-                      <button
-                        onClick={() => openExternalLink(getExplorerUrl(match.chainId))}
-                        className="btn btn-xs btn-outline"
-                      >
-                        <ExternalLink size={12} /> Contract
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="bg-base-200 p-2 rounded-lg">
-                      <p
-                        className="text-base-content/60 mb-1"
-                        style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
-                      >
-                        Player 1
-                      </p>
-                      <p
-                        className="font-semibold truncate"
-                        style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-                      >
-                        {match.player1Name || `${match.player1.slice(0, 8)}...${match.player1.slice(-4)}`}
-                      </p>
-                    </div>
-                    <div className="bg-base-200 p-2 rounded-lg">
-                      <p
-                        className="text-base-content/60 mb-1"
-                        style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
-                      >
-                        Player 2
-                      </p>
-                      <p
-                        className="font-semibold truncate"
-                        style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-                      >
-                        {match.player2Name || `${match.player2.slice(0, 8)}...${match.player2.slice(-4)}`}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            {filteredMatches.map((match, idx) => {
+              const chainStyle =
+                match.chainName === "Celo"
+                  ? { backgroundColor: "#FCFF52", color: "#000000" }
+                  : { backgroundColor: "#0052FF", color: "#FFFFFF" };
 
-                <div className="space-y-2">
-                  {match.matches.map((m, mIdx) => {
-                    const winnerName =
-                      m.winner === match.player1
-                        ? match.player1Name || `${match.player1.slice(0, 6)}...`
-                        : m.winner === match.player2
-                          ? match.player2Name || `${match.player2.slice(0, 6)}...`
-                          : "Tie";
-
-                    return (
-                      <div key={mIdx} className="bg-base-200 p-3 rounded-lg">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="font-bold uppercase"
-                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-                            >
-                              {m.player1Move}
-                            </span>
-                            <span
-                              className="text-base-content/60"
-                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-                            >
-                              vs
-                            </span>
-                            <span
-                              className="font-bold uppercase"
-                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-                            >
-                              {m.player2Move}
-                            </span>
-                          </div>
-                          <span
-                            className="font-semibold text-success truncate"
-                            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-                          >
-                            Winner: {winnerName}
-                          </span>
-                        </div>
-                        <p
-                          className="text-base-content/60 mt-2"
+              return (
+                <div key={idx} className="bg-card/50 border border-border rounded-xl p-4 h-fit">
+                  <div className="flex flex-col gap-3 mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="badge badge-sm flex-shrink-0 font-semibold" style={chainStyle}>
+                          {match.chainName}
+                        </span>
+                        <span
+                          className="text-base-content/60 truncate"
                           style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
                         >
-                          {new Date(m.timestamp * 1000).toLocaleString()}
+                          Room: {match.roomId}
+                        </span>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        {match.txHash && (
+                          <button
+                            onClick={() =>
+                              openExternalLink(
+                                `${match.chainId === 42220 ? "https://celoscan.io" : "https://basescan.org"}/tx/${match.txHash}`,
+                              )
+                            }
+                            className="btn btn-xs btn-primary"
+                          >
+                            <ExternalLink size={12} /> TX
+                          </button>
+                        )}
+                        <button
+                          onClick={() => openExternalLink(getExplorerUrl(match.chainId))}
+                          className="btn btn-xs btn-outline"
+                        >
+                          <ExternalLink size={12} /> Contract
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="bg-base-200 p-2 rounded-lg">
+                        <p
+                          className="text-base-content/60 mb-1"
+                          style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                        >
+                          Player 1
+                        </p>
+                        <p
+                          className="font-semibold truncate"
+                          style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                        >
+                          {match.player1Name || `${match.player1.slice(0, 8)}...${match.player1.slice(-4)}`}
                         </p>
                       </div>
-                    );
-                  })}
+                      <div className="bg-base-200 p-2 rounded-lg">
+                        <p
+                          className="text-base-content/60 mb-1"
+                          style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                        >
+                          Player 2
+                        </p>
+                        <p
+                          className="font-semibold truncate"
+                          style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                        >
+                          {match.player2Name || `${match.player2.slice(0, 8)}...${match.player2.slice(-4)}`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {match.matches.map((m, mIdx) => {
+                      const winnerName =
+                        m.winner === match.player1
+                          ? match.player1Name || `${match.player1.slice(0, 6)}...`
+                          : m.winner === match.player2
+                            ? match.player2Name || `${match.player2.slice(0, 6)}...`
+                            : "Tie";
+
+                      return (
+                        <div key={mIdx} className="bg-base-200 p-3 rounded-lg">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="font-bold uppercase"
+                                style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                              >
+                                {m.player1Move}
+                              </span>
+                              <span
+                                className="text-base-content/60"
+                                style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                              >
+                                vs
+                              </span>
+                              <span
+                                className="font-bold uppercase"
+                                style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                              >
+                                {m.player2Move}
+                              </span>
+                            </div>
+                            <span
+                              className="font-semibold text-success truncate"
+                              style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+                            >
+                              Winner: {winnerName}
+                            </span>
+                          </div>
+                          <p
+                            className="text-base-content/60 mt-2"
+                            style={{ fontSize: "calc(0.75rem * var(--font-size-override, 1))" }}
+                          >
+                            {new Date(m.timestamp * 1000).toLocaleString()}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
