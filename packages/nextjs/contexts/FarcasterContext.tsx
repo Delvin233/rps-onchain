@@ -33,17 +33,35 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         console.log("[Farcaster] Full SDK context:", ctx);
         console.log("[Farcaster] Client object:", (ctx as any).client);
 
-        // Fetch user's verified addresses from Neynar
-        let connectedAddress = null;
+        // Set basic user data immediately from SDK
         if (ctx.user) {
-          try {
-            const response = await fetch(`/api/farcaster/user?fid=${ctx.user.fid}`);
-            if (response.ok) {
-              const userData = await response.json();
+          setEnrichedUser({
+            fid: ctx.user.fid,
+            username: ctx.user.username || `fid-${ctx.user.fid}`,
+            displayName: ctx.user.displayName || ctx.user.username || `User ${ctx.user.fid}`,
+            pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
+          });
+        }
+
+        // Set initial context without address
+        setContext(ctx as any);
+
+        // Fetch user's verified addresses from Neynar (async, don't block)
+        if (ctx.user) {
+          // Fetch enriched data in background
+          fetch(`/api/farcaster/user?fid=${ctx.user.fid}`)
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              }
+              throw new Error("Failed to fetch user data");
+            })
+            .then(userData => {
               // Get custody address or first verified address
-              connectedAddress = userData.custody_address || userData.verifications?.[0] || null;
+              const connectedAddress = userData.custody_address || userData.verifications?.[0] || null;
               console.log("[Farcaster] Fetched wallet address:", connectedAddress);
 
+              // Update with enriched data
               setEnrichedUser({
                 fid: ctx.user.fid,
                 username: userData.username || ctx.user.username || `fid-${ctx.user.fid}`,
@@ -51,33 +69,19 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
                   userData.display_name || ctx.user.displayName || userData.username || `User ${ctx.user.fid}`,
                 pfpUrl: userData.pfp_url || ctx.user.pfpUrl || "/placeholder-avatar.png",
               });
-            } else {
-              // Fallback to context data
-              setEnrichedUser({
-                fid: ctx.user.fid,
-                username: ctx.user.username || `fid-${ctx.user.fid}`,
-                displayName: ctx.user.displayName || ctx.user.username || `User ${ctx.user.fid}`,
-                pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
-              });
-            }
-          } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            // Fallback to context data
-            setEnrichedUser({
-              fid: ctx.user.fid,
-              username: ctx.user.username || `fid-${ctx.user.fid}`,
-              displayName: ctx.user.displayName || ctx.user.username || `User ${ctx.user.fid}`,
-              pfpUrl: ctx.user.pfpUrl || "/placeholder-avatar.png",
-            });
-          }
-        }
 
-        // Add connectedAddress to context
-        const contextWithAddress = {
-          ...ctx,
-          connectedAddress,
-        };
-        setContext(contextWithAddress as any);
+              // Update context with address
+              const contextWithAddress = {
+                ...ctx,
+                connectedAddress,
+              };
+              setContext(contextWithAddress as any);
+            })
+            .catch(error => {
+              console.error("Failed to fetch user data:", error);
+              // Keep the basic SDK data we already set
+            });
+        }
       }
       await sdk.actions.ready();
     } catch (err) {

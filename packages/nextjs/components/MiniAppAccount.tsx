@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { MdLocalGasStation } from "react-icons/md";
 import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
 import { base, celo } from "wagmi/chains";
+import { useAuth } from "~~/contexts/AuthContext";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 
@@ -15,15 +16,18 @@ interface MiniAppAccountProps {
 }
 
 export function MiniAppAccount({ platform }: MiniAppAccountProps) {
-  const { address, chain, isConnecting } = useAccount();
+  const { address: authAddress } = useAuth();
+  const { address: wagmiAddress, chain, isConnecting } = useAccount();
+  // Use auth address (which includes Farcaster) or fall back to wagmi address
+  const address = authAddress || wagmiAddress;
   const cUSD_ADDRESS = "0x765DE816845861e75A25fCA122bb6898B8B1282a" as `0x${string}`;
   const { data: balance, isLoading: balanceLoading } = useBalance({
-    address,
+    address: address as `0x${string}` | undefined,
     token: platform === "minipay" ? cUSD_ADDRESS : undefined,
   });
-  const { data: ensName } = useEnsName({ address });
+  const { data: ensName } = useEnsName({ address: address as `0x${string}` | undefined });
   const { switchChain, isPending: switchPending } = useSwitchChain();
-  const { enrichedUser } = useFarcaster();
+  const { enrichedUser, isMiniAppReady } = useFarcaster();
   const { displayName: apiDisplayName, pfpUrl: apiPfpUrl, ensType } = useDisplayName(address);
   const [showNetworkMenu, setShowNetworkMenu] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
@@ -147,6 +151,9 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
     }
   }, [showNetworkMenu]);
 
+  // Show loading state while waiting for address
+  const isLoading = !address && (isConnecting || (platform === "farcaster" && !isMiniAppReady));
+
   if (!address) {
     return (
       <div
@@ -157,7 +164,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
         }}
       >
         <div className="flex items-center justify-center">
-          {isConnecting ? (
+          {isLoading ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
             <span
