@@ -4,8 +4,8 @@ import scaffoldConfig from "~~/scaffold.config";
 
 const { targetNetworks } = scaffoldConfig;
 
-// Create a direct wagmi config with Farcaster connector (bypasses Reown/AppKit)
-// This provides proper wallet client for GoodDollar SDK
+// Direct wagmi config for Farcaster - bypasses AppKit completely
+// This matches how RainbowKit worked - direct connector access
 export const farcasterWagmiConfig = createConfig({
   chains: targetNetworks as any,
   connectors: [farcasterMiniApp()],
