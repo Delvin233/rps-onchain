@@ -10,6 +10,7 @@ import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { useAppKitThemeSync } from "~~/hooks/useAppKitThemeSync";
 import { appkitWagmiConfig } from "~~/services/web3/appkitConfig";
+import { farcasterWagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
@@ -64,16 +65,35 @@ export const queryClient = new QueryClient({
   },
 });
 
+// Detect Farcaster synchronously to avoid config switching flash
+const detectFarcaster = () => {
+  if (typeof window === "undefined") return false;
+
+  // Check for Farcaster iframe context
+  const isInIframe = window.self !== window.top;
+  const isFarcasterOrigin =
+    window.location.ancestorOrigins?.[0]?.includes("farcaster.xyz") ||
+    window.location.ancestorOrigins?.[0]?.includes("warpcast.com");
+
+  return isInIframe && isFarcasterOrigin;
+};
+
 export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);
+  // Detect Farcaster immediately to avoid config switching
+  const isFarcasterMiniApp = detectFarcaster();
 
   useEffect(() => {
     setMounted(true);
     // Expose queryClient globally for cache invalidation
     if (typeof window !== "undefined") {
       (window as any).__queryClient = queryClient;
+      console.log("[Wagmi] Farcaster miniapp detected:", isFarcasterMiniApp);
     }
-  }, []);
+  }, [isFarcasterMiniApp]);
+
+  // Use Farcaster-specific config if in miniapp, otherwise use AppKit config
+  const wagmiConfig = isFarcasterMiniApp ? farcasterWagmiConfig : appkitWagmiConfig;
 
   // Prevent hydration mismatch on mobile
   if (!mounted) {
@@ -92,7 +112,7 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   }
 
   return (
-    <WagmiProvider config={appkitWagmiConfig}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <Web3Provider>
           <FarcasterProvider>

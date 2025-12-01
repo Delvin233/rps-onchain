@@ -99,17 +99,6 @@ export default function ProfilePage() {
     try {
       // Check if user needs verification first
       if (isWhitelisted === false) {
-        // For Farcaster miniapp, direct users to complete verification on web
-        // This is because the Farcaster wallet connector has limitations with GoodDollar's FV flow
-        if (isFarcaster) {
-          toast.error("Please complete Face Verification on web first", { duration: 6000 });
-          const verifyUrl = `https://goodid.gooddollar.org/?address=${address}`;
-          window.open(verifyUrl, "_blank");
-          toast("After verification, return here to claim", { duration: 5000 });
-          return;
-        }
-
-        // For web/MiniPay, the claim will trigger the FV flow automatically
         toast("Starting Face Verification...", { duration: 3000 });
       }
 
@@ -126,20 +115,7 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("Claim error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to claim UBI";
-
-      // Check if it's a verification error
-      if (errorMessage.includes("identity verification") || errorMessage.includes("whitelisted")) {
-        if (isFarcaster) {
-          toast.error("Please complete Face Verification on web first", { duration: 6000 });
-          const verifyUrl = `https://goodid.gooddollar.org/?address=${address}`;
-          window.open(verifyUrl, "_blank");
-          toast("After verification, return here to claim", { duration: 5000 });
-        } else {
-          toast.error("Face Verification required. Please try again.", { duration: 5000 });
-        }
-      } else {
-        toast.error(errorMessage);
-      }
+      toast.error(errorMessage);
     }
   };
 
@@ -330,9 +306,7 @@ export default function ProfilePage() {
                   <div className="bg-info/10 border border-info/30 rounded-lg p-3 mb-3">
                     <p className="text-xs text-info flex items-center gap-2">
                       <MdLightbulbOutline size={16} />
-                      {isFarcaster
-                        ? "First time? You'll be redirected to complete Face Verification on web (opens in new tab)"
-                        : 'First time? Clicking "Claim Now" will redirect you to complete Face Verification'}
+                      First time? Clicking &quot;Claim Now&quot; will start Face Verification
                     </p>
                   </div>
                 )}
