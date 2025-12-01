@@ -1,10 +1,9 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
 import scaffoldConfig from "~~/scaffold.config";
-import { enabledChains } from "~~/services/web3/appkitConfig";
+import { enabledChains, wagmiAdapter } from "~~/services/web3/appkitConfig";
 
 const projectId = scaffoldConfig.walletConnectProjectId;
 
@@ -27,12 +26,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     if (!appKitInitialized && typeof window !== "undefined") {
       const rootStyles = getComputedStyle(document.documentElement);
       const primaryColor = rootStyles.getPropertyValue("--color-primary").trim() || "#10b981";
-
-      // Create WagmiAdapter from our wagmi config
-      const wagmiAdapter = new WagmiAdapter({
-        networks: enabledChains as any,
-        projectId,
-      });
 
       createAppKit({
         adapters: [wagmiAdapter],

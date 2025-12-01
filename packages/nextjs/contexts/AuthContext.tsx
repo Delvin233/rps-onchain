@@ -3,6 +3,7 @@
 import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useFarcaster } from "./FarcasterContext";
 import sdk from "@farcaster/miniapp-sdk";
+import { useAppKitAccount } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
 
 type AuthMethod = "wallet" | "farcaster" | null;
@@ -40,6 +41,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
+  const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
 
   // Use FarcasterContext instead of duplicating SDK initialization
   const { context: farcasterContext, enrichedUser, isMiniAppReady } = useFarcaster();
@@ -79,22 +81,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Memoize to prevent recalculation on every render
   const hasFarcasterAuth = useMemo(() => !!farcasterUser && !!farcasterAddress, [farcasterUser, farcasterAddress]);
 
+  // Merge wallet states - use AppKit as source of truth for social logins
+  // AppKit detects social login connections, wagmi might lag behind
+  const effectiveWalletConnected = appKitConnected || walletConnected;
+  const effectiveWalletAddress = appKitAddress || walletAddress;
+
   // When in Farcaster context, ignore wallet connections to prevent conflicts
   // This prevents MetaMask from interfering when using Farcaster auth
   const authMethod: AuthMethod = useMemo(
-    () => (hasFarcasterAuth ? "farcaster" : walletConnected ? "wallet" : null),
-    [hasFarcasterAuth, walletConnected],
+    () => (hasFarcasterAuth ? "farcaster" : effectiveWalletConnected ? "wallet" : null),
+    [hasFarcasterAuth, effectiveWalletConnected],
   );
 
-  const isAuthenticated = useMemo(() => hasFarcasterAuth || walletConnected, [hasFarcasterAuth, walletConnected]);
+  const isAuthenticated = useMemo(
+    () => hasFarcasterAuth || effectiveWalletConnected,
+    [hasFarcasterAuth, effectiveWalletConnected],
+  );
 
   const isFarcasterConnected = hasFarcasterAuth;
 
   // Use Farcaster address if fully authenticated, otherwise use wallet address
   const address = useMemo(
-    () => (hasFarcasterAuth ? farcasterAddress : walletAddress),
-    [hasFarcasterAuth, farcasterAddress, walletAddress],
+    () => (hasFarcasterAuth ? farcasterAddress : effectiveWalletAddress),
+    [hasFarcasterAuth, farcasterAddress, effectiveWalletAddress],
   );
+
+  // Debug log for social login
+  useEffect(() => {
+    console.log("[AuthContext] State:", {
+      wagmi: { address: walletAddress, connected: walletConnected },
+      appKit: { address: appKitAddress, connected: appKitConnected },
+      effective: { address: effectiveWalletAddress, connected: effectiveWalletConnected },
+      farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
+      final: { authMethod, address },
+    });
+
+    // Log when social login is detected
+    if (appKitConnected && !walletConnected) {
+      console.log("✅ [AuthContext] Social login detected via AppKit:", appKitAddress);
+    }
+  }, [
+    walletAddress,
+    walletConnected,
+    appKitAddress,
+    appKitConnected,
+    effectiveWalletAddress,
+    effectiveWalletConnected,
+    farcasterAddress,
+    hasFarcasterAuth,
+    authMethod,
+    address,
+  ]);
 
   // Check verification status
   useEffect(() => {

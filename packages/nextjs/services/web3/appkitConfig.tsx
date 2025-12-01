@@ -1,4 +1,5 @@
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { Chain, createClient, fallback, http } from "viem";
 import { hardhat, mainnet } from "viem/chains";
 import { createConfig } from "wagmi";
@@ -79,3 +80,10 @@ export const wagmiConfig = createConfig({
 
 // Keep this export for compatibility
 export const appkitWagmiConfig = wagmiConfig;
+
+// Create WagmiAdapter for AppKit with our custom config
+// This allows AppKit to work with our Farcaster connector
+export const wagmiAdapter = new WagmiAdapter({
+  networks: enabledChains as any,
+  projectId: walletConnectProjectId,
+});
