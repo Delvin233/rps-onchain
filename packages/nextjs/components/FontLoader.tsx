@@ -8,6 +8,12 @@ export const FontLoader = () => {
   const { address } = useAuth();
 
   useEffect(() => {
+    // Skip if address hasn't actually changed (prevent flash on navigation)
+    if (typeof window !== "undefined" && (window as any).__lastFontThemeAddress === address) {
+      return;
+    }
+    (window as any).__lastFontThemeAddress = address;
+
     const fontTheme = getActiveTheme(address);
     const root = document.documentElement;
     const sizeMultiplier = fontTheme.fontSizeMultiplier || 1;

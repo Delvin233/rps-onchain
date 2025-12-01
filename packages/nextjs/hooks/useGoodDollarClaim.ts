@@ -5,7 +5,7 @@ import { ClaimSDK, IdentitySDK } from "@goodsdks/citizen-sdk";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 
 export const useGoodDollarClaim = (claimAddress?: string) => {
-  const { address: walletAddress } = useAccount();
+  const { address: walletAddress, connector } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -13,8 +13,24 @@ export const useGoodDollarClaim = (claimAddress?: string) => {
   // Use provided address (e.g., Farcaster address) or fall back to wallet address
   const address = (claimAddress || walletAddress) as `0x${string}` | undefined;
 
+  // Check if we're in Farcaster and log wallet client status
+  const isFarcaster = connector?.id === "farcasterMiniApp" || connector?.name?.toLowerCase().includes("farcaster");
+
+  if (isFarcaster && address) {
+    console.log("[GoodDollar] Farcaster connector detected:", {
+      hasWalletClient: !!walletClient,
+      connectorId: connector?.id,
+      address,
+    });
+  }
+
   const claimSDK = useMemo(() => {
-    if (!address || !publicClient || !walletClient) return null;
+    if (!address || !publicClient || !walletClient) {
+      if (isFarcaster && address && publicClient) {
+        console.warn("[GoodDollar] Missing walletClient in Farcaster context - SDK will not work properly");
+      }
+      return null;
+    }
 
     try {
       const identitySDK = new IdentitySDK({
@@ -34,7 +50,7 @@ export const useGoodDollarClaim = (claimAddress?: string) => {
       console.error("Error initializing ClaimSDK:", error);
       return null;
     }
-  }, [address, publicClient, walletClient]);
+  }, [address, publicClient, walletClient, isFarcaster]);
 
   const checkEntitlement = async () => {
     if (!claimSDK) return { amount: 0n };

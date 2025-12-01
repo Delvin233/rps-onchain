@@ -8,6 +8,12 @@ export const SpacingLoader = () => {
   const { address } = useAuth();
 
   useEffect(() => {
+    // Skip if address hasn't actually changed (prevent flash on navigation)
+    if (typeof window !== "undefined" && (window as any).__lastSpacingThemeAddress === address) {
+      return;
+    }
+    (window as any).__lastSpacingThemeAddress = address;
+
     const spacing = getSpacingScale(address);
 
     const spacingMap: Record<string, string> = {

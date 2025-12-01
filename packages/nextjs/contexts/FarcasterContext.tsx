@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
+import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Context } from "@farcaster/miniapp-core";
 import sdk from "@farcaster/miniapp-sdk";
 import { useAccount, useConnect } from "wagmi";
@@ -26,18 +26,19 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<Context.MiniAppContext | null>(null);
   const [enrichedUser, setEnrichedUser] = useState<EnrichedUser | null>(null);
   const [isMiniAppReady, setIsMiniAppReady] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitializing = useRef(false);
+  const isInitialized = useRef(false);
   const { connect, connectors } = useConnect();
   const { isConnected } = useAccount();
 
   const setMiniAppReady = useCallback(async () => {
-    // Prevent multiple initializations
-    if (isInitialized) {
-      console.log("[Farcaster] Already initialized, skipping");
+    // Prevent multiple initializations using ref (survives re-renders)
+    if (isInitializing.current || isInitialized.current) {
+      console.log("[Farcaster] Already initialized or initializing, skipping");
       return;
     }
 
-    setIsInitialized(true);
+    isInitializing.current = true;
 
     try {
       const ctx = await sdk.context;
@@ -90,12 +91,14 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         }
       }
       await sdk.actions.ready();
+      isInitialized.current = true;
     } catch (err) {
       console.error("[Farcaster] SDK initialization error:", err);
     } finally {
+      isInitializing.current = false;
       setIsMiniAppReady(true);
     }
-  }, [isInitialized]);
+  }, []);
 
   useEffect(() => {
     if (!isMiniAppReady) {

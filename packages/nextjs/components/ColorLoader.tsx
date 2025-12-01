@@ -8,6 +8,12 @@ export const ColorLoader = () => {
   const { address } = useAuth();
 
   useEffect(() => {
+    // Skip if address hasn't actually changed (prevent flash on navigation)
+    if (typeof window !== "undefined" && (window as any).__lastColorThemeAddress === address) {
+      return;
+    }
+    (window as any).__lastColorThemeAddress = address;
+
     const colorTheme = getActiveColorTheme(address);
     const root = document.documentElement;
 
