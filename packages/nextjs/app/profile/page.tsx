@@ -305,9 +305,7 @@ export default function ProfilePage() {
                   <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-3">
                     <p className="text-xs text-warning flex items-center gap-2">
                       <MdLightbulbOutline size={16} />
-                      {isFarcaster
-                        ? "⚠️ First-time verification must be done on web. Click to open GoodID in browser."
-                        : 'First time? Clicking "Claim Now" will start Face Verification'}
+                      First time? Clicking &quot;Claim Now&quot; will start Face Verification
                     </p>
                   </div>
                 )}
