@@ -37,8 +37,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
           analytics: true,
           swaps: true,
           onramp: true,
-          email: true,
-          socials: ["google", "x", "discord", "farcaster"],
+          email: false,
+          socials: [],
         },
         themeMode: "dark",
         themeVariables: {
