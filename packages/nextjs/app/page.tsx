@@ -17,7 +17,7 @@ import { usePlayerStats } from "~~/hooks/usePlayerStats";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const { address, authMethod, isAuthenticated } = useAuth();
+  const { address, authMethod } = useAuth();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const router = useRouter();
@@ -43,18 +43,7 @@ export default function Home() {
     return "farcaster"; // Fallback
   };
 
-  // Debug logging
-  useEffect(() => {
-    console.log("[HomePage] State:", {
-      address,
-      authMethod,
-      isAuthenticated,
-      isMiniApp,
-      isMiniAppReady,
-      isLoading,
-      statsLoading: stats.isLoading,
-    });
-  }, [address, authMethod, isAuthenticated, isMiniApp, isMiniAppReady, isLoading, stats.isLoading]);
+  // Removed debug logging for production
 
   // Auto-connect for all miniapps (Base, MiniPay, and Farcaster)
   useEffect(() => {
@@ -62,7 +51,6 @@ export default function Home() {
 
     // Auto-connect for Farcaster miniapp
     if (isMiniAppReady && context && authMethod === "farcaster") {
-      console.log("[HomePage] Auto-connecting Farcaster wallet");
       // Find the Farcaster connector and connect it
       import("@farcaster/miniapp-wagmi-connector")
         .then(({ farcasterMiniApp }) => {
@@ -75,7 +63,6 @@ export default function Home() {
     }
     // Auto-connect wallet for Base app and MiniPay
     else if ((isBaseApp || isMiniPay) && typeof window !== "undefined" && window.ethereum) {
-      console.log("[HomePage] Auto-connecting for", isBaseApp ? "Base app" : "MiniPay");
       (window.ethereum.request as any)({ method: "eth_requestAccounts", params: [] })
         .then(() => {
           connect({ connector: injected() });

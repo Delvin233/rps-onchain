@@ -34,7 +34,6 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const setMiniAppReady = useCallback(async () => {
     // Prevent multiple initializations using ref (survives re-renders)
     if (isInitializing.current || isInitialized.current) {
-      console.log("[Farcaster] Already initialized or initializing, skipping");
       return;
     }
 
@@ -43,9 +42,6 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
     try {
       const ctx = await sdk.context;
       if (ctx) {
-        console.log("[Farcaster] Full SDK context:", ctx);
-        console.log("[Farcaster] Client object:", (ctx as any).client);
-
         // Fetch user's verified addresses from Neynar first
         if (ctx.user) {
           try {
@@ -54,8 +50,6 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
               const userData = await response.json();
               // Prioritize verified addresses over custody address
               const connectedAddress = userData.verifications?.[0] || userData.custody_address || null;
-              console.log("[Farcaster] User data:", userData);
-              console.log("[Farcaster] Fetched wallet address:", connectedAddress);
 
               // Set everything at once to prevent multiple re-renders
               setEnrichedUser({
@@ -109,26 +103,13 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
 
   // Auto-connect Farcaster wallet when in miniapp and not already connected
   useEffect(() => {
-    console.log("[Farcaster] Auto-connect check:", {
-      isMiniAppReady,
-      hasUser: !!context?.user,
-      isConnected,
-      availableConnectors: connectors.map(c => ({ id: c.id, name: c.name })),
-    });
-
     if (isMiniAppReady && context?.user && !isConnected) {
       const farcasterConnector = connectors.find(
         c => c.id === "farcasterMiniApp" || c.name?.toLowerCase().includes("farcaster"),
       );
 
       if (farcasterConnector) {
-        console.log("[Farcaster] Auto-connecting Farcaster wallet connector:", farcasterConnector.id);
         connect({ connector: farcasterConnector });
-      } else {
-        console.warn(
-          "[Farcaster] Farcaster connector not found. Available connectors:",
-          connectors.map(c => ({ id: c.id, name: c.name })),
-        );
       }
     }
   }, [isMiniAppReady, context, isConnected, connectors, connect]);
