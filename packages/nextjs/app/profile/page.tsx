@@ -99,14 +99,6 @@ export default function ProfilePage() {
     try {
       // Check if user needs verification first
       if (isWhitelisted === false) {
-        // In Farcaster, GoodDollar's FV iframe can't access wallet properly
-        // Direct users to verify on web where it works
-        if (isFarcaster) {
-          toast.error("Please verify on web first - Opening GoodID...", { duration: 5000 });
-          window.open("https://goodid.gooddollar.org", "_blank");
-          toast("Connect your wallet on GoodID, then return here to claim", { duration: 6000, icon: "💡" });
-          return;
-        }
         toast("Starting Face Verification...", { duration: 3000 });
       }
 
@@ -123,14 +115,7 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("Claim error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to claim UBI";
-
-      // If verification error in Farcaster, guide to web
-      if (isFarcaster && errorMessage.includes("identity verification")) {
-        toast.error("Verification must be done on web", { duration: 5000 });
-        window.open("https://goodid.gooddollar.org", "_blank");
-      } else {
-        toast.error(errorMessage);
-      }
+      toast.error(errorMessage);
     }
   };
 
