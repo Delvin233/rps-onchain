@@ -1,9 +1,10 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
 import scaffoldConfig from "~~/scaffold.config";
-import { enabledChains, wagmiAdapter } from "~~/services/web3/appkitConfig";
+import { enabledChains } from "~~/services/web3/appkitConfig";
 
 const projectId = scaffoldConfig.walletConnectProjectId;
 
@@ -21,15 +22,17 @@ const metadata = {
 let appKitInitialized = false;
 
 export function Web3Provider({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
-
     // Initialize AppKit only once on client side
     if (!appKitInitialized && typeof window !== "undefined") {
       const rootStyles = getComputedStyle(document.documentElement);
       const primaryColor = rootStyles.getPropertyValue("--color-primary").trim() || "#10b981";
+
+      // Create WagmiAdapter from our wagmi config
+      const wagmiAdapter = new WagmiAdapter({
+        networks: enabledChains as any,
+        projectId,
+      });
 
       createAppKit({
         adapters: [wagmiAdapter],
@@ -66,10 +69,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       appKitInitialized = true;
     }
   }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return <>{children}</>;
 }

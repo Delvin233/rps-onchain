@@ -53,8 +53,7 @@ export default function ProfilePage() {
   };
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const goodDollarHook = useGoodDollarClaim(address || undefined);
-  const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = goodDollarHook;
+  const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
   const [entitlement, setEntitlement] = useState<bigint>(0n);
   const [nextClaimTime, setNextClaimTime] = useState<Date | null>(null);
   const [timeUntilClaim, setTimeUntilClaim] = useState("");

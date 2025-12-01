@@ -32,8 +32,9 @@ export default function Home() {
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
   const isMiniApp = (isMiniAppReady && !!context) || isBaseApp || isMiniPay;
 
-  // Show loading state while Farcaster SDK is initializing
-  const isLoading = isMiniApp && !isMiniAppReady;
+  // Don't show loading state - it causes flashing on navigation
+  // The FarcasterProvider handles initialization in the background
+  const isLoading = false;
 
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
     if (isBaseApp) return "base";

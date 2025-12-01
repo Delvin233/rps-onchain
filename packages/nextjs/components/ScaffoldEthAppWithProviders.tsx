@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { Toaster } from "react-hot-toast";
@@ -9,8 +9,7 @@ import { Web3Provider } from "~~/components/Web3Provider";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { useAppKitThemeSync } from "~~/hooks/useAppKitThemeSync";
-import { appkitWagmiConfig } from "~~/services/web3/appkitConfig";
-import { farcasterWagmiConfig } from "~~/services/web3/farcasterWagmiConfig";
+import { wagmiConfig } from "~~/services/web3/appkitConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
@@ -65,46 +64,13 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Detect Farcaster synchronously before any rendering
-const isFarcasterMiniApp = (() => {
-  if (typeof window === "undefined") return false;
-  const isInIframe = window.self !== window.top;
-  const isFarcasterOrigin =
-    window.location.ancestorOrigins?.[0]?.includes("farcaster.xyz") ||
-    window.location.ancestorOrigins?.[0]?.includes("warpcast.com");
-  return isInIframe && isFarcasterOrigin;
-})();
-
 export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
     // Expose queryClient globally for cache invalidation
     if (typeof window !== "undefined") {
       (window as any).__queryClient = queryClient;
-      console.log("[Wagmi] Using config:", isFarcasterMiniApp ? "Farcaster Direct" : "AppKit");
     }
   }, []);
-
-  // Use direct Farcaster config (like RainbowKit) or AppKit config
-  const wagmiConfig = isFarcasterMiniApp ? farcasterWagmiConfig : appkitWagmiConfig;
-
-  // Prevent hydration mismatch on mobile
-  if (!mounted) {
-    return (
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <Web3Provider>
-            <FarcasterProvider>
-              <ProgressBar height="3px" color="#2299dd" />
-              <ScaffoldEthApp>{children}</ScaffoldEthApp>
-            </FarcasterProvider>
-          </Web3Provider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    );
-  }
 
   return (
     <WagmiProvider config={wagmiConfig}>

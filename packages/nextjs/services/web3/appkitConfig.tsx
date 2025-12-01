@@ -1,33 +1,75 @@
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { http } from "viem";
-import scaffoldConfig from "~~/scaffold.config";
+import { Chain, createClient, fallback, http } from "viem";
+import { hardhat, mainnet } from "viem/chains";
+import { createConfig } from "wagmi";
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
+import scaffoldConfig, { DEFAULT_ALCHEMY_API_KEY, ScaffoldConfig } from "~~/scaffold.config";
+import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
-const { targetNetworks } = scaffoldConfig;
+const { targetNetworks, walletConnectProjectId } = scaffoldConfig;
 
-// Use only the configured target networks (Celo and Base)
-export const enabledChains = targetNetworks;
+// Standard wallet connectors
+const getWagmiConnectors = () => {
+  const connectors = [];
 
-// Get projectId from scaffold config
-const projectId = scaffoldConfig.walletConnectProjectId;
-
-if (!projectId) {
-  throw new Error("Project ID is not defined");
-}
-
-// Set up the Wagmi Adapter with Farcaster connector
-export const wagmiAdapter = new WagmiAdapter({
-  ssr: false, // Disable SSR to prevent social login timeouts
-  projectId,
-  networks: enabledChains as any,
-  transports: Object.fromEntries(
-    enabledChains.map(chain => {
-      const rpcOverrideUrl = scaffoldConfig.rpcOverrides?.[chain.id as keyof typeof scaffoldConfig.rpcOverrides];
-      return [chain.id, http(rpcOverrideUrl)];
+  // Injected connector (MetaMask, etc.)
+  connectors.push(
+    injected({
+      shimDisconnect: true,
     }),
-  ) as any,
-  connectors: [farcasterMiniApp()],
+  );
+
+  // WalletConnect
+  if (walletConnectProjectId) {
+    connectors.push(
+      walletConnect({
+        projectId: walletConnectProjectId,
+        showQrModal: false,
+      }),
+    );
+  }
+
+  // Coinbase Wallet
+  connectors.push(
+    coinbaseWallet({
+      appName: "RPS-onChain",
+      appLogoUrl: "https://www.rpsonchain.xyz/rpsOnchainLogo.png",
+    }),
+  );
+
+  return connectors;
+};
+
+// We always want to have mainnet enabled (ENS resolution, ETH price, etc). But only once.
+export const enabledChains = targetNetworks.find((network: Chain) => network.id === 1)
+  ? targetNetworks
+  : ([...targetNetworks, mainnet] as const);
+
+// Direct wagmi config like RainbowKit - Farcaster connector FIRST
+export const wagmiConfig = createConfig({
+  chains: enabledChains,
+  connectors: [farcasterMiniApp(), ...getWagmiConnectors()],
+  ssr: true,
+  multiInjectedProviderDiscovery: true,
+  client: ({ chain }) => {
+    let rpcFallbacks = [http()];
+    const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
+    if (rpcOverrideUrl) {
+      rpcFallbacks = [http(rpcOverrideUrl), http()];
+    } else {
+      const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
+      if (alchemyHttpUrl) {
+        const isUsingDefaultKey = scaffoldConfig.alchemyApiKey === DEFAULT_ALCHEMY_API_KEY;
+        rpcFallbacks = isUsingDefaultKey ? [http(), http(alchemyHttpUrl)] : [http(alchemyHttpUrl), http()];
+      }
+    }
+    return createClient({
+      chain,
+      transport: fallback(rpcFallbacks),
+      ...(chain.id !== (hardhat as Chain).id ? { pollingInterval: scaffoldConfig.pollingInterval } : {}),
+    });
+  },
 });
 
-// Use wagmi config directly from adapter - AppKit manages this
-export const appkitWagmiConfig = wagmiAdapter.wagmiConfig;
+// Keep this export for compatibility
+export const appkitWagmiConfig = wagmiConfig;
