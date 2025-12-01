@@ -12,12 +12,18 @@ const { targetNetworks, walletConnectProjectId } = scaffoldConfig;
 const getWagmiConnectors = () => {
   const connectors = [];
 
-  // Injected connector (MetaMask, etc.)
-  connectors.push(
-    injected({
-      shimDisconnect: true,
-    }),
-  );
+  // Check if we're in an iframe (miniapp context like Base app or Farcaster)
+  const isInIframe = typeof window !== "undefined" && window.self !== window.top;
+
+  // Only add injected connector (MetaMask, etc.) if NOT in an iframe
+  // This prevents MetaMask from popping up in Base app or Farcaster miniapp
+  if (!isInIframe) {
+    connectors.push(
+      injected({
+        shimDisconnect: true,
+      }),
+    );
+  }
 
   // WalletConnect
   if (walletConnectProjectId) {
