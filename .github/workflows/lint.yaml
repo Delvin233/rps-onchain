@@ -33,6 +33,9 @@ jobs:
       - name: Run hardhat node, deploy contracts (& generate contracts typescript output)
         run: yarn chain & yarn deploy
 
+      - name: Run hardhat tests
+        run: yarn hardhat:test
+
       - name: Run hardhat lint
         run: yarn hardhat:lint --max-warnings=0
 
