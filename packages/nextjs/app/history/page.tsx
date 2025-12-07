@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
+import { FaLightbulb } from "react-icons/fa6";
 import { LoginButton } from "~~/components/LoginButton";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
@@ -19,14 +20,25 @@ export default function HistoryPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { syncToIPFS, isSyncing } = useIPFSSync();
   const [displayCount, setDisplayCount] = useState(50);
+  const [showHint, setShowHint] = useState(true);
 
   useEffect(() => {
     if (isConnected && address) {
       fetchMatches();
       fetchBlockchainProofs();
+      // Check if user has seen the hint before
+      const hasSeenHint = localStorage.getItem("opponent_intel_hint_seen");
+      if (hasSeenHint) {
+        setShowHint(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected]);
+
+  const dismissHint = () => {
+    setShowHint(false);
+    localStorage.setItem("opponent_intel_hint_seen", "true");
+  };
 
   const fetchBlockchainProofs = async () => {
     try {
@@ -151,7 +163,7 @@ export default function HistoryPage() {
         <div className="text-center max-w-md mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
-              Match History
+              Opponent Intel
             </h1>
           </div>
           {isMiniPay ? (
@@ -174,8 +186,21 @@ export default function HistoryPage() {
         className="text-lg sm:text-xl md:text-2xl font-bold mb-4 break-words"
         style={{ color: "var(--color-primary)" }}
       >
-        Match History
+        Opponent Intel
       </h1>
+
+      {/* Strategic Hint */}
+      {showHint && matches.length > 0 && (
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-4 flex items-start gap-3">
+          <FaLightbulb className="text-primary flex-shrink-0 mt-1" size={20} />
+          <div className="flex-1">
+            <p className="text-sm text-base-content">Study your opponent&apos;s patterns to predict their next move!</p>
+          </div>
+          <button onClick={dismissHint} className="btn btn-xs btn-ghost flex-shrink-0">
+            Got it
+          </button>
+        </div>
+      )}
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button
           onClick={() => {

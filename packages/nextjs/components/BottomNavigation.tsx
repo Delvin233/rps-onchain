@@ -2,8 +2,9 @@
 
 import { useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { History, Home, Play, Shield, User } from "lucide-react";
+import { Home, Play, User } from "lucide-react";
 import toast from "react-hot-toast";
+import { MdDataObject, MdOutlineLeaderboard } from "react-icons/md";
 import { useOverlay } from "~~/components/overlays/OverlayManager";
 
 export const BottomNavigation = () => {
@@ -17,8 +18,8 @@ export const BottomNavigation = () => {
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/play", icon: Play, label: "Play" },
-    { path: "/history", icon: History, label: "History" },
-    { path: "/on-chain-matches", icon: Shield, label: "On-Chain" },
+    { path: "/history", icon: MdDataObject, label: "Intel" },
+    { path: "/leaderboards", icon: MdOutlineLeaderboard, label: "Ranks" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
 
@@ -26,7 +27,7 @@ export const BottomNavigation = () => {
     if (path === "/") return pathname === "/" || activeOverlay === "home";
     if (path === "/history") return pathname === "/history" || activeOverlay === "history";
     if (path === "/profile") return pathname === "/profile" || activeOverlay === "profile";
-    if (path === "/on-chain-matches") return pathname === "/on-chain-matches";
+    if (path === "/leaderboards") return pathname === "/leaderboards";
     return pathname.startsWith(path);
   };
 

@@ -33,12 +33,12 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/play",
   },
   {
-    label: "History",
+    label: "Opponent Intel",
     href: "/history",
   },
   {
-    label: "On-Chain",
-    href: "/on-chain-matches",
+    label: "Leaderboards",
+    href: "/leaderboards",
   },
   {
     label: "Profile",
