@@ -3,10 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
+import { FaLightbulb } from "react-icons/fa6";
 import { LoginButton } from "~~/components/LoginButton";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
+
+interface OpponentStats {
+  opponentAddress: string;
+  opponentName: string;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  ties: number;
+  winRate: number;
+  lastPlayed: number;
+  roomId: string;
+}
 
 export default function HistoryPage() {
   const { address, isConnected, isConnecting } = useConnectedAddress();
@@ -19,14 +32,25 @@ export default function HistoryPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { syncToIPFS, isSyncing } = useIPFSSync();
   const [displayCount, setDisplayCount] = useState(50);
+  const [showHint, setShowHint] = useState(true);
 
   useEffect(() => {
     if (isConnected && address) {
       fetchMatches();
       fetchBlockchainProofs();
+      // Check if user has seen the hint before
+      const hasSeenHint = localStorage.getItem("opponent_intel_hint_seen");
+      if (hasSeenHint) {
+        setShowHint(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, isConnected]);
+
+  const dismissHint = () => {
+    setShowHint(false);
+    localStorage.setItem("opponent_intel_hint_seen", "true");
+  };
 
   const fetchBlockchainProofs = async () => {
     try {
@@ -151,7 +175,7 @@ export default function HistoryPage() {
         <div className="text-center max-w-md mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
-              Match History
+              Opponent Intel
             </h1>
           </div>
           {isMiniPay ? (
@@ -168,14 +192,82 @@ export default function HistoryPage() {
     );
   }
 
+  // Calculate opponent stats
+  const calculateOpponentStats = (matches: MatchRecord[]): Map<string, OpponentStats> => {
+    const statsByOpponent = new Map<string, OpponentStats>();
+
+    matches.forEach(match => {
+      if (!match.players) return;
+
+      const isCreator = match.players.creator === address;
+      const opponentAddress = isCreator ? match.players.joiner : match.players.creator;
+      const opponentName = match.playerNames
+        ? isCreator
+          ? match.playerNames.joiner
+          : match.playerNames.creator
+        : null;
+
+      const stats = statsByOpponent.get(opponentAddress) || {
+        opponentAddress,
+        opponentName: opponentName || `${opponentAddress?.slice(0, 6)}...${opponentAddress?.slice(-4)}`,
+        totalGames: 0,
+        wins: 0,
+        losses: 0,
+        ties: 0,
+        winRate: 0,
+        lastPlayed: 0,
+        roomId: match.roomId || "",
+      };
+
+      const games = match.games || [];
+      games.forEach(game => {
+        stats.totalGames++;
+
+        const myMove = isCreator ? game.creatorMove : game.joinerMove;
+        const oppMove = isCreator ? game.joinerMove : game.creatorMove;
+
+        if (myMove === oppMove) {
+          stats.ties++;
+        } else if (game.winner === address) {
+          stats.wins++;
+        } else {
+          stats.losses++;
+        }
+
+        stats.lastPlayed = Math.max(stats.lastPlayed, game.timestamp || 0);
+      });
+
+      stats.winRate = stats.totalGames > 0 ? (stats.wins / stats.totalGames) * 100 : 0;
+
+      statsByOpponent.set(opponentAddress, stats);
+    });
+
+    return statsByOpponent;
+  };
+
+  const opponentStats = calculateOpponentStats(matches);
+
   return (
     <div ref={containerRef} className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0 overflow-y-auto">
       <h1
         className="text-lg sm:text-xl md:text-2xl font-bold mb-4 break-words"
         style={{ color: "var(--color-primary)" }}
       >
-        Match History
+        Opponent Intel
       </h1>
+
+      {/* Strategic Hint */}
+      {showHint && matches.length > 0 && (
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-4 flex items-start gap-3">
+          <FaLightbulb className="text-primary flex-shrink-0 mt-1" size={20} />
+          <div className="flex-1">
+            <p className="text-sm text-base-content">Study your opponent&apos;s patterns to predict their next move!</p>
+          </div>
+          <button onClick={dismissHint} className="btn btn-xs btn-ghost flex-shrink-0">
+            Got it
+          </button>
+        </div>
+      )}
       <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
         <button
           onClick={() => {
@@ -274,13 +366,14 @@ export default function HistoryPage() {
                 const displayGames = showExpand && !isExpanded ? games.slice(0, 5) : games;
                 const hasBlockchainProof = blockchainMatches[match.roomId || ""];
 
+                // Get opponent stats
+                const stats = opponentStats.get(opponentAddress || "");
+
                 return (
                   <div key={index} className="bg-card/50 rounded-xl p-4 h-fit border border-border">
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold break-words">
-                          vs {displayName} at {match.roomId}
-                        </p>
+                        <p className="font-semibold break-words">vs {displayName}</p>
                         {hasBlockchainProof && (
                           <button
                             onClick={() => setShowOnChainModal(match.roomId || null)}
@@ -291,14 +384,43 @@ export default function HistoryPage() {
                           </button>
                         )}
                       </div>
-                      <p className="text-base-content/60 opacity-80">
-                        {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
-                      </p>
-                      {games.length > 1 && (
-                        <p className="text-base-content/60 opacity-80">
-                          {games.length} game{games.length > 1 ? "s" : ""}
-                        </p>
+                      <p className="text-xs text-base-content/60 opacity-80">Room: {match.roomId}</p>
+
+                      {/* Opponent Stats */}
+                      {stats && (
+                        <div className="bg-base-200 rounded-lg p-2 mt-2 space-y-1">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-base-content/60">Total Games:</span>
+                            <span className="font-semibold">{stats.totalGames}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-base-content/60">Record:</span>
+                            <span className="font-semibold">
+                              <span className="text-success">{stats.wins}W</span> /{" "}
+                              <span className="text-error">{stats.losses}L</span> /{" "}
+                              <span className="text-warning">{stats.ties}T</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-base-content/60">Win Rate:</span>
+                            <span
+                              className={`font-semibold ${
+                                stats.winRate >= 60
+                                  ? "text-success"
+                                  : stats.winRate <= 40
+                                    ? "text-error"
+                                    : "text-warning"
+                              }`}
+                            >
+                              {stats.winRate.toFixed(0)}%
+                            </span>
+                          </div>
+                        </div>
                       )}
+
+                      <p className="text-base-content/60 opacity-80 mt-2 text-xs">
+                        Last played: {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
+                      </p>
                     </div>
                     <div className="space-y-2">
                       {displayGames.map((game: any, gIndex: number) => {
