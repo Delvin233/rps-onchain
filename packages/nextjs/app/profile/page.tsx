@@ -3,7 +3,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Copy, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
@@ -118,12 +118,6 @@ export default function ProfilePage() {
     }
   };
 
-  const copyAddress = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
-    }
-  };
-
   const isMiniPayCheck = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
 
   if (!address) {
@@ -187,74 +181,50 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* User Details - 2 columns on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        {/* Wallet Info */}
-        <div className="rounded-xl p-6 bg-card/50 border border-border">
-          <p
-            className="text-base-content/60 mb-2"
-            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-          >
-            Wallet Address
-          </p>
-          <div className="flex items-center justify-between">
-            <code className="font-mono" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
-              {address.slice(0, 10)}...{address.slice(-8)}
-            </code>
-            <button onClick={copyAddress} className="btn btn-sm btn-ghost">
-              <Copy size={16} />
-            </button>
-          </div>
-        </div>
-
-        {/* Display Name */}
-        <div className="rounded-xl p-6 bg-card/50 border border-border">
-          <p
-            className="text-base-content/60 mb-2"
-            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
-          >
-            Display Name
-          </p>
-          <div className="flex items-center gap-3">
-            {pfpUrl && (
-              <Image
-                src={pfpUrl}
-                alt={displayName}
-                width={40}
-                height={40}
-                className="rounded-full"
-                placeholder="blur"
-                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
-                onError={e => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            )}
-            <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
-              {displayName}
-              {hasEns && (
-                <span
-                  className={`text-xs ml-2 ${
-                    ensType === "mainnet"
-                      ? "text-success"
-                      : ensType === "basename"
-                        ? "text-primary"
-                        : ensType === "farcaster"
-                          ? "text-purple-500"
-                          : "text-info"
-                  }`}
-                >
-                  {ensType === "mainnet"
-                    ? "ENS"
+      {/* Display Name */}
+      <div className="rounded-xl p-6 bg-card/50 border border-border mb-4">
+        <p className="text-base-content/60 mb-2" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
+          Display Name
+        </p>
+        <div className="flex items-center gap-3">
+          {pfpUrl && (
+            <Image
+              src={pfpUrl}
+              alt={displayName}
+              width={40}
+              height={40}
+              className="rounded-full"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
+              onError={e => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          )}
+          <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
+            {displayName}
+            {hasEns && (
+              <span
+                className={`text-xs ml-2 ${
+                  ensType === "mainnet"
+                    ? "text-success"
                     : ensType === "basename"
-                      ? "BASENAME"
+                      ? "text-primary"
                       : ensType === "farcaster"
-                        ? "FC"
-                        : "BASE"}
-                </span>
-              )}
-            </p>
-          </div>
+                        ? "text-purple-500"
+                        : "text-info"
+                }`}
+              >
+                {ensType === "mainnet"
+                  ? "ENS"
+                  : ensType === "basename"
+                    ? "BASENAME"
+                    : ensType === "farcaster"
+                      ? "FC"
+                      : "BASE"}
+              </span>
+            )}
+          </p>
         </div>
       </div>
 
