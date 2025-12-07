@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolveDisplayName } from "~~/lib/nameResolver";
 import { getRankForWins } from "~~/lib/ranks";
 import { turso } from "~~/lib/turso";
 
@@ -50,11 +51,23 @@ export async function POST() {
           continue;
         }
 
+        // Resolve display name (with timeout)
+        let displayName: string | null = null;
+        try {
+          const namePromise = resolveDisplayName(address);
+          const timeoutPromise = new Promise<string>((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 2000),
+          );
+          displayName = await Promise.race([namePromise, timeoutPromise]);
+        } catch {
+          // Continue without display name if resolution fails
+        }
+
         // Insert into leaderboard
         await turso.execute({
           sql: `INSERT INTO ai_leaderboards (address, wins, rank, display_name, updated_at)
                 VALUES (?, ?, ?, ?, ?)`,
-          args: [address, aiWins, rank.name, null, Date.now()],
+          args: [address, aiWins, rank.name, displayName, Date.now()],
         });
 
         migrated++;

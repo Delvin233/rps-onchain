@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveDisplayName } from "~~/lib/nameResolver";
 import { getRankForWins } from "~~/lib/ranks";
 import { getPlayerRank, updatePlayerWins } from "~~/lib/turso";
 
@@ -75,8 +76,21 @@ export async function POST(request: NextRequest) {
     const newRankTier = getRankForWins(newWins);
     const rankChanged = previousRank !== null && previousRank !== newRankTier.name;
 
+    // Resolve display name (with 2 second timeout)
+    let displayName = existingPlayer?.display_name;
+    if (!displayName) {
+      try {
+        const namePromise = resolveDisplayName(lowerAddress);
+        const timeoutPromise = new Promise<string>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+        displayName = await Promise.race([namePromise, timeoutPromise]);
+      } catch (error) {
+        // Use existing display name or null if resolution fails/times out
+        console.log(`[Leaderboard] Name resolution failed for ${lowerAddress}:`, error);
+      }
+    }
+
     // Update database
-    const updatedPlayer = await updatePlayerWins(lowerAddress, newWins, newRankTier.name, existingPlayer?.display_name);
+    const updatedPlayer = await updatePlayerWins(lowerAddress, newWins, newRankTier.name, displayName);
 
     // Update rate limit
     rateLimitMap.set(lowerAddress, now);
