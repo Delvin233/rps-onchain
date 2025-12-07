@@ -37,8 +37,8 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/history",
   },
   {
-    label: "On-Chain",
-    href: "/on-chain-matches",
+    label: "Leaderboards",
+    href: "/leaderboards",
   },
   {
     label: "Profile",

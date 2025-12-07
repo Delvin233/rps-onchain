@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Users } from "lucide-react";
+import { Shield, User, Users } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { LoginButton } from "~~/components/LoginButton";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
@@ -170,6 +170,49 @@ export default function PlayModePage() {
                 style={{ fontSize: "calc(clamp(0.75rem, 2.5vw, 0.875rem) * var(--font-size-override, 1))" }}
               >
                 Play with friends - Free & Fun
+              </p>
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => router.push("/on-chain-matches")}
+          className="rounded-xl hover:scale-105 transition-all duration-200 text-center bg-card/50 border border-success/20 hover:border-success/50"
+          style={{
+            padding: "clamp(1rem, 3vh, 2rem)",
+          }}
+        >
+          <div className="flex flex-col items-center" style={{ gap: "clamp(0.5rem, 2vh, 1rem)" }}>
+            <div
+              className="rounded-lg"
+              style={{
+                padding: "clamp(0.5rem, 2vh, 1rem)",
+                backgroundColor: "rgba(var(--color-success-rgb, 34, 197, 94), 0.1)",
+              }}
+            >
+              <Shield
+                style={{
+                  width: "clamp(32px, 6vw, 48px)",
+                  height: "clamp(32px, 6vw, 48px)",
+                  color: "var(--color-success)",
+                }}
+              />
+            </div>
+            <div>
+              <h2
+                className="font-semibold"
+                style={{
+                  fontSize: "calc(clamp(1rem, 3vw, 1.25rem) * var(--font-size-override, 1))",
+                  marginBottom: "clamp(0.25rem, 1vh, 0.5rem)",
+                }}
+              >
+                On-Chain Verified
+              </h2>
+              <p
+                className="text-base-content/60"
+                style={{ fontSize: "calc(clamp(0.75rem, 2.5vw, 0.875rem) * var(--font-size-override, 1))" }}
+              >
+                Blockchain-verified matches
               </p>
             </div>
           </div>
