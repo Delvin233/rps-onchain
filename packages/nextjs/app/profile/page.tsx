@@ -181,52 +181,57 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Display Name */}
-      <div className="rounded-xl p-6 bg-card/50 border border-border mb-4">
-        <p className="text-base-content/60 mb-2" style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}>
-          Display Name
-        </p>
-        <div className="flex items-center gap-3">
-          {pfpUrl && (
-            <Image
-              src={pfpUrl}
-              alt={displayName}
-              width={40}
-              height={40}
-              className="rounded-full"
-              placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
-              onError={e => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          )}
-          <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
-            {displayName}
-            {hasEns && (
-              <span
-                className={`text-xs ml-2 ${
-                  ensType === "mainnet"
-                    ? "text-success"
-                    : ensType === "basename"
-                      ? "text-primary"
-                      : ensType === "farcaster"
-                        ? "text-purple-500"
-                        : "text-info"
-                }`}
-              >
-                {ensType === "mainnet"
-                  ? "ENS"
-                  : ensType === "basename"
-                    ? "BASENAME"
-                    : ensType === "farcaster"
-                      ? "FC"
-                      : "BASE"}
-              </span>
-            )}
+      {/* Display Name - Only show for non-MiniApp users */}
+      {!isMiniApp && (
+        <div className="rounded-xl p-6 bg-card/50 border border-border mb-4">
+          <p
+            className="text-base-content/60 mb-2"
+            style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
+          >
+            Display Name
           </p>
+          <div className="flex items-center gap-3">
+            {pfpUrl && (
+              <Image
+                src={pfpUrl}
+                alt={displayName}
+                width={40}
+                height={40}
+                className="rounded-full"
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzIi8+PC9zdmc+"
+                onError={e => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            )}
+            <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
+              {displayName}
+              {hasEns && (
+                <span
+                  className={`text-xs ml-2 ${
+                    ensType === "mainnet"
+                      ? "text-success"
+                      : ensType === "basename"
+                        ? "text-primary"
+                        : ensType === "farcaster"
+                          ? "text-purple-500"
+                          : "text-info"
+                  }`}
+                >
+                  {ensType === "mainnet"
+                    ? "ENS"
+                    : ensType === "basename"
+                      ? "BASENAME"
+                      : ensType === "farcaster"
+                        ? "FC"
+                        : "BASE"}
+                </span>
+              )}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Verification Status */}
       <div className="bg-card/50 rounded-xl p-6 mb-4 border border-border">
