@@ -83,7 +83,8 @@ export const appkitWagmiConfig = wagmiConfig;
 
 // Create WagmiAdapter for AppKit with our custom config
 // This allows AppKit to work with our Farcaster connector
+// Only show Base and Celo in network selector (mainnet is kept in wagmi for ENS resolution)
 export const wagmiAdapter = new WagmiAdapter({
-  networks: enabledChains as any,
+  networks: targetNetworks as any, // Only show Base and Celo, not mainnet
   projectId: walletConnectProjectId,
 });
