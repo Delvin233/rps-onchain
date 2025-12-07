@@ -2,8 +2,9 @@
 
 import { ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { History, Home, Play, Shield, User } from "lucide-react";
+import { Home, Play, Shield, User } from "lucide-react";
 import toast from "react-hot-toast";
+import { MdDataObject } from "react-icons/md";
 import { LoginButton } from "~~/components/LoginButton";
 
 export const DesktopLayout = ({ children }: { children: ReactNode }) => {
@@ -13,7 +14,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/play", icon: Play, label: "Play" },
-    { path: "/history", icon: History, label: "History" },
+    { path: "/history", icon: MdDataObject, label: "Opponent Intel" },
     { path: "/on-chain-matches", icon: Shield, label: "On-Chain" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
