@@ -29,10 +29,10 @@
 ### Environment Variables
 
 - [ ] **Verify all required environment variables are set in Vercel:**
-  - `TURSO_DATABASE_URL` - Turso database URL
-  - `TURSO_AUTH_TOKEN` - Turso authentication token
-  - `NEXT_PUBLIC_URL` - Your app's public URL
-  - `NEYNAR_API_KEY` (optional) - For Farcaster username resolution
+  - `TURSO_DATABASE_URL` - Turso database URL ✅ Required
+  - `TURSO_AUTH_TOKEN` - Turso authentication token ✅ Required
+  - `NEXT_PUBLIC_URL` - Your app's public URL ✅ Required
+  - `NEYNAR_API_KEY` - For Farcaster username resolution ✅ **Already configured**
 
 ### Code Review
 

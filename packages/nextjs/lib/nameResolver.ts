@@ -67,15 +67,43 @@ async function resolveBasename(address: string): Promise<string | null> {
 }
 
 /**
- * Resolve Farcaster username for an address
- * Note: This would require Farcaster API integration
- * For now, returns null - can be implemented later
+ * Resolve Farcaster username for an address via Neynar API
+ * @param address - Ethereum address
  * @returns Farcaster username or null
  */
-async function resolveFarcaster(): Promise<string | null> {
-  // TODO: Implement Farcaster username resolution via API
-  // This would require calling Farcaster's API or using a service like Neynar
-  return null;
+async function resolveFarcaster(address: string): Promise<string | null> {
+  const apiKey = process.env.NEYNAR_API_KEY;
+
+  // Skip if no API key configured
+  if (!apiKey) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`, {
+      headers: {
+        accept: "application/json",
+        api_key: apiKey,
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    // Check if user found
+    if (data && data[address] && data[address].length > 0) {
+      const user = data[address][0];
+      return user.username || null;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("[NameResolver] Farcaster resolution failed:", error);
+    return null;
+  }
 }
 
 /**
@@ -106,8 +134,8 @@ export async function resolveDisplayName(address: string): Promise<string> {
 
   // Try resolution methods in priority order
   try {
-    // 1. Try Farcaster (if implemented)
-    const farcasterName = await resolveFarcaster();
+    // 1. Try Farcaster (via Neynar API)
+    const farcasterName = await resolveFarcaster(lowerAddress);
     if (farcasterName) {
       cache.set(lowerAddress, { name: farcasterName, timestamp: now });
       return farcasterName;

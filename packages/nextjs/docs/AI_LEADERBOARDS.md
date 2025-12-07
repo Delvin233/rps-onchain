@@ -262,7 +262,7 @@ yarn test lib/__tests__/nameResolver.test.ts
 
 ## Future Enhancements
 
-- [ ] Farcaster username resolution via Neynar API
+- [x] ~~Farcaster username resolution via Neynar API~~ ✅ **Implemented**
 - [ ] Weekly/Monthly leaderboards
 - [ ] Rank decay for inactive players
 - [ ] Rank badges/icons
