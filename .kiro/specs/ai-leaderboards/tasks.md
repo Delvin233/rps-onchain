@@ -6,6 +6,30 @@ This document breaks down the AI Leaderboards feature into actionable implementa
 
 ## Phase 1: Database & Core Logic
 
+### Task 1.0: Migrate Existing Players to Leaderboard
+
+**File:** `packages/nextjs/app/api/leaderboard/ai/migrate/route.ts`
+
+**Description:** Create migration endpoint to populate leaderboard with existing AI players
+
+**Subtasks:**
+- [ ] Create migration API endpoint
+- [ ] Query all players from `stats` table with `ai_wins > 0`
+- [ ] For each player, calculate their rank based on current wins
+- [ ] Insert into `ai_leaderboards` table (address, wins, rank, updated_at)
+- [ ] Resolve display names for existing players
+- [ ] Add idempotency (skip if already migrated)
+- [ ] Log migration progress and results
+- [ ] Test with existing player data
+
+**Dependencies:** Task 1.1, Task 1.2
+
+**Estimated Time:** 2 hours
+
+**Note:** This ensures all existing AI players are included in the leaderboard from day 1
+
+---
+
 ### Task 1.1: Create Rank System Utilities
 
 **File:** `packages/nextjs/lib/ranks.ts`
