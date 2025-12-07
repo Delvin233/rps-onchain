@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { RefreshCw, Trophy } from "lucide-react";
 import { LeaderboardEntry } from "~~/components/LeaderboardEntry";
+import { LeaderboardSkeleton } from "~~/components/LeaderboardSkeleton";
 import { LoginButton } from "~~/components/LoginButton";
 import { RankBadge } from "~~/components/RankBadge";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
@@ -201,11 +202,7 @@ export default function AILeaderboardPage() {
       )}
 
       {/* Loading State */}
-      {loading && (
-        <div className="flex justify-center py-12">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
-      )}
+      {loading && <LeaderboardSkeleton count={10} />}
 
       {/* Error State */}
       {error && !loading && (

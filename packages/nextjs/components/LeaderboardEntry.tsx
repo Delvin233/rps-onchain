@@ -43,6 +43,7 @@ export const LeaderboardEntry: React.FC<LeaderboardEntryProps> = ({ entry, isCur
       className={`
         flex items-center justify-between p-4 rounded-lg
         transition-all duration-200 hover:scale-[1.02]
+        animate-fade-in
         ${isCurrentUser ? "bg-primary/10 border-2 border-primary shadow-lg" : "bg-base-200 hover:bg-base-300"}
       `}
     >
