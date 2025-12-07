@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { LoginButton } from "~~/components/LoginButton";
+import { useAIMatchCompletion } from "~~/hooks/useAIMatchCompletion";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
@@ -15,6 +16,7 @@ export default function SinglePlayerPage() {
   const router = useRouter();
   const { address, isConnected } = useConnectedAddress();
   const { isMiniApp } = usePlatformDetection();
+  const { updateLeaderboard } = useAIMatchCompletion();
   const [playerMove, setPlayerMove] = useState<Move | null>(null);
   const [aiMove, setAiMove] = useState<Move | null>(null);
   const [result, setResult] = useState<"win" | "lose" | "tie" | null>(null);
@@ -105,6 +107,11 @@ export default function SinglePlayerPage() {
           },
         }),
       });
+
+      // Update leaderboard if player won
+      if (address && data.result === "win") {
+        await updateLeaderboard(address, true);
+      }
     } catch (error) {
       console.error("Error playing AI:", error);
       sessionStorage.removeItem(`aiGameActive_${TAB_ID}`);
