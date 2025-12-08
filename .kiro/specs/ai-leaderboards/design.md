@@ -597,15 +597,95 @@ function isValidAddress(address: string): boolean {
 ## Deployment Checklist
 
 - [ ] Create `ai_leaderboards` table in Turso
+- [ ] **Run migration to populate existing players** (see Migration Notes below)
 - [ ] Deploy API endpoints
 - [ ] Update AI game completion logic
 - [ ] Add leaderboard navigation
-- [ ] Integrate rank display in profile
+- [ ] Integrate rank display in home page
 - [ ] Test rank calculations
 - [ ] Test name resolution
 - [ ] Monitor database performance
 - [ ] Set up error tracking
 - [ ] Document API for future reference
+
+## Migration Notes
+
+### Populating Existing Players
+
+When deploying the AI Leaderboards feature, existing players who have already played AI matches must be migrated to the new leaderboard system.
+
+**Migration Process:**
+
+1. **Query existing players:**
+   ```sql
+   SELECT address, ai_wins FROM stats WHERE ai_wins > 0;
+   ```
+
+2. **Calculate ranks:**
+   ```typescript
+   const rank = getRankForWins(ai_wins);
+   ```
+
+3. **Insert into leaderboard:**
+   ```sql
+   INSERT INTO ai_leaderboards (address, wins, rank, updated_at)
+   VALUES (?, ?, ?, ?)
+   ON CONFLICT(address) DO NOTHING;
+   ```
+
+4. **Resolve display names:**
+   - Attempt ENS/Basename/Farcaster resolution
+   - Store in `display_name` field
+   - Can be done async after initial migration
+
+**Migration Endpoint:**
+
+Create a one-time migration endpoint: `POST /api/leaderboard/ai/migrate`
+
+This endpoint should:
+- Be idempotent (safe to run multiple times)
+- Process players in batches (100 at a time)
+- Return migration statistics (total migrated, skipped, errors)
+- Be protected (admin-only or run once on deployment)
+
+**Example Migration Script:**
+
+```typescript
+// POST /api/leaderboard/ai/migrate
+export async function POST() {
+  const stats = await turso.execute({
+    sql: "SELECT address, ai_wins FROM stats WHERE ai_wins > 0"
+  });
+
+  let migrated = 0;
+  let skipped = 0;
+
+  for (const row of stats.rows) {
+    const address = row.address as string;
+    const wins = Number(row.ai_wins);
+    const rank = getRankForWins(wins).name;
+
+    try {
+      await turso.execute({
+        sql: `INSERT INTO ai_leaderboards (address, wins, rank, updated_at)
+              VALUES (?, ?, ?, ?)
+              ON CONFLICT(address) DO NOTHING`,
+        args: [address, wins, rank, Date.now()]
+      });
+      migrated++;
+    } catch (error) {
+      console.error(`Failed to migrate ${address}:`, error);
+      skipped++;
+    }
+  }
+
+  return { success: true, migrated, skipped };
+}
+```
+
+**Post-Migration:**
+
+After migration, all future AI wins will be tracked automatically through the normal update flow.
 
 ## Monitoring & Analytics
 

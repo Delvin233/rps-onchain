@@ -47,19 +47,40 @@ export default function LeaderboardsPage() {
   return (
     <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
       <h1
-        className="text-lg sm:text-xl md:text-2xl font-bold mb-4 break-words"
+        className="text-lg sm:text-xl md:text-2xl font-bold mb-6 break-words"
         style={{ color: "var(--color-primary)" }}
       >
         Leaderboards
       </h1>
 
-      {/* Placeholder content */}
-      <div className="flex flex-col items-center justify-center py-12">
-        <Shield className="text-primary mb-4" size={64} />
-        <h2 className="text-xl font-semibold mb-2">Coming Soon!</h2>
-        <p className="text-base-content/60 text-center max-w-md">
-          Leaderboards will showcase top players, win streaks, and competitive rankings.
-        </p>
+      {/* Leaderboard Options */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+        {/* Single Player Ranks */}
+        <a
+          href="/leaderboards/ai"
+          className="block p-6 bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+        >
+          <div className="flex items-start gap-4">
+            <Shield className="text-primary flex-shrink-0" size={32} />
+            <div>
+              <h2 className="text-xl font-bold mb-2 text-base-content">Single Player Ranks</h2>
+              <p className="text-base-content/70 text-sm">
+                Compete against AI and climb the ranks. Earn your place among the RPS-Gods!
+              </p>
+            </div>
+          </div>
+        </a>
+
+        {/* Placeholder for future leaderboards */}
+        <div className="p-6 bg-base-100 rounded-lg border-2 border-base-300 opacity-50 cursor-not-allowed">
+          <div className="flex items-start gap-4">
+            <Shield className="text-base-content/40 flex-shrink-0" size={32} />
+            <div>
+              <h2 className="text-xl font-bold mb-2 text-base-content/60">Multiplayer Rankings</h2>
+              <p className="text-base-content/50 text-sm">Coming soon! Compete with other players.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
