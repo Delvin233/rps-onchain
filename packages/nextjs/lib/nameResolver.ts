@@ -113,6 +113,82 @@ async function resolveFarcaster(address: string): Promise<string | null> {
 }
 
 /**
+ * Bulk resolve Farcaster usernames for multiple addresses via Neynar API
+ * More efficient than calling resolveFarcaster multiple times
+ * @param addresses - Array of Ethereum addresses
+ * @returns Map of address to Farcaster username
+ */
+async function bulkResolveFarcaster(addresses: string[]): Promise<Map<string, string>> {
+  const results = new Map<string, string>();
+  const apiKey = process.env.NEYNAR_API_KEY;
+
+  // Skip if no API key configured
+  if (!apiKey) {
+    console.log("[NameResolver] NEYNAR_API_KEY not configured, skipping Farcaster resolution");
+    return results;
+  }
+
+  if (addresses.length === 0) {
+    return results;
+  }
+
+  try {
+    // Neynar bulk endpoint accepts up to 350 addresses at once
+    // We'll batch in groups of 100 to be safe
+    const batchSize = 100;
+
+    for (let i = 0; i < addresses.length; i += batchSize) {
+      const batch = addresses.slice(i, i + batchSize);
+      const lowerAddresses = batch.map(a => a.toLowerCase());
+      const addressesParam = lowerAddresses.join(",");
+
+      console.log(
+        `[NameResolver] Fetching Farcaster names for ${batch.length} addresses (batch ${Math.floor(i / batchSize) + 1})`,
+      );
+
+      const response = await fetch(
+        `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${addressesParam}`,
+        {
+          headers: {
+            accept: "application/json",
+            api_key: apiKey,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        console.error(`[NameResolver] Neynar bulk API returned ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
+
+      // Process results
+      for (const address of lowerAddresses) {
+        const users = data[address];
+        if (users && Array.isArray(users) && users.length > 0) {
+          const username = users[0].username;
+          if (username) {
+            results.set(address, username);
+            console.log(`[NameResolver] Found Farcaster name for ${address}: ${username}`);
+          }
+        }
+      }
+
+      // Small delay between batches to avoid rate limiting
+      if (i + batchSize < addresses.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    return results;
+  } catch (error) {
+    console.error("[NameResolver] Bulk Farcaster resolution failed:", error);
+    return results;
+  }
+}
+
+/**
  * Truncate an Ethereum address for display
  * @param address - Ethereum address
  * @returns Truncated address (0x1234...5678)
@@ -178,6 +254,7 @@ export async function resolveDisplayName(address: string, skipCache: boolean = f
 
 /**
  * Batch resolve display names for multiple addresses
+ * Uses bulk Farcaster API for efficiency
  * @param addresses - Array of Ethereum addresses
  * @param skipCache - Skip cache and force fresh resolution
  * @returns Map of address to display name
@@ -187,20 +264,74 @@ export async function batchResolveDisplayNames(
   skipCache: boolean = false,
 ): Promise<Map<string, string>> {
   const results = new Map<string, string>();
+  const now = Date.now();
+  const lowerAddresses = addresses.map(a => a.toLowerCase());
 
-  // Resolve in parallel with a limit to avoid overwhelming the RPC
-  const batchSize = 10;
-  for (let i = 0; i < addresses.length; i += batchSize) {
-    const batch = addresses.slice(i, i + batchSize);
-    const promises = batch.map(async address => {
-      const name = await resolveDisplayName(address, skipCache);
-      return { address: address.toLowerCase(), name };
-    });
+  // Step 1: Check cache for all addresses (if not skipping)
+  const uncachedAddresses: string[] = [];
 
-    const batchResults = await Promise.all(promises);
-    batchResults.forEach(({ address, name }) => {
-      results.set(address, name);
-    });
+  if (!skipCache) {
+    for (const address of lowerAddresses) {
+      const cached = cache.get(address);
+      if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+        results.set(address, cached.name);
+      } else {
+        uncachedAddresses.push(address);
+      }
+    }
+  } else {
+    uncachedAddresses.push(...lowerAddresses);
+  }
+
+  if (uncachedAddresses.length === 0) {
+    console.log("[NameResolver] All addresses found in cache");
+    return results;
+  }
+
+  console.log(`[NameResolver] Resolving ${uncachedAddresses.length} uncached addresses`);
+
+  // Step 2: Bulk resolve Farcaster names (most efficient)
+  const farcasterNames = await bulkResolveFarcaster(uncachedAddresses);
+
+  // Step 3: For addresses without Farcaster names, try ENS/Basename
+  const addressesNeedingENS: string[] = [];
+
+  for (const address of uncachedAddresses) {
+    const farcasterName = farcasterNames.get(address);
+    if (farcasterName) {
+      results.set(address, farcasterName);
+      cache.set(address, { name: farcasterName, timestamp: now });
+    } else {
+      addressesNeedingENS.push(address);
+    }
+  }
+
+  // Step 4: Resolve ENS/Basename for remaining addresses (in parallel batches)
+  if (addressesNeedingENS.length > 0) {
+    console.log(`[NameResolver] Resolving ENS/Basename for ${addressesNeedingENS.length} addresses`);
+
+    const batchSize = 10;
+    for (let i = 0; i < addressesNeedingENS.length; i += batchSize) {
+      const batch = addressesNeedingENS.slice(i, i + batchSize);
+      const promises = batch.map(async address => {
+        // Try ENS
+        const ensName = await resolveENS(address);
+        if (ensName) return { address, name: ensName };
+
+        // Try Basename
+        const basename = await resolveBasename(address);
+        if (basename) return { address, name: basename };
+
+        // Fallback to truncated address
+        return { address, name: truncateAddress(address) };
+      });
+
+      const batchResults = await Promise.all(promises);
+      batchResults.forEach(({ address, name }) => {
+        results.set(address, name);
+        cache.set(address, { name, timestamp: now });
+      });
+    }
   }
 
   return results;
