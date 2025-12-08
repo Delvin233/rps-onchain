@@ -324,3 +324,46 @@ export async function getPlayerPosition(address: string): Promise<number> {
     throw error;
   }
 }
+
+/**
+ * Get all players from the leaderboard
+ * @returns Array of all leaderboard entries
+ */
+export async function getAllPlayers(): Promise<LeaderboardEntry[]> {
+  try {
+    const result = await turso.execute("SELECT * FROM ai_leaderboards ORDER BY wins DESC");
+
+    const entries: LeaderboardEntry[] = result.rows.map(row => ({
+      address: row.address as string,
+      wins: Number(row.wins),
+      rank: row.rank as string,
+      display_name: row.display_name as string | null,
+      updated_at: Number(row.updated_at),
+    }));
+
+    return entries;
+  } catch (error) {
+    console.error("[Leaderboard] Error getting all players:", error);
+    throw error;
+  }
+}
+
+/**
+ * Update a player's display name
+ * @param address - Player's wallet address (lowercase)
+ * @param displayName - New display name
+ */
+export async function updatePlayerDisplayName(address: string, displayName: string): Promise<void> {
+  try {
+    const lowerAddress = address.toLowerCase();
+    const now = Date.now();
+
+    await turso.execute({
+      sql: "UPDATE ai_leaderboards SET display_name = ?, updated_at = ? WHERE address = ?",
+      args: [displayName, now, lowerAddress],
+    });
+  } catch (error) {
+    console.error("[Leaderboard] Error updating player display name:", error);
+    throw error;
+  }
+}

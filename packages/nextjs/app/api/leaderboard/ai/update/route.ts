@@ -77,16 +77,20 @@ export async function POST(request: NextRequest) {
     const rankChanged = previousRank !== null && previousRank !== newRankTier.name;
 
     // Resolve display name (with 2 second timeout)
+    // Always try to resolve name to pick up updates (Farcaster usernames, new ENS, etc.)
     let displayName = existingPlayer?.display_name;
-    if (!displayName) {
-      try {
-        const namePromise = resolveDisplayName(lowerAddress);
-        const timeoutPromise = new Promise<string>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
-        displayName = await Promise.race([namePromise, timeoutPromise]);
-      } catch (error) {
-        // Use existing display name or null if resolution fails/times out
-        console.log(`[Leaderboard] Name resolution failed for ${lowerAddress}:`, error);
+    try {
+      const namePromise = resolveDisplayName(lowerAddress);
+      const timeoutPromise = new Promise<string>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+      const resolvedName = await Promise.race([namePromise, timeoutPromise]);
+
+      // Only update if we got a better name (not just truncated address)
+      if (resolvedName && !resolvedName.includes("...")) {
+        displayName = resolvedName;
       }
+    } catch {
+      // Keep existing display name if resolution fails/times out
+      console.log(`[Leaderboard] Name resolution failed for ${lowerAddress}, keeping existing:`, displayName);
     }
 
     // Update database
