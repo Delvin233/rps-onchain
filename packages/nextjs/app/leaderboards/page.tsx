@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { LoginButton } from "~~/components/LoginButton";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 
@@ -61,7 +61,7 @@ export default function LeaderboardsPage() {
           className="block p-6 bg-base-100 rounded-lg border-2 border-base-300 hover:border-primary transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
         >
           <div className="flex items-start gap-4">
-            <Shield className="text-primary flex-shrink-0" size={32} />
+            <User className="text-primary flex-shrink-0" size={32} />
             <div>
               <h2 className="text-xl font-bold mb-2 text-base-content">Single Player Ranks</h2>
               <p className="text-base-content/70 text-sm">
@@ -74,7 +74,7 @@ export default function LeaderboardsPage() {
         {/* Placeholder for future leaderboards */}
         <div className="p-6 bg-base-100 rounded-lg border-2 border-base-300 opacity-50 cursor-not-allowed">
           <div className="flex items-start gap-4">
-            <Shield className="text-base-content/40 flex-shrink-0" size={32} />
+            <Users className="text-base-content/40 flex-shrink-0" size={32} />
             <div>
               <h2 className="text-xl font-bold mb-2 text-base-content/60">Multiplayer Rankings</h2>
               <p className="text-base-content/50 text-sm">Coming soon! Compete with other players.</p>
