@@ -52,16 +52,19 @@ const triggerConfetti = () => {
 export function useAIMatchCompletion() {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const updateLeaderboard = async (address: string, won: boolean) => {
+  const updateLeaderboard = async (address: string, won: boolean, matchId?: string) => {
     if (!address || !won) return;
 
     setIsUpdating(true);
+
+    // Generate unique match ID if not provided
+    const uniqueMatchId = matchId || `${address}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
       const response = await fetch("/api/leaderboard/ai/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, won }),
+        body: JSON.stringify({ address, won, matchId: uniqueMatchId }),
       });
 
       const result = await response.json();
@@ -82,12 +85,7 @@ export function useAIMatchCompletion() {
 
         return result.data;
       } else {
-        // Handle rate limiting
-        if (response.status === 429) {
-          console.log("[Leaderboard] Rate limited, will update on next win");
-        } else {
-          console.error("[Leaderboard] Update failed:", result.error);
-        }
+        console.error("[Leaderboard] Update failed:", result.error);
       }
     } catch (error) {
       console.error("[Leaderboard] Failed to update leaderboard:", error);

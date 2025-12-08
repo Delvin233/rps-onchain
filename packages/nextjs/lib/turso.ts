@@ -210,6 +210,56 @@ export async function getPlayerRank(address: string): Promise<LeaderboardEntry |
 }
 
 /**
+ * Atomically increment a player's wins and update rank
+ * This prevents race conditions when multiple wins are recorded simultaneously
+ * @param address - Player's wallet address (lowercase)
+ * @param rank - New rank name
+ * @param displayName - Optional display name (ENS/Basename/Farcaster)
+ * @returns Updated player data
+ */
+export async function incrementPlayerWins(
+  address: string,
+  rank: string,
+  displayName?: string | null,
+): Promise<LeaderboardEntry> {
+  try {
+    const now = Date.now();
+    const lowerAddress = address.toLowerCase();
+
+    // Check if player exists
+    const existing = await getPlayerRank(lowerAddress);
+
+    if (existing) {
+      // Atomic increment using SQL
+      await turso.execute({
+        sql: `UPDATE ai_leaderboards 
+              SET wins = wins + 1, rank = ?, display_name = ?, updated_at = ?
+              WHERE address = ?`,
+        args: [rank, displayName ?? existing.display_name ?? null, now, lowerAddress],
+      });
+    } else {
+      // Insert new player with 1 win
+      await turso.execute({
+        sql: `INSERT INTO ai_leaderboards (address, wins, rank, display_name, updated_at)
+              VALUES (?, 1, ?, ?, ?)`,
+        args: [lowerAddress, rank, displayName ?? null, now],
+      });
+    }
+
+    // Return updated data
+    const updated = await getPlayerRank(lowerAddress);
+    if (!updated) {
+      throw new Error("Failed to retrieve updated player data");
+    }
+
+    return updated;
+  } catch (error) {
+    console.error("[Leaderboard] Error incrementing player wins:", error);
+    throw error;
+  }
+}
+
+/**
  * Update a player's wins and rank in the leaderboard
  * @param address - Player's wallet address (lowercase)
  * @param wins - New total wins

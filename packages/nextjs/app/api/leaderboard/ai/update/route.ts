@@ -1,29 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resolveDisplayName } from "~~/lib/nameResolver";
 import { getRankForWins } from "~~/lib/ranks";
-import { getPlayerRank, updatePlayerWins } from "~~/lib/turso";
+import { getPlayerRank, incrementPlayerWins } from "~~/lib/turso";
 
 /**
  * Update player wins after AI match completion
  *
  * This endpoint:
- * 1. Validates the request (address, won)
- * 2. Increments player's win count
- * 3. Recalculates and updates rank
- * 4. Returns updated stats with rank change indicator
+ * 1. Validates the request (address, won, matchId)
+ * 2. Verifies the match exists and is a win
+ * 3. Increments player's win count (atomic)
+ * 4. Recalculates and updates rank
+ * 5. Returns updated stats with rank change indicator
  *
  * POST /api/leaderboard/ai/update
- * Body: { address: string, won: boolean }
+ * Body: { address: string, won: boolean, matchId: string }
  */
 
-// Rate limiting map: address -> last update timestamp
-const rateLimitMap = new Map<string, number>();
-const RATE_LIMIT_MS = 500; // 500ms between updates (prevents double-submission, allows fast gameplay)
+// Track processed matches to prevent double-counting
+const processedMatches = new Map<string, number>();
+const PROCESSED_TTL_MS = 300000; // 5 minutes
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address, won } = body;
+    const { address, won, matchId } = body;
 
     // Validate request body
     if (!address || typeof address !== "string") {
@@ -32,6 +33,10 @@ export async function POST(request: NextRequest) {
 
     if (typeof won !== "boolean") {
       return NextResponse.json({ success: false, error: "Invalid won parameter" }, { status: 400 });
+    }
+
+    if (!matchId || typeof matchId !== "string") {
+      return NextResponse.json({ success: false, error: "Invalid matchId" }, { status: 400 });
     }
 
     // Only update if player won
@@ -44,35 +49,63 @@ export async function POST(request: NextRequest) {
 
     const lowerAddress = address.toLowerCase();
 
-    // Rate limiting check
-    const lastUpdate = rateLimitMap.get(lowerAddress);
+    // Check if this match was already processed (prevents double-counting)
     const now = Date.now();
+    const lastProcessed = processedMatches.get(matchId);
 
-    if (lastUpdate && now - lastUpdate < RATE_LIMIT_MS) {
-      const waitTime = Math.ceil((RATE_LIMIT_MS - (now - lastUpdate)) / 1000);
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Rate limit exceeded. Please wait ${waitTime} seconds.`,
+    if (lastProcessed && now - lastProcessed < PROCESSED_TTL_MS) {
+      console.log(`[Leaderboard] Match ${matchId} already processed, skipping`);
+      return NextResponse.json({
+        success: true,
+        message: "Match already processed",
+      });
+    }
+
+    // Verify the match exists in Redis history (anti-cheat)
+    try {
+      const historyResponse = await fetch(`${request.nextUrl.origin}/api/user-matches?address=${lowerAddress}`, {
+        headers: {
+          "Content-Type": "application/json",
         },
-        { status: 429 },
-      );
+      });
+
+      if (historyResponse.ok) {
+        const historyData = await historyResponse.json();
+        const matches = historyData.matches || [];
+
+        // Check if this matchId exists in recent history (last 100 matches)
+        const matchExists = matches.some((match: any) => {
+          // Match must be against AI, be a win, and have matching ID
+          return match.opponent === "AI" && match.result === "win" && match.id === matchId;
+        });
+
+        if (!matchExists) {
+          console.warn(`[Leaderboard] Match ${matchId} not found in history for ${lowerAddress}`);
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Match verification failed",
+            },
+            { status: 403 },
+          );
+        }
+      } else {
+        console.warn(`[Leaderboard] Could not verify match history for ${lowerAddress}`);
+        // Allow update even if history check fails (Redis might be down)
+        // But log it for monitoring
+      }
+    } catch (error) {
+      console.error(`[Leaderboard] Error verifying match:`, error);
+      // Allow update even if verification fails (don't block legitimate users)
     }
 
-    // Get current player data
+    // Get current player data (for rank change detection and name resolution)
     const existingPlayer = await getPlayerRank(lowerAddress);
+    const previousRank = existingPlayer?.rank || null;
+    const previousWins = existingPlayer?.wins || 0;
 
-    let newWins: number;
-    let previousRank: string | null = null;
-
-    if (existingPlayer) {
-      newWins = existingPlayer.wins + 1;
-      previousRank = existingPlayer.rank;
-    } else {
-      newWins = 1;
-    }
-
-    // Calculate new rank
+    // Calculate what the new rank will be after incrementing
+    const newWins = previousWins + 1;
     const newRankTier = getRankForWins(newWins);
     const rankChanged = previousRank !== null && previousRank !== newRankTier.name;
 
@@ -93,16 +126,16 @@ export async function POST(request: NextRequest) {
       console.log(`[Leaderboard] Name resolution failed for ${lowerAddress}, keeping existing:`, displayName);
     }
 
-    // Update database
-    const updatedPlayer = await updatePlayerWins(lowerAddress, newWins, newRankTier.name, displayName);
+    // Atomically increment wins in database (prevents race conditions)
+    const updatedPlayer = await incrementPlayerWins(lowerAddress, newRankTier.name, displayName);
 
-    // Update rate limit
-    rateLimitMap.set(lowerAddress, now);
+    // Mark this match as processed
+    processedMatches.set(matchId, now);
 
-    // Clean up old rate limit entries (older than 1 minute)
-    for (const [addr, timestamp] of rateLimitMap.entries()) {
-      if (now - timestamp > 60000) {
-        rateLimitMap.delete(addr);
+    // Clean up old processed matches (older than TTL)
+    for (const [id, timestamp] of processedMatches.entries()) {
+      if (now - timestamp > PROCESSED_TTL_MS) {
+        processedMatches.delete(id);
       }
     }
 

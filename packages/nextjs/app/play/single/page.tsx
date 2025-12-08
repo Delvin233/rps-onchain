@@ -91,13 +91,17 @@ export default function SinglePlayerPage() {
       setResult(data.result);
       setIsPlaying(false);
 
-      // Store to Redis history
+      // Generate unique match ID for verification
+      const matchId = `${address}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Store to Redis history with matchId
       await fetch("/api/history-fast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           address,
           match: {
+            id: matchId,
             opponent: "AI",
             player: address,
             playerMove: move,
@@ -108,9 +112,9 @@ export default function SinglePlayerPage() {
         }),
       });
 
-      // Update leaderboard if player won
+      // Update leaderboard if player won (with matchId for verification)
       if (address && data.result === "win") {
-        await updateLeaderboard(address, true);
+        await updateLeaderboard(address, true, matchId);
       }
     } catch (error) {
       console.error("Error playing AI:", error);
