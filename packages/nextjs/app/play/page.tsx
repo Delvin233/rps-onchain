@@ -64,25 +64,29 @@ export default function PlayModePage() {
           >
             Choose Game Mode
           </h1>
-          <div className="relative">
+          <div className="relative inline-block">
             <IoInformationCircle
               className="text-base-content/40 hover:text-base-content/60 cursor-pointer flex-shrink-0"
               size={16}
               onClick={() => setShowTooltip(!showTooltip)}
-              onMouseEnter={() => setShowTooltip(true)}
-              onMouseLeave={() => setShowTooltip(false)}
             />
             {showTooltip && (
-              <div
-                className="absolute right-0 top-8 w-64 sm:w-80 bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in cursor-pointer"
-                onClick={() => setShowTooltip(false)}
-              >
-                <p className="text-xs text-base-content/80">
-                  <strong>Testing tip:</strong> To test multiplayer with different accounts, use separate browsers
-                  (e.g., Chrome + Firefox). Switching accounts in the same browser shares localStorage and may cause
-                  silent failures.
-                </p>
-              </div>
+              <>
+                {/* Backdrop to close tooltip */}
+                <div className="fixed inset-0 z-40" onClick={() => setShowTooltip(false)} />
+                {/* Tooltip positioned below the cards */}
+                <div
+                  className="fixed left-4 right-4 mx-auto max-w-md bg-base-300 border border-primary/30 rounded-lg p-3 z-50 shadow-lg animate-fade-in"
+                  style={{ top: "auto", bottom: "2rem" }}
+                  onClick={() => setShowTooltip(false)}
+                >
+                  <p className="text-xs text-base-content/80">
+                    <strong>Testing tip:</strong> To test multiplayer with different accounts, use separate browsers
+                    (e.g., Chrome + Firefox). Switching accounts in the same browser shares localStorage and may cause
+                    silent failures.
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </div>
