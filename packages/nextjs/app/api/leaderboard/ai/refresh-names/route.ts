@@ -33,20 +33,27 @@ export async function POST() {
       });
     }
 
-    // Batch resolve all names
+    // Batch resolve all names (skip cache to force fresh resolution)
     const addresses = players.map(p => p.address);
-    const resolvedNames = await batchResolveDisplayNames(addresses);
+    console.log(`[Leaderboard] Resolving names for addresses:`, addresses);
+
+    const resolvedNames = await batchResolveDisplayNames(addresses, true);
+    console.log(`[Leaderboard] Resolved names:`, Array.from(resolvedNames.entries()));
 
     // Update database with new names
     let updated = 0;
     for (const player of players) {
       const newName = resolvedNames.get(player.address);
 
+      console.log(`[Leaderboard] Player ${player.address}: current="${player.display_name}", resolved="${newName}"`);
+
       // Only update if we got a better name (not truncated address)
       if (newName && !newName.includes("...") && newName !== player.display_name) {
         await updatePlayerDisplayName(player.address, newName);
         console.log(`[Leaderboard] Updated ${player.address}: "${player.display_name}" → "${newName}"`);
         updated++;
+      } else {
+        console.log(`[Leaderboard] Skipped ${player.address}: no improvement (has "..." or same name)`);
       }
     }
 

@@ -76,6 +76,7 @@ async function resolveFarcaster(address: string): Promise<string | null> {
 
   // Skip if no API key configured
   if (!apiKey) {
+    console.log("[NameResolver] NEYNAR_API_KEY not configured, skipping Farcaster resolution");
     return null;
   }
 
@@ -124,17 +125,20 @@ function truncateAddress(address: string): string {
  * Resolve display name for an address
  * Tries multiple resolution methods in priority order
  * @param address - Ethereum address
+ * @param skipCache - Skip cache and force fresh resolution
  * @returns Display name (ENS/Basename/Farcaster/truncated address)
  */
-export async function resolveDisplayName(address: string): Promise<string> {
+export async function resolveDisplayName(address: string, skipCache: boolean = false): Promise<string> {
   const lowerAddress = address.toLowerCase();
-
-  // Check cache first
-  const cached = cache.get(lowerAddress);
   const now = Date.now();
 
-  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
-    return cached.name;
+  // Check cache first (unless skipCache is true)
+  if (!skipCache) {
+    const cached = cache.get(lowerAddress);
+
+    if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+      return cached.name;
+    }
   }
 
   // Try resolution methods in priority order
@@ -175,9 +179,13 @@ export async function resolveDisplayName(address: string): Promise<string> {
 /**
  * Batch resolve display names for multiple addresses
  * @param addresses - Array of Ethereum addresses
+ * @param skipCache - Skip cache and force fresh resolution
  * @returns Map of address to display name
  */
-export async function batchResolveDisplayNames(addresses: string[]): Promise<Map<string, string>> {
+export async function batchResolveDisplayNames(
+  addresses: string[],
+  skipCache: boolean = false,
+): Promise<Map<string, string>> {
   const results = new Map<string, string>();
 
   // Resolve in parallel with a limit to avoid overwhelming the RPC
@@ -185,7 +193,7 @@ export async function batchResolveDisplayNames(addresses: string[]): Promise<Map
   for (let i = 0; i < addresses.length; i += batchSize) {
     const batch = addresses.slice(i, i + batchSize);
     const promises = batch.map(async address => {
-      const name = await resolveDisplayName(address);
+      const name = await resolveDisplayName(address, skipCache);
       return { address: address.toLowerCase(), name };
     });
 
