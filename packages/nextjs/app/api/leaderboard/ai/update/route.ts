@@ -18,7 +18,7 @@ import { getPlayerRank, updatePlayerWins } from "~~/lib/turso";
 
 // Rate limiting map: address -> last update timestamp
 const rateLimitMap = new Map<string, number>();
-const RATE_LIMIT_MS = 10000; // 10 seconds between updates
+const RATE_LIMIT_MS = 500; // 500ms between updates (prevents double-submission, allows fast gameplay)
 
 export async function POST(request: NextRequest) {
   try {

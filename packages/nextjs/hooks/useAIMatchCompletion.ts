@@ -82,7 +82,12 @@ export function useAIMatchCompletion() {
 
         return result.data;
       } else {
-        console.error("[Leaderboard] Update failed:", result.error);
+        // Handle rate limiting
+        if (response.status === 429) {
+          console.log("[Leaderboard] Rate limited, will update on next win");
+        } else {
+          console.error("[Leaderboard] Update failed:", result.error);
+        }
       }
     } catch (error) {
       console.error("[Leaderboard] Failed to update leaderboard:", error);
