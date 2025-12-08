@@ -20,10 +20,20 @@ export const CRTEffect = () => {
     };
 
     checkCRT();
+
+    // Listen for storage changes
     window.addEventListener("storage", checkCRT);
+
+    // Listen for address changes (custom event from AuthContext)
+    window.addEventListener("addressChanged", checkCRT);
+
+    // Poll for address changes as fallback (in case event isn't fired)
+    const interval = setInterval(checkCRT, 1000);
 
     return () => {
       window.removeEventListener("storage", checkCRT);
+      window.removeEventListener("addressChanged", checkCRT);
+      clearInterval(interval);
       document.body.classList.remove("crt-active");
     };
   }, []);
