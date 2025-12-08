@@ -88,15 +88,27 @@ async function resolveFarcaster(address: string): Promise<string | null> {
 
   try {
     const lowerAddress = address.toLowerCase();
-    const response = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${lowerAddress}`, {
+
+    // Neynar v2 endpoint for bulk address lookup
+    // Note: This endpoint returns 404 if NONE of the addresses have Farcaster accounts
+    // It returns 200 with empty object {} if addresses exist but have no accounts
+    const url = `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${lowerAddress}`;
+
+    const response = await fetch(url, {
       headers: {
         accept: "application/json",
         api_key: apiKey,
       },
     });
 
+    // 404 means the address doesn't have a Farcaster account (this is normal)
+    if (response.status === 404) {
+      return null;
+    }
+
     if (!response.ok) {
-      console.error(`[NameResolver] Neynar API returned ${response.status}`);
+      const errorText = await response.text();
+      console.error(`[NameResolver] Neynar API returned ${response.status}: ${errorText}`);
       return null;
     }
 
@@ -152,18 +164,24 @@ async function bulkResolveFarcaster(addresses: string[]): Promise<Map<string, st
         `[NameResolver] Fetching Farcaster names for ${batch.length} addresses (batch ${Math.floor(i / batchSize) + 1})`,
       );
 
-      const response = await fetch(
-        `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${addressesParam}`,
-        {
-          headers: {
-            accept: "application/json",
-            api_key: apiKey,
-          },
+      const url = `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${addressesParam}`;
+
+      const response = await fetch(url, {
+        headers: {
+          accept: "application/json",
+          api_key: apiKey,
         },
-      );
+      });
+
+      // 404 means none of these addresses have Farcaster accounts (this is normal)
+      if (response.status === 404) {
+        console.log(`[NameResolver] Batch ${Math.floor(i / batchSize) + 1} returned 404 - no Farcaster accounts found`);
+        continue;
+      }
 
       if (!response.ok) {
-        console.error(`[NameResolver] Neynar bulk API returned ${response.status}`);
+        const errorText = await response.text();
+        console.error(`[NameResolver] Neynar bulk API returned ${response.status}: ${errorText}`);
         continue;
       }
 
