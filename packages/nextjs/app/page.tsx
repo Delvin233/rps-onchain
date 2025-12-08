@@ -134,6 +134,19 @@ export default function Home() {
 
   const statsData = [
     {
+      title: "AI Rank",
+      value: playerRank?.rank || "Unranked",
+      icon: Trophy,
+      subtitle: playerRank?.nextRank
+        ? `Next: ${playerRank.nextRank.name} (${playerRank.nextRank.winsNeeded} wins)`
+        : playerRank?.rank === "Unranked"
+          ? "Win AI matches to earn ranks"
+          : "Maximum Rank!",
+      isRank: true,
+      rankData: playerRank,
+      onClick: () => router.push("/leaderboards/ai"),
+    },
+    {
       title: "Total Games",
       value: stats.totalGames.toString(),
       icon: Target,
@@ -150,19 +163,6 @@ export default function Home() {
       value: `${stats.multiplayer?.wins || 0}/${stats.multiplayer?.totalGames || 0}`,
       icon: Coins,
       subtitle: `${stats.multiplayer?.winRate || 0}% win rate`,
-    },
-    {
-      title: "AI Rank",
-      value: playerRank?.rank || "Unranked",
-      icon: Trophy,
-      subtitle: playerRank?.nextRank
-        ? `Next: ${playerRank.nextRank.name} (${playerRank.nextRank.winsNeeded} wins)`
-        : playerRank?.rank === "Unranked"
-          ? "Win AI matches to earn ranks"
-          : "Maximum Rank!",
-      isRank: true,
-      rankData: playerRank,
-      onClick: () => router.push("/leaderboards/ai"),
     },
   ];
 
@@ -427,6 +427,11 @@ export default function Home() {
                     ? hasGradient(stat.rankData.rank)
                     : false;
 
+                // Determine border styling
+                const borderStyle =
+                  isRankCard && rankColor ? `2px solid ${rankColor}` : "1px solid rgba(255, 255, 255, 0.2)";
+                const boxShadowStyle = isRankCard && rankColor ? `0 0 20px ${rankColor}40` : "none";
+
                 return (
                   <div
                     key={stat.title}
@@ -436,11 +441,8 @@ export default function Home() {
                     }`}
                     style={{
                       animationDelay: `${index * 100}ms`,
-                      border:
-                        isRankCard && rankColor
-                          ? `2px solid ${rankColor}`
-                          : "1px solid var(--fallback-bc,oklch(var(--bc)/0.2))",
-                      boxShadow: isRankCard && rankColor ? `0 0 20px ${rankColor}40` : "none",
+                      border: borderStyle,
+                      boxShadow: boxShadowStyle,
                       background: hasGradientBorder
                         ? `linear-gradient(var(--fallback-b1,oklch(var(--b1))), var(--fallback-b1,oklch(var(--b1)))) padding-box, ${rankColor} border-box`
                         : undefined,

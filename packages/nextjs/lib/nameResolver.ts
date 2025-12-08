@@ -80,7 +80,8 @@ async function resolveFarcaster(address: string): Promise<string | null> {
   }
 
   try {
-    const response = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`, {
+    const lowerAddress = address.toLowerCase();
+    const response = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${lowerAddress}`, {
       headers: {
         accept: "application/json",
         api_key: apiKey,
@@ -88,14 +89,18 @@ async function resolveFarcaster(address: string): Promise<string | null> {
     });
 
     if (!response.ok) {
+      console.error(`[NameResolver] Neynar API returned ${response.status}`);
       return null;
     }
 
     const data = await response.json();
 
-    // Check if user found
-    if (data && data[address] && data[address].length > 0) {
-      const user = data[address][0];
+    // Neynar bulk-by-address returns: { [address]: [user1, user2, ...] }
+    // Try both lowercase and original address as keys
+    const users = data[lowerAddress] || data[address];
+
+    if (users && Array.isArray(users) && users.length > 0) {
+      const user = users[0];
       return user.username || null;
     }
 
