@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the match exists in Redis history (anti-cheat)
+    // NOTE: This is lenient during migration - old matches don't have IDs
     try {
       const historyResponse = await fetch(`${request.nextUrl.origin}/api/user-matches?address=${lowerAddress}`, {
         headers: {
@@ -73,26 +74,43 @@ export async function POST(request: NextRequest) {
         const historyData = await historyResponse.json();
         const matches = historyData.matches || [];
 
-        // Check if this matchId exists in recent history (last 100 matches)
-        const matchExists = matches.some((match: any) => {
-          // Match must be against AI, be a win, and have matching ID
-          return match.opponent === "AI" && match.result === "win" && match.id === matchId;
-        });
+        // Check if this matchId exists in recent history
+        const matchWithId = matches.find((match: any) => match.id === matchId);
 
-        if (!matchExists) {
-          console.warn(`[Leaderboard] Match ${matchId} not found in history for ${lowerAddress}`);
-          return NextResponse.json(
-            {
-              success: false,
-              error: "Match verification failed",
-            },
-            { status: 403 },
-          );
+        if (matchWithId) {
+          // Perfect! Match found with ID
+          if (matchWithId.opponent !== "AI" || matchWithId.result !== "win") {
+            console.warn(`[Leaderboard] Match ${matchId} is not an AI win`);
+            return NextResponse.json(
+              {
+                success: false,
+                error: "Match is not an AI win",
+              },
+              { status: 403 },
+            );
+          }
+        } else {
+          // Match ID not found - could be old match without ID
+          // Check if user has recent AI wins (lenient check during migration)
+          const recentAIWins = matches.filter((match: any) => match.opponent === "AI" && match.result === "win").length;
+
+          if (recentAIWins === 0) {
+            console.warn(`[Leaderboard] No recent AI wins found for ${lowerAddress}`);
+            return NextResponse.json(
+              {
+                success: false,
+                error: "No recent AI wins found",
+              },
+              { status: 403 },
+            );
+          }
+
+          // User has recent AI wins, allow update (lenient during migration)
+          console.log(`[Leaderboard] Match ${matchId} not found but user has ${recentAIWins} recent AI wins, allowing`);
         }
       } else {
         console.warn(`[Leaderboard] Could not verify match history for ${lowerAddress}`);
         // Allow update even if history check fails (Redis might be down)
-        // But log it for monitoring
       }
     } catch (error) {
       console.error(`[Leaderboard] Error verifying match:`, error);
