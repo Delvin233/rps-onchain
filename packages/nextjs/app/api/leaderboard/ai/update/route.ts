@@ -61,64 +61,56 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Verify the match exists in Redis history (anti-cheat)
-    // NOTE: This is lenient during migration - old matches don't have IDs
+    // Get current player data (for verification and rank change detection)
+    const existingPlayer = await getPlayerRank(lowerAddress);
+
+    // Verify using leaderboard data (anti-cheat)
+    // Compare current leaderboard wins with stats to detect manipulation
     try {
-      const historyResponse = await fetch(`${request.nextUrl.origin}/api/user-matches?address=${lowerAddress}`, {
+      const statsResponse = await fetch(`${request.nextUrl.origin}/api/stats-fast?address=${lowerAddress}`, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      if (historyResponse.ok) {
-        const historyData = await historyResponse.json();
-        const matches = historyData.matches || [];
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        const statsAIWins = statsData?.stats?.ai?.wins || 0;
+        const currentLeaderboardWins = existingPlayer?.wins || 0;
 
-        // Check if this matchId exists in recent history
-        const matchWithId = matches.find((match: any) => match.id === matchId);
+        console.log(
+          `[Leaderboard] Verification for ${lowerAddress}: stats=${statsAIWins}, leaderboard=${currentLeaderboardWins}`,
+        );
 
-        if (matchWithId) {
-          // Perfect! Match found with ID
-          if (matchWithId.opponent !== "AI" || matchWithId.result !== "win") {
-            console.warn(`[Leaderboard] Match ${matchId} is not an AI win`);
-            return NextResponse.json(
-              {
-                success: false,
-                error: "Match is not an AI win",
-              },
-              { status: 403 },
-            );
-          }
-        } else {
-          // Match ID not found - could be old match without ID
-          // Check if user has recent AI wins (lenient check during migration)
-          const recentAIWins = matches.filter((match: any) => match.opponent === "AI" && match.result === "win").length;
+        // Anti-cheat check: Leaderboard wins should never exceed stats wins
+        // Allow a small buffer (+5) for race conditions and timing issues
+        if (currentLeaderboardWins > statsAIWins + 5) {
+          console.warn(
+            `[Leaderboard] BLOCKED: Leaderboard wins (${currentLeaderboardWins}) significantly exceed stats wins (${statsAIWins}) for ${lowerAddress}`,
+          );
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Leaderboard wins exceed stats wins",
+            },
+            { status: 403 },
+          );
+        }
 
-          if (recentAIWins === 0) {
-            console.warn(`[Leaderboard] No recent AI wins found for ${lowerAddress}`);
-            return NextResponse.json(
-              {
-                success: false,
-                error: "No recent AI wins found",
-              },
-              { status: 403 },
-            );
-          }
-
-          // User has recent AI wins, allow update (lenient during migration)
-          console.log(`[Leaderboard] Match ${matchId} not found but user has ${recentAIWins} recent AI wins, allowing`);
+        // Log large differences for monitoring (but still allow)
+        const winDifference = statsAIWins - currentLeaderboardWins;
+        if (winDifference > 50) {
+          console.warn(
+            `[Leaderboard] Large win difference (${winDifference}) for ${lowerAddress}: stats=${statsAIWins}, leaderboard=${currentLeaderboardWins}`,
+          );
         }
       } else {
-        console.warn(`[Leaderboard] Could not verify match history for ${lowerAddress}`);
-        // Allow update even if history check fails (Redis might be down)
+        console.warn(`[Leaderboard] Could not verify stats for ${lowerAddress}, allowing update`);
       }
     } catch (error) {
-      console.error(`[Leaderboard] Error verifying match:`, error);
+      console.error(`[Leaderboard] Error verifying:`, error);
       // Allow update even if verification fails (don't block legitimate users)
     }
-
-    // Get current player data (for rank change detection and name resolution)
-    const existingPlayer = await getPlayerRank(lowerAddress);
     const previousRank = existingPlayer?.rank || null;
     const previousWins = existingPlayer?.wins || 0;
 
