@@ -61,6 +61,12 @@ async function resolveBasename(address: string): Promise<string | null> {
     });
     return basename;
   } catch (error) {
+    // Suppress expected "ChainDoesNotSupportContract" error for Base chain
+    // Base doesn't support ENS resolver, but we still try for compatibility
+    if (error instanceof Error && error.message.includes("ChainDoesNotSupportContract")) {
+      // This is expected, don't log it
+      return null;
+    }
     console.error("[NameResolver] Basename resolution failed:", error);
     return null;
   }
