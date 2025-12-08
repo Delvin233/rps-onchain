@@ -21,6 +21,7 @@ export default function HistoryPage() {
   const { syncToIPFS, isSyncing } = useIPFSSync();
   const [displayCount, setDisplayCount] = useState(50);
   const [showHint, setShowHint] = useState(true);
+  const [showAIMatches, setShowAIMatches] = useState(false);
 
   useEffect(() => {
     if (isConnected && address) {
@@ -201,20 +202,33 @@ export default function HistoryPage() {
           </button>
         </div>
       )}
-      <div className="flex flex-wrap justify-end items-center gap-3 mb-6">
-        <button
-          onClick={() => {
-            fetchMatches();
-            fetchBlockchainProofs();
-          }}
-          className="btn btn-sm btn-ghost"
-        >
-          <RefreshCw size={18} />
-        </button>
-        <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
-          {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
-          Sync IPFS
-        </button>
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showAIMatches}
+              onChange={e => setShowAIMatches(e.target.checked)}
+              className="checkbox checkbox-sm checkbox-primary"
+            />
+            <span className="text-sm text-base-content/80">Show AI matches</span>
+          </label>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              fetchMatches();
+              fetchBlockchainProofs();
+            }}
+            className="btn btn-sm btn-ghost"
+          >
+            <RefreshCw size={18} />
+          </button>
+          <button onClick={() => syncToIPFS(address!)} disabled={isSyncing} className="btn btn-sm btn-outline">
+            {isSyncing ? <span className="loading loading-spinner loading-sm"></span> : <Upload size={16} />}
+            Sync IPFS
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -232,173 +246,188 @@ export default function HistoryPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {matches.slice(0, displayCount).map((match, index) => {
-              const isAiMatch = match.opponent === "AI";
+            {matches
+              .filter(match => {
+                const isAiMatch = match.opponent === "AI";
+                // If showAIMatches is false, filter out AI matches
+                return showAIMatches || !isAiMatch;
+              })
+              .slice(0, displayCount)
+              .map((match, index) => {
+                const isAiMatch = match.opponent === "AI";
 
-              if (isAiMatch) {
-                return (
-                  <div key={index} className="rounded-xl p-4 h-fit bg-card/50 border border-border">
-                    <div className="mb-3">
-                      <p className="font-semibold mb-1">vs AI</p>
-                      <p className="text-base-content/60 opacity-80">
-                        {new Date(match.timestamp || Date.now()).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
-                      <span>
-                        {match.playerMove && match.opponentMove ? (
-                          <>
-                            <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
-                            <span className="font-bold uppercase">{match.opponentMove}</span>
-                          </>
-                        ) : (
-                          <span className="text-base-content/60">Move data unavailable</span>
-                        )}
-                      </span>
-                      <span
-                        className={`font-semibold ${match.result === "win" ? "text-success" : match.result === "tie" ? "text-warning" : "text-error"}`}
-                      >
-                        [{match.result === "win" ? "WIN" : match.result === "tie" ? "TIE" : "LOSS"}]
-                      </span>
-                    </div>
-                    {match.ipfsHash && (
-                      <a
-                        href={`https://ipfs.io/ipfs/${match.ipfsHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-ghost w-full mt-3"
-                      >
-                        <ExternalLink size={14} /> View on IPFS
-                      </a>
-                    )}
-                  </div>
-                );
-              }
-
-              // Multiplayer match (new format with games array OR old format)
-              if (match.players) {
-                const isCreator = address === match.players?.creator;
-                const opponentAddress = isCreator ? match.players?.joiner : match.players?.creator;
-                const opponentName = match.playerNames
-                  ? isCreator
-                    ? match.playerNames.joiner
-                    : match.playerNames.creator
-                  : null;
-                const displayName = opponentName || `${opponentAddress?.slice(0, 6)}...${opponentAddress?.slice(-4)}`;
-                const games = match.games || [
-                  {
-                    creatorMove: match.moves?.creatorMove || "",
-                    joinerMove: match.moves?.joinerMove || "",
-                    winner: typeof match.result === "object" ? match.result.winner : "",
-                    timestamp: typeof match.result === "object" ? match.result.timestamp : Date.now(),
-                    ipfsHash: match.ipfsHash,
-                  },
-                ];
-                const isExpanded = expandedRooms.has(match.roomId || "");
-                const showExpand = games.length > 5;
-                const displayGames = showExpand && !isExpanded ? games.slice(0, 5) : games;
-                const hasBlockchainProof = blockchainMatches[match.roomId || ""];
-
-                return (
-                  <div key={index} className="bg-card/50 rounded-xl p-4 h-fit border border-border">
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold break-words">
-                          vs {displayName} at {match.roomId}
-                        </p>
-                        {hasBlockchainProof && (
-                          <button
-                            onClick={() => setShowOnChainModal(match.roomId || null)}
-                            className="tooltip tooltip-top"
-                            data-tip="Verified on blockchain"
-                          >
-                            <Shield className="text-success" size={18} />
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-base-content/60 opacity-80">
-                        {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
-                      </p>
-                      {games.length > 1 && (
+                if (isAiMatch) {
+                  return (
+                    <div key={index} className="rounded-xl p-4 h-fit bg-card/50 border border-border">
+                      <div className="mb-3">
+                        <p className="font-semibold mb-1">vs AI</p>
                         <p className="text-base-content/60 opacity-80">
-                          {games.length} game{games.length > 1 ? "s" : ""}
+                          {new Date(match.timestamp || Date.now()).toLocaleString()}
                         </p>
+                      </div>
+                      <div className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
+                        <span>
+                          {match.playerMove && match.opponentMove ? (
+                            <>
+                              <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
+                              <span className="font-bold uppercase">{match.opponentMove}</span>
+                            </>
+                          ) : (
+                            <span className="text-base-content/60">Move data unavailable</span>
+                          )}
+                        </span>
+                        <span
+                          className={`font-semibold ${match.result === "win" ? "text-success" : match.result === "tie" ? "text-warning" : "text-error"}`}
+                        >
+                          [{match.result === "win" ? "WIN" : match.result === "tie" ? "TIE" : "LOSS"}]
+                        </span>
+                      </div>
+                      {match.ipfsHash && (
+                        <a
+                          href={`https://ipfs.io/ipfs/${match.ipfsHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-ghost w-full mt-3"
+                        >
+                          <ExternalLink size={14} /> View on IPFS
+                        </a>
                       )}
                     </div>
-                    <div className="space-y-2">
-                      {displayGames.map((game: any, gIndex: number) => {
-                        const myMove = isCreator ? game.creatorMove : game.joinerMove;
-                        const oppMove = isCreator ? game.joinerMove : game.creatorMove;
-                        const isTie = myMove === oppMove;
-                        const result = isTie ? "tie" : game.winner === address ? "win" : "lose";
-                        return (
-                          <div key={gIndex} className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
-                            <span>
-                              <span className="font-bold uppercase">{myMove}</span> vs{" "}
-                              <span className="font-bold uppercase">{oppMove}</span>
-                            </span>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`font-semibold ${result === "win" ? "text-success" : result === "tie" ? "text-warning" : "text-error"}`}
-                              >
-                                [{result.toUpperCase()}]
-                              </span>
-                              {game.ipfsHash && (
-                                <a
-                                  href={`https://ipfs.io/ipfs/${game.ipfsHash}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:text-primary/80"
-                                  onClick={e => e.stopPropagation()}
-                                >
-                                  <ExternalLink size={14} />
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {showExpand && (
-                      <button
-                        onClick={() => {
-                          const newExpanded = new Set(expandedRooms);
-                          if (isExpanded) {
-                            newExpanded.delete(match.roomId || "");
-                          } else {
-                            newExpanded.add(match.roomId || "");
-                          }
-                          setExpandedRooms(newExpanded);
-                        }}
-                        className="btn btn-sm btn-ghost w-full mt-3"
-                      >
-                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        {isExpanded ? "Show Less" : `Show ${games.length - 5} More`}
-                      </button>
-                    )}
-                  </div>
-                );
-              }
+                  );
+                }
 
-              return null;
-            })}
+                // Multiplayer match (new format with games array OR old format)
+                if (match.players) {
+                  const isCreator = address === match.players?.creator;
+                  const opponentAddress = isCreator ? match.players?.joiner : match.players?.creator;
+                  const opponentName = match.playerNames
+                    ? isCreator
+                      ? match.playerNames.joiner
+                      : match.playerNames.creator
+                    : null;
+                  const displayName = opponentName || `${opponentAddress?.slice(0, 6)}...${opponentAddress?.slice(-4)}`;
+                  const games = match.games || [
+                    {
+                      creatorMove: match.moves?.creatorMove || "",
+                      joinerMove: match.moves?.joinerMove || "",
+                      winner: typeof match.result === "object" ? match.result.winner : "",
+                      timestamp: typeof match.result === "object" ? match.result.timestamp : Date.now(),
+                      ipfsHash: match.ipfsHash,
+                    },
+                  ];
+                  const isExpanded = expandedRooms.has(match.roomId || "");
+                  const showExpand = games.length > 5;
+                  const displayGames = showExpand && !isExpanded ? games.slice(0, 5) : games;
+                  const hasBlockchainProof = blockchainMatches[match.roomId || ""];
+
+                  return (
+                    <div key={index} className="bg-card/50 rounded-xl p-4 h-fit border border-border">
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold break-words">
+                            vs {displayName} at {match.roomId}
+                          </p>
+                          {hasBlockchainProof && (
+                            <button
+                              onClick={() => setShowOnChainModal(match.roomId || null)}
+                              className="tooltip tooltip-top"
+                              data-tip="Verified on blockchain"
+                            >
+                              <Shield className="text-success" size={18} />
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-base-content/60 opacity-80">
+                          {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
+                        </p>
+                        {games.length > 1 && (
+                          <p className="text-base-content/60 opacity-80">
+                            {games.length} game{games.length > 1 ? "s" : ""}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {displayGames.map((game: any, gIndex: number) => {
+                          const myMove = isCreator ? game.creatorMove : game.joinerMove;
+                          const oppMove = isCreator ? game.joinerMove : game.creatorMove;
+                          const isTie = myMove === oppMove;
+                          const result = isTie ? "tie" : game.winner === address ? "win" : "lose";
+                          return (
+                            <div key={gIndex} className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
+                              <span>
+                                <span className="font-bold uppercase">{myMove}</span> vs{" "}
+                                <span className="font-bold uppercase">{oppMove}</span>
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`font-semibold ${result === "win" ? "text-success" : result === "tie" ? "text-warning" : "text-error"}`}
+                                >
+                                  [{result.toUpperCase()}]
+                                </span>
+                                {game.ipfsHash && (
+                                  <a
+                                    href={`https://ipfs.io/ipfs/${game.ipfsHash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:text-primary/80"
+                                    onClick={e => e.stopPropagation()}
+                                  >
+                                    <ExternalLink size={14} />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {showExpand && (
+                        <button
+                          onClick={() => {
+                            const newExpanded = new Set(expandedRooms);
+                            if (isExpanded) {
+                              newExpanded.delete(match.roomId || "");
+                            } else {
+                              newExpanded.add(match.roomId || "");
+                            }
+                            setExpandedRooms(newExpanded);
+                          }}
+                          className="btn btn-sm btn-ghost w-full mt-3"
+                        >
+                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          {isExpanded ? "Show Less" : `Show ${games.length - 5} More`}
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
           </div>
-          {displayCount < matches.length && (
-            <div className="text-center" style={{ marginTop: "calc(1.5rem * var(--spacing-scale, 1))" }}>
-              <button
-                onClick={() => setDisplayCount(prev => prev + 50)}
-                className="btn btn-outline"
-                style={{
-                  borderColor: "var(--color-primary)",
-                  color: "var(--color-primary)",
-                  fontSize: "calc(1rem * var(--font-size-override, 1))",
-                  padding: "calc(0.75rem * var(--spacing-scale, 1)) calc(1.5rem * var(--spacing-scale, 1))",
-                }}
-              >
-                Load More ({matches.length - displayCount} remaining)
-              </button>
-            </div>
-          )}
+          {(() => {
+            const filteredMatches = matches.filter(match => {
+              const isAiMatch = match.opponent === "AI";
+              return showAIMatches || !isAiMatch;
+            });
+            return (
+              displayCount < filteredMatches.length && (
+                <div className="text-center" style={{ marginTop: "calc(1.5rem * var(--spacing-scale, 1))" }}>
+                  <button
+                    onClick={() => setDisplayCount(prev => prev + 50)}
+                    className="btn btn-outline"
+                    style={{
+                      borderColor: "var(--color-primary)",
+                      color: "var(--color-primary)",
+                      fontSize: "calc(1rem * var(--font-size-override, 1))",
+                      padding: "calc(0.75rem * var(--spacing-scale, 1)) calc(1.5rem * var(--spacing-scale, 1))",
+                    }}
+                  >
+                    Load More ({filteredMatches.length - displayCount} remaining)
+                  </button>
+                </div>
+              )
+            );
+          })()}
         </>
       )}
 

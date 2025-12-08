@@ -241,7 +241,9 @@ export default function ProfilePage() {
             <div>
               <p className="font-semibold">{isHumanVerified ? "Verified Account" : "Unverified Account"}</p>
               <p className="text-xs text-base-content/60">
-                {isHumanVerified ? "Verified human player" : "Verify to prove you're human"}
+                {isHumanVerified
+                  ? "Verified human player"
+                  : "Verify to prove you're human. This would enable you to stake higher in the upcomming Staking/Bet Mode"}
               </p>
             </div>
           </div>

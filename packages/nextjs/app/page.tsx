@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Coins, Gift, Play, Target, TrendingUp } from "lucide-react";
+import { Coins, Gift, Play, Target, TrendingUp, Trophy } from "lucide-react";
 import { useChainId, useConnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
+import { RankBadge } from "~~/components/RankBadge";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlayerStats } from "~~/hooks/usePlayerStats";
+import { getRankColor, hasGradient } from "~~/lib/ranks";
 
 // Force dynamic rendering to prevent SSR issues with AppKit
 export const dynamic = "force-dynamic";
@@ -25,6 +27,11 @@ export default function Home() {
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address ?? undefined);
   const { context, isMiniAppReady } = useFarcaster();
   const { connect } = useConnect();
+  const [playerRank, setPlayerRank] = useState<{
+    rank: string;
+    wins: number;
+    nextRank: { name: string; winsNeeded: number } | null;
+  } | null>(null);
 
   const isBaseApp =
     typeof window !== "undefined" &&
@@ -107,11 +114,38 @@ export default function Home() {
           stats.refetch();
         })
         .catch(console.error);
+
+      // Fetch player rank
+      fetch(`/api/leaderboard/ai/player?address=${address}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setPlayerRank({
+              rank: data.data.rank,
+              wins: data.data.wins,
+              nextRank: data.data.nextRank,
+            });
+          }
+        })
+        .catch(console.error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   const statsData = [
+    {
+      title: "AI Rank",
+      value: playerRank?.rank || "Unranked",
+      icon: Trophy,
+      subtitle: playerRank?.nextRank
+        ? `Next: ${playerRank.nextRank.name} (${playerRank.nextRank.winsNeeded} wins)`
+        : playerRank?.rank === "Unranked"
+          ? "Win AI matches to earn ranks"
+          : "Maximum Rank!",
+      isRank: true,
+      rankData: playerRank,
+      onClick: () => router.push("/leaderboards/ai"),
+    },
     {
       title: "Total Games",
       value: stats.totalGames.toString(),
@@ -380,25 +414,54 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {statsData.map((stat, index) => {
                 const Icon = stat.icon;
+                const isRankCard = stat.isRank;
+                const rankColor =
+                  isRankCard && stat.rankData && stat.rankData.rank !== "Unranked"
+                    ? getRankColor(stat.rankData.rank)
+                    : null;
+                const hasGradientBorder =
+                  isRankCard && stat.rankData && stat.rankData.rank !== "Unranked"
+                    ? hasGradient(stat.rankData.rank)
+                    : false;
+
+                // Determine border styling
+                const borderStyle =
+                  isRankCard && rankColor ? `2px solid ${rankColor}` : "1px solid rgba(255, 255, 255, 0.2)";
+                const boxShadowStyle = isRankCard && rankColor ? `0 0 20px ${rankColor}40` : "none";
+
                 return (
                   <div
                     key={stat.title}
-                    className="rounded-xl p-4 mb-3 bg-card/50 border border-border hover:border-primary/50 animate-fade-in transition-all"
+                    onClick={stat.onClick}
+                    className={`rounded-xl p-4 mb-3 bg-card/50 animate-fade-in transition-all ${
+                      stat.onClick ? "cursor-pointer hover:scale-[1.02]" : ""
+                    }`}
                     style={{
                       animationDelay: `${index * 100}ms`,
+                      border: borderStyle,
+                      boxShadow: boxShadowStyle,
+                      background: hasGradientBorder
+                        ? `linear-gradient(var(--fallback-b1,oklch(var(--b1))), var(--fallback-b1,oklch(var(--b1)))) padding-box, ${rankColor} border-box`
+                        : undefined,
                     }}
                   >
                     <div className="flex items-center justify-between">
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
-                        <p className="text-xl font-bold">{stat.value}</p>
-                        {stat.subtitle && <p className="text-base-content/60 text-xs mt-1">{stat.subtitle}</p>}
+                        {isRankCard && stat.rankData && stat.rankData.rank !== "Unranked" ? (
+                          <div className="mb-1">
+                            <RankBadge rank={stat.rankData.rank} size="sm" />
+                          </div>
+                        ) : (
+                          <p className="text-xl font-bold truncate">{stat.value}</p>
+                        )}
+                        {stat.subtitle && <p className="text-base-content/60 text-xs mt-1 truncate">{stat.subtitle}</p>}
                       </div>
                       <div
-                        className="p-2 rounded-lg"
+                        className="p-2 rounded-lg flex-shrink-0"
                         style={{ backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)" }}
                       >
                         <Icon size={20} style={{ color: "var(--color-primary)" }} />
