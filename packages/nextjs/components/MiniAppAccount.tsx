@@ -386,7 +386,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                 fontFamily: "var(--font-mono)",
                 fontSize: "calc(0.6rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
               }}
-              title="Gas fees paid in cUSD"
+              title="Network fees paid in cUSD"
             >
               <MdLocalGasStation size={10} /> cUSD
             </span>
