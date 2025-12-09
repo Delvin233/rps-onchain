@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Home, Play, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { MdDataObject, MdOutlineLeaderboard } from "react-icons/md";
+import { Footer } from "~~/components/Footer";
 import { LoginButton } from "~~/components/LoginButton";
 
 export const DesktopLayout = ({ children }: { children: ReactNode }) => {
@@ -47,7 +48,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-base-200 flex flex-col">
       {/* Desktop Top Navigation */}
       <nav className="bg-base-100/80 backdrop-blur-lg border-b border-base-300 fixed top-0 left-0 right-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -81,7 +82,10 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 mt-24">{children}</main>
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 mt-24">{children}</main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
