@@ -176,6 +176,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         (window as any).__currentUserAddress = address;
         setStableAddress(address);
+
+        // Dispatch custom event to notify components of address change
+        window.dispatchEvent(new Event("addressChanged"));
       }
     }
   }, [mounted, address, stableAddress]);

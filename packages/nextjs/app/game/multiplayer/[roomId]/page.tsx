@@ -540,7 +540,7 @@ export default function MultiplayerGamePage() {
         setIsMatchPublished(true);
       }
 
-      toast.success("Match published on-chain! View on block explorer.");
+      toast.success("Match saved permanently! Anyone can verify this result.");
       setShowPublishModal(false);
     } catch (error: any) {
       console.error("Error publishing match:", error);
@@ -807,10 +807,10 @@ export default function MultiplayerGamePage() {
         {showPublishModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
+              <h3 className="text-xl font-bold mb-4 text-primary">Save Match Forever?</h3>
               <p className="text-base-content/80 mb-6">
-                You will be asked to sign a transaction to publish this match result on-chain. This only requires gas
-                fees and will permanently record the result on the blockchain.
+                You will be asked to confirm saving this match result permanently. This only requires a small network
+                fee (less than $0.01) and will record the result where anyone can verify it.
               </p>
               <div className="flex gap-3">
                 <button
@@ -836,10 +836,10 @@ export default function MultiplayerGamePage() {
       {showPublishModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-base-100 border border-primary/30 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4 text-primary">Publish to Blockchain?</h3>
+            <h3 className="text-xl font-bold mb-4 text-primary">Save Match Forever?</h3>
             <p className="text-base-content/80 mb-6">
-              You will be asked to sign a transaction to publish this match result on-chain. This only requires gas fees
-              and will permanently record the result on the blockchain.
+              You will be asked to confirm saving this match result permanently. This only requires a small network fee
+              (less than $0.01) and will record the result where anyone can verify it.
             </p>
             <div className="flex gap-3">
               <button

@@ -243,7 +243,7 @@ export default function ProfilePage() {
               <p className="text-xs text-base-content/60">
                 {isHumanVerified
                   ? "Verified human player"
-                  : "Verify to prove you're human. This would enable you to stake higher in the upcomming Staking/Bet Mode"}
+                  : "Verify to prove you're human. This would enable you participate in sponsored rooms"}
               </p>
             </div>
           </div>
