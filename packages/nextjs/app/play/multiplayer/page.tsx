@@ -434,8 +434,8 @@ export default function MultiplayerPage() {
               Confirm Room Creation
             </h3>
             <p className="text-base-content/80 mb-6" style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}>
-              You will be asked to sign a transaction to create your game room on-chain. This is free and only requires
-              gas fees.
+              You will be asked to confirm creating your game room. This is free and only requires a small network fee
+              (less than $0.01).
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowCreateConfirm(false)} className="btn btn-ghost flex-1">
@@ -516,7 +516,8 @@ export default function MultiplayerPage() {
               className="text-base-content/80 mb-6"
               style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
             >
-              You will be asked to sign a transaction to join this room. This is free and only requires gas fees.
+              You will be asked to confirm joining this room. This is free and only requires a small network fee (less
+              than $0.01).
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowJoinConfirm(false)} className="btn btn-ghost flex-1">
