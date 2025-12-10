@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveMatch } from "~~/lib/tursoStorage";
+import { resilientSaveMatch } from "~~/lib/resilient-database";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,14 +27,14 @@ export async function POST(request: NextRequest) {
       ipfsHash = result.IpfsHash;
     }
 
-    // Store in Turso (primary)
+    // Store in database using resilient operations
     const players = [matchData.players?.creator, matchData.players?.joiner, matchData.player, matchData.address].filter(
       Boolean,
     );
     const winner = typeof matchData.result === "object" ? matchData.result.winner : matchData.result;
 
     if (players.length >= 2) {
-      await saveMatch({
+      const success = await resilientSaveMatch({
         roomId: matchData.roomId,
         player1: players[0],
         player2: players[1],
@@ -45,6 +45,11 @@ export async function POST(request: NextRequest) {
         timestampMs: matchData.timestamp || Date.now(),
         ipfsHash,
       });
+
+      if (!success) {
+        console.warn(`[Store Match] Database storage failed gracefully for match ${matchData.roomId}`);
+        // Still return success since we have IPFS backup
+      }
     }
 
     return NextResponse.json({ ipfsHash: ipfsHash || "stored" });

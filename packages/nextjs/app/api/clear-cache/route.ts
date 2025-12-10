@@ -1,20 +1,44 @@
 import { NextResponse } from "next/server";
-import { redis } from "~~/lib/upstash";
+import { cacheManager } from "~~/lib/cache-manager";
 
+/**
+ * Cache Clearing Utility Endpoint
+ *
+ * Clears corrupted or old cache entries to fix serialization issues
+ *
+ * POST /api/clear-cache
+ */
 export async function POST() {
   try {
-    const keys = await redis.keys("stats:*");
+    // Clear all stats cache entries
+    await cacheManager.invalidatePattern("*", {
+      prefix: "stats",
+    });
 
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
+    // Clear all leaderboard cache entries
+    await cacheManager.invalidatePattern("*", {
+      prefix: "leaderboard",
+    });
+
+    // Clear all match cache entries
+    await cacheManager.invalidatePattern("*", {
+      prefix: "match",
+    });
 
     return NextResponse.json({
       success: true,
-      cleared: keys.length,
-      message: `Cleared ${keys.length} stats cache entries`,
+      message: "Cache cleared successfully",
+      timestamp: new Date().toISOString(),
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error("[Clear Cache] Error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to clear cache",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }

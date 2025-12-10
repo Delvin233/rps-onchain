@@ -29,14 +29,66 @@ interface Room {
 
 const ROOM_TTL = 60 * 60; // 1 hour in seconds
 
-let redis: ReturnType<typeof createClient> | null = null;
+class RedisManager {
+  private static instance: RedisManager;
+  private client: ReturnType<typeof createClient> | null = null;
+  private connecting = false;
+  private connectionPromise: Promise<ReturnType<typeof createClient>> | null = null;
+
+  static getInstance(): RedisManager {
+    if (!RedisManager.instance) {
+      RedisManager.instance = new RedisManager();
+    }
+    return RedisManager.instance;
+  }
+
+  async getClient(): Promise<ReturnType<typeof createClient>> {
+    if (this.client && this.client.isReady) {
+      return this.client;
+    }
+
+    if (this.connecting && this.connectionPromise) {
+      return this.connectionPromise;
+    }
+
+    this.connecting = true;
+    this.connectionPromise = this.connect();
+
+    try {
+      this.client = await this.connectionPromise;
+      return this.client;
+    } finally {
+      this.connecting = false;
+      this.connectionPromise = null;
+    }
+  }
+
+  private async connect(): Promise<ReturnType<typeof createClient>> {
+    const client = createClient({
+      url: process.env.REDIS_URL,
+      socket: {
+        reconnectStrategy: retries => Math.min(retries * 50, 1000), // Exponential backoff
+      },
+    });
+
+    client.on("error", err => {
+      console.error("[Redis] Connection error:", err);
+    });
+
+    client.on("reconnecting", () => {
+      console.log("[Redis] Reconnecting...");
+    });
+
+    await client.connect();
+    console.log("[Redis] Connected successfully");
+    return client;
+  }
+}
+
+const redisManager = RedisManager.getInstance();
 
 const getRedis = async () => {
-  if (!redis) {
-    redis = createClient({ url: process.env.REDIS_URL });
-    await redis.connect();
-  }
-  return redis;
+  return redisManager.getClient();
 };
 
 export const roomStorage = {

@@ -1,9 +1,14 @@
+import { withDatabase } from "./database-pool";
 import { createClient } from "@libsql/client";
 
+// Legacy export for backward compatibility
 export const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
+  url: process.env.TURSO_DATABASE_URL || "file:local.db",
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
+
+// New pooled database operations
+export { withDatabase };
 
 // Initialize tables
 export async function initBlockchainProofsTable() {

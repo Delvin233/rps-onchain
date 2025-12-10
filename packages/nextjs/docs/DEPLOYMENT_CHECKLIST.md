@@ -5,14 +5,17 @@
 ### Database Setup
 
 - [ ] **Verify Turso database connection**
+
   ```bash
   # Test connection
   curl -X POST https://your-app.vercel.app/api/test-db
   ```
 
 - [ ] **Create ai_leaderboards table**
+
   - The table will be created automatically on first API call via `initAILeaderboardsTable()`
   - Or manually run the SQL:
+
   ```sql
   CREATE TABLE IF NOT EXISTS ai_leaderboards (
     address TEXT PRIMARY KEY,
@@ -21,7 +24,7 @@
     display_name TEXT,
     updated_at INTEGER NOT NULL
   );
-  
+
   CREATE INDEX IF NOT EXISTS idx_wins ON ai_leaderboards(wins DESC);
   CREATE INDEX IF NOT EXISTS idx_rank ON ai_leaderboards(rank);
   ```
@@ -37,16 +40,19 @@
 ### Code Review
 
 - [ ] **Run all tests**
+
   ```bash
   yarn test
   ```
 
 - [ ] **Type checking passes**
+
   ```bash
   yarn check-types
   ```
 
 - [ ] **Linting passes**
+
   ```bash
   yarn lint
   ```
@@ -61,6 +67,7 @@
 ### 1. Deploy to Vercel
 
 - [ ] **Push to main branch**
+
   ```bash
   git push origin feature/ai-leaderboards
   # Create PR and merge to main
@@ -74,6 +81,7 @@
 ### 2. Database Initialization
 
 - [ ] **Initialize tables**
+
   - Tables auto-initialize on first API call
   - Or manually trigger via API endpoint
 
@@ -86,11 +94,13 @@
 ### 3. Data Migration
 
 - [ ] **Run migration to populate existing players**
+
   ```bash
   curl -X POST https://your-app.vercel.app/api/leaderboard/ai/migrate
   ```
 
 - [ ] **Verify migration results**
+
   ```json
   {
     "success": true,
@@ -112,16 +122,19 @@
 ### Functional Testing
 
 - [ ] **Test leaderboard page loads**
+
   - Visit `/leaderboards/ai`
   - Verify entries display correctly
   - Check pagination works
 
 - [ ] **Test player rank display**
+
   - Visit home page
   - Verify AI Rank card shows correct rank
   - Check glowing border appears
 
 - [ ] **Test AI match integration**
+
   - Play an AI match and win
   - Verify leaderboard updates
   - Check rank-up notification appears (if applicable)
@@ -133,11 +146,13 @@
 ### Performance Testing
 
 - [ ] **Check API response times**
+
   - Leaderboard endpoint: < 500ms
   - Player rank endpoint: < 300ms
   - Update endpoint: < 1000ms
 
 - [ ] **Verify caching works**
+
   - Second request should be faster
   - Check cache headers
 
@@ -148,11 +163,13 @@
 ### UI/UX Testing
 
 - [ ] **Desktop testing**
+
   - Chrome, Firefox, Safari
   - All features work correctly
   - Animations smooth
 
 - [ ] **Mobile testing**
+
   - iOS Safari
   - Android Chrome
   - Responsive layout works
@@ -168,6 +185,7 @@
 ### Error Tracking
 
 - [ ] **Set up error monitoring**
+
   - Vercel Analytics enabled
   - Error logs accessible
   - Alert thresholds configured
@@ -181,6 +199,7 @@
 ### Performance Monitoring
 
 - [ ] **Track key metrics**
+
   - API response times
   - Database query performance
   - Cache hit rates
@@ -204,11 +223,13 @@
 ### If Issues Occur
 
 1. **Identify the issue**
+
    - Check Vercel logs
    - Check database logs
    - Check user reports
 
 2. **Quick fixes**
+
    - Disable feature flag (if implemented)
    - Revert to previous deployment
    - Fix and redeploy
@@ -223,6 +244,7 @@
 ### Week 1
 
 - [ ] **Monitor daily**
+
   - Check error rates
   - Review user feedback
   - Track engagement metrics
@@ -235,6 +257,7 @@
 ### Week 2-4
 
 - [ ] **Gather feedback**
+
   - User surveys
   - Analytics review
   - Performance analysis
@@ -266,24 +289,28 @@
 ### Common Issues
 
 **Issue: Migration fails**
+
 - Check database connection
 - Verify stats table has data
 - Check for duplicate entries
 - Review error logs
 
 **Issue: Names not resolving**
+
 - Check RPC endpoints
 - Verify network connectivity
 - Check rate limits
 - Review cache settings
 
 **Issue: Slow API responses**
+
 - Check database indexes
 - Review query performance
 - Verify caching is working
 - Check network latency
 
 **Issue: Rank not updating**
+
 - Check rate limiting (10s cooldown)
 - Verify API endpoint is called
 - Check database write permissions
@@ -305,13 +332,16 @@
 
 ---
 
-**Deployment Date**: _____________
+**Deployment Date**: **\*\***\_**\*\***
 
-**Deployed By**: _____________
+**Deployed By**: **\*\***\_**\*\***
 
 **Deployment Status**: ⬜ Success ⬜ Issues ⬜ Rolled Back
 
 **Notes**:
-_____________________________________________
-_____________________________________________
-_____________________________________________
+
+---
+
+---
+
+---

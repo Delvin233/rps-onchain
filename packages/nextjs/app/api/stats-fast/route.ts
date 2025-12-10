@@ -1,70 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStats, updateStats } from "~~/lib/tursoStorage";
+import { CACHE_PREFIXES, cacheManager } from "~~/lib/cache-manager";
+import { withRateLimit } from "~~/lib/rate-limiter";
+import { type ResilientStats, resilientGetStats, resilientUpdateStats } from "~~/lib/resilient-database";
 
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const address = searchParams.get("address");
+  return withRateLimit(request, "stats", async () => {
+    try {
+      const { searchParams } = new URL(request.url);
+      const address = searchParams.get("address");
 
-    if (!address) {
-      return NextResponse.json({ error: "Address required" }, { status: 400 });
-    }
+      if (!address) {
+        return NextResponse.json({ error: "Address required" }, { status: 400 });
+      }
 
-    const addressLower = address.toLowerCase();
+      const addressLower = address.toLowerCase();
 
-    // Get stats from Turso
-    const dbStats = await getStats(addressLower);
-    if (dbStats) {
-      const totalGames = Number(dbStats.total_games);
-      const wins = Number(dbStats.wins);
-      const losses = Number(dbStats.losses);
-      const ties = Number(dbStats.ties);
-      const aiGames = Number(dbStats.ai_games);
-      const aiWins = Number(dbStats.ai_wins);
-      const aiTies = Number(dbStats.ai_ties || 0);
-      const mpGames = Number(dbStats.multiplayer_games);
-      const mpWins = Number(dbStats.multiplayer_wins);
-      const mpTies = Number(dbStats.multiplayer_ties || 0);
+      // Get stats using resilient database operations
+      // This includes circuit breaker, retry logic, and fallback to cache
+      const dbStats = await resilientGetStats(addressLower);
 
-      const stats = {
-        totalGames,
-        wins,
-        losses,
-        ties,
-        winRate: totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0,
-        ai: {
-          totalGames: aiGames,
-          wins: aiWins,
-          losses: aiGames - aiWins - aiTies,
-          ties: aiTies,
-          winRate: aiGames > 0 ? Math.round((aiWins / aiGames) * 100) : 0,
-        },
-        multiplayer: {
-          totalGames: mpGames,
-          wins: mpWins,
-          losses: mpGames - mpWins - mpTies,
-          ties: mpTies,
-          winRate: mpGames > 0 ? Math.round((mpWins / mpGames) * 100) : 0,
-        },
-      };
-      return NextResponse.json({ stats });
-    }
+      if (dbStats && typeof dbStats === "object") {
+        // Type-safe property access using ResilientStats interface
+        const stats = dbStats as ResilientStats;
+        const totalGames = stats.totalGames || 0;
+        const wins = stats.wins || 0;
+        const losses = stats.losses || 0;
+        const ties = stats.ties || 0;
+        const aiGames = stats.ai_games || 0;
+        const aiWins = stats.ai_wins || 0;
+        const aiTies = stats.ai_ties || 0;
+        const mpGames = stats.multiplayer_games || 0;
+        const mpWins = stats.multiplayer_wins || 0;
+        const mpTies = stats.multiplayer_ties || 0;
 
-    // No stats found
-    const emptyStats = {
-      totalGames: 0,
-      wins: 0,
-      losses: 0,
-      ties: 0,
-      winRate: 0,
-      ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-      multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-    };
-    return NextResponse.json({ stats: emptyStats });
-  } catch (error) {
-    console.error("Error fetching stats:", error);
-    return NextResponse.json({
-      stats: {
+        const formattedStats = {
+          totalGames,
+          wins,
+          losses,
+          ties,
+          winRate: totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0,
+          ai: {
+            totalGames: aiGames,
+            wins: aiWins,
+            losses: aiGames - aiWins - aiTies,
+            ties: aiTies,
+            winRate: aiGames > 0 ? Math.round((aiWins / aiGames) * 100) : 0,
+          },
+          multiplayer: {
+            totalGames: mpGames,
+            wins: mpWins,
+            losses: mpGames - mpWins - mpTies,
+            ties: mpTies,
+            winRate: mpGames > 0 ? Math.round((mpWins / mpGames) * 100) : 0,
+          },
+        };
+
+        return NextResponse.json({ stats: formattedStats });
+      }
+
+      // This should never happen with resilient operations, but just in case
+      const emptyStats = {
         totalGames: 0,
         wins: 0,
         losses: 0,
@@ -72,29 +67,70 @@ export async function GET(request: NextRequest) {
         winRate: 0,
         ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
         multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-      },
-    });
-  }
+      };
+
+      return NextResponse.json({ stats: emptyStats });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      return NextResponse.json({
+        stats: {
+          totalGames: 0,
+          wins: 0,
+          losses: 0,
+          ties: 0,
+          winRate: 0,
+          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+          multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+        },
+      });
+    }
+  });
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const { address, result, isAI } = await request.json();
+  return withRateLimit(request, "gameplay", async () => {
+    try {
+      const { address, result, isAI } = await request.json();
 
-    if (!address || !result) {
-      return NextResponse.json({ error: "Address and result required" }, { status: 400 });
+      if (!address || !result) {
+        return NextResponse.json({ error: "Address and result required" }, { status: 400 });
+      }
+
+      const addressLower = address.toLowerCase();
+      const isWin = result === "win";
+      const isTie = result === "tie";
+
+      // Update stats using resilient database operations
+      // This includes circuit breaker, retry logic, and graceful failure handling
+      const success = await resilientUpdateStats(addressLower, isWin, isTie, isAI);
+
+      if (success) {
+        // Also invalidate leaderboard cache if it's an AI win
+        if (isAI && isWin) {
+          try {
+            await cacheManager.invalidatePattern("*", {
+              prefix: CACHE_PREFIXES.LEADERBOARD,
+            });
+          } catch (error) {
+            console.warn("[Stats API] Failed to invalidate leaderboard cache:", error);
+            // Don't fail the request if cache invalidation fails
+          }
+        }
+        return NextResponse.json({ success: true });
+      } else {
+        // Resilient operation failed gracefully
+        console.warn(`[Stats API] Stats update failed gracefully for ${addressLower}`);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Stats update temporarily unavailable, but your game was recorded",
+          },
+          { status: 503 },
+        );
+      }
+    } catch (error) {
+      console.error("Error updating stats:", error);
+      return NextResponse.json({ error: "Failed to update stats" }, { status: 500 });
     }
-
-    const addressLower = address.toLowerCase();
-    const isWin = result === "win";
-    const isTie = result === "tie";
-
-    // Write to Turso
-    await updateStats(addressLower, isWin, isTie, isAI);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error updating stats:", error);
-    return NextResponse.json({ error: "Failed to update stats" }, { status: 500 });
-  }
+  });
 }
