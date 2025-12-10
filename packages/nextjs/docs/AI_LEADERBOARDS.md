@@ -34,9 +34,11 @@ CREATE INDEX idx_rank ON ai_leaderboards(rank);
 ### API Endpoints
 
 #### POST `/api/leaderboard/ai/update`
+
 Updates player wins after AI match completion.
 
 **Request:**
+
 ```json
 {
   "address": "0x...",
@@ -45,6 +47,7 @@ Updates player wins after AI match completion.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -59,9 +62,11 @@ Updates player wins after AI match completion.
 ```
 
 #### GET `/api/leaderboard/ai?limit=50&offset=0`
+
 Fetches paginated leaderboard rankings.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -83,9 +88,11 @@ Fetches paginated leaderboard rankings.
 ```
 
 #### GET `/api/leaderboard/ai/player?address=0x...`
+
 Fetches specific player's rank and position.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -104,23 +111,24 @@ Fetches specific player's rank and position.
 ```
 
 #### POST `/api/leaderboard/ai/migrate`
+
 One-time migration endpoint to populate leaderboard with existing players.
 
 ## Rank System
 
 ### Rank Tiers
 
-| Tier | Ranks | Win Range | Color |
-|------|-------|-----------|-------|
-| Entry | Beginner, Novice, Fighter | 0-19 | Gray/Blue |
-| Warrior | Warrior I-III | 20-49 | Blue |
-| Expert | Expert I-III | 50-79 | Green |
-| Master | Master I-III | 80-109 | Dark Green |
-| Grandmaster | Grandmaster I-III | 110-139 | Purple |
-| Champion | Champion I-III | 140-169 | Gold |
-| Legend | Legend I-V | 170-219 | Red |
-| Mythic | Mythic I-V | 220-319 | Rainbow Gradient |
-| RPS-God | RPS-God I-X | 320-690+ | Cosmic Gradient |
+| Tier        | Ranks                     | Win Range | Color            |
+| ----------- | ------------------------- | --------- | ---------------- |
+| Entry       | Beginner, Novice, Fighter | 0-19      | Gray/Blue        |
+| Warrior     | Warrior I-III             | 20-49     | Blue             |
+| Expert      | Expert I-III              | 50-79     | Green            |
+| Master      | Master I-III              | 80-109    | Dark Green       |
+| Grandmaster | Grandmaster I-III         | 110-139   | Purple           |
+| Champion    | Champion I-III            | 140-169   | Gold             |
+| Legend      | Legend I-V                | 170-219   | Red              |
+| Mythic      | Mythic I-V                | 220-319   | Rainbow Gradient |
+| RPS-God     | RPS-God I-X               | 320-690+  | Cosmic Gradient  |
 
 ### Rank Progression
 
@@ -139,20 +147,17 @@ One-time migration endpoint to populate leaderboard with existing players.
 ## Components
 
 ### RankBadge
+
 Displays a player's rank with color coding and optional gradient effects.
 
 ```tsx
 import { RankBadge } from "~~/components/RankBadge";
 
-<RankBadge 
-  rank="Expert II" 
-  wins={65}
-  size="md"
-  showWins={true}
-/>
+<RankBadge rank="Expert II" wins={65} size="md" showWins={true} />;
 ```
 
 ### LeaderboardEntry
+
 Displays a single entry in the leaderboard.
 
 ```tsx
@@ -164,24 +169,26 @@ import { LeaderboardEntry } from "~~/components/LeaderboardEntry";
     address: "0x...",
     displayName: "alice.eth",
     wins: 150,
-    rank: "Champion II"
+    rank: "Champion II",
   }}
   isCurrentUser={false}
-/>
+/>;
 ```
 
 ### LeaderboardSkeleton
+
 Skeleton loader for leaderboard entries.
 
 ```tsx
 import { LeaderboardSkeleton } from "~~/components/LeaderboardSkeleton";
 
-<LeaderboardSkeleton count={10} />
+<LeaderboardSkeleton count={10} />;
 ```
 
 ## Hooks
 
 ### useAIMatchCompletion
+
 Hook to automatically update leaderboard after AI match completion.
 
 ```tsx
@@ -200,7 +207,7 @@ if (playerWon) {
 ### Rank Utilities (`lib/ranks.ts`)
 
 ```typescript
-import { getRankForWins, getNextRank, getRankColor } from "~~/lib/ranks";
+import { getNextRank, getRankColor, getRankForWins } from "~~/lib/ranks";
 
 // Get rank for win count
 const rank = getRankForWins(42); // Returns Expert II
@@ -224,15 +231,18 @@ const name = await resolveDisplayName("0x...");
 ## Performance Optimizations
 
 ### Caching
+
 - **API responses**: 30-second TTL for leaderboard, 1-minute for player rank
 - **Name resolution**: 5-minute TTL for resolved names
 - **Rate limiting**: 10-second cooldown between updates per address
 
 ### Database Indexes
+
 - `idx_wins`: Optimizes leaderboard queries (DESC order)
 - `idx_rank`: Optimizes rank-based filtering
 
 ### Pagination
+
 - Default: 50 entries per page
 - Maximum: 100 entries per page
 - Infinite scroll support
@@ -246,6 +256,7 @@ curl -X POST http://localhost:3000/api/leaderboard/ai/migrate
 ```
 
 This will:
+
 1. Query all players with `ai_wins > 0` from the stats table
 2. Calculate their rank based on current wins
 3. Insert them into the `ai_leaderboards` table
@@ -255,6 +266,7 @@ This will:
 ## Testing
 
 Run tests:
+
 ```bash
 yarn test lib/__tests__/ranks.test.ts
 yarn test lib/__tests__/nameResolver.test.ts
@@ -275,16 +287,19 @@ yarn test lib/__tests__/nameResolver.test.ts
 ## Troubleshooting
 
 ### Player not appearing on leaderboard
+
 - Ensure they have at least 1 AI win
 - Check if migration has been run
 - Verify database connection
 
 ### Rank not updating
+
 - Check rate limiting (10-second cooldown)
 - Verify API endpoint is being called
 - Check browser console for errors
 
 ### Names not resolving
+
 - ENS/Basename resolution requires RPC access
 - Check network connectivity
 - Names are cached for 5 minutes
@@ -292,6 +307,7 @@ yarn test lib/__tests__/nameResolver.test.ts
 ## Support
 
 For issues or questions, check:
+
 - [Rank System Documentation](./RANK_SYSTEM.md)
 - [API Documentation](./API.md)
 - [Component Documentation](./COMPONENTS.md)

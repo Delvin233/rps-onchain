@@ -7,7 +7,7 @@ export const useIPFSSync = () => {
 
   const syncToIPFS = async (address: string) => {
     if (!address || isSyncing) return;
-    
+
     setIsSyncing(true);
     try {
       const response = await fetch("/api/sync-ipfs", {
@@ -15,7 +15,7 @@ export const useIPFSSync = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address }),
       });
-      
+
       const data = await response.json();
       return data.success;
     } catch (error) {

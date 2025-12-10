@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useEnsName, useEnsAvatar } from "wagmi";
-import { mainnet } from "wagmi/chains";
 import { blo } from "blo";
 import { normalize } from "viem/ens";
+import { useEnsAvatar, useEnsName } from "wagmi";
+import { mainnet } from "wagmi/chains";
 
 /**
  * Hook to display any address (not just the current user)
@@ -52,7 +52,7 @@ export const useAddressDisplay = (address: string | null | undefined) => {
     return {
       avatarUrl: blo(address as `0x${string}`),
       displayName: ensName || basename || `${address.slice(0, 6)}...${address.slice(-4)}`,
-      source: ensName ? "ens" as const : "basename" as const,
+      source: ensName ? ("ens" as const) : ("basename" as const),
     };
   }
 
