@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveMatch } from "~~/lib/tursoStorage";
+import { resilientSaveMatch } from "~~/lib/resilient-database";
 import { redis } from "~~/lib/upstash";
 
 export async function POST(request: NextRequest) {
@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
     await redis.ltrim(key, 0, 99);
     await redis.expire(key, 60 * 60 * 24 * 7);
 
-    // Store in Turso (persistent)
+    // Store in database using resilient operations
     const players = [match.players?.creator, match.players?.joiner].filter(Boolean);
     if (players.length >= 2) {
       const winner = typeof match.result === "object" ? match.result.winner : null;
-      await saveMatch({
+      const success = await resilientSaveMatch({
         roomId: match.roomId,
         player1: players[0],
         player2: players[1],
@@ -33,6 +33,11 @@ export async function POST(request: NextRequest) {
         timestampMs: new Date(match.result?.timestamp || Date.now()).getTime(),
         ipfsHash: match.ipfsHash,
       });
+
+      if (!success) {
+        console.warn(`[History Fast] Database storage failed gracefully for match ${match.roomId}`);
+        // Still return success since we have Redis cache
+      }
     }
 
     return NextResponse.json({ success: true });

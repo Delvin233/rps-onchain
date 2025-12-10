@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CACHE_DURATIONS, CACHE_PREFIXES, cacheManager } from "~~/lib/cache-manager";
+import { CACHE_PREFIXES, cacheManager } from "~~/lib/cache-manager";
 import { withRateLimit } from "~~/lib/rate-limiter";
-import { getStats, updateStats } from "~~/lib/tursoStorage";
+import { type ResilientStats, resilientGetStats, resilientUpdateStats } from "~~/lib/resilient-database";
 
 export async function GET(request: NextRequest) {
   return withRateLimit(request, "stats", async () => {
@@ -15,32 +15,25 @@ export async function GET(request: NextRequest) {
 
       const addressLower = address.toLowerCase();
 
-      // Try to get from cache first
-      const cacheKey = `${addressLower}`;
-      const cachedStats = await cacheManager.get(cacheKey, {
-        prefix: CACHE_PREFIXES.STATS,
-        ttl: CACHE_DURATIONS.STATS,
-      });
+      // Get stats using resilient database operations
+      // This includes circuit breaker, retry logic, and fallback to cache
+      const dbStats = await resilientGetStats(addressLower);
 
-      if (cachedStats) {
-        return NextResponse.json({ stats: cachedStats });
-      }
+      if (dbStats && typeof dbStats === "object") {
+        // Type-safe property access using ResilientStats interface
+        const stats = dbStats as ResilientStats;
+        const totalGames = stats.totalGames || 0;
+        const wins = stats.wins || 0;
+        const losses = stats.losses || 0;
+        const ties = stats.ties || 0;
+        const aiGames = stats.ai_games || 0;
+        const aiWins = stats.ai_wins || 0;
+        const aiTies = stats.ai_ties || 0;
+        const mpGames = stats.multiplayer_games || 0;
+        const mpWins = stats.multiplayer_wins || 0;
+        const mpTies = stats.multiplayer_ties || 0;
 
-      // Get stats from Turso
-      const dbStats = await getStats(addressLower);
-      if (dbStats) {
-        const totalGames = Number(dbStats.total_games);
-        const wins = Number(dbStats.wins);
-        const losses = Number(dbStats.losses);
-        const ties = Number(dbStats.ties);
-        const aiGames = Number(dbStats.ai_games);
-        const aiWins = Number(dbStats.ai_wins);
-        const aiTies = Number(dbStats.ai_ties || 0);
-        const mpGames = Number(dbStats.multiplayer_games);
-        const mpWins = Number(dbStats.multiplayer_wins);
-        const mpTies = Number(dbStats.multiplayer_ties || 0);
-
-        const stats = {
+        const formattedStats = {
           totalGames,
           wins,
           losses,
@@ -62,16 +55,10 @@ export async function GET(request: NextRequest) {
           },
         };
 
-        // Cache the stats
-        await cacheManager.set(cacheKey, stats, {
-          prefix: CACHE_PREFIXES.STATS,
-          ttl: CACHE_DURATIONS.STATS,
-        });
-
-        return NextResponse.json({ stats });
+        return NextResponse.json({ stats: formattedStats });
       }
 
-      // No stats found - cache empty result too
+      // This should never happen with resilient operations, but just in case
       const emptyStats = {
         totalGames: 0,
         wins: 0,
@@ -81,12 +68,6 @@ export async function GET(request: NextRequest) {
         ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
         multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
       };
-
-      // Cache empty stats for shorter duration
-      await cacheManager.set(cacheKey, emptyStats, {
-        prefix: CACHE_PREFIXES.STATS,
-        ttl: 10, // Cache empty stats for only 10 seconds
-      });
 
       return NextResponse.json({ stats: emptyStats });
     } catch (error) {
@@ -119,22 +100,34 @@ export async function POST(request: NextRequest) {
       const isWin = result === "win";
       const isTie = result === "tie";
 
-      // Write to Turso
-      await updateStats(addressLower, isWin, isTie, isAI);
+      // Update stats using resilient database operations
+      // This includes circuit breaker, retry logic, and graceful failure handling
+      const success = await resilientUpdateStats(addressLower, isWin, isTie, isAI);
 
-      // Invalidate cache for this user's stats
-      await cacheManager.invalidate(addressLower, {
-        prefix: CACHE_PREFIXES.STATS,
-      });
-
-      // Also invalidate leaderboard cache if it's an AI win
-      if (isAI && isWin) {
-        await cacheManager.invalidatePattern("*", {
-          prefix: CACHE_PREFIXES.LEADERBOARD,
-        });
+      if (success) {
+        // Also invalidate leaderboard cache if it's an AI win
+        if (isAI && isWin) {
+          try {
+            await cacheManager.invalidatePattern("*", {
+              prefix: CACHE_PREFIXES.LEADERBOARD,
+            });
+          } catch (error) {
+            console.warn("[Stats API] Failed to invalidate leaderboard cache:", error);
+            // Don't fail the request if cache invalidation fails
+          }
+        }
+        return NextResponse.json({ success: true });
+      } else {
+        // Resilient operation failed gracefully
+        console.warn(`[Stats API] Stats update failed gracefully for ${addressLower}`);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Stats update temporarily unavailable, but your game was recorded",
+          },
+          { status: 503 },
+        );
       }
-
-      return NextResponse.json({ success: true });
     } catch (error) {
       console.error("Error updating stats:", error);
       return NextResponse.json({ error: "Failed to update stats" }, { status: 500 });
