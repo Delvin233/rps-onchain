@@ -58,6 +58,7 @@ export default function ProfilePage() {
   const [nextClaimTime, setNextClaimTime] = useState<Date | null>(null);
   const [timeUntilClaim, setTimeUntilClaim] = useState("");
   const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
+  const [justClaimed, setJustClaimed] = useState(false);
 
   useEffect(() => {
     if (isReady && address && identitySDK) {
@@ -103,14 +104,37 @@ export default function ProfilePage() {
 
       await claim();
       toast.success("UBI claimed successfully!");
-      try {
-        const [newEntitlement, newNextClaimTime] = await Promise.all([checkEntitlement(), getNextClaimTime()]);
-        setEntitlement(newEntitlement.amount);
-        setNextClaimTime(newNextClaimTime);
-      } catch (refreshError) {
-        console.error("Error refreshing claim status:", refreshError);
-        setTimeout(() => window.location.reload(), 2000);
-      }
+
+      // Immediately update UI to show claimed state
+      setEntitlement(0n);
+      setJustClaimed(true);
+
+      // Refresh the claim status with retry logic
+      const refreshClaimStatus = async (retries = 3) => {
+        try {
+          const [newEntitlement, newNextClaimTime] = await Promise.all([checkEntitlement(), getNextClaimTime()]);
+          setEntitlement(newEntitlement.amount);
+          setNextClaimTime(newNextClaimTime);
+          setJustClaimed(false);
+
+          // If still showing entitlement after claim, the blockchain might be slow
+          if (newEntitlement.amount > 0n && retries > 0) {
+            setTimeout(() => refreshClaimStatus(retries - 1), 2000);
+          }
+        } catch (refreshError) {
+          console.error("Error refreshing claim status:", refreshError);
+          if (retries > 0) {
+            setTimeout(() => refreshClaimStatus(retries - 1), 2000);
+          } else {
+            // Only reload as last resort after all retries failed
+            toast("Refreshing page to update claim status...", { duration: 2000 });
+            setTimeout(() => window.location.reload(), 2000);
+          }
+        }
+      };
+
+      // Start refreshing after a short delay to let blockchain update
+      setTimeout(() => refreshClaimStatus(), 1000);
     } catch (error) {
       console.error("Claim error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to claim UBI";
@@ -267,7 +291,7 @@ export default function ProfilePage() {
 
         {isReady ? (
           <>
-            {entitlement > 0n ? (
+            {entitlement > 0n && !justClaimed ? (
               <>
                 <div className="rounded-lg p-4 mb-4 bg-primary/10 border border-primary/30">
                   <p className="text-sm text-base-content/60 mb-1">Available to claim</p>
@@ -297,6 +321,16 @@ export default function ProfilePage() {
                   }}
                 >
                   {isLoading ? "Claiming..." : "Claim Now"}
+                </button>
+              </>
+            ) : justClaimed ? (
+              <>
+                <div className="rounded-lg p-4 mb-4 bg-success/10 border border-success/30">
+                  <p className="text-sm text-success mb-1">Successfully claimed!</p>
+                  <p className="text-sm text-base-content/60">Updating next claim time...</p>
+                </div>
+                <button disabled className="btn btn-disabled w-full">
+                  Claim Successful
                 </button>
               </>
             ) : (

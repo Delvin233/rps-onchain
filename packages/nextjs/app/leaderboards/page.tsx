@@ -65,7 +65,7 @@ export default function LeaderboardsPage() {
             <div>
               <h2 className="text-xl font-bold mb-2 text-base-content">Single Player Ranks</h2>
               <p className="text-base-content/70 text-sm">
-                Compete against AI and climb the ranks. Earn your place among the RPS-Gods!
+                Compete against the RPS-AI and climb the ranks. Earn your place among the RPS-Gods!
               </p>
             </div>
           </div>

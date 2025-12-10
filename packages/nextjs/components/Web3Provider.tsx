@@ -63,5 +63,23 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Add visibility change handler to help with tab switching
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Tab became visible - trigger a small delay to let AppKit reconnect
+        setTimeout(() => {
+          // Force a re-render of connection state
+          window.dispatchEvent(new Event("focus"));
+        }, 100);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   return <>{children}</>;
 }
