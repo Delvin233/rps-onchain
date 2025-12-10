@@ -26,7 +26,7 @@
   - **Property 14: Legacy Data Preservation**
   - **Validates: Requirements 7.1**
 
-- [ ] 2. Implement core AI match management system
+- [x] 2. Implement core AI match management system
   - Create AIMatchManager class with match lifecycle operations
   - Implement AIMatchStorage for Redis and Turso persistence
   - Add match state validation and error handling
@@ -52,85 +52,85 @@
   - Add atomic operations for state consistency
   - _Requirements: 4.1, 6.2, 6.4_
 
-- [ ] 2.5 Write property test for match state persistence
+- [x] 2.5 Write property test for match state persistence
   - **Property 5: Match State Persistence**
   - **Validates: Requirements 4.1, 4.5**
 
-- [ ] 2.6 Add match abandonment and cleanup logic
+- [x] 2.6 Add match abandonment and cleanup logic
   - Implement 10-minute timeout detection and auto-abandonment
   - Create cleanup process for expired matches
   - Add abandonment pattern tracking
   - _Requirements: 4.3, 4.4, 6.4_
 
-- [ ] 2.7 Write property test for abandonment timeout
+- [x] 2.7 Write property test for abandonment timeout
   - **Property 7: Match Abandonment Timeout**
   - **Validates: Requirements 4.3**
 
-- [ ] 2.8 Write property test for abandonment tracking
+- [x] 2.8 Write property test for abandonment tracking
   - **Property 8: Abandonment Pattern Tracking**
   - **Validates: Requirements 4.4**
 
-- [ ] 3. Create API endpoints for AI match operations
+- [x] 3. Create API endpoints for AI match operations
   - Implement /api/ai-match/start for match creation
   - Create /api/ai-match/play-round for round execution
   - Add /api/ai-match/status for match state retrieval
   - Add /api/ai-match/resume and /api/ai-match/abandon endpoints
   - _Requirements: 1.1, 1.2, 4.2, 4.3_
 
-- [ ] 3.1 Implement /api/ai-match/start endpoint
+- [x] 3.1 Implement /api/ai-match/start endpoint
   - Create new match initialization logic
   - Add player validation and active match detection
   - Return initial match state with proper error handling
   - _Requirements: 1.1, 4.2_
 
-- [ ] 3.2 Implement /api/ai-match/play-round endpoint
+- [x] 3.2 Implement /api/ai-match/play-round endpoint
   - Add round execution with AI move generation
   - Update match state and detect completion
   - Return round results and updated match status
   - _Requirements: 1.2, 1.3_
 
-- [ ] 3.3 Implement /api/ai-match/status endpoint
+- [x] 3.3 Implement /api/ai-match/status endpoint
   - Retrieve current match state from Redis/Turso
   - Handle match not found scenarios gracefully
   - Return comprehensive match information
   - _Requirements: 2.1, 4.5_
 
-- [ ] 3.4 Implement /api/ai-match/resume endpoint
+- [x] 3.4 Implement /api/ai-match/resume endpoint
   - Detect and return active matches for player
   - Restore complete match state including round history
   - Handle expired match scenarios
   - _Requirements: 4.2, 4.5_
 
-- [ ] 3.5 Write property test for match resumption
+- [x] 3.5 Write property test for match resumption
   - **Property 6: Match Resumption Detection**
   - **Validates: Requirements 4.2**
 
-- [ ] 3.6 Implement /api/ai-match/abandon endpoint
+- [x] 3.6 Implement /api/ai-match/abandon endpoint
   - Mark match as abandoned and update statistics
   - Clean up active match state from Redis
   - Track abandonment patterns for player
   - _Requirements: 4.3, 4.4_
 
-- [ ] 3.7 Write unit tests for API endpoints
+- [x] 3.7 Write unit tests for API endpoints
   - Test all endpoints with various input scenarios
   - Verify error handling and response formats
   - Test authentication and validation logic
   - _Requirements: 1.1, 1.2, 4.2, 4.3_
 
-- [ ] 4. Update statistics system for match-level tracking
+- [x] 4. Update statistics system for match-level tracking
   - Extend existing stats system to track AI matches separately
   - Implement match-based win rate calculations
   - Add leaderboard ranking based on match victories
   - Ensure backward compatibility with existing round-based stats
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 7.5_
 
-- [ ] 4.1 Extend statistics calculation logic
+- [x] 4.1 Extend statistics calculation logic
   - Update stats after match completion (not round completion)
   - Implement separate tracking for AI matches vs multiplayer
   - Add match-based win rate calculation
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 4.2 Write property test for statistics updates
+- [x] 4.2 Write property test for statistics updates
   - **Property 2: Statistics Update Accuracy**
   - **Validates: Requirements 3.1, 3.2, 3.3**
 
