@@ -5226,6 +5226,7 @@ __metadata:
     eslint-config-prettier: ~10.1.1
     eslint-plugin-prettier: ~5.2.4
     ethers: ^6.15.0
+    fast-check: ^4.4.0
     ipfs-http-client: ^60.0.1
     jose: ^6.1.1
     jsdom: ^27.2.0
@@ -12847,6 +12848,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-check@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "fast-check@npm:4.4.0"
+  dependencies:
+    pure-rand: ^7.0.0
+  checksum: f58544cd386e1126f7c71cdd0133158e1804f2c29d333f05cf2ca7ebfd32625456c042765c3121360a26287806d4dba8e47b7e114fdccd0e549e33d846110596
+  languageName: node
+  linkType: hard
+
 "fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
@@ -19278,6 +19288,13 @@ __metadata:
   version: 2.3.1
   resolution: "punycode@npm:2.3.1"
   checksum: bb0a0ceedca4c3c57a9b981b90601579058903c62be23c5e8e843d2c2d4148a3ecf029d5133486fb0e1822b098ba8bba09e89d6b21742d02fa26bda6441a6fb2
+  languageName: node
+  linkType: hard
+
+"pure-rand@npm:^7.0.0":
+  version: 7.0.1
+  resolution: "pure-rand@npm:7.0.1"
+  checksum: 4f543b97a487857a791b8e4c139aad54937397dc8177f1353f7da88556bfa40f5c32bfce3856843b1c3fc3a00b8472cceb22957c10b21c14e59e36a02ec9353b
   languageName: node
   linkType: hard
 

@@ -78,6 +78,7 @@
     "eslint-config-next": "~15.2.3",
     "eslint-config-prettier": "~10.1.1",
     "eslint-plugin-prettier": "~5.2.4",
+    "fast-check": "^4.4.0",
     "jsdom": "^27.2.0",
     "postcss": "~8.4.45",
     "prettier": "~3.5.3",
