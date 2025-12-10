@@ -241,7 +241,7 @@ export const convertRowToMatch = (row: AIMatchRow): AIMatch => {
     lastActivityAt: new Date(row.last_activity_at),
     completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
     winner: row.winner as MatchWinner | undefined,
-    isAbandoned: row.is_abandoned,
+    isAbandoned: Boolean(row.is_abandoned), // Convert SQLite 0/1 to boolean
   };
 };
 
