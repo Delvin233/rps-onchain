@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up database schema and core data models
+- [x] 1. Set up database schema and core data models
   - Create new Turso table for AI matches with proper indexes
   - Extend existing stats table with match-level columns
   - Create TypeScript interfaces for AIMatch, Round, and related types
@@ -16,13 +16,13 @@
   - **Property 1: Match Lifecycle Consistency**
   - **Validates: Requirements 1.1, 1.2, 1.3**
 
-- [ ] 1.3 Set up Turso database schema extensions
+- [x] 1.3 Set up Turso database schema extensions
   - Create ai_matches table with proper indexes
   - Add match-level columns to existing stats table
   - Create database migration scripts
   - _Requirements: 7.1, 7.3_
 
-- [ ] 1.4 Write property test for database schema compatibility
+- [x] 1.4 Write property test for database schema compatibility
   - **Property 14: Legacy Data Preservation**
   - **Validates: Requirements 7.1**
 
@@ -32,21 +32,21 @@
   - Add match state validation and error handling
   - _Requirements: 1.1, 1.2, 1.3, 4.1, 6.1_
 
-- [ ] 2.1 Create AIMatchManager core logic
+- [x] 2.1 Create AIMatchManager core logic
   - Implement startMatch, playRound, and getMatchStatus methods
   - Add match completion detection (2 wins triggers completion)
   - Create unique match ID generation with collision prevention
   - _Requirements: 1.1, 1.2, 1.3, 6.1_
 
-- [ ] 2.2 Write property test for match lifecycle
+- [x] 2.2 Write property test for match lifecycle
   - **Property 1: Match Lifecycle Consistency**
   - **Validates: Requirements 1.1, 1.2, 1.3**
 
-- [ ] 2.3 Write property test for unique ID generation
+- [x] 2.3 Write property test for unique ID generation
   - **Property 11: Unique Match Identifier Generation**
   - **Validates: Requirements 6.1**
 
-- [ ] 2.4 Implement AIMatchStorage persistence layer
+- [x] 2.4 Implement AIMatchStorage persistence layer
   - Create Redis operations for active match state (10min TTL)
   - Implement Turso operations for completed match storage
   - Add atomic operations for state consistency

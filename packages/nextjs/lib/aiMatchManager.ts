@@ -21,7 +21,12 @@ import {
   createEmptyMatch,
 } from "../types/aiMatch";
 import { generateAIMove } from "../utils/aiMatchUtils";
-import { completeMatch, getActiveMatchFromRedis, saveActiveMatchToRedis } from "./aiMatchStorage";
+import {
+  completeMatch,
+  getActiveMatchForPlayer,
+  getActiveMatchFromRedis,
+  saveActiveMatchToRedis,
+} from "./aiMatchStorage";
 
 /**
  * Core AI Match Manager class
@@ -132,15 +137,11 @@ export class AIMatchManager {
 
   /**
    * Get active match for a specific player
-   * @param _playerId - Player's wallet address (unused in current implementation)
+   * @param playerId - Player's wallet address
    * @returns Active match or null if none exists
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getActiveMatchForPlayer(_playerId: string): Promise<AIMatch | null> {
-    // Note: This is a simplified implementation
-    // In a production system, you'd want to maintain a player->match mapping in Redis
-    // For now, we'll return null and let the caller handle duplicate match prevention
-    return null;
+  async getActiveMatchForPlayer(playerId: string): Promise<AIMatch | null> {
+    return await getActiveMatchForPlayer(playerId);
   }
 
   /**

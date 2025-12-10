@@ -5,11 +5,14 @@
  * including both Turso (completed matches) and Redis (active matches) operations.
  */
 import { AIMatch, AIMatchRow, MatchStatus, convertMatchToRow, convertRowToMatch } from "../types/aiMatch";
+import { REDIS_MATCH_TTL_SECONDS } from "../types/aiMatch";
 import { turso } from "./turso";
+// ============================================
+// Redis Operations (Active Matches)
+// ============================================
+import { createClient } from "redis";
 
-// ============================================
 // Turso Database Operations (Completed Matches)
-// ============================================
 
 /**
  * Save a completed AI match to Turso database
@@ -240,37 +243,242 @@ export async function deleteOldAbandonedMatches(olderThanDays: number = 7): Prom
 }
 
 // ============================================
-// Redis Operations (Active Matches) - Placeholder
+
 // ============================================
-// Note: Redis operations will be implemented in the next task
-// when we create the AIMatchManager and storage layer
+
+// Redis client management (reusing pattern from roomStorage)
+class AIMatchRedisManager {
+  private static instance: AIMatchRedisManager;
+  private client: ReturnType<typeof createClient> | null = null;
+  private connecting = false;
+  private connectionPromise: Promise<ReturnType<typeof createClient>> | null = null;
+
+  static getInstance(): AIMatchRedisManager {
+    if (!AIMatchRedisManager.instance) {
+      AIMatchRedisManager.instance = new AIMatchRedisManager();
+    }
+    return AIMatchRedisManager.instance;
+  }
+
+  async getClient(): Promise<ReturnType<typeof createClient>> {
+    if (this.client && this.client.isReady) {
+      return this.client;
+    }
+
+    if (this.connecting && this.connectionPromise) {
+      return this.connectionPromise;
+    }
+
+    this.connecting = true;
+    this.connectionPromise = this.connect();
+
+    try {
+      this.client = await this.connectionPromise;
+      return this.client;
+    } finally {
+      this.connecting = false;
+      this.connectionPromise = null;
+    }
+  }
+
+  private async connect(): Promise<ReturnType<typeof createClient>> {
+    const client = createClient({
+      url: process.env.REDIS_URL,
+      socket: {
+        reconnectStrategy: retries => Math.min(retries * 50, 1000),
+      },
+    });
+
+    client.on("error", err => {
+      console.error("[AI Match Redis] Connection error:", err);
+    });
+
+    client.on("reconnecting", () => {
+      console.log("[AI Match Redis] Reconnecting...");
+    });
+
+    await client.connect();
+    console.log("[AI Match Redis] Connected successfully");
+    return client;
+  }
+}
+
+const aiMatchRedisManager = AIMatchRedisManager.getInstance();
+
+const getRedis = async () => {
+  return aiMatchRedisManager.getClient();
+};
 
 /**
- * Save active match to Redis (placeholder)
+ * Save active match to Redis with TTL
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function saveActiveMatchToRedis(_match: AIMatch): Promise<void> {
-  // TODO: Implement Redis operations in next task
-  console.log("Redis operations will be implemented in AIMatchManager");
+export async function saveActiveMatchToRedis(match: AIMatch): Promise<void> {
+  try {
+    const client = await getRedis();
+    const key = `ai_match:${match.id}`;
+
+    // Convert match to Redis-friendly format
+    const matchData = {
+      ...match,
+      startedAt: match.startedAt.toISOString(),
+      lastActivityAt: match.lastActivityAt.toISOString(),
+      completedAt: match.completedAt?.toISOString(),
+      rounds: match.rounds.map(round => ({
+        ...round,
+        timestamp: round.timestamp.toISOString(),
+      })),
+    };
+
+    await client.setEx(key, REDIS_MATCH_TTL_SECONDS, JSON.stringify(matchData));
+
+    // Also maintain a player->match mapping for quick lookup
+    const playerKey = `ai_match_player:${match.playerId}`;
+    await client.setEx(playerKey, REDIS_MATCH_TTL_SECONDS, match.id);
+
+    console.log(`[AI Match Redis] Saved match ${match.id} for player ${match.playerId}`);
+  } catch (error) {
+    console.error("[AI Match Redis] Error saving match:", error);
+    throw error;
+  }
 }
 
 /**
- * Get active match from Redis (placeholder)
+ * Get active match from Redis
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function getActiveMatchFromRedis(_matchId: string): Promise<AIMatch | null> {
-  // TODO: Implement Redis operations in next task
-  console.log("Redis operations will be implemented in AIMatchManager");
-  return null;
+export async function getActiveMatchFromRedis(matchId: string): Promise<AIMatch | null> {
+  try {
+    const client = await getRedis();
+    const key = `ai_match:${matchId}`;
+
+    const data = await client.get(key);
+    if (!data) {
+      return null;
+    }
+
+    const matchData = JSON.parse(data);
+
+    // Convert back to proper types
+    const match: AIMatch = {
+      ...matchData,
+      startedAt: new Date(matchData.startedAt),
+      lastActivityAt: new Date(matchData.lastActivityAt),
+      completedAt: matchData.completedAt ? new Date(matchData.completedAt) : undefined,
+      rounds: matchData.rounds.map((round: any) => ({
+        ...round,
+        timestamp: new Date(round.timestamp),
+      })),
+    };
+
+    return match;
+  } catch (error) {
+    console.error("[AI Match Redis] Error getting match:", error);
+    throw error;
+  }
 }
 
 /**
- * Delete active match from Redis (placeholder)
+ * Delete active match from Redis
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function deleteActiveMatchFromRedis(_matchId: string): Promise<void> {
-  // TODO: Implement Redis operations in next task
-  console.log("Redis operations will be implemented in AIMatchManager");
+export async function deleteActiveMatchFromRedis(matchId: string): Promise<void> {
+  try {
+    const client = await getRedis();
+
+    // Get match first to find player ID for cleanup
+    const match = await getActiveMatchFromRedis(matchId);
+
+    // Delete match data
+    const matchKey = `ai_match:${matchId}`;
+    await client.del(matchKey);
+
+    // Delete player mapping if match exists
+    if (match) {
+      const playerKey = `ai_match_player:${match.playerId}`;
+      await client.del(playerKey);
+    }
+
+    console.log(`[AI Match Redis] Deleted match ${matchId}`);
+  } catch (error) {
+    console.error("[AI Match Redis] Error deleting match:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get active match for a player
+ */
+export async function getActiveMatchForPlayer(playerId: string): Promise<AIMatch | null> {
+  try {
+    const client = await getRedis();
+    const playerKey = `ai_match_player:${playerId}`;
+
+    const matchId = await client.get(playerKey);
+    if (!matchId) {
+      return null;
+    }
+
+    return await getActiveMatchFromRedis(matchId);
+  } catch (error) {
+    console.error("[AI Match Redis] Error getting player match:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get all active matches (for monitoring/cleanup)
+ */
+export async function getAllActiveMatches(): Promise<AIMatch[]> {
+  try {
+    const client = await getRedis();
+    const keys = await client.keys("ai_match:*");
+
+    const matches: AIMatch[] = [];
+    for (const key of keys) {
+      // Skip player mapping keys
+      if (key.includes("ai_match_player:")) continue;
+
+      const matchId = key.replace("ai_match:", "");
+      const match = await getActiveMatchFromRedis(matchId);
+      if (match) {
+        matches.push(match);
+      }
+    }
+
+    return matches;
+  } catch (error) {
+    console.error("[AI Match Redis] Error getting all matches:", error);
+    throw error;
+  }
+}
+
+/**
+ * Cleanup expired matches (maintenance function)
+ */
+export async function cleanupExpiredMatches(): Promise<number> {
+  try {
+    const matches = await getAllActiveMatches();
+    let cleanedCount = 0;
+
+    const now = Date.now();
+    const timeoutMs = REDIS_MATCH_TTL_SECONDS * 1000;
+
+    for (const match of matches) {
+      const timeSinceLastActivity = now - match.lastActivityAt.getTime();
+
+      if (timeSinceLastActivity > timeoutMs) {
+        await deleteActiveMatchFromRedis(match.id);
+        cleanedCount++;
+      }
+    }
+
+    if (cleanedCount > 0) {
+      console.log(`[AI Match Redis] Cleaned up ${cleanedCount} expired matches`);
+    }
+
+    return cleanedCount;
+  } catch (error) {
+    console.error("[AI Match Redis] Error during cleanup:", error);
+    throw error;
+  }
 }
 
 // ============================================
