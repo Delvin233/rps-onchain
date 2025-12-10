@@ -13,24 +13,26 @@ export async function GET(request: NextRequest) {
 
     const normalizedAddress = address.toLowerCase();
 
-    // Try Turso first
-    try {
-      await initVerificationsTable();
-      const result = await turso.execute({
-        sql: "SELECT verified, proof_data, timestamp_ms FROM verifications WHERE address = ?",
-        args: [normalizedAddress],
-      });
-
-      if (result.rows.length > 0) {
-        const row = result.rows[0];
-        return NextResponse.json({
-          verified: Boolean(row.verified),
-          proof: row.proof_data ? JSON.parse(row.proof_data as string) : null,
-          timestamp: row.timestamp_ms,
+    // Try Turso first (only if environment variables are available)
+    if (process.env.TURSO_DATABASE_URL) {
+      try {
+        await initVerificationsTable();
+        const result = await turso.execute({
+          sql: "SELECT verified, proof_data, timestamp_ms FROM verifications WHERE address = ?",
+          args: [normalizedAddress],
         });
+
+        if (result.rows.length > 0) {
+          const row = result.rows[0];
+          return NextResponse.json({
+            verified: Boolean(row.verified),
+            proof: row.proof_data ? JSON.parse(row.proof_data as string) : null,
+            timestamp: row.timestamp_ms,
+          });
+        }
+      } catch (tursoError) {
+        console.error("Turso lookup failed, trying Edge Config fallback:", tursoError);
       }
-    } catch (tursoError) {
-      console.error("Turso lookup failed, trying Edge Config fallback:", tursoError);
     }
 
     // Fallback to Edge Config for legacy data

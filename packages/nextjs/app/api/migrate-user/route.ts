@@ -67,19 +67,57 @@ async function migrateUser(address: string, origin: string) {
     matches,
   };
 
-  // Migrate stats to Redis
-  await redis.set(`stats:${addressLower}`, ipfsData.stats);
+  // Prepare matches for migration (outside try block for scope)
+  const BATCH_SIZE = 25; // Smaller batches for safety
+  const reversedMatches = ipfsData.matches.reverse();
 
-  // Migrate matches to Redis
-  for (const match of ipfsData.matches.reverse()) {
-    await redis.lpush(`history:${addressLower}`, JSON.stringify(match));
+  // Limit total matches to prevent huge migrations (keep last 500 matches)
+  const limitedMatches = reversedMatches.slice(0, 500);
+
+  try {
+    // Migrate stats to Redis
+    await redis.set(`stats:${addressLower}`, ipfsData.stats);
+
+    // Migrate matches to Redis in batches to avoid size limits
+
+    console.log(
+      `[Migration] Processing ${limitedMatches.length} matches for ${addressLower} (original: ${reversedMatches.length})`,
+    );
+
+    for (let i = 0; i < limitedMatches.length; i += BATCH_SIZE) {
+      const batch = limitedMatches.slice(i, i + BATCH_SIZE);
+
+      // Process each match individually to avoid size issues
+      for (const match of batch) {
+        const serializedMatch = JSON.stringify(match);
+
+        // Check size before pushing (Redis limit is ~10MB, be safe with 1MB per item)
+        if (serializedMatch.length > 1000000) {
+          // 1MB limit per match
+          console.warn(`[Migration] Skipping oversized match for ${addressLower}: ${serializedMatch.length} bytes`);
+          continue;
+        }
+
+        await redis.lpush(`history:${addressLower}`, serializedMatch);
+      }
+
+      // Small delay between batches
+      if (i + BATCH_SIZE < limitedMatches.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+  } catch (migrationError) {
+    console.error(`[Migration] Failed to migrate ${addressLower}:`, migrationError);
+    throw new Error(`Migration failed: ${migrationError instanceof Error ? migrationError.message : "Unknown error"}`);
   }
 
   return {
     success: true,
     migrated: {
       stats: ipfsData.stats,
-      matches: ipfsData.matches.length,
+      matches: limitedMatches.length,
+      originalMatches: ipfsData.matches.length,
+      truncated: ipfsData.matches.length > 500,
     },
   };
 }

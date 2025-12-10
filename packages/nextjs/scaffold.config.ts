@@ -37,7 +37,8 @@ const scaffoldConfig = {
   // The key is the chain ID, and the value is the HTTP RPC URL
   rpcOverrides: {
     [chains.celo.id]: "https://forno.celo.org",
-    [chains.base.id]: "https://mainnet.base.org",
+    // Removed Base override to use Alchemy RPC instead of rate-limited public RPC
+    // [chains.base.id]: "https://mainnet.base.org",
   },
   // This is ours WalletConnect's default project ID.
   // You can get your own at https://cloud.walletconnect.com

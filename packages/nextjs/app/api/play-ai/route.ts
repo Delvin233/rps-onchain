@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withRateLimit } from "~~/lib/rate-limiter";
 
 type Move = "rock" | "paper" | "scissors";
 
@@ -21,30 +22,32 @@ const determineWinner = (player: Move, ai: Move): "win" | "lose" | "tie" => {
 };
 
 export async function POST(req: NextRequest) {
-  try {
-    const { playerMove, address } = await req.json();
+  return withRateLimit(req, "gameplay", async () => {
+    try {
+      const { playerMove, address } = await req.json();
 
-    if (!playerMove || !["rock", "paper", "scissors"].includes(playerMove)) {
-      return NextResponse.json({ error: "Invalid move" }, { status: 400 });
+      if (!playerMove || !["rock", "paper", "scissors"].includes(playerMove)) {
+        return NextResponse.json({ error: "Invalid move" }, { status: 400 });
+      }
+
+      const aiMove = getRandomMove();
+      const result = determineWinner(playerMove, aiMove);
+
+      // Update stats in Redis (fast)
+      await fetch(`${req.nextUrl.origin}/api/stats-fast`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address,
+          result,
+          isAI: true,
+        }),
+      });
+
+      return NextResponse.json({ aiMove, result });
+    } catch (error) {
+      console.error("Error in play-ai:", error);
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
-
-    const aiMove = getRandomMove();
-    const result = determineWinner(playerMove, aiMove);
-
-    // Update stats in Redis (fast)
-    await fetch(`${req.nextUrl.origin}/api/stats-fast`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        address,
-        result,
-        isAI: true,
-      }),
-    });
-
-    return NextResponse.json({ aiMove, result });
-  } catch (error) {
-    console.error("Error in play-ai:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
+  });
 }

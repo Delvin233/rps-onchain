@@ -58,26 +58,29 @@ export async function POST(request: NextRequest) {
       timestamp,
     };
 
-    try {
-      await initVerificationsTable();
-      await turso.execute({
-        sql: `INSERT INTO verifications (address, verified, proof_data, timestamp_ms) 
-              VALUES (?, ?, ?, ?) 
-              ON CONFLICT(address) DO UPDATE SET 
-                verified = excluded.verified,
-                proof_data = excluded.proof_data,
-                timestamp_ms = excluded.timestamp_ms`,
-        args: [address, 1, JSON.stringify(result), timestamp],
-      });
-      console.log(`✅ Verification stored in Turso for ${address}`);
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error("❌ Failed to store verification:", errorMsg);
-      return NextResponse.json({
-        status: "error",
-        result: false,
-        reason: `Storage failed: ${errorMsg}`,
-      });
+    // Only store in Turso if environment variables are available
+    if (process.env.TURSO_DATABASE_URL) {
+      try {
+        await initVerificationsTable();
+        await turso.execute({
+          sql: `INSERT INTO verifications (address, verified, proof_data, timestamp_ms) 
+                VALUES (?, ?, ?, ?) 
+                ON CONFLICT(address) DO UPDATE SET 
+                  verified = excluded.verified,
+                  proof_data = excluded.proof_data,
+                  timestamp_ms = excluded.timestamp_ms`,
+          args: [address, 1, JSON.stringify(result), timestamp],
+        });
+        console.log(`✅ Verification stored in Turso for ${address}`);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error("❌ Failed to store verification:", errorMsg);
+        return NextResponse.json({
+          status: "error",
+          result: false,
+          reason: `Storage failed: ${errorMsg}`,
+        });
+      }
     }
 
     return NextResponse.json({
