@@ -66,14 +66,28 @@ export class ResilientDatabase {
       async () => {
         console.warn(`[ResilientDB] Database unavailable, trying cache for stats: ${address}`);
 
-        // Try cache first
-        const cached = await cacheManager.get(cacheKey, {
-          prefix: CACHE_PREFIXES.STATS,
-        });
+        // Try cache first with error handling for corrupted cache entries
+        try {
+          const cached = await cacheManager.get(cacheKey, {
+            prefix: CACHE_PREFIXES.STATS,
+          });
 
-        if (cached) {
-          console.info(`[ResilientDB] Serving cached stats for: ${address}`);
-          return cached;
+          if (cached && typeof cached === "object" && (cached as any).totalGames !== undefined) {
+            console.info(`[ResilientDB] Serving cached stats for: ${address}`);
+            return cached;
+          } else if (cached) {
+            // Invalid cache format, clear it
+            console.warn(`[ResilientDB] Invalid cache format for ${address}, clearing...`);
+            await cacheManager.invalidate(cacheKey, {
+              prefix: CACHE_PREFIXES.STATS,
+            });
+          }
+        } catch (error) {
+          console.warn(`[ResilientDB] Cache error for ${address}, clearing:`, error);
+          // Clear corrupted cache entry
+          await cacheManager.invalidate(cacheKey, {
+            prefix: CACHE_PREFIXES.STATS,
+          });
         }
 
         // Return empty stats as last resort

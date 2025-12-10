@@ -25,11 +25,24 @@ class CacheManager {
       const cached = await redis.get(cacheKey);
 
       if (cached) {
+        // Handle corrupted cache entries
+        if (cached === "[object Object]" || typeof cached !== "string") {
+          console.warn(`[Cache] Corrupted cache entry for ${key}, clearing...`);
+          await redis.del(cacheKey);
+          return null;
+        }
         return JSON.parse(cached as string);
       }
       return null;
     } catch (error) {
       console.warn(`[Cache] Failed to get ${key}:`, error);
+      // Clear corrupted cache entry
+      try {
+        const cacheKey = this.generateKey(key, options.prefix);
+        await redis.del(cacheKey);
+      } catch (deleteError) {
+        console.warn(`[Cache] Failed to clear corrupted entry ${key}:`, deleteError);
+      }
       return null;
     }
   }
