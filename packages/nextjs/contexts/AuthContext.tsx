@@ -5,6 +5,7 @@ import { useFarcaster } from "./FarcasterContext";
 import sdk from "@farcaster/miniapp-sdk";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
+import { useConnectionPersistence } from "~~/hooks/useConnectionPersistence";
 
 type AuthMethod = "wallet" | "farcaster" | null;
 
@@ -42,6 +43,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const { address: walletAddress, isConnected: walletConnected } = useAccount();
   const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
+
+  // Use connection persistence hook to help with tab switching
+  useConnectionPersistence();
 
   // Use FarcasterContext instead of duplicating SDK initialization
   const { context: farcasterContext, enrichedUser, isMiniAppReady } = useFarcaster();
@@ -106,19 +110,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [hasFarcasterAuth, farcasterAddress, effectiveWalletAddress],
   );
 
-  // Debug log for social login
+  // Handle tab switching and connection persistence
   useEffect(() => {
-    console.log("[AuthContext] State:", {
-      wagmi: { address: walletAddress, connected: walletConnected },
-      appKit: { address: appKitAddress, connected: appKitConnected },
-      effective: { address: effectiveWalletAddress, connected: effectiveWalletConnected },
-      farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
-      final: { authMethod, address },
-    });
+    if (typeof window === "undefined") return;
 
-    // Log when social login is detected
-    if (appKitConnected && !walletConnected) {
-      console.log("✅ [AuthContext] Social login detected via AppKit:", appKitAddress);
+    const handleFocus = () => {
+      // When tab regains focus, check if we need to refresh connection state
+      if (mounted && !effectiveWalletConnected && !hasFarcasterAuth) {
+        // Small delay to let AppKit/wagmi reconnect
+        setTimeout(() => {
+          // This will trigger a re-render and potentially restore connection
+          setMounted(prev => !prev);
+          setTimeout(() => setMounted(prev => !prev), 50);
+        }, 200);
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [mounted, effectiveWalletConnected, hasFarcasterAuth]);
+
+  // Debug log for social login (only in development)
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.log("[AuthContext] State:", {
+        wagmi: { address: walletAddress, connected: walletConnected },
+        appKit: { address: appKitAddress, connected: appKitConnected },
+        effective: { address: effectiveWalletAddress, connected: effectiveWalletConnected },
+        farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
+        final: { authMethod, address },
+      });
+
+      // Log when social login is detected
+      if (appKitConnected && !walletConnected) {
+        console.log("✅ [AuthContext] Social login detected via AppKit:", appKitAddress);
+      }
     }
   }, [
     walletAddress,

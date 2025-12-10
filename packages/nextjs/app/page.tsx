@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Coins, Gift, Play, Target, TrendingUp, Trophy } from "lucide-react";
+import { IoStatsChartOutline } from "react-icons/io5";
+import { LuBrainCircuit, LuUsersRound } from "react-icons/lu";
 import { useChainId, useConnect, useSwitchChain } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { LoginButton } from "~~/components/LoginButton";
@@ -149,19 +151,19 @@ export default function Home() {
     {
       title: "Total Games",
       value: stats.totalGames.toString(),
-      icon: Target,
+      icon: IoStatsChartOutline,
       subtitle: `AI: ${stats.ai?.totalGames || 0} | PvP: ${stats.multiplayer?.totalGames || 0}`,
     },
     {
       title: "AI Wins",
       value: `${stats.ai?.wins || 0}/${stats.ai?.totalGames || 0}`,
-      icon: TrendingUp,
+      icon: LuBrainCircuit,
       subtitle: `${stats.ai?.winRate || 0}% win rate`,
     },
     {
       title: "PvP Wins",
       value: `${stats.multiplayer?.wins || 0}/${stats.multiplayer?.totalGames || 0}`,
-      icon: Coins,
+      icon: LuUsersRound,
       subtitle: `${stats.multiplayer?.winRate || 0}% win rate`,
     },
   ];
