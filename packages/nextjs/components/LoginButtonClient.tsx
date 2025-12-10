@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppKit } from "@reown/appkit/react";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useAccount } from "wagmi";
 
 interface LoginButtonClientProps {
@@ -9,7 +9,12 @@ interface LoginButtonClientProps {
 
 export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
   const { open } = useAppKit();
-  const { address, isConnected } = useAccount();
+  const { address: wagmiAddress, isConnected: wagmiConnected } = useAccount();
+  const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
+
+  // Use the same logic as AuthContext - AppKit takes priority for social logins
+  const isConnected = appKitConnected || wagmiConnected;
+  const address = appKitAddress || wagmiAddress;
 
   const sizeClasses =
     size === "sm"
