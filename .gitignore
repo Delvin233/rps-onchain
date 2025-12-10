@@ -46,3 +46,4 @@ typechain-types
 .vscode
 
 perfect-timer
+.env*.local
