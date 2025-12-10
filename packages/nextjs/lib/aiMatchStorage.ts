@@ -497,7 +497,7 @@ export async function completeMatch(match: AIMatch): Promise<void> {
     // Save to Turso database
     await saveCompletedMatch(match);
 
-    // Update statistics
+    // Update statistics using resilient database operations
     let result: "won" | "lost" | "tied" | "abandoned";
     if (match.isAbandoned) {
       result = "abandoned";
@@ -509,7 +509,20 @@ export async function completeMatch(match: AIMatch): Promise<void> {
       result = "tied";
     }
 
-    await updateMatchStatistics(match.playerId, result);
+    // Use resilient database operations for better error handling
+    const { resilientUpdateMatchStats } = await import("./resilient-database");
+    const statsUpdated = await resilientUpdateMatchStats(match.playerId, result);
+
+    if (!statsUpdated) {
+      console.warn(`Failed to update match statistics for player ${match.playerId}, but match was saved`);
+    }
+
+    // Also update local statistics as fallback
+    try {
+      await updateMatchStatistics(match.playerId, result);
+    } catch (error) {
+      console.warn("Fallback statistics update failed:", error);
+    }
 
     // Remove from Redis (will be implemented in next task)
     await deleteActiveMatchFromRedis(match.id);

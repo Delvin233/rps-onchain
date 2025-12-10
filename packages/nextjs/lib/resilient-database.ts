@@ -15,6 +15,12 @@ export interface ResilientStats {
   multiplayer_games: number;
   multiplayer_wins: number;
   multiplayer_ties: number;
+  // Match-level statistics for AI matches
+  ai_matches_played: number;
+  ai_matches_won: number;
+  ai_matches_lost: number;
+  ai_matches_tied: number;
+  ai_matches_abandoned: number;
 }
 
 // Resilient database operations with circuit breaker, retry, and fallback
@@ -49,6 +55,12 @@ export class ResilientDatabase {
               multiplayer_games: Number(row.multiplayer_games || 0),
               multiplayer_wins: Number(row.multiplayer_wins || 0),
               multiplayer_ties: Number(row.multiplayer_ties || 0),
+              // Match-level statistics
+              ai_matches_played: Number(row.ai_matches_played || 0),
+              ai_matches_won: Number(row.ai_matches_won || 0),
+              ai_matches_lost: Number(row.ai_matches_lost || 0),
+              ai_matches_tied: Number(row.ai_matches_tied || 0),
+              ai_matches_abandoned: Number(row.ai_matches_abandoned || 0),
             };
 
             // Cache successful result
@@ -103,6 +115,12 @@ export class ResilientDatabase {
           multiplayer_games: 0,
           multiplayer_wins: 0,
           multiplayer_ties: 0,
+          // Match-level statistics
+          ai_matches_played: 0,
+          ai_matches_won: 0,
+          ai_matches_lost: 0,
+          ai_matches_tied: 0,
+          ai_matches_abandoned: 0,
         };
       },
     );
@@ -367,11 +385,98 @@ export class ResilientDatabase {
       },
     );
   }
+
+  // Update match-level statistics with resilience
+  static async updateMatchStats(address: string, matchResult: "won" | "lost" | "tied" | "abandoned") {
+    const addressLower = address.toLowerCase();
+
+    return circuitBreakers.database.execute(
+      // Primary operation: Update database with retry
+      async () => {
+        return withRetry(async () => {
+          return withDatabase(async client => {
+            // Get current stats first
+            const current = await client.execute({
+              sql: "SELECT * FROM stats WHERE address = ?",
+              args: [addressLower],
+            });
+
+            let sql: string;
+            let args: any[];
+
+            if (current.rows.length === 0) {
+              // Insert new record with match-level stats
+              sql = `INSERT INTO stats (
+                address, total_games, wins, losses, ties, 
+                ai_games, ai_wins, ai_ties, 
+                multiplayer_games, multiplayer_wins, multiplayer_ties,
+                ai_matches_played, ai_matches_won, ai_matches_lost, ai_matches_tied, ai_matches_abandoned
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+              args = [
+                addressLower,
+                0, // total_games (matches don't count toward round-based stats)
+                0, // wins
+                0, // losses
+                0, // ties
+                0, // ai_games
+                0, // ai_wins
+                0, // ai_ties
+                0, // multiplayer_games
+                0, // multiplayer_wins
+                0, // multiplayer_ties
+                1, // ai_matches_played
+                matchResult === "won" ? 1 : 0, // ai_matches_won
+                matchResult === "lost" ? 1 : 0, // ai_matches_lost
+                matchResult === "tied" ? 1 : 0, // ai_matches_tied
+                matchResult === "abandoned" ? 1 : 0, // ai_matches_abandoned
+              ];
+            } else {
+              // Update existing record with match-level stats only
+              sql = `UPDATE stats SET 
+                ai_matches_played = ai_matches_played + 1,
+                ai_matches_won = ai_matches_won + ?,
+                ai_matches_lost = ai_matches_lost + ?,
+                ai_matches_tied = ai_matches_tied + ?,
+                ai_matches_abandoned = ai_matches_abandoned + ?,
+                updated_at = CURRENT_TIMESTAMP
+              WHERE address = ?`;
+
+              args = [
+                matchResult === "won" ? 1 : 0, // ai_matches_won
+                matchResult === "lost" ? 1 : 0, // ai_matches_lost
+                matchResult === "tied" ? 1 : 0, // ai_matches_tied
+                matchResult === "abandoned" ? 1 : 0, // ai_matches_abandoned
+                addressLower,
+              ];
+            }
+
+            await client.execute({ sql, args });
+
+            // Invalidate cache after successful update
+            await cacheManager.invalidate(addressLower, {
+              prefix: CACHE_PREFIXES.STATS,
+            });
+
+            return true;
+          });
+        });
+      },
+
+      // Fallback operation: Log failure but don't crash
+      async () => {
+        console.error(`[ResilientDB] Failed to update match stats for ${address}, database unavailable`);
+        // Could implement a queue here to retry later
+        return false;
+      },
+    );
+  }
 }
 
 // Export convenience functions
 export const resilientGetStats = ResilientDatabase.getStats;
 export const resilientUpdateStats = ResilientDatabase.updateStats;
+export const resilientUpdateMatchStats = ResilientDatabase.updateMatchStats;
 export const resilientGetLeaderboard = ResilientDatabase.getLeaderboard;
 export const resilientGetMatchHistory = ResilientDatabase.getMatchHistory;
 export const resilientSaveMatch = ResilientDatabase.saveMatch;

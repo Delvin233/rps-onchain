@@ -33,6 +33,13 @@ export async function GET(request: NextRequest) {
         const mpWins = stats.multiplayer_wins || 0;
         const mpTies = stats.multiplayer_ties || 0;
 
+        // Match-level statistics
+        const aiMatchesPlayed = stats.ai_matches_played || 0;
+        const aiMatchesWon = stats.ai_matches_won || 0;
+        const aiMatchesLost = stats.ai_matches_lost || 0;
+        const aiMatchesTied = stats.ai_matches_tied || 0;
+        const aiMatchesAbandoned = stats.ai_matches_abandoned || 0;
+
         const formattedStats = {
           totalGames,
           wins,
@@ -45,6 +52,19 @@ export async function GET(request: NextRequest) {
             losses: aiGames - aiWins - aiTies,
             ties: aiTies,
             winRate: aiGames > 0 ? Math.round((aiWins / aiGames) * 100) : 0,
+            // Match-level statistics for AI games
+            matches: {
+              totalMatches: aiMatchesPlayed,
+              wins: aiMatchesWon,
+              losses: aiMatchesLost,
+              ties: aiMatchesTied,
+              abandoned: aiMatchesAbandoned,
+              winRate: aiMatchesPlayed > 0 ? Math.round((aiMatchesWon / aiMatchesPlayed) * 100) : 0,
+              completionRate:
+                aiMatchesPlayed + aiMatchesAbandoned > 0
+                  ? Math.round((aiMatchesPlayed / (aiMatchesPlayed + aiMatchesAbandoned)) * 100)
+                  : 100,
+            },
           },
           multiplayer: {
             totalGames: mpGames,
@@ -65,7 +85,22 @@ export async function GET(request: NextRequest) {
         losses: 0,
         ties: 0,
         winRate: 0,
-        ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+        ai: {
+          totalGames: 0,
+          wins: 0,
+          losses: 0,
+          ties: 0,
+          winRate: 0,
+          matches: {
+            totalMatches: 0,
+            wins: 0,
+            losses: 0,
+            ties: 0,
+            abandoned: 0,
+            winRate: 0,
+            completionRate: 100,
+          },
+        },
         multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
       };
 
@@ -79,7 +114,22 @@ export async function GET(request: NextRequest) {
           losses: 0,
           ties: 0,
           winRate: 0,
-          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+          ai: {
+            totalGames: 0,
+            wins: 0,
+            losses: 0,
+            ties: 0,
+            winRate: 0,
+            matches: {
+              totalMatches: 0,
+              wins: 0,
+              losses: 0,
+              ties: 0,
+              abandoned: 0,
+              winRate: 0,
+              completionRate: 100,
+            },
+          },
           multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
         },
       });
