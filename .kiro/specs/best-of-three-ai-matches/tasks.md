@@ -134,17 +134,17 @@
   - **Property 2: Statistics Update Accuracy**
   - **Validates: Requirements 3.1, 3.2, 3.3**
 
-- [ ] 4.3 Write property test for win rate calculation
+- [x] 4.3 Write property test for win rate calculation
   - **Property 3: Win Rate Calculation Correctness**
   - **Validates: Requirements 3.4**
 
-- [ ] 4.4 Implement leaderboard ranking system
+- [x] 4.4 Implement leaderboard ranking system
   - Create ranking logic based on completed match victories
   - Ensure distinction from round-based rankings
   - Add proper sorting and tie-breaking logic
   - _Requirements: 3.5_
 
-- [ ] 4.5 Write property test for leaderboard ranking
+- [x] 4.5 Write property test for leaderboard ranking
   - **Property 4: Leaderboard Ranking Accuracy**
   - **Validates: Requirements 3.5**
 
@@ -158,46 +158,46 @@
   - **Property 16: Mixed Statistics Calculation**
   - **Validates: Requirements 7.5**
 
-- [ ] 5. Create UI components for best-of-three matches
+- [x] 5. Create UI components for best-of-three matches
   - Build MatchScoreboard component for score display
   - Create ResumeMatchModal for match resumption
   - Update existing AI game interface for multi-round play
   - Add round indicator and progress display
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 4.2_
 
-- [ ] 5.1 Create MatchScoreboard component
+- [x] 5.1 Create MatchScoreboard component
   - Display current player and AI scores (0-2)
   - Show current round indicator (Round 1/2/3)
   - Add visual progress indicators and animations
   - _Requirements: 2.1, 2.3_
 
-- [ ] 5.2 Write property test for UI state consistency
+- [x] 5.2 Write property test for UI state consistency
   - **Property 17: UI State Consistency**
   - **Validates: Requirements 2.1, 2.2, 2.3, 2.5**
 
-- [ ] 5.3 Create ResumeMatchModal component
+- [x] 5.3 Create ResumeMatchModal component
   - Display active match information and current state
   - Provide resume and abandon options
   - Show match progress and time since last activity
   - _Requirements: 4.2, 2.5_
 
-- [ ] 5.4 Update AI game page for multi-round play
+- [x] 5.4 Update AI game page for multi-round play
   - Integrate MatchScoreboard into existing interface
   - Add round result display and animations
   - Update game flow for continuous play until match completion
   - _Requirements: 2.2, 2.4, 2.5_
 
-- [ ] 5.5 Write property test for match completion UI
+- [x] 5.5 Write property test for match completion UI
   - **Property 18: Match Completion UI Feedback**
   - **Validates: Requirements 2.4**
 
-- [ ] 5.6 Add match continuation and completion flows
+- [x] 5.6 Add match continuation and completion flows
   - Implement "Next Round" button after round completion
   - Add match completion celebration/consolation screens
   - Create "Play Again" option for new match after completion
   - _Requirements: 2.4, 2.5_
 
-- [ ] 5.7 Write unit tests for UI components
+- [x] 5.7 Write unit tests for UI components
   - Test component rendering with various match states
   - Verify user interaction handling and state updates
   - Test responsive design and accessibility features

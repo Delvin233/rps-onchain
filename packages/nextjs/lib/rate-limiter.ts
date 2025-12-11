@@ -60,6 +60,8 @@ export const ENDPOINT_CATEGORIES = {
   "/api/leaderboard/ai": "leaderboard",
   "/api/leaderboard/ai/player": "leaderboard",
   "/api/leaderboard/ai/update": "leaderboard",
+  "/api/leaderboard/matches": "leaderboard",
+  "/api/leaderboard/matches/player": "leaderboard",
 
   // Verification endpoints
   "/api/verify": "verification",

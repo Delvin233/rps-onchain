@@ -480,3 +480,12 @@ export const resilientUpdateMatchStats = ResilientDatabase.updateMatchStats;
 export const resilientGetLeaderboard = ResilientDatabase.getLeaderboard;
 export const resilientGetMatchHistory = ResilientDatabase.getMatchHistory;
 export const resilientSaveMatch = ResilientDatabase.saveMatch;
+
+// Re-export match leaderboard functions for consistency
+export {
+  getMatchLeaderboard,
+  getPlayerMatchRanking,
+  getLeaderboardAroundPlayer,
+  compareMatchRankings,
+  validateMatchLeaderboardEntry,
+} from "./match-leaderboard";
