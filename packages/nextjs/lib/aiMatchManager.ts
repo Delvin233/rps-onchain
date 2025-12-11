@@ -321,11 +321,15 @@ export class AIMatchManager {
     }
 
     if (match.currentRound > MAX_ROUNDS) {
-      throw new InvalidMatchStateError(`Match ${match.id} has exceeded maximum rounds`);
+      throw new InvalidMatchStateError(
+        `Match ${match.id} has exceeded maximum rounds (${match.currentRound}/${MAX_ROUNDS})`,
+      );
     }
 
     if (match.playerScore >= ROUNDS_TO_WIN || match.aiScore >= ROUNDS_TO_WIN) {
-      throw new InvalidMatchStateError(`Match ${match.id} should already be completed`);
+      throw new InvalidMatchStateError(
+        `Match ${match.id} should already be completed (scores: player=${match.playerScore}, ai=${match.aiScore})`,
+      );
     }
   }
 
@@ -361,7 +365,6 @@ export class AIMatchManager {
       ...match,
       rounds: [...match.rounds, round],
       lastActivityAt: new Date(),
-      currentRound: match.currentRound + 1,
     };
 
     // Update scores based on round winner
@@ -377,14 +380,18 @@ export class AIMatchManager {
       updatedMatch.status = MatchStatus.COMPLETED;
       updatedMatch.winner = "player";
       updatedMatch.completedAt = new Date();
+      // Keep currentRound at current value when match is completed - don't increment
     } else if (updatedMatch.aiScore >= ROUNDS_TO_WIN) {
       updatedMatch.status = MatchStatus.COMPLETED;
       updatedMatch.winner = "ai";
       updatedMatch.completedAt = new Date();
-    } else if (updatedMatch.currentRound > MAX_ROUNDS) {
-      // All rounds played, determine winner by score
+      // Keep currentRound at current value when match is completed - don't increment
+    } else if (match.currentRound >= MAX_ROUNDS) {
+      // This was the final round (round 3), determine winner by score
       updatedMatch.status = MatchStatus.COMPLETED;
       updatedMatch.completedAt = new Date();
+      // Keep currentRound at MAX_ROUNDS to stay within constraint
+      updatedMatch.currentRound = MAX_ROUNDS;
 
       if (updatedMatch.playerScore > updatedMatch.aiScore) {
         updatedMatch.winner = "player";
@@ -393,6 +400,9 @@ export class AIMatchManager {
       } else {
         updatedMatch.winner = "tie";
       }
+    } else {
+      // Match is still active, increment currentRound for next round
+      updatedMatch.currentRound = match.currentRound + 1;
     }
 
     return updatedMatch;

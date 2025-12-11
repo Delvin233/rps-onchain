@@ -16,9 +16,15 @@ async function migrateUser(address: string, origin: string) {
     return { message: "User already migrated", stats: existingStats };
   }
 
-  // Get matches from Redis first
-  const redisMatches = await redis.lrange(`history:${addressLower}`, 0, -1);
-  let matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+  // Get matches from Redis first (limit to avoid size issues)
+  let matches: any[] = [];
+  try {
+    const redisMatches = await redis.lrange(`history:${addressLower}`, 0, 499); // Limit to 500 matches
+    matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+  } catch (redisError) {
+    console.warn(`[Migration] Redis fetch failed for ${addressLower}, will try IPFS:`, redisError);
+    matches = []; // Fall back to IPFS
+  }
 
   // If no Redis data, try IPFS
   if (matches.length === 0) {
