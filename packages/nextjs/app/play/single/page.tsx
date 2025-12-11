@@ -407,9 +407,6 @@ export default function SinglePlayerPage() {
         <div className="mt-4 space-y-3">
           <div className="bg-card/50 border border-border rounded-xl p-4">
             <div className="text-center">
-              <div className="text-3xl mb-2">
-                {currentMatch.winner === "player" ? "🎉" : currentMatch.winner === "ai" ? "😔" : "🤝"}
-              </div>
               <h2
                 className={`text-xl font-bold mb-2 ${
                   currentMatch.winner === "player"

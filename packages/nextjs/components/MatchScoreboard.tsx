@@ -27,10 +27,10 @@ export function MatchScoreboard({
       {/* Round Indicator */}
       <div className="text-center mb-3">
         <div className="flex items-center justify-center gap-2 mb-1">
-          <span className="text-xs text-base-content/60">
+          <span className="text-sm text-base-content/60">
             {isMatchComplete ? "Match Complete" : `Round ${currentRound}`}
           </span>
-          {!isMatchComplete && <span className="text-xs text-base-content/40">of {maxRounds}</span>}
+          {!isMatchComplete && <span className="text-sm text-base-content/40">of {maxRounds}</span>}
         </div>
 
         {/* Round Progress Dots */}
@@ -53,8 +53,8 @@ export function MatchScoreboard({
         {/* Player Score */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-1">
-            <User size={12} className="text-primary" />
-            <span className="text-xs font-medium text-base-content/80">{playerName}</span>
+            <User size={14} className="text-primary" />
+            <span className="text-sm font-medium text-base-content/80">{playerName}</span>
           </div>
           <div
             key={`player-${playerScore}`}
@@ -79,7 +79,7 @@ export function MatchScoreboard({
 
         {/* VS Divider */}
         <div className="text-center">
-          <div className="text-base-content/40 text-xs font-medium">VS</div>
+          <div className="text-base-content/40 text-sm font-medium">VS</div>
           {winner && (
             <div className="mt-1 animate-bounce">
               <Trophy size={16} className="mx-auto text-warning" />
@@ -90,8 +90,8 @@ export function MatchScoreboard({
         {/* AI Score */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-1">
-            <Bot size={12} className="text-secondary" />
-            <span className="text-xs font-medium text-base-content/80">AI</span>
+            <Bot size={14} className="text-secondary" />
+            <span className="text-sm font-medium text-base-content/80">AI</span>
           </div>
           <div
             key={`ai-${aiScore}`}
@@ -118,10 +118,10 @@ export function MatchScoreboard({
       {/* Match Status */}
       {isMatchComplete && winner && (
         <div className="text-center mt-3 pt-2 border-t border-border animate-fade-in">
-          <p className={`text-sm font-bold ${winner === "player" ? "text-success" : "text-error"}`}>
-            {winner === "player" ? "🎉 You Won!" : "😔 AI Won!"}
+          <p className={`text-base font-bold ${winner === "player" ? "text-success" : "text-error"}`}>
+            {winner === "player" ? "You Won!" : "AI Won!"}
           </p>
-          <p className="text-xs text-base-content/60 mt-0.5">Best of {maxRounds}</p>
+          <p className="text-sm text-base-content/60 mt-0.5">Best of {maxRounds}</p>
         </div>
       )}
     </div>

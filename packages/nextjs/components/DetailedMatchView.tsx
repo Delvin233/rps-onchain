@@ -252,9 +252,6 @@ export function DetailedMatchView({ match, onClose, isVisible }: DetailedMatchVi
                             : "bg-warning/20 text-warning"
                       }`}
                     >
-                      {round.result.winner === "player" && "🎉"}
-                      {round.result.winner === "ai" && "😔"}
-                      {round.result.winner === "tie" && "🤝"}
                       {getResultText(round.result.winner)}
                     </span>
                   </div>
