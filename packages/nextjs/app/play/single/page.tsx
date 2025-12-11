@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Play } from "lucide-react";
+import { BestOfThreeExplanationModal } from "~~/components/BestOfThreeExplanationModal";
 import { LoginButton } from "~~/components/LoginButton";
 import { MatchScoreboard } from "~~/components/MatchScoreboard";
 import { ResumeMatchModal } from "~~/components/ResumeMatchModal";
@@ -32,10 +33,11 @@ export default function SinglePlayerPage() {
   // UI state
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
+  const [showExplanationModal, setShowExplanationModal] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | undefined>(undefined);
 
-  // Check for existing match on load
+  // Check for existing match on load and show explanation for first-time users
   useEffect(() => {
     if (!address) return;
 
@@ -56,10 +58,22 @@ export default function SinglePlayerPage() {
           setTimeRemaining(Math.max(0, diffMinutes));
         } else {
           setGameState("menu");
+
+          // Check if this is the user's first time with best-of-three
+          const hasSeenExplanation = localStorage.getItem(`bestOfThreeExplanation_${address}`);
+          if (!hasSeenExplanation) {
+            setShowExplanationModal(true);
+          }
         }
       } catch (error) {
         console.error("Error checking for active match:", error);
         setGameState("menu");
+
+        // Still show explanation for first-time users even if there's an error
+        const hasSeenExplanation = localStorage.getItem(`bestOfThreeExplanation_${address}`);
+        if (!hasSeenExplanation) {
+          setShowExplanationModal(true);
+        }
       }
     };
 
@@ -129,6 +143,10 @@ export default function SinglePlayerPage() {
 
     try {
       setGameState("loading");
+
+      // Mark that user has seen the explanation
+      localStorage.setItem(`bestOfThreeExplanation_${address}`, "true");
+
       const response = await fetch("/api/ai-match/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -240,6 +258,18 @@ export default function SinglePlayerPage() {
     setAiMove(null);
     setRoundResult(null);
     setGameState("menu");
+  };
+
+  const handleExplanationClose = () => {
+    setShowExplanationModal(false);
+    if (address) {
+      localStorage.setItem(`bestOfThreeExplanation_${address}`, "true");
+    }
+  };
+
+  const handleExplanationStartMatch = () => {
+    setShowExplanationModal(false);
+    startNewMatch();
   };
 
   const isMiniPayCheck = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
@@ -428,6 +458,13 @@ export default function SinglePlayerPage() {
           isVisible={showResumeModal}
         />
       )}
+
+      {/* Best-of-Three Explanation Modal */}
+      <BestOfThreeExplanationModal
+        isVisible={showExplanationModal}
+        onClose={handleExplanationClose}
+        onStartMatch={handleExplanationStartMatch}
+      />
 
       {/* Exit Confirmation Modal */}
       {showExitConfirm && (

@@ -16,11 +16,39 @@ import fc from "fast-check";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock Redis and database operations
-vi.mock("../lib/aiMatchStorage", () => ({
-  getActiveMatchForPlayer: vi.fn(),
-  getActiveMatchFromRedis: vi.fn(),
-  saveActiveMatchToRedis: vi.fn(),
-  completeMatch: vi.fn(),
+vi.mock("../lib/aiMatchStorage", async importOriginal => {
+  const actual = await importOriginal<typeof import("../lib/aiMatchStorage")>();
+  return {
+    ...actual,
+    getActiveMatchForPlayer: vi.fn(),
+    getActiveMatchFromRedis: vi.fn(),
+    saveActiveMatchToRedis: vi.fn(),
+    completeMatch: vi.fn(),
+    getAllActiveMatches: vi.fn(),
+    getPlayerMatchStats: vi.fn(),
+  };
+});
+
+// Mock the AI Match Metrics to prevent Redis connection issues
+vi.mock("../lib/aiMatchMetrics", () => ({
+  aiMatchMetrics: {
+    updateActiveMatchCount: vi.fn(),
+    recordApiResponseTime: vi.fn(),
+    recordDatabaseOperationTime: vi.fn(),
+    incrementErrorCount: vi.fn(),
+    getMetrics: vi.fn().mockResolvedValue({
+      activeMatchCount: 0,
+      completionRate: 0,
+      averageMatchDuration: 0,
+      abandonmentRate: 0,
+      totalMatchesCompleted: 0,
+      totalMatchesAbandoned: 0,
+      recentApiResponseTimes: { start: [], playRound: [], status: [], abandon: [] },
+      databaseOperationTimes: { redis: [], turso: [] },
+      errorRates: { apiErrors: 0, databaseErrors: 0, redisErrors: 0 },
+    }),
+  },
+  withDatabaseMetricsTracking: vi.fn((operation, database, fn) => fn),
 }));
 
 const mockGetActiveMatchForPlayer = getActiveMatchForPlayer as ReturnType<typeof vi.fn>;

@@ -17,14 +17,15 @@ The anti-cheat verification logic in `/api/leaderboard/ai/update` had several is
 
 ### Flow
 
-1. Player plays AI match → `/api/play-ai` is called
-2. AI makes random move and determines winner
-3. **Stats are updated** → `/api/stats-fast` POST updates `stats` table in Turso
-4. **Match saved to history** → `/api/history-fast` POST saves to Redis (for match history)
-5. **Leaderboard update triggered** → `/api/leaderboard/ai/update` POST with matchId
-6. **Verification** → Fetches stats from `/api/stats-fast` GET
-7. **Atomic increment** → `incrementPlayerWins()` uses SQL `wins = wins + 1`
-8. **Rank recalculation** → New rank determined based on total wins
+1. Player starts AI match → `/api/ai-match/start` is called
+2. Player plays rounds → `/api/ai-match/play-round` is called for each round
+3. AI makes random move and determines round winner
+4. **Stats are updated** → When match completes, stats are updated via match completion logic
+5. **Match saved to history** → `/api/history-fast` POST saves to Redis (for match history)
+6. **Leaderboard update triggered** → `/api/leaderboard/ai/update` POST with matchId
+7. **Verification** → Fetches stats from `/api/stats-fast` GET
+8. **Atomic increment** → `incrementPlayerWins()` uses SQL `wins = wins + 1`
+9. **Rank recalculation** → New rank determined based on total wins
 
 ### Data Storage
 
@@ -87,7 +88,7 @@ Check logs for:
 ## Related Files
 
 - `/api/leaderboard/ai/update/route.ts` - Leaderboard update endpoint (FIXED)
-- `/api/play-ai/route.ts` - AI match logic
+- `/api/ai-match/*` - Best-of-three AI match system
 - `/api/stats-fast/route.ts` - Stats storage (Turso)
 - `/lib/turso.ts` - Database utilities (`incrementPlayerWins`)
 - `/lib/tursoStorage.ts` - Stats update logic

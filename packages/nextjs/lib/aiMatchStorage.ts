@@ -6,6 +6,7 @@
  */
 import { AIMatch, AIMatchRow, MatchStatus, convertMatchToRow, convertRowToMatch } from "../types/aiMatch";
 import { REDIS_MATCH_TTL_SECONDS } from "../types/aiMatch";
+import { withDatabaseMetricsTracking } from "./aiMatchMetrics";
 import { turso } from "./turso";
 // ============================================
 // Redis Operations (Active Matches)
@@ -17,39 +18,43 @@ import { createClient } from "redis";
 /**
  * Save a completed AI match to Turso database
  */
-export async function saveCompletedMatch(match: AIMatch): Promise<void> {
-  if (match.status !== MatchStatus.COMPLETED && match.status !== MatchStatus.ABANDONED) {
-    throw new Error("Only completed or abandoned matches can be saved to database");
-  }
+export const saveCompletedMatch = withDatabaseMetricsTracking(
+  "saveCompletedMatch",
+  "turso",
+  async (match: AIMatch): Promise<void> => {
+    if (match.status !== MatchStatus.COMPLETED && match.status !== MatchStatus.ABANDONED) {
+      throw new Error("Only completed or abandoned matches can be saved to database");
+    }
 
-  try {
-    const row = convertMatchToRow(match);
+    try {
+      const row = convertMatchToRow(match);
 
-    await turso.execute({
-      sql: `INSERT INTO ai_matches (
-        id, player_id, status, player_score, ai_score, current_round,
-        rounds_data, started_at, last_activity_at, completed_at, winner, is_abandoned
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        row.id,
-        row.player_id,
-        row.status,
-        row.player_score,
-        row.ai_score,
-        row.current_round,
-        row.rounds_data,
-        row.started_at,
-        row.last_activity_at,
-        row.completed_at || null,
-        row.winner || null,
-        row.is_abandoned,
-      ],
-    });
-  } catch (error) {
-    console.error("Error saving completed match:", error);
-    throw error;
-  }
-}
+      await turso.execute({
+        sql: `INSERT INTO ai_matches (
+          id, player_id, status, player_score, ai_score, current_round,
+          rounds_data, started_at, last_activity_at, completed_at, winner, is_abandoned
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          row.id,
+          row.player_id,
+          row.status,
+          row.player_score,
+          row.ai_score,
+          row.current_round,
+          row.rounds_data,
+          row.started_at,
+          row.last_activity_at,
+          row.completed_at || null,
+          row.winner || null,
+          row.is_abandoned,
+        ],
+      });
+    } catch (error) {
+      console.error("Error saving completed match:", error);
+      throw error;
+    }
+  },
+);
 
 /**
  * Get a completed match by ID from Turso
@@ -312,69 +317,77 @@ const getRedis = async () => {
 /**
  * Save active match to Redis with TTL
  */
-export async function saveActiveMatchToRedis(match: AIMatch): Promise<void> {
-  try {
-    const client = await getRedis();
-    const key = `ai_match:${match.id}`;
+export const saveActiveMatchToRedis = withDatabaseMetricsTracking(
+  "saveActiveMatch",
+  "redis",
+  async (match: AIMatch): Promise<void> => {
+    try {
+      const client = await getRedis();
+      const key = `ai_match:${match.id}`;
 
-    // Convert match to Redis-friendly format
-    const matchData = {
-      ...match,
-      startedAt: match.startedAt.toISOString(),
-      lastActivityAt: match.lastActivityAt.toISOString(),
-      completedAt: match.completedAt?.toISOString(),
-      rounds: match.rounds.map(round => ({
-        ...round,
-        timestamp: round.timestamp.toISOString(),
-      })),
-    };
+      // Convert match to Redis-friendly format
+      const matchData = {
+        ...match,
+        startedAt: match.startedAt.toISOString(),
+        lastActivityAt: match.lastActivityAt.toISOString(),
+        completedAt: match.completedAt?.toISOString(),
+        rounds: match.rounds.map(round => ({
+          ...round,
+          timestamp: round.timestamp.toISOString(),
+        })),
+      };
 
-    await client.setEx(key, REDIS_MATCH_TTL_SECONDS, JSON.stringify(matchData));
+      await client.setEx(key, REDIS_MATCH_TTL_SECONDS, JSON.stringify(matchData));
 
-    // Also maintain a player->match mapping for quick lookup
-    const playerKey = `ai_match_player:${match.playerId}`;
-    await client.setEx(playerKey, REDIS_MATCH_TTL_SECONDS, match.id);
+      // Also maintain a player->match mapping for quick lookup
+      const playerKey = `ai_match_player:${match.playerId}`;
+      await client.setEx(playerKey, REDIS_MATCH_TTL_SECONDS, match.id);
 
-    console.log(`[AI Match Redis] Saved match ${match.id} for player ${match.playerId}`);
-  } catch (error) {
-    console.error("[AI Match Redis] Error saving match:", error);
-    throw error;
-  }
-}
+      console.log(`[AI Match Redis] Saved match ${match.id} for player ${match.playerId}`);
+    } catch (error) {
+      console.error("[AI Match Redis] Error saving match:", error);
+      throw error;
+    }
+  },
+);
 
 /**
  * Get active match from Redis
  */
-export async function getActiveMatchFromRedis(matchId: string): Promise<AIMatch | null> {
-  try {
-    const client = await getRedis();
-    const key = `ai_match:${matchId}`;
+export const getActiveMatchFromRedis = withDatabaseMetricsTracking(
+  "getActiveMatch",
+  "redis",
+  async (matchId: string): Promise<AIMatch | null> => {
+    try {
+      const client = await getRedis();
+      const key = `ai_match:${matchId}`;
 
-    const data = await client.get(key);
-    if (!data) {
-      return null;
+      const data = await client.get(key);
+      if (!data) {
+        return null;
+      }
+
+      const matchData = JSON.parse(data);
+
+      // Convert back to proper types
+      const match: AIMatch = {
+        ...matchData,
+        startedAt: new Date(matchData.startedAt),
+        lastActivityAt: new Date(matchData.lastActivityAt),
+        completedAt: matchData.completedAt ? new Date(matchData.completedAt) : undefined,
+        rounds: matchData.rounds.map((round: any) => ({
+          ...round,
+          timestamp: new Date(round.timestamp),
+        })),
+      };
+
+      return match;
+    } catch (error) {
+      console.error("[AI Match Redis] Error getting match:", error);
+      throw error;
     }
-
-    const matchData = JSON.parse(data);
-
-    // Convert back to proper types
-    const match: AIMatch = {
-      ...matchData,
-      startedAt: new Date(matchData.startedAt),
-      lastActivityAt: new Date(matchData.lastActivityAt),
-      completedAt: matchData.completedAt ? new Date(matchData.completedAt) : undefined,
-      rounds: matchData.rounds.map((round: any) => ({
-        ...round,
-        timestamp: new Date(round.timestamp),
-      })),
-    };
-
-    return match;
-  } catch (error) {
-    console.error("[AI Match Redis] Error getting match:", error);
-    throw error;
-  }
-}
+  },
+);
 
 /**
  * Delete active match from Redis

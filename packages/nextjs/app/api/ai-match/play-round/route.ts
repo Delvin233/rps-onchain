@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiMatchManager } from "~~/lib/aiMatchManager";
+import { withMetricsTracking } from "~~/lib/aiMatchMetrics";
 import { withRateLimit } from "~~/lib/rate-limiter";
 import {
   InvalidMatchStateError,
@@ -28,7 +29,7 @@ import {
  * - 409: Match already completed or abandoned
  * - 500: Internal server error
  */
-export async function POST(req: NextRequest) {
+async function playRoundHandler(req: NextRequest) {
   return withRateLimit(req, "gameplay", async () => {
     try {
       const { matchId, playerMove } = await req.json();
@@ -71,3 +72,6 @@ export async function POST(req: NextRequest) {
     }
   });
 }
+
+// Apply metrics tracking to the handler
+export const POST = withMetricsTracking("playRound", playRoundHandler);

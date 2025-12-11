@@ -10,11 +10,40 @@ import fc from "fast-check";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the storage functions
-vi.mock("../lib/aiMatchStorage", () => ({
-  saveActiveMatchToRedis: vi.fn(),
-  getActiveMatchFromRedis: vi.fn(),
-  deleteActiveMatchFromRedis: vi.fn(),
-  completeMatch: vi.fn(),
+vi.mock("../lib/aiMatchStorage", async importOriginal => {
+  const actual = await importOriginal<typeof import("../lib/aiMatchStorage")>();
+  return {
+    ...actual,
+    saveActiveMatchToRedis: vi.fn(),
+    getActiveMatchFromRedis: vi.fn(),
+    deleteActiveMatchFromRedis: vi.fn(),
+    completeMatch: vi.fn(),
+    getActiveMatchForPlayer: vi.fn(),
+    getAllActiveMatches: vi.fn(),
+    getPlayerMatchStats: vi.fn(),
+  };
+});
+
+// Mock the AI Match Metrics to prevent Redis connection issues
+vi.mock("../lib/aiMatchMetrics", () => ({
+  aiMatchMetrics: {
+    updateActiveMatchCount: vi.fn(),
+    recordApiResponseTime: vi.fn(),
+    recordDatabaseOperationTime: vi.fn(),
+    incrementErrorCount: vi.fn(),
+    getMetrics: vi.fn().mockResolvedValue({
+      activeMatchCount: 0,
+      completionRate: 0,
+      averageMatchDuration: 0,
+      abandonmentRate: 0,
+      totalMatchesCompleted: 0,
+      totalMatchesAbandoned: 0,
+      recentApiResponseTimes: { start: [], playRound: [], status: [], abandon: [] },
+      databaseOperationTimes: { redis: [], turso: [] },
+      errorRates: { apiErrors: 0, databaseErrors: 0, redisErrors: 0 },
+    }),
+  },
+  withDatabaseMetricsTracking: vi.fn((operation, database, fn) => fn),
 }));
 
 // Helper arbitraries
@@ -32,6 +61,15 @@ describe("AI Match ID Generation Property Tests", () => {
     // Default mocks
     vi.mocked(aiMatchStorage.saveActiveMatchToRedis).mockResolvedValue();
     vi.mocked(aiMatchStorage.getActiveMatchFromRedis).mockResolvedValue(null);
+    vi.mocked(aiMatchStorage.getActiveMatchForPlayer).mockResolvedValue(null);
+    vi.mocked(aiMatchStorage.getAllActiveMatches).mockResolvedValue([]);
+    vi.mocked(aiMatchStorage.getPlayerMatchStats).mockResolvedValue({
+      ai_matches_played: 0,
+      ai_matches_won: 0,
+      ai_matches_lost: 0,
+      ai_matches_tied: 0,
+      ai_matches_abandoned: 0,
+    });
   });
 
   /**

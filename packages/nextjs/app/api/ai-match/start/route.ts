@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiMatchManager } from "~~/lib/aiMatchManager";
+import { withMetricsTracking } from "~~/lib/aiMatchMetrics";
 import { withRateLimit } from "~~/lib/rate-limiter";
 import { InvalidMatchStateError } from "~~/types/aiMatch";
 
@@ -21,7 +22,7 @@ import { InvalidMatchStateError } from "~~/types/aiMatch";
  * - 429: Player has excessive abandonment patterns (temporarily restricted)
  * - 500: Internal server error
  */
-export async function POST(req: NextRequest) {
+async function startMatchHandler(req: NextRequest) {
   return withRateLimit(req, "gameplay", async () => {
     try {
       const { address } = await req.json();
@@ -70,3 +71,6 @@ export async function POST(req: NextRequest) {
     }
   });
 }
+
+// Apply metrics tracking to the handler
+export const POST = withMetricsTracking("start", startMatchHandler);

@@ -11,21 +11,7 @@ import { MatchStatus } from "../types/aiMatch";
 import fc from "fast-check";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock Redis client
-const mockRedisClient = {
-  setEx: vi.fn(),
-  get: vi.fn(),
-  del: vi.fn(),
-  keys: vi.fn(),
-  isReady: true,
-  connect: vi.fn(),
-  on: vi.fn(),
-};
-
-// Mock the Redis module
-vi.mock("redis", () => ({
-  createClient: vi.fn(() => mockRedisClient),
-}));
+// Redis is mocked globally in vitest.setup.ts
 
 // Mock turso module to avoid import issues
 vi.mock("../lib/turso", () => ({
@@ -36,27 +22,71 @@ vi.mock("../lib/turso", () => ({
 }));
 
 // Mock storage functions
-vi.mock("../lib/aiMatchStorage", () => ({
-  saveActiveMatchToRedis: vi.fn(),
-  getActiveMatchFromRedis: vi.fn(),
-  getActiveMatchForPlayer: vi.fn(),
-  completeMatch: vi.fn(),
-  getPlayerMatchStats: vi.fn(),
-  cleanupExpiredMatches: vi.fn(),
-  deleteOldAbandonedMatches: vi.fn(),
-  getAllActiveMatches: vi.fn(),
+vi.mock("../lib/aiMatchStorage", async importOriginal => {
+  const actual = await importOriginal<typeof import("../lib/aiMatchStorage")>();
+  return {
+    ...actual,
+    saveActiveMatchToRedis: vi.fn(),
+    getActiveMatchFromRedis: vi.fn(),
+    getActiveMatchForPlayer: vi.fn(),
+    completeMatch: vi.fn(),
+    getPlayerMatchStats: vi.fn(),
+    cleanupExpiredMatches: vi.fn(),
+    deleteOldAbandonedMatches: vi.fn(),
+    getAllActiveMatches: vi.fn().mockResolvedValue([]),
+  };
+});
+
+// Mock the AI Match Metrics to prevent Redis connection issues
+vi.mock("../lib/aiMatchMetrics", () => ({
+  aiMatchMetrics: {
+    updateActiveMatchCount: vi.fn(),
+    recordApiResponseTime: vi.fn(),
+    recordDatabaseOperationTime: vi.fn(),
+    incrementErrorCount: vi.fn(),
+    getMetrics: vi.fn().mockResolvedValue({
+      activeMatchCount: 0,
+      completionRate: 0,
+      averageMatchDuration: 0,
+      abandonmentRate: 0,
+      totalMatchesCompleted: 0,
+      totalMatchesAbandoned: 0,
+      recentApiResponseTimes: { start: [], playRound: [], status: [], abandon: [] },
+      databaseOperationTimes: { redis: [], turso: [] },
+      errorRates: { apiErrors: 0, databaseErrors: 0, redisErrors: 0 },
+    }),
+  },
+  withDatabaseMetricsTracking: vi.fn((operation, database, fn) => fn),
 }));
 
 describe("AI Match Abandonment Pattern Tracking Properties", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    mockRedisClient.connect.mockResolvedValue(undefined);
 
-    // Reset Redis client state for each test
-    mockRedisClient.setEx.mockReset();
-    mockRedisClient.get.mockReset();
-    mockRedisClient.del.mockReset();
-    mockRedisClient.keys.mockReset();
+    // Set up default mocks for storage functions
+    const {
+      getActiveMatchForPlayer,
+      getPlayerMatchStats,
+      saveActiveMatchToRedis,
+      getAllActiveMatches,
+      completeMatch,
+      cleanupExpiredMatches,
+      deleteOldAbandonedMatches,
+    } = await import("../lib/aiMatchStorage");
+
+    vi.mocked(getActiveMatchForPlayer).mockResolvedValue(null);
+    vi.mocked(saveActiveMatchToRedis).mockResolvedValue(undefined);
+    vi.mocked(getAllActiveMatches).mockResolvedValue([]);
+    vi.mocked(completeMatch).mockResolvedValue(undefined);
+    vi.mocked(cleanupExpiredMatches).mockResolvedValue(0);
+    vi.mocked(deleteOldAbandonedMatches).mockResolvedValue(0);
+    vi.mocked(getPlayerMatchStats).mockResolvedValue({
+      ai_matches_played: 0,
+      ai_matches_won: 0,
+      ai_matches_lost: 0,
+      ai_matches_tied: 0,
+      ai_matches_abandoned: 0,
+    });
   });
 
   afterEach(() => {

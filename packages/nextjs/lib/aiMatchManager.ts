@@ -21,6 +21,7 @@ import {
   createEmptyMatch,
 } from "../types/aiMatch";
 import { generateAIMove } from "../utils/aiMatchUtils";
+import { aiMatchMetrics } from "./aiMatchMetrics";
 import {
   cleanupExpiredMatches,
   completeMatch,
@@ -68,6 +69,10 @@ export class AIMatchManager {
 
     // Save to Redis for active match tracking
     await saveActiveMatchToRedis(newMatch);
+
+    // Update active match count metrics
+    const allActiveMatches = await this.getAllActiveMatches();
+    await aiMatchMetrics.updateActiveMatchCount(allActiveMatches.length);
 
     return newMatch;
   }
@@ -117,6 +122,10 @@ export class AIMatchManager {
     if (updatedMatch.status === MatchStatus.COMPLETED || updatedMatch.status === MatchStatus.ABANDONED) {
       // Move to permanent storage
       await completeMatch(updatedMatch);
+
+      // Update metrics for completed/abandoned matches
+      const allActiveMatches = await this.getAllActiveMatches();
+      await aiMatchMetrics.updateActiveMatchCount(allActiveMatches.length);
     } else {
       // Update active match in Redis
       await saveActiveMatchToRedis(updatedMatch);
