@@ -524,6 +524,9 @@ export async function completeMatch(match: AIMatch): Promise<void> {
 
     // Use resilient database operations for better error handling
     const { resilientUpdateMatchStats } = await import("./resilient-database");
+    console.log(
+      `[AI Match Stats] Updating stats for player ${match.playerId} with result: ${result} (Match ID: ${match.id})`,
+    );
     const statsUpdated = await resilientUpdateMatchStats(match.playerId, result);
 
     if (!statsUpdated) {
@@ -532,6 +535,7 @@ export async function completeMatch(match: AIMatch): Promise<void> {
 
     // Also update local statistics as fallback
     try {
+      console.log(`[AI Match Stats] Fallback stats update for player ${match.playerId} with result: ${result}`);
       await updateMatchStatistics(match.playerId, result);
     } catch (error) {
       console.warn("Fallback statistics update failed:", error);

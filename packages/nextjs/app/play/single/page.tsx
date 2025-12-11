@@ -314,13 +314,15 @@ export default function SinglePlayerPage() {
 
       {/* Match Scoreboard - shown when there's an active match */}
       {currentMatch && (
-        <MatchScoreboard
-          playerScore={currentMatch.playerScore}
-          aiScore={currentMatch.aiScore}
-          currentRound={currentMatch.currentRound}
-          maxRounds={3}
-          isAnimating={isAnimating}
-        />
+        <div className="mb-2">
+          <MatchScoreboard
+            playerScore={currentMatch.playerScore}
+            aiScore={currentMatch.aiScore}
+            currentRound={currentMatch.currentRound}
+            maxRounds={3}
+            isAnimating={isAnimating}
+          />
+        </div>
       )}
 
       {/* Game State Rendering */}
@@ -331,8 +333,8 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "menu" && (
-        <div className="flex flex-col items-center justify-center flex-1 space-y-4">
-          <div className="text-center mb-4">
+        <div className="flex flex-col items-center mt-8 space-y-4">
+          <div className="text-center mb-2">
             <h2 className="text-xl font-bold mb-2">Best of Three</h2>
             <p className="text-base-content/60 text-sm">First to win 2 rounds wins the match!</p>
           </div>
@@ -344,14 +346,14 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "playing" && (
-        <div className="flex flex-col flex-1 justify-center" style={{ gap: "0.75rem" }}>
-          <p className="text-center text-base-content/60 text-sm mb-2">Choose your move</p>
-          <div className="space-y-3">
+        <div className="flex flex-col mt-4">
+          <p className="text-center text-base-content/60 text-sm mb-3">Choose your move</p>
+          <div className="space-y-2">
             {moves.map(move => (
               <button
                 key={move}
                 onClick={() => playRound(move)}
-                className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 py-4 px-6"
+                className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 py-3 px-6"
               >
                 <p className="font-semibold capitalize text-lg">{move}</p>
               </button>
@@ -361,9 +363,9 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "round-result" && (
-        <div className="flex-1 flex flex-col justify-center space-y-4">
-          <div className="bg-card/50 border border-border rounded-xl p-4">
-            <div className="grid grid-cols-2 gap-4 mb-3">
+        <div className="mt-4 space-y-3">
+          <div className="bg-card/50 border border-border rounded-xl p-3">
+            <div className="grid grid-cols-2 gap-4 mb-2">
               <div className="text-center">
                 <p className="text-xs text-base-content/60 mb-1">You</p>
                 <p className="text-xl font-bold capitalize">{playerMove}</p>
@@ -375,9 +377,9 @@ export default function SinglePlayerPage() {
             </div>
 
             {roundResult && (
-              <div className="text-center mt-3">
+              <div className="text-center mt-2">
                 <p
-                  className={`text-xl font-bold ${
+                  className={`text-lg font-bold ${
                     roundResult.winner === "player"
                       ? "text-success"
                       : roundResult.winner === "ai"
@@ -402,14 +404,14 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "match-complete" && currentMatch && (
-        <div className="flex-1 flex flex-col justify-center space-y-4">
+        <div className="mt-4 space-y-3">
           <div className="bg-card/50 border border-border rounded-xl p-4">
             <div className="text-center">
-              <div className="text-4xl mb-3">
+              <div className="text-3xl mb-2">
                 {currentMatch.winner === "player" ? "🎉" : currentMatch.winner === "ai" ? "😔" : "🤝"}
               </div>
               <h2
-                className={`text-2xl font-bold mb-2 ${
+                className={`text-xl font-bold mb-2 ${
                   currentMatch.winner === "player"
                     ? "text-success"
                     : currentMatch.winner === "ai"
