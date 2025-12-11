@@ -74,9 +74,16 @@ class WebSocketRpcManager {
           timeout: 8000,
         },
         {
+          name: "thirdweb-celo",
+          httpUrl: `https://celo.rpc.thirdweb.com/${process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}`,
+          priority: 3,
+          maxRetries: 1,
+          timeout: 12000,
+        },
+        {
           name: "forno-celo",
           httpUrl: "https://forno.celo.org",
-          priority: 3,
+          priority: 4,
           maxRetries: 1,
           timeout: 15000,
         },
