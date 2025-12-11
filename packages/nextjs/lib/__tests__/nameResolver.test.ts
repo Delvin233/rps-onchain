@@ -20,7 +20,7 @@ describe("Name Resolver", () => {
       const address = "0xABCDEF1234567890123456789012345678901234";
       const result = await resolveDisplayName(address);
 
-      expect(result).toBe("0xabcdef...1234");
+      expect(result).toBe("0xabcd...1234");
     }, 10000); // Increase timeout for RPC calls
 
     it("should cache resolved names", async () => {

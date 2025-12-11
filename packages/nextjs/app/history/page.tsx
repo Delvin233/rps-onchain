@@ -12,6 +12,7 @@ import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
 export default function HistoryPage() {
   const { address, isConnected, isConnecting } = useConnectedAddress();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
+  const [aiMatches, setAiMatches] = useState<any[]>([]);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,10 +23,12 @@ export default function HistoryPage() {
   const [displayCount, setDisplayCount] = useState(50);
   const [showHint, setShowHint] = useState(true);
   const [showAIMatches, setShowAIMatches] = useState(false);
+  const [matchTypeFilter, setMatchTypeFilter] = useState<"all" | "multiplayer" | "ai">("all");
 
   useEffect(() => {
     if (isConnected && address) {
       fetchMatches();
+      fetchAIMatches();
       fetchBlockchainProofs();
       // Check if user has seen the hint before
       const hasSeenHint = localStorage.getItem("opponent_intel_hint_seen");
@@ -58,6 +61,33 @@ export default function HistoryPage() {
     } catch (error) {
       console.error("Error fetching on-chain data:", error);
       return null;
+    }
+  };
+
+  const fetchAIMatches = async () => {
+    try {
+      const response = await fetch(`/api/ai-match/history?playerId=${address}&limit=100`);
+      if (response.ok) {
+        const { matches: aiMatchHistory } = await response.json();
+        // Convert date strings back to Date objects
+        const processedMatches = (aiMatchHistory || []).map((match: any) => ({
+          ...match,
+          startedAt: new Date(match.startedAt),
+          lastActivityAt: new Date(match.lastActivityAt),
+          completedAt: match.completedAt ? new Date(match.completedAt) : undefined,
+          rounds: match.rounds.map((round: any) => ({
+            ...round,
+            timestamp: new Date(round.timestamp),
+          })),
+        }));
+        setAiMatches(processedMatches);
+      } else {
+        console.error("Failed to fetch AI matches:", response.statusText);
+        setAiMatches([]);
+      }
+    } catch (error) {
+      console.error("Error fetching AI matches:", error);
+      setAiMatches([]);
     }
   };
 
@@ -203,7 +233,19 @@ export default function HistoryPage() {
         </div>
       )}
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-base-content/80">Show:</span>
+            <select
+              value={matchTypeFilter}
+              onChange={e => setMatchTypeFilter(e.target.value as "all" | "multiplayer" | "ai")}
+              className="select select-sm select-bordered"
+            >
+              <option value="all">All Matches</option>
+              <option value="multiplayer">Multiplayer Only</option>
+              <option value="ai">AI Matches Only</option>
+            </select>
+          </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -211,13 +253,14 @@ export default function HistoryPage() {
               onChange={e => setShowAIMatches(e.target.checked)}
               className="checkbox checkbox-sm checkbox-primary"
             />
-            <span className="text-sm text-base-content/80">Show AI matches</span>
+            <span className="text-sm text-base-content/80">Include legacy AI matches</span>
           </label>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
               fetchMatches();
+              fetchAIMatches();
               fetchBlockchainProofs();
             }}
             className="btn btn-sm btn-ghost"
@@ -246,24 +289,120 @@ export default function HistoryPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {matches
-              .filter(match => {
-                const isAiMatch = match.opponent === "AI";
-                // If showAIMatches is false, filter out AI matches
-                return showAIMatches || !isAiMatch;
-              })
-              .slice(0, displayCount)
-              .map((match, index) => {
-                const isAiMatch = match.opponent === "AI";
+            {(() => {
+              // Combine and filter matches based on type filter
+              let allMatchesToShow: any[] = [];
 
+              if (matchTypeFilter === "all" || matchTypeFilter === "multiplayer") {
+                const multiplayerMatches = matches.filter(match => {
+                  const isAiMatch = match.opponent === "AI";
+                  return showAIMatches || !isAiMatch;
+                });
+                allMatchesToShow = [...allMatchesToShow, ...multiplayerMatches];
+              }
+
+              if (matchTypeFilter === "all" || matchTypeFilter === "ai") {
+                // Add new AI matches with proper formatting
+                const formattedAIMatches = aiMatches.map(aiMatch => ({
+                  ...aiMatch,
+                  matchType: "ai-best-of-three",
+                  timestamp: new Date(aiMatch.completedAt || aiMatch.startedAt).getTime(),
+                }));
+                allMatchesToShow = [...allMatchesToShow, ...formattedAIMatches];
+              }
+
+              // Sort by timestamp (newest first)
+              allMatchesToShow.sort((a, b) => {
+                const getTime = (match: any) => {
+                  if (match.matchType === "ai-best-of-three") {
+                    return new Date(match.completedAt || match.startedAt).getTime();
+                  }
+                  const ts =
+                    typeof match.result === "object"
+                      ? match.result.timestamp
+                      : match.timestamp || match.games?.[0]?.timestamp || 0;
+                  return typeof ts === "string" ? new Date(ts).getTime() : ts;
+                };
+                return getTime(b) - getTime(a);
+              });
+
+              return allMatchesToShow.slice(0, displayCount).map((match, index) => {
+                // New AI best-of-three matches
+                if (match.matchType === "ai-best-of-three") {
+                  return (
+                    <div key={`ai-${match.id}`} className="rounded-xl p-4 h-fit bg-card/50 border border-border">
+                      {/* Header with key info at eye level */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="badge badge-primary badge-sm font-semibold">AI MATCH</span>
+                          <span className="text-sm text-base-content/60">
+                            {new Date(match.completedAt || match.startedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="badge badge-primary badge-sm font-bold">
+                            {match.playerScore}-{match.aiScore}
+                          </span>
+                          <span
+                            className={`text-sm font-semibold ${
+                              match.winner === "player"
+                                ? "text-success"
+                                : match.winner === "ai"
+                                  ? "text-error"
+                                  : "text-warning"
+                            }`}
+                          >
+                            [{match.winner === "player" ? "WON" : match.winner === "ai" ? "LOST" : "TIE"}]
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Round Details - Show all rounds */}
+                      {match.rounds.length > 0 && (
+                        <div className="space-y-2">
+                          {match.rounds.map((round: any, rIndex: number) => (
+                            <div key={rIndex} className="bg-base-100 p-2 rounded text-sm">
+                              <div className="flex justify-between items-center">
+                                <span>
+                                  Round {round.roundNumber}:{" "}
+                                  <span className="font-bold uppercase">{round.playerMove}</span> vs{" "}
+                                  <span className="font-bold uppercase">{round.aiMove}</span>
+                                </span>
+                                <span
+                                  className={`text-xs font-semibold ${
+                                    round.result.winner === "player"
+                                      ? "text-success"
+                                      : round.result.winner === "ai"
+                                        ? "text-error"
+                                        : "text-warning"
+                                  }`}
+                                >
+                                  {round.result.winner === "player" ? "W" : round.result.winner === "ai" ? "L" : "T"}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Legacy AI matches
+                const isAiMatch = match.opponent === "AI";
                 if (isAiMatch) {
                   return (
                     <div key={index} className="rounded-xl p-4 h-fit bg-card/50 border border-border">
                       <div className="mb-3">
-                        <p className="font-semibold mb-1">vs AI</p>
-                        <p className="text-base-content/60 opacity-80">
-                          {new Date(match.timestamp || Date.now()).toLocaleString()}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className="badge badge-warning badge-sm font-semibold">AI MATCH</span>
+                            <span className="badge badge-ghost badge-sm">Legacy • Single Round</span>
+                          </div>
+                        </div>
+                        <div className="text-base-content/60 opacity-80 text-sm space-y-1">
+                          <p>{new Date(match.timestamp || Date.now()).toLocaleString()}</p>
+                        </div>
                       </div>
                       <div className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
                         <span>
@@ -324,9 +463,11 @@ export default function HistoryPage() {
                     <div key={index} className="bg-card/50 rounded-xl p-4 h-fit border border-border">
                       <div className="mb-3">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-semibold break-words">
-                            vs {displayName} at {match.roomId}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="badge badge-secondary badge-sm font-semibold">MULTIPLAYER</span>
+                            <span className="font-semibold break-words">vs {displayName}</span>
+                            <span className="text-xs text-base-content/60">Room: {match.roomId}</span>
+                          </div>
                           {hasBlockchainProof && (
                             <button
                               onClick={() => setShowOnChainModal(match.roomId || null)}
@@ -337,14 +478,17 @@ export default function HistoryPage() {
                             </button>
                           )}
                         </div>
-                        <p className="text-base-content/60 opacity-80">
-                          {new Date(games[0]?.timestamp || Date.now()).toLocaleString()}
-                        </p>
-                        {games.length > 1 && (
-                          <p className="text-base-content/60 opacity-80">
-                            {games.length} game{games.length > 1 ? "s" : ""}
-                          </p>
-                        )}
+                        <div className="text-base-content/60 opacity-80 text-sm space-y-1">
+                          <p>{new Date(games[0]?.timestamp || Date.now()).toLocaleString()}</p>
+                          <div className="flex items-center gap-3 text-xs">
+                            <span>
+                              {games.length} game{games.length > 1 ? "s" : ""}
+                            </span>
+                            {hasBlockchainProof && (
+                              <span className="text-success font-semibold">On-chain verified</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         {displayGames.map((game: any, gIndex: number) => {
@@ -402,15 +546,27 @@ export default function HistoryPage() {
                 }
 
                 return null;
-              })}
+              });
+            })()}
           </div>
           {(() => {
-            const filteredMatches = matches.filter(match => {
-              const isAiMatch = match.opponent === "AI";
-              return showAIMatches || !isAiMatch;
-            });
+            // Calculate total matches based on filter
+            let totalMatches = 0;
+            if (matchTypeFilter === "all") {
+              const legacyAIMatches = matches.filter(match => match.opponent === "AI");
+              const multiplayerMatches = matches.filter(match => match.opponent !== "AI");
+              totalMatches =
+                (showAIMatches ? legacyAIMatches.length : 0) + multiplayerMatches.length + aiMatches.length;
+            } else if (matchTypeFilter === "multiplayer") {
+              const legacyAIMatches = matches.filter(match => match.opponent === "AI");
+              const multiplayerMatches = matches.filter(match => match.opponent !== "AI");
+              totalMatches = (showAIMatches ? legacyAIMatches.length : 0) + multiplayerMatches.length;
+            } else if (matchTypeFilter === "ai") {
+              totalMatches = aiMatches.length;
+            }
+
             return (
-              displayCount < filteredMatches.length && (
+              displayCount < totalMatches && (
                 <div className="text-center" style={{ marginTop: "calc(1.5rem * var(--spacing-scale, 1))" }}>
                   <button
                     onClick={() => setDisplayCount(prev => prev + 50)}
@@ -422,7 +578,7 @@ export default function HistoryPage() {
                       padding: "calc(0.75rem * var(--spacing-scale, 1)) calc(1.5rem * var(--spacing-scale, 1))",
                     }}
                   >
-                    Load More ({filteredMatches.length - displayCount} remaining)
+                    Load More ({totalMatches - displayCount} remaining)
                   </button>
                 </div>
               )

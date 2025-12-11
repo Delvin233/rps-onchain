@@ -169,8 +169,9 @@ CREATE TABLE verifications (
 
 ### Single Player (AI)
 ```
-User → Select Move → /api/play-ai → Determine Winner → 
-Update Turso Stats → Return Result
+User → Start Match → /api/ai-match/start → Create Match → 
+Play Round → /api/ai-match/play-round → Update Match State → 
+Check Completion → Update Stats (if complete) → Return Result
 ```
 
 ### Multiplayer (PvP)

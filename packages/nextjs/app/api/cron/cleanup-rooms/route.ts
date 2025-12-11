@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { performScheduledCleanup } from "~~/lib/aiMatchCleanup";
 import { roomStorage } from "~~/lib/roomStorage";
 
 export async function GET(req: NextRequest) {
@@ -12,6 +13,11 @@ export async function GET(req: NextRequest) {
     const results = {
       freeRoomsChecked: 0,
       freeRoomsDeleted: 0,
+      aiMatchCleanup: {
+        success: false,
+        expiredActiveMatches: 0,
+        deletedAbandonedMatches: 0,
+      },
     };
 
     // Cleanup free rooms (older than 10 minutes)
@@ -25,6 +31,26 @@ export async function GET(req: NextRequest) {
         await roomStorage.delete(room.roomId, room.chainId);
         results.freeRoomsDeleted++;
       }
+    }
+
+    // Cleanup AI matches (expired active matches and old abandoned matches)
+    try {
+      const aiCleanupResult = await performScheduledCleanup({
+        deleteAbandonedOlderThanDays: 7, // Delete abandoned matches older than 7 days
+        cleanupExpiredActive: true, // Clean up expired active matches from Redis
+        logResults: true, // Log cleanup results
+      });
+
+      if (aiCleanupResult.success && aiCleanupResult.results) {
+        results.aiMatchCleanup = {
+          success: true,
+          expiredActiveMatches: aiCleanupResult.results.expiredActiveMatches,
+          deletedAbandonedMatches: aiCleanupResult.results.deletedAbandonedMatches,
+        };
+      }
+    } catch (error) {
+      console.error("Error during AI match cleanup:", error);
+      // Don't fail the entire cron job if AI cleanup fails
     }
 
     return NextResponse.json({

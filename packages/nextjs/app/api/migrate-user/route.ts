@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { formatBytes, validateMatchSize } from "~~/lib/migration-utils";
 import { redis } from "~~/lib/upstash";
 
 async function migrateUser(address: string, origin: string) {
@@ -15,9 +16,15 @@ async function migrateUser(address: string, origin: string) {
     return { message: "User already migrated", stats: existingStats };
   }
 
-  // Get matches from Redis first
-  const redisMatches = await redis.lrange(`history:${addressLower}`, 0, -1);
-  let matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+  // Get matches from Redis first (limit to avoid size issues)
+  let matches: any[] = [];
+  try {
+    const redisMatches = await redis.lrange(`history:${addressLower}`, 0, 499); // Limit to 500 matches
+    matches = redisMatches.map((m: any) => (typeof m === "string" ? JSON.parse(m) : m));
+  } catch (redisError) {
+    console.warn(`[Migration] Redis fetch failed for ${addressLower}, will try IPFS:`, redisError);
+    matches = []; // Fall back to IPFS
+  }
 
   // If no Redis data, try IPFS
   if (matches.length === 0) {
@@ -67,45 +74,103 @@ async function migrateUser(address: string, origin: string) {
     matches,
   };
 
-  // Prepare matches for migration (outside try block for scope)
-  const BATCH_SIZE = 25; // Smaller batches for safety
+  // Prepare matches for migration
   const reversedMatches = ipfsData.matches.reverse();
 
   // Limit total matches to prevent huge migrations (keep last 500 matches)
   const limitedMatches = reversedMatches.slice(0, 500);
 
+  // Process matches with size-aware chunking
+  let processedCount = 0;
+  let skippedCount = 0;
+
   try {
-    // Migrate stats to Redis
+    // Migrate stats to Redis first
     await redis.set(`stats:${addressLower}`, ipfsData.stats);
 
-    // Migrate matches to Redis in batches to avoid size limits
-
+    const totalDataSize = JSON.stringify(limitedMatches).length;
     console.log(
-      `[Migration] Processing ${limitedMatches.length} matches for ${addressLower} (original: ${reversedMatches.length})`,
+      `[Migration] Processing ${limitedMatches.length} matches for ${addressLower} (original: ${reversedMatches.length}, size: ${formatBytes(totalDataSize)})`,
     );
+
+    // Clear existing history to avoid duplicates
+    await redis.del(`history:${addressLower}`);
+    const MAX_MATCH_SIZE = 100000; // 100KB per match (conservative)
+    const BATCH_SIZE = 10; // Smaller batches
 
     for (let i = 0; i < limitedMatches.length; i += BATCH_SIZE) {
       const batch = limitedMatches.slice(i, i + BATCH_SIZE);
+      const validMatches: string[] = [];
 
-      // Process each match individually to avoid size issues
+      // Pre-process batch to check sizes and filter
       for (const match of batch) {
-        const serializedMatch = JSON.stringify(match);
+        try {
+          const validation = validateMatchSize(match, MAX_MATCH_SIZE);
 
-        // Check size before pushing (Redis limit is ~10MB, be safe with 1MB per item)
-        if (serializedMatch.length > 1000000) {
-          // 1MB limit per match
-          console.warn(`[Migration] Skipping oversized match for ${addressLower}: ${serializedMatch.length} bytes`);
-          continue;
+          if (!validation.valid) {
+            console.warn(`[Migration] Skipping oversized match for ${addressLower}: ${formatBytes(validation.size)}`);
+            skippedCount++;
+            continue;
+          }
+
+          const serializedMatch = JSON.stringify(validation.cleaned);
+          validMatches.push(serializedMatch);
+        } catch (serializationError) {
+          console.warn(`[Migration] Skipping invalid match for ${addressLower}:`, serializationError);
+          skippedCount++;
         }
-
-        await redis.lpush(`history:${addressLower}`, serializedMatch);
       }
 
-      // Small delay between batches
+      // Push valid matches to Redis
+      if (validMatches.length > 0) {
+        // Calculate batch size to ensure we don't exceed limits
+        const batchSize = validMatches.reduce((sum, match) => sum + match.length, 0);
+        const batchSizeLimit = 5 * 1024 * 1024; // 5MB batch limit (conservative)
+
+        if (batchSize > batchSizeLimit) {
+          console.warn(`[Migration] Batch too large (${formatBytes(batchSize)}), processing individually`);
+
+          // Process matches individually if batch is too large
+          for (const match of validMatches) {
+            try {
+              await redis.lpush(`history:${addressLower}`, match);
+              processedCount++;
+            } catch (individualError) {
+              console.error(`[Migration] Failed individual push for ${addressLower}:`, individualError);
+              skippedCount++;
+            }
+          }
+        } else {
+          try {
+            await redis.lpush(`history:${addressLower}`, ...validMatches);
+            processedCount += validMatches.length;
+          } catch (pushError) {
+            console.error(`[Migration] Failed to push batch for ${addressLower}:`, pushError);
+
+            // Fallback: try individual pushes
+            for (const match of validMatches) {
+              try {
+                await redis.lpush(`history:${addressLower}`, match);
+                processedCount++;
+              } catch (individualError) {
+                console.error(`[Migration] Failed individual push for ${addressLower}:`, individualError);
+                skippedCount++;
+              }
+            }
+          }
+        }
+      }
+
+      // Add delay between batches to avoid rate limits
       if (i + BATCH_SIZE < limitedMatches.length) {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
+
+    const finalDataSize = await redis.llen(`history:${addressLower}`);
+    console.log(
+      `[Migration] Completed for ${addressLower}: ${processedCount} processed, ${skippedCount} skipped, ${finalDataSize} stored in Redis`,
+    );
   } catch (migrationError) {
     console.error(`[Migration] Failed to migrate ${addressLower}:`, migrationError);
     throw new Error(`Migration failed: ${migrationError instanceof Error ? migrationError.message : "Unknown error"}`);
@@ -115,7 +180,8 @@ async function migrateUser(address: string, origin: string) {
     success: true,
     migrated: {
       stats: ipfsData.stats,
-      matches: limitedMatches.length,
+      matchesProcessed: processedCount,
+      matchesSkipped: skippedCount,
       originalMatches: ipfsData.matches.length,
       truncated: ipfsData.matches.length > 500,
     },
