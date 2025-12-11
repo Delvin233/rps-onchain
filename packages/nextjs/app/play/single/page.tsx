@@ -296,15 +296,18 @@ export default function SinglePlayerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 px-4 py-4 flex flex-col">
-      <div className="flex items-start mb-4">
+    <div
+      className="min-h-screen bg-base-200 px-4 py-2 flex flex-col max-h-screen overflow-hidden"
+      style={{ height: "100vh" }}
+    >
+      <div className="flex items-start mb-2">
         <button onClick={() => handleNavigation("/play")} className="btn btn-sm btn-ghost flex-shrink-0">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold ml-2 break-words">Single Player</h1>
       </div>
       {!isMiniApp && (
-        <div className="flex justify-end mb-6 lg:hidden">
+        <div className="flex justify-end mb-3 lg:hidden">
           <LoginButton size="sm" />
         </div>
       )}
@@ -328,10 +331,10 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "menu" && (
-        <div className="flex flex-col items-center justify-center flex-1 space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-2">Best of Three</h2>
-            <p className="text-base-content/60">First to win 2 rounds wins the match!</p>
+        <div className="flex flex-col items-center justify-center flex-1 space-y-4">
+          <div className="text-center mb-4">
+            <h2 className="text-xl font-bold mb-2">Best of Three</h2>
+            <p className="text-base-content/60 text-sm">First to win 2 rounds wins the match!</p>
           </div>
           <button onClick={startNewMatch} className="btn btn-primary btn-lg w-full max-w-md gap-2">
             <Play size={20} />
@@ -341,55 +344,40 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "playing" && (
-        <div
-          className="flex flex-col"
-          style={{ gap: "clamp(0.75rem, 2vh, 1.5rem)", marginTop: "clamp(1rem, 2vh, 2rem)" }}
-        >
-          <p
-            className="text-center text-base-content/60"
-            style={{
-              fontSize: "calc(clamp(0.875rem, 2.5vw, 1rem) * var(--font-size-override, 1))",
-              marginBottom: "clamp(0.5rem, 1vh, 1rem)",
-            }}
-          >
-            Choose your move
-          </p>
-          {moves.map(move => (
-            <button
-              key={move}
-              onClick={() => playRound(move)}
-              className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200"
-              style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
-            >
-              <p
-                className="font-semibold capitalize"
-                style={{ fontSize: "calc(clamp(1rem, 3vw, 1.5rem) * var(--font-size-override, 1))" }}
+        <div className="flex flex-col flex-1 justify-center" style={{ gap: "0.75rem" }}>
+          <p className="text-center text-base-content/60 text-sm mb-2">Choose your move</p>
+          <div className="space-y-3">
+            {moves.map(move => (
+              <button
+                key={move}
+                onClick={() => playRound(move)}
+                className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 py-4 px-6"
               >
-                {move}
-              </p>
-            </button>
-          ))}
+                <p className="font-semibold capitalize text-lg">{move}</p>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {gameState === "round-result" && (
-        <div className="space-y-6">
-          <div className="bg-card/50 border border-border rounded-xl p-6">
-            <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="flex-1 flex flex-col justify-center space-y-4">
+          <div className="bg-card/50 border border-border rounded-xl p-4">
+            <div className="grid grid-cols-2 gap-4 mb-3">
               <div className="text-center">
-                <p className="text-sm text-base-content/60 mb-2">You</p>
-                <p className="text-2xl font-bold capitalize">{playerMove}</p>
+                <p className="text-xs text-base-content/60 mb-1">You</p>
+                <p className="text-xl font-bold capitalize">{playerMove}</p>
               </div>
               <div className="text-center">
-                <p className="text-sm text-base-content/60 mb-2">AI</p>
-                <p className="text-2xl font-bold capitalize">{aiMove}</p>
+                <p className="text-xs text-base-content/60 mb-1">AI</p>
+                <p className="text-xl font-bold capitalize">{aiMove}</p>
               </div>
             </div>
 
             {roundResult && (
-              <div className="text-center mt-6">
+              <div className="text-center mt-3">
                 <p
-                  className={`text-3xl font-bold ${
+                  className={`text-xl font-bold ${
                     roundResult.winner === "player"
                       ? "text-success"
                       : roundResult.winner === "ai"
@@ -414,14 +402,14 @@ export default function SinglePlayerPage() {
       )}
 
       {gameState === "match-complete" && currentMatch && (
-        <div className="space-y-6">
-          <div className="bg-card/50 border border-border rounded-xl p-6">
+        <div className="flex-1 flex flex-col justify-center space-y-4">
+          <div className="bg-card/50 border border-border rounded-xl p-4">
             <div className="text-center">
-              <div className="text-6xl mb-4">
+              <div className="text-4xl mb-3">
                 {currentMatch.winner === "player" ? "🎉" : currentMatch.winner === "ai" ? "😔" : "🤝"}
               </div>
               <h2
-                className={`text-3xl font-bold mb-2 ${
+                className={`text-2xl font-bold mb-2 ${
                   currentMatch.winner === "player"
                     ? "text-success"
                     : currentMatch.winner === "ai"
@@ -431,13 +419,13 @@ export default function SinglePlayerPage() {
               >
                 {currentMatch.winner === "player" ? "Victory!" : currentMatch.winner === "ai" ? "Defeat!" : "Draw!"}
               </h2>
-              <p className="text-base-content/60">
+              <p className="text-base-content/60 text-sm">
                 Final Score: {currentMatch.playerScore} - {currentMatch.aiScore}
               </p>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <button onClick={playAgain} className="btn btn-primary w-full">
               Play Again
             </button>
