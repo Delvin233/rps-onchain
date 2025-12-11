@@ -531,14 +531,16 @@ export async function completeMatch(match: AIMatch): Promise<void> {
 
     if (!statsUpdated) {
       console.warn(`Failed to update match statistics for player ${match.playerId}, but match was saved`);
-    }
 
-    // Also update local statistics as fallback
-    try {
-      console.log(`[AI Match Stats] Fallback stats update for player ${match.playerId} with result: ${result}`);
-      await updateMatchStatistics(match.playerId, result);
-    } catch (error) {
-      console.warn("Fallback statistics update failed:", error);
+      // Only use fallback if resilient update failed
+      try {
+        console.log(`[AI Match Stats] Fallback stats update for player ${match.playerId} with result: ${result}`);
+        await updateMatchStatistics(match.playerId, result);
+      } catch (error) {
+        console.warn("Fallback statistics update failed:", error);
+      }
+    } else {
+      console.log(`[AI Match Stats] Stats successfully updated via resilient method for player ${match.playerId}`);
     }
 
     // Remove from Redis (will be implemented in next task)
