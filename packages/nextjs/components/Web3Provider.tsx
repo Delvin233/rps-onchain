@@ -3,7 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { createAppKit } from "@reown/appkit/react";
 import scaffoldConfig from "~~/scaffold.config";
-import { enabledChains, wagmiAdapter } from "~~/services/web3/appkitConfig";
+import { wagmiAdapter } from "~~/services/web3/appkitConfig";
 
 const projectId = scaffoldConfig.walletConnectProjectId;
 
@@ -30,8 +30,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       createAppKit({
         adapters: [wagmiAdapter],
         projectId,
-        networks: enabledChains as any,
-        defaultNetwork: enabledChains[0] as any,
+        networks: scaffoldConfig.targetNetworks as any, // Only show Base and Celo
+        defaultNetwork: scaffoldConfig.targetNetworks[0] as any,
         metadata,
         features: {
           analytics: true,
