@@ -328,6 +328,15 @@
   }
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Gaming Utility Classes */
 .animate-bounce-subtle {
   animation: bounceSubtle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -343,6 +352,9 @@
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out;
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
 }
 
 .shadow-glow {
@@ -574,6 +586,25 @@ appkit-button button {
 appkit-button button:hover {
   transform: scale(1.05) !important;
   opacity: 0.9 !important;
+}
+
+/* Desktop Layout Centering */
+@media (min-width: 1024px) {
+  .desktop-content-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Ensure page content is properly centered */
+  main > div {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 }
 
 /* AppKit Modal Styling - Match app design */

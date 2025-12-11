@@ -14,6 +14,22 @@ const defaultStats = {
     losses: 0,
     ties: 0,
     winRate: 0,
+    legacy: {
+      totalGames: 0,
+      wins: 0,
+      losses: 0,
+      ties: 0,
+      winRate: 0,
+    },
+    matches: {
+      totalMatches: 0,
+      wins: 0,
+      losses: 0,
+      ties: 0,
+      abandoned: 0,
+      winRate: 0,
+      completionRate: 100,
+    },
   },
   multiplayer: {
     totalGames: 0,
@@ -21,6 +37,16 @@ const defaultStats = {
     losses: 0,
     ties: 0,
     winRate: 0,
+  },
+  _metadata: {
+    displayMode: "legacy-only" as const,
+    showLegacyBreakdown: true,
+    showMatchBreakdown: false,
+    primaryStatistic: "legacy" as const,
+    hasLegacyGames: false,
+    hasMatches: false,
+    validationPassed: true,
+    validationWarnings: [],
   },
 };
 

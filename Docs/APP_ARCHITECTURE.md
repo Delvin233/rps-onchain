@@ -45,12 +45,14 @@ User → /play → /play/single → Choose Move → AI Response → Result
 
 #### Technical Steps:
 
-1. **User selects move** (`/app/play/single/page.tsx`)
-   - Calls `/api/play-ai` with `{ playerMove, address }`
+1. **User starts match** (`/app/play/single/page.tsx`)
+   - Calls `/api/ai-match/start` with `{ address }`
+   - Creates new best-of-three match
 
-2. **AI generates move** (`/api/play-ai/route.ts`)
-   - Random AI move selection
-   - Determines winner
+2. **User plays round** (`/app/play/single/page.tsx`)
+   - Calls `/api/ai-match/play-round` with `{ matchId, playerMove }`
+   - AI generates move and determines round winner
+   - Updates match state and checks for completion
    - Calls `/api/stats-fast` to update stats
 
 3. **Stats update** (`/api/stats-fast/route.ts`)
@@ -726,7 +728,7 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=...
 
 ### API Routes
 - `/api/room/*` - Room management (create/join/status/submit-move)
-- `/api/play-ai/route.ts` - AI game logic
+- `/api/ai-match/*` - Best-of-three AI match system (start/play-round/status/resume/abandon)
 - `/api/stats-fast/route.ts` - Redis stats
 - `/api/user-stats/route.ts` - IPFS stats sync
 - `/api/user-matches/route.ts` - Hash pointer management

@@ -49,7 +49,6 @@ export const ENDPOINT_CATEGORIES = {
   "/api/player-data": "stats",
 
   // Gameplay endpoints
-  "/api/play-ai": "gameplay",
   "/api/room/create": "rooms",
   "/api/room/join": "rooms",
   "/api/room/submit-move": "gameplay",
@@ -60,6 +59,8 @@ export const ENDPOINT_CATEGORIES = {
   "/api/leaderboard/ai": "leaderboard",
   "/api/leaderboard/ai/player": "leaderboard",
   "/api/leaderboard/ai/update": "leaderboard",
+  "/api/leaderboard/matches": "leaderboard",
+  "/api/leaderboard/matches/player": "leaderboard",
 
   // Verification endpoints
   "/api/verify": "verification",

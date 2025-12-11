@@ -13,5 +13,6 @@ export * from "./useScaffoldWatchContractEvent";
 export * from "./useScaffoldWriteContract";
 export * from "./useTargetNetwork";
 export * from "./useTransactor";
+export * from "./useWebSocketClient";
 export * from "./useWatchBalance";
 export * from "./useSelectedNetwork";

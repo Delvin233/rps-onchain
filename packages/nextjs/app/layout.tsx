@@ -6,6 +6,7 @@ import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
 import { PreferencesSync } from "~~/components/PreferencesSync";
 import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
+import { ServiceInitializer } from "~~/components/ServiceInitializer";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
@@ -230,6 +231,9 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
 
         <BaseAppReady />
         <HideLoader />
+
+        {/* Initialize background services */}
+        <ServiceInitializer />
 
         <CRTEffect />
         <ThemeProvider enableSystem>

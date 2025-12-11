@@ -1,3 +1,4 @@
+import { initAIMatchDatabase } from "./aiMatchSchema";
 import { withDatabase } from "./database-pool";
 import { createClient } from "@libsql/client";
 
@@ -161,6 +162,7 @@ export async function initAllTables() {
   await initStatsTable();
   await initMatchesTable();
   await initAILeaderboardsTable();
+  await initAIMatchDatabase();
 }
 
 // ============================================

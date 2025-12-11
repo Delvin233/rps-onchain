@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CACHE_PREFIXES, cacheManager } from "~~/lib/cache-manager";
+import { calculateMixedStatistics, getStatisticsDisplayMode, validateMixedStatistics } from "~~/lib/mixedStatistics";
 import { withRateLimit } from "~~/lib/rate-limiter";
 import { type ResilientStats, resilientGetStats, resilientUpdateStats } from "~~/lib/resilient-database";
 
@@ -22,36 +23,55 @@ export async function GET(request: NextRequest) {
       if (dbStats && typeof dbStats === "object") {
         // Type-safe property access using ResilientStats interface
         const stats = dbStats as ResilientStats;
-        const totalGames = stats.totalGames || 0;
-        const wins = stats.wins || 0;
-        const losses = stats.losses || 0;
-        const ties = stats.ties || 0;
-        const aiGames = stats.ai_games || 0;
-        const aiWins = stats.ai_wins || 0;
-        const aiTies = stats.ai_ties || 0;
-        const mpGames = stats.multiplayer_games || 0;
-        const mpWins = stats.multiplayer_wins || 0;
-        const mpTies = stats.multiplayer_ties || 0;
 
+        // Extract legacy statistics (round-based)
+        const legacyStats = {
+          ai_games: stats.ai_games || 0,
+          ai_wins: stats.ai_wins || 0,
+          ai_ties: stats.ai_ties || 0,
+          multiplayer_games: stats.multiplayer_games || 0,
+          multiplayer_wins: stats.multiplayer_wins || 0,
+          multiplayer_ties: stats.multiplayer_ties || 0,
+        };
+
+        // Extract match statistics (best-of-three)
+        const matchStats = {
+          ai_matches_played: stats.ai_matches_played || 0,
+          ai_matches_won: stats.ai_matches_won || 0,
+          ai_matches_lost: stats.ai_matches_lost || 0,
+          ai_matches_tied: stats.ai_matches_tied || 0,
+          ai_matches_abandoned: stats.ai_matches_abandoned || 0,
+        };
+
+        // Calculate mixed statistics with backward compatibility
+        const mixedStats = calculateMixedStatistics(legacyStats, matchStats);
+
+        // Validate the calculated statistics
+        const validation = validateMixedStatistics(mixedStats);
+        if (!validation.isValid) {
+          console.warn(`[Stats API] Statistics validation failed for ${addressLower}:`, validation.errors);
+          // Log warnings but continue serving the stats
+          if (validation.warnings.length > 0) {
+            console.warn(`[Stats API] Statistics warnings for ${addressLower}:`, validation.warnings);
+          }
+        }
+
+        // Get display mode for UI guidance
+        const displayMode = getStatisticsDisplayMode(mixedStats);
+
+        // Format response with mixed statistics and metadata
         const formattedStats = {
-          totalGames,
-          wins,
-          losses,
-          ties,
-          winRate: totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0,
-          ai: {
-            totalGames: aiGames,
-            wins: aiWins,
-            losses: aiGames - aiWins - aiTies,
-            ties: aiTies,
-            winRate: aiGames > 0 ? Math.round((aiWins / aiGames) * 100) : 0,
-          },
-          multiplayer: {
-            totalGames: mpGames,
-            wins: mpWins,
-            losses: mpGames - mpWins - mpTies,
-            ties: mpTies,
-            winRate: mpGames > 0 ? Math.round((mpWins / mpGames) * 100) : 0,
+          ...mixedStats,
+          // Add metadata for UI components
+          _metadata: {
+            displayMode: displayMode.mode,
+            showLegacyBreakdown: displayMode.showLegacyBreakdown,
+            showMatchBreakdown: displayMode.showMatchBreakdown,
+            primaryStatistic: displayMode.primaryStatistic,
+            hasLegacyGames: mixedStats.ai.legacy.totalGames > 0,
+            hasMatches: mixedStats.ai.matches.totalMatches > 0,
+            validationPassed: validation.isValid,
+            validationWarnings: validation.warnings,
           },
         };
 
@@ -59,28 +79,78 @@ export async function GET(request: NextRequest) {
       }
 
       // This should never happen with resilient operations, but just in case
+      const emptyLegacyStats = {
+        ai_games: 0,
+        ai_wins: 0,
+        ai_ties: 0,
+        multiplayer_games: 0,
+        multiplayer_wins: 0,
+        multiplayer_ties: 0,
+      };
+
+      const emptyMatchStats = {
+        ai_matches_played: 0,
+        ai_matches_won: 0,
+        ai_matches_lost: 0,
+        ai_matches_tied: 0,
+        ai_matches_abandoned: 0,
+      };
+
+      const emptyMixedStats = calculateMixedStatistics(emptyLegacyStats, emptyMatchStats);
+      const emptyDisplayMode = getStatisticsDisplayMode(emptyMixedStats);
+
       const emptyStats = {
-        totalGames: 0,
-        wins: 0,
-        losses: 0,
-        ties: 0,
-        winRate: 0,
-        ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-        multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+        ...emptyMixedStats,
+        _metadata: {
+          displayMode: emptyDisplayMode.mode,
+          showLegacyBreakdown: emptyDisplayMode.showLegacyBreakdown,
+          showMatchBreakdown: emptyDisplayMode.showMatchBreakdown,
+          primaryStatistic: emptyDisplayMode.primaryStatistic,
+          hasLegacyGames: false,
+          hasMatches: false,
+          validationPassed: true,
+          validationWarnings: [],
+        },
       };
 
       return NextResponse.json({ stats: emptyStats });
     } catch (error) {
       console.error("Error fetching stats:", error);
+
+      // Return empty mixed statistics on error
+      const errorLegacyStats = {
+        ai_games: 0,
+        ai_wins: 0,
+        ai_ties: 0,
+        multiplayer_games: 0,
+        multiplayer_wins: 0,
+        multiplayer_ties: 0,
+      };
+
+      const errorMatchStats = {
+        ai_matches_played: 0,
+        ai_matches_won: 0,
+        ai_matches_lost: 0,
+        ai_matches_tied: 0,
+        ai_matches_abandoned: 0,
+      };
+
+      const errorMixedStats = calculateMixedStatistics(errorLegacyStats, errorMatchStats);
+      const errorDisplayMode = getStatisticsDisplayMode(errorMixedStats);
+
       return NextResponse.json({
         stats: {
-          totalGames: 0,
-          wins: 0,
-          losses: 0,
-          ties: 0,
-          winRate: 0,
-          ai: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
-          multiplayer: { totalGames: 0, wins: 0, losses: 0, ties: 0, winRate: 0 },
+          ...errorMixedStats,
+          _metadata: {
+            displayMode: errorDisplayMode.mode,
+            showLegacyBreakdown: errorDisplayMode.showLegacyBreakdown,
+            showMatchBreakdown: errorDisplayMode.showMatchBreakdown,
+            primaryStatistic: errorDisplayMode.primaryStatistic,
+            hasLegacyGames: false,
+            hasMatches: false,
+            validationPassed: true,
+            validationWarnings: [],
+          },
         },
       });
     }

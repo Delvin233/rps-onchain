@@ -1,5 +1,6 @@
 // IPFS storage for match records via Pinata
 export interface MatchRecord {
+  id?: string;
   address?: string;
   matches?: MatchRecord[];
   stats?: {

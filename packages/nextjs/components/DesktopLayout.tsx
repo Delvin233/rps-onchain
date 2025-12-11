@@ -25,12 +25,7 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
     return pathname.startsWith(path);
   };
 
-  const isInActiveAIGame =
-    pathname === "/play/single" &&
-    typeof window !== "undefined" &&
-    Array.from({ length: sessionStorage.length }, (_, i) => sessionStorage.key(i))
-      .filter(key => key?.startsWith("aiGameActive_"))
-      .some(key => sessionStorage.getItem(key!) === "true");
+  const isInActiveAIGame = pathname === "/play/single";
 
   const isInActiveMultiplayerGame = pathname.includes("/game/multiplayer/");
 
@@ -48,9 +43,9 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 flex flex-col">
+    <div className="min-h-screen bg-base-200 flex flex-col items-center">
       {/* Desktop Top Navigation */}
-      <nav className="bg-base-100/80 backdrop-blur-lg border-b border-base-300 fixed top-0 left-0 right-0 z-40">
+      <nav className="bg-base-100/80 backdrop-blur-lg border-b border-base-300 fixed top-0 left-0 right-0 z-40 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
@@ -82,10 +77,14 @@ export const DesktopLayout = ({ children }: { children: ReactNode }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 mt-24">{children}</main>
+      <main className="flex-1 w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8 mt-24">
+        <div className="w-full max-w-5xl mx-auto">{children}</div>
+      </main>
 
       {/* Footer */}
-      <Footer />
+      <div className="w-full max-w-7xl">
+        <Footer />
+      </div>
     </div>
   );
 };

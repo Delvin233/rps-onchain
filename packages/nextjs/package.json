@@ -15,6 +15,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "migrate": "npx tsx scripts/migrate.ts",
+    "migrate:status": "npx tsx scripts/migrate.ts --status",
+    "migrate:verify": "npx tsx scripts/migrate.ts --verify",
     "vercel": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env VERCEL_TELEMETRY_DISABLED=1",
     "vercel:login": "vercel login",
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1"
@@ -64,6 +67,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^16.0.3",
     "@tailwindcss/postcss": "4.0.15",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@trivago/prettier-plugin-sort-imports": "~4.3.0",
@@ -78,6 +82,7 @@
     "eslint-config-next": "~15.2.3",
     "eslint-config-prettier": "~10.1.1",
     "eslint-plugin-prettier": "~5.2.4",
+    "fast-check": "^4.4.0",
     "jsdom": "^27.2.0",
     "postcss": "~8.4.45",
     "prettier": "~3.5.3",
