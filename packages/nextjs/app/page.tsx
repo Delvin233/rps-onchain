@@ -169,7 +169,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="w-full bg-base-200">
       {isLoading ? (
         <div className="pt-8 lg:py-8">
           <div className="text-center mb-12 animate-fade-in">

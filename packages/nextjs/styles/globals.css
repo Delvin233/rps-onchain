@@ -588,6 +588,25 @@ appkit-button button:hover {
   opacity: 0.9 !important;
 }
 
+/* Desktop Layout Centering */
+@media (min-width: 1024px) {
+  .desktop-content-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Ensure page content is properly centered */
+  main > div {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
 /* AppKit Modal Styling - Match app design */
 w3m-modal,
 appkit-modal,

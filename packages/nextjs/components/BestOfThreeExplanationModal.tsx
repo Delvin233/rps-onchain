@@ -17,7 +17,7 @@ export const BestOfThreeExplanationModal = ({ isVisible, onClose, onStartMatch }
       icon: Trophy,
       title: "Welcome to Best-of-Three!",
       description: "We've upgraded the AI matches to be more exciting and strategic.",
-      details: "Instead of single rounds, you now play complete matches against the AI.",
+      details: "Instead of single rounds, you now play complete matches against the RPS-AI.",
     },
     {
       icon: Target,
