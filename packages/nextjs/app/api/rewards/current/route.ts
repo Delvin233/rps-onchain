@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@libsql/client";
-import { RewardCalculator, TOTAL_WEEKLY_REWARDS, WEEKLY_REWARDS } from "~~/lib/rewardSystem";
+import { MONTHLY_REWARDS, RewardCalculator, TOTAL_MONTHLY_REWARDS } from "~~/lib/rewardSystem";
 
 export async function GET() {
   try {
@@ -32,7 +32,7 @@ export async function GET() {
       totalGames: row.ai_total_games,
       winRate: row.win_rate,
       rank: row.rank,
-      potentialReward: WEEKLY_REWARDS[row.rank] || 0,
+      potentialReward: MONTHLY_REWARDS[row.rank] || 0,
       isEligible: row.rank <= 30,
     }));
 
@@ -62,14 +62,14 @@ export async function GET() {
           nextPayoutDate: nextPayoutDate.toISOString(),
           timeUntilPayout,
           totalRewards: totalRewardsThisWeek,
-          maxPossibleRewards: TOTAL_WEEKLY_REWARDS,
+          maxPossibleRewards: TOTAL_MONTHLY_REWARDS,
         },
         leaderboard: leaderboard.slice(0, 35), // Show top 35 for context
-        rewardStructure: WEEKLY_REWARDS,
+        rewardStructure: MONTHLY_REWARDS,
         eligibilityRequirements: {
           minimumGames: 5,
           topPlayersRewarded: 30,
-          resetPeriod: "weekly",
+          resetPeriod: "monthly",
         },
         stats: {
           totalEligiblePlayers: eligiblePlayers.length,

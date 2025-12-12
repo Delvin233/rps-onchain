@@ -284,9 +284,9 @@ export default function Home() {
                   <Trophy className="text-yellow-500" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold mb-1">Weekly CELO Rewards</h3>
+                  <h3 className="text-lg font-bold mb-1">Monthly CELO Rewards</h3>
                   <p className="text-sm text-base-content/60">
-                    Top 30 AI players earn weekly CELO prizes. Play 5+ games to qualify!
+                    Top 30 AI players earn monthly CELO prizes. Play 5+ games to qualify!
                   </p>
                 </div>
               </div>

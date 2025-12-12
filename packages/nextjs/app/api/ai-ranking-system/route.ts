@@ -36,7 +36,7 @@ export async function GET() {
 
     rankingTiers: {
       title: "Ranking Tiers & Rewards",
-      description: "Weekly rewards are distributed to the top 30 AI players based on their ranking:",
+      description: "Monthly rewards are distributed to the top 30 AI players based on their ranking:",
       tiers: [
         { rank: "1st Place", reward: "40 CELO", description: "The ultimate AI champion" },
         { rank: "2nd Place", reward: "25 CELO", description: "Exceptional AI mastery" },
@@ -49,7 +49,7 @@ export async function GET() {
         { rank: "21st-25th", reward: "4 CELO each", description: "Rising stars" },
         { rank: "26th-30th", reward: "3 CELO each", description: "Promising players" },
       ],
-      totalPool: "250 CELO per week",
+      totalPool: "250 CELO per month",
     },
 
     eligibility: {
@@ -62,8 +62,8 @@ export async function GET() {
         },
         {
           requirement: "Active Participation",
-          value: "Weekly activity",
-          description: "Rankings reset weekly. Stay active to maintain your position.",
+          value: "Monthly activity",
+          description: "Rankings reset monthly. Stay active to maintain your position.",
         },
         {
           requirement: "Fair Play",
@@ -83,7 +83,7 @@ export async function GET() {
         },
         {
           strategy: "Regular Play",
-          description: "Play consistently throughout the week. Rankings reset weekly, so recent performance matters.",
+          description: "Play consistently throughout the month. Rankings reset monthly, so recent performance matters.",
         },
         {
           strategy: "Learn AI Patterns",

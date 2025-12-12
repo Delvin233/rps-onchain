@@ -27,7 +27,7 @@ export interface RewardDistribution {
 }
 
 // Weekly reward structure for top 23 players
-export const WEEKLY_REWARDS: Record<number, number> = {
+export const MONTHLY_REWARDS: Record<number, number> = {
   1: 40, // 1st place: 40 CELO
   2: 25, // 2nd place: 25 CELO
   3: 18, // 3rd place: 18 CELO
@@ -60,10 +60,10 @@ export const WEEKLY_REWARDS: Record<number, number> = {
   30: 3,
 };
 
-export const TOTAL_WEEKLY_REWARDS = Object.values(WEEKLY_REWARDS).reduce((sum, amount) => sum + amount, 0);
+export const TOTAL_MONTHLY_REWARDS = Object.values(MONTHLY_REWARDS).reduce((sum, amount) => sum + amount, 0);
 
 export class RewardCalculator {
-  static calculateWeeklyRewards(
+  static calculateMonthlyRewards(
     leaderboard: Array<{ address: string; wins: number; rank: number }>,
   ): RewardDistribution[] {
     const seasonId = this.getCurrentSeasonId();
@@ -75,7 +75,7 @@ export class RewardCalculator {
         seasonId,
         playerAddress: player.address,
         rank: index + 1,
-        rewardAmount: WEEKLY_REWARDS[index + 1] || 0,
+        rewardAmount: MONTHLY_REWARDS[index + 1] || 0,
         status: "pending" as const,
       }));
   }
@@ -83,8 +83,8 @@ export class RewardCalculator {
   static getCurrentSeasonId(): string {
     const now = new Date();
     const year = now.getFullYear();
-    const week = this.getWeekNumber(now);
-    return `${year}-W${week.toString().padStart(2, "0")}`;
+    const month = now.getMonth() + 1; // getMonth() returns 0-11
+    return `${year}-M${month.toString().padStart(2, "0")}`;
   }
 
   static getWeekNumber(date: Date): number {
@@ -94,12 +94,11 @@ export class RewardCalculator {
   }
 
   static getSeasonDates(seasonId: string): { startDate: Date; endDate: Date } {
-    const [year, weekStr] = seasonId.split("-W");
-    const week = parseInt(weekStr);
+    const [year, monthStr] = seasonId.split("-M");
+    const month = parseInt(monthStr) - 1; // JavaScript months are 0-indexed
 
-    const startDate = new Date(parseInt(year), 0, 1 + (week - 1) * 7);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
+    const startDate = new Date(parseInt(year), month, 1);
+    const endDate = new Date(parseInt(year), month + 1, 0); // Last day of the month
     endDate.setHours(23, 59, 59, 999);
 
     return { startDate, endDate };
@@ -107,10 +106,9 @@ export class RewardCalculator {
 
   static getNextPayoutDate(): Date {
     const now = new Date();
-    const nextSunday = new Date(now);
-    nextSunday.setDate(now.getDate() + (7 - now.getDay()));
-    nextSunday.setHours(23, 59, 59, 999);
-    return nextSunday;
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    nextMonth.setHours(0, 0, 0, 0); // First day of next month at midnight
+    return nextMonth;
   }
 
   static formatTimeUntilPayout(): string {

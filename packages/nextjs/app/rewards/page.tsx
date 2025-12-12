@@ -98,9 +98,9 @@ export default function RewardsPage() {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
           <Trophy className="text-yellow-500" size={40} />
-          Weekly Rewards
+          Monthly Rewards
         </h1>
-        <p className="text-lg text-base-content/70">Compete for CELO rewards! Top 30 AI players earn weekly prizes.</p>
+        <p className="text-lg text-base-content/70">Compete for CELO rewards! Top 30 AI players earn monthly prizes.</p>
       </div>
 
       {/* Current Season Info */}
@@ -111,7 +111,7 @@ export default function RewardsPage() {
             <h3 className="font-semibold">Next Payout</h3>
           </div>
           <p className="text-2xl font-bold text-primary">{rewardData.payout.timeUntilPayout}</p>
-          <p className="text-sm text-base-content/60">Until weekly reset</p>
+          <p className="text-sm text-base-content/60">Until monthly reset</p>
         </div>
 
         <div className="bg-card/50 rounded-xl p-4 border border-secondary/20">
@@ -120,7 +120,7 @@ export default function RewardsPage() {
             <h3 className="font-semibold">Total Rewards</h3>
           </div>
           <p className="text-2xl font-bold text-secondary">{rewardData.payout.totalRewards} CELO</p>
-          <p className="text-sm text-base-content/60">This week&apos;s pool</p>
+          <p className="text-sm text-base-content/60">This month&apos;s pool</p>
         </div>
 
         <div className="bg-card/50 rounded-xl p-4 border border-accent/20">
