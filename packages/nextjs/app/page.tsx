@@ -216,26 +216,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Rewards Banner */}
-          <div className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-red-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8 hover:border-yellow-500/50 transition-all duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-lg bg-yellow-500/20">
-                  <Trophy className="text-yellow-500" size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1 text-yellow-500">🏆 Weekly CELO Rewards!</h3>
-                  <p className="text-sm text-base-content/70">
-                    Top 30 AI players earn weekly CELO prizes. Play 5+ games to qualify!
-                  </p>
-                </div>
-              </div>
-              <button onClick={() => router.push("/rewards")} className="btn btn-primary btn-sm">
-                View Rewards
-              </button>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-12">
             <div className="bg-card/50 rounded-xl p-6 border border-primary/20 transition-all duration-200 hover:border-primary/50">
               <div className="flex items-start space-x-4">
@@ -296,6 +276,36 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {/* Weekly CELO Rewards Card - 5th position */}
+            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-500/50 transition-all duration-200">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-yellow-500/20 mt-1">
+                  <Trophy className="text-yellow-500" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Weekly CELO Rewards</h3>
+                  <p className="text-sm text-base-content/60">
+                    Top 30 AI players earn weekly CELO prizes. Play 5+ games to qualify!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Ranking and Leaderboards Card - 6th position */}
+            <div className="bg-card/50 rounded-xl p-6 border border-info/20 transition-all duration-200 hover:border-info/50">
+              <div className="flex items-start space-x-4">
+                <div className="p-3 rounded-lg bg-info/10">
+                  <Trophy size={24} style={{ color: "var(--color-info)" }} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1">Ranking and Leaderboards</h3>
+                  <p className="text-sm text-base-content/60">
+                    Compete with players worldwide. Track your progress and climb the ranks.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="bg-card/50 rounded-xl p-6 lg:col-span-2 max-w-2xl mx-auto border border-primary/30">
