@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BaseAppReady } from "~~/components/BaseAppReady";
 import { HideLoader } from "~~/components/HideLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
@@ -251,6 +252,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
           </ScaffoldEthAppWithProviders>
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
