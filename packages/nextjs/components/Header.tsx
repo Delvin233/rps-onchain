@@ -41,6 +41,10 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/leaderboards",
   },
   {
+    label: "Rewards",
+    href: "/rewards",
+  },
+  {
     label: "Profile",
     href: "/profile",
   },
