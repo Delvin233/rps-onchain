@@ -216,6 +216,26 @@ export default function Home() {
             </div>
           )}
 
+          {/* Rewards Banner */}
+          <div className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-red-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8 hover:border-yellow-500/50 transition-all duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-lg bg-yellow-500/20">
+                  <Trophy className="text-yellow-500" size={28} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1 text-yellow-500">🏆 Weekly CELO Rewards!</h3>
+                  <p className="text-sm text-base-content/70">
+                    Top 30 AI players earn weekly CELO prizes. Play 5+ games to qualify!
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => router.push("/rewards")} className="btn btn-primary btn-sm">
+                View Rewards
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-12">
             <div className="bg-card/50 rounded-xl p-6 border border-primary/20 transition-all duration-200 hover:border-primary/50">
               <div className="flex items-start space-x-4">

@@ -151,15 +151,21 @@ export default function AILeaderboardPage() {
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold break-words" style={{ color: "var(--color-primary)" }}>
           Single Player Ranks
         </h1>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="btn btn-sm btn-ghost gap-2"
-          aria-label="Refresh leaderboard"
-        >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
-          <span className="hidden sm:inline">Refresh</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <a href="/ai-ranking-system" className="btn btn-sm btn-outline gap-2" title="Learn how AI rankings work">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden sm:inline">How Rankings Work</span>
+          </a>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="btn btn-sm btn-ghost gap-2"
+            aria-label="Refresh leaderboard"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Current User Card */}
