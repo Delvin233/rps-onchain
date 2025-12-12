@@ -163,7 +163,7 @@ export async function GET() {
           ],
         },
       ],
-      note: "Ranks are based on total AI wins. Climb the ladder and earn your place among the legends!",
+      note: "Ranks are based on total AI wins. Climb the ladder and earn your place among the RPS-Gods!",
     },
 
     eligibility: {
