@@ -452,21 +452,21 @@ export default function Home() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
-                        <p className="text-base-content/60 text-xs mb-1">{stat.title}</p>
+                        <p className="text-base-content/60 text-sm mb-1">{stat.title}</p>
                         {isRankCard && stat.rankData && stat.rankData.rank !== "Unranked" ? (
                           <div className="mb-1">
                             <RankBadge rank={stat.rankData.rank} size="sm" />
                           </div>
                         ) : (
-                          <p className="text-xl font-bold truncate">{stat.value}</p>
+                          <p className="text-2xl font-bold truncate">{stat.value}</p>
                         )}
-                        {stat.subtitle && <p className="text-base-content/60 text-xs mt-1 truncate">{stat.subtitle}</p>}
+                        {stat.subtitle && <p className="text-base-content/60 text-sm mt-1 truncate">{stat.subtitle}</p>}
                       </div>
                       <div
                         className="p-2 rounded-lg flex-shrink-0"
                         style={{ backgroundColor: "rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)" }}
                       >
-                        <Icon size={20} style={{ color: "var(--color-primary)" }} />
+                        <Icon size={24} style={{ color: "var(--color-primary)" }} />
                       </div>
                     </div>
                   </div>
