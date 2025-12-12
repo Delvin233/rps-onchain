@@ -58,10 +58,17 @@ interface RankingSystemData {
 export default function AIRankingSystemPage() {
   const [data, setData] = useState<RankingSystemData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    fetchRankingSystemData();
+    setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchRankingSystemData();
+    }
+  }, [mounted]);
 
   const fetchRankingSystemData = async () => {
     try {
@@ -76,6 +83,18 @@ export default function AIRankingSystemPage() {
       setLoading(false);
     }
   };
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="loading loading-spinner loading-lg text-primary"></div>
+          <p className="mt-4 text-base-content/60">Loading ranking system information...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -92,7 +111,16 @@ export default function AIRankingSystemPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <p className="text-base-content/60">Failed to load ranking system information</p>
+          <p className="text-base-content/60 mb-4">Failed to load ranking system information</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchRankingSystemData();
+            }}
+            className="btn btn-primary"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -163,7 +191,7 @@ export default function AIRankingSystemPage() {
 
         <div className="text-center p-4 bg-secondary/10 rounded-lg border border-secondary/30">
           <p className="font-bold text-secondary text-lg">{data.rankingTiers.totalPool}</p>
-          <p className="text-sm text-base-content/60">Total weekly reward pool</p>
+          <p className="text-sm text-base-content/60">Total monthly reward pool</p>
         </div>
       </div>
 

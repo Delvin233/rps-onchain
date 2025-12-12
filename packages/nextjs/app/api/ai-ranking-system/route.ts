@@ -130,7 +130,7 @@ export async function GET() {
       {
         question: "How often do rankings update?",
         answer:
-          "Rankings update in real-time after each completed match. However, rewards are calculated and distributed weekly.",
+          "Rankings update in real-time after each completed match. However, rewards are calculated and distributed monthly.",
       },
       {
         question: "What happens if I tie with another player?",
