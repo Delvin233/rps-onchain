@@ -3380,10 +3380,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:15.2.6":
-  version: 15.2.6
-  resolution: "@next/env@npm:15.2.6"
-  checksum: a8043d092fe3ab0ecf7da9a616d872c8a4c8d60966cc6863c5bd2970bbd8133d7ef4c46b38b153b33dc05960661b362699508ead3de00e9839c25d2e36324308
+"@next/env@npm:15.2.8":
+  version: 15.2.8
+  resolution: "@next/env@npm:15.2.8"
+  checksum: df7606a0cca0b47b1157ef2e791c892f1fd6b9f715624e5aef48a3ca1de57d09cb3c821cc13c888a9b20ba8b17c5fb5742bb5ac6e0e7cd95f1e162fe33d9e59c
   languageName: node
   linkType: hard
 
@@ -5215,6 +5215,7 @@ __metadata:
     "@vercel/analytics": ^1.5.0
     "@vercel/edge-config": ^1.4.3
     "@vercel/kv": ^1.0.1
+    "@vercel/speed-insights": ^1.3.1
     "@vitejs/plugin-react": ^5.1.1
     "@wagmi/core": ^2.16.4
     abitype: 1.0.6
@@ -5233,7 +5234,7 @@ __metadata:
     jsdom: ^27.2.0
     kubo-rpc-client: ~5.0.2
     lucide-react: ^0.553.0
-    next: ~15.2.6
+    next: 15.2.8
     next-nprogress-bar: ~2.3.13
     next-themes: ~0.3.0
     postcss: ~8.4.45
@@ -7748,6 +7749,33 @@ __metadata:
   version: 2.1.0
   resolution: "@vercel/ruby@npm:2.1.0"
   checksum: 059d142ca2c43578ae36e3b9c5ecd92511ea9b5127beb583e94b60bc34d17f44269c8b42c7e98992e29ab27c4c9108a28119605cdb73c586dc3cc0b17a99789c
+  languageName: node
+  linkType: hard
+
+"@vercel/speed-insights@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "@vercel/speed-insights@npm:1.3.1"
+  peerDependencies:
+    "@sveltejs/kit": ^1 || ^2
+    next: ">= 13"
+    react: ^18 || ^19 || ^19.0.0-rc
+    svelte: ">= 4"
+    vue: ^3
+    vue-router: ^4
+  peerDependenciesMeta:
+    "@sveltejs/kit":
+      optional: true
+    next:
+      optional: true
+    react:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+    vue-router:
+      optional: true
+  checksum: b46a7b53c94a057ec358e5fed95855c7e45ecb0b870fe72f422d89065838ef0acf71cab1bfec16155c37da2f6fabf05538011fd58baba5061bc646ec1d9a7917
   languageName: node
   linkType: hard
 
@@ -17372,11 +17400,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:~15.2.6":
-  version: 15.2.6
-  resolution: "next@npm:15.2.6"
+"next@npm:15.2.8":
+  version: 15.2.8
+  resolution: "next@npm:15.2.8"
   dependencies:
-    "@next/env": 15.2.6
+    "@next/env": 15.2.8
     "@next/swc-darwin-arm64": 15.2.5
     "@next/swc-darwin-x64": 15.2.5
     "@next/swc-linux-arm64-gnu": 15.2.5
@@ -17429,7 +17457,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: d2b1bf30ea31e000094d7782c38d54f9b959e4329af70d2c74f792e3b63015a5a2e73c609a26eda189a7bc44b3b1533d053591b147dffe7d15f5623197bd2d4c
+  checksum: 8d60e137d7e425615fbf639a05f7268c99016b89237bebc20805fb63da18692fd2534ef5ccdda790ddf0c1fd12c5a32850eb87feb6f322b0f5432a83867972ca
   languageName: node
   linkType: hard
 
@@ -20288,6 +20316,7 @@ __metadata:
   dependencies:
     "@divvi/referral-sdk": ^2.3.0
     "@types/caniuse-lite": ^1
+    "@vercel/speed-insights": ^1.3.1
     caniuse-lite: ^1.0.30001749
     husky: ~9.1.6
     lint-staged: ~13.2.2
