@@ -38,10 +38,22 @@ export async function GET(request: NextRequest) {
           WHEN COALESCE(ai_matches_played, 0) > 0 THEN ROUND((COALESCE(ai_matches_won, 0) * 100.0) / COALESCE(ai_matches_played, 0), 1)
           ELSE 0 
         END as win_rate,
-        ROW_NUMBER() OVER (ORDER BY COALESCE(ai_matches_won, 0) DESC, win_rate DESC) as rank
+        ROW_NUMBER() OVER (
+          ORDER BY 
+            COALESCE(ai_matches_won, 0) DESC, 
+            CASE 
+              WHEN COALESCE(ai_matches_played, 0) > 0 THEN ROUND((COALESCE(ai_matches_won, 0) * 100.0) / COALESCE(ai_matches_played, 0), 1)
+              ELSE 0 
+            END DESC
+        ) as rank
       FROM stats 
       WHERE COALESCE(ai_matches_played, 0) >= 5  -- Minimum 5 games to qualify
-      ORDER BY COALESCE(ai_matches_won, 0) DESC, win_rate DESC
+      ORDER BY 
+        COALESCE(ai_matches_won, 0) DESC, 
+        CASE 
+          WHEN COALESCE(ai_matches_played, 0) > 0 THEN ROUND((COALESCE(ai_matches_won, 0) * 100.0) / COALESCE(ai_matches_played, 0), 1)
+          ELSE 0 
+        END DESC
       LIMIT 30
     `);
 
