@@ -144,8 +144,8 @@ export async function POST() {
     // Initialize current season
     const now = new Date();
     const year = now.getFullYear();
-    const week = getWeekNumber(now);
-    const seasonId = `${year}-W${week.toString().padStart(2, "0")}`;
+    const month = now.getMonth() + 1; // getMonth() returns 0-11
+    const seasonId = `${year}-M${month.toString().padStart(2, "0")}`;
 
     const { startDate, endDate } = getSeasonDates(seasonId);
 
@@ -154,7 +154,7 @@ export async function POST() {
             VALUES (?, ?, ?, ?, ?)`,
       args: [
         seasonId,
-        `Week ${week} ${year}`,
+        `Month ${month} ${year}`,
         Math.floor(startDate.getTime() / 1000),
         Math.floor(endDate.getTime() / 1000),
         "active",
@@ -210,19 +210,12 @@ export async function POST() {
   }
 }
 
-function getWeekNumber(date: Date): number {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
-
 function getSeasonDates(seasonId: string): { startDate: Date; endDate: Date } {
-  const [year, weekStr] = seasonId.split("-W");
-  const week = parseInt(weekStr);
+  const [year, monthStr] = seasonId.split("-M");
+  const month = parseInt(monthStr) - 1; // JavaScript months are 0-indexed
 
-  const startDate = new Date(parseInt(year), 0, 1 + (week - 1) * 7);
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + 6);
+  const startDate = new Date(parseInt(year), month, 1);
+  const endDate = new Date(parseInt(year), month + 1, 0); // Last day of the month
   endDate.setHours(23, 59, 59, 999);
 
   return { startDate, endDate };
