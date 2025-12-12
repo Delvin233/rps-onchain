@@ -27,6 +27,21 @@ interface RankingSystemData {
     }>;
     totalPool: string;
   };
+  rankProgression: {
+    title: string;
+    description: string;
+    tiers: Array<{
+      name: string;
+      color: string;
+      icon: string;
+      ranks: Array<{
+        name: string;
+        wins: string;
+        description: string;
+      }>;
+    }>;
+    note: string;
+  };
   eligibility: {
     title: string;
     requirements: Array<{
@@ -192,6 +207,56 @@ export default function AIRankingSystemPage() {
         <div className="text-center p-4 bg-secondary/10 rounded-lg border border-secondary/30">
           <p className="font-bold text-secondary text-lg">{data.rankingTiers.totalPool}</p>
           <p className="text-sm text-base-content/60">Total monthly reward pool</p>
+        </div>
+      </div>
+
+      {/* Rank Progression */}
+      <div className="bg-card/50 rounded-xl p-6 mb-8 border border-info/20">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+          <Trophy className="text-info" size={28} />
+          {data.rankProgression.title}
+        </h2>
+        <p className="text-base-content/70 mb-6">{data.rankProgression.description}</p>
+
+        <div className="space-y-6">
+          {data.rankProgression.tiers.map((tier, tierIndex) => (
+            <div key={tierIndex} className="bg-base-100/30 rounded-lg p-4 border border-border">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl">{tier.icon}</span>
+                <h3 className={`text-lg font-bold ${tier.color}`}>{tier.name}</h3>
+                <div className="flex-1 border-t border-border"></div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {tier.ranks.map((rank, rankIndex) => (
+                  <div
+                    key={rankIndex}
+                    className={`bg-base-100/50 rounded-lg p-3 border border-border hover:border-info/50 transition-colors ${
+                      tier.name === "COSMIC"
+                        ? "ring-2 ring-pink-500/30 bg-gradient-to-br from-pink-500/10 to-purple-500/10"
+                        : tier.name === "RPS-GOD"
+                          ? "ring-1 ring-purple-500/30 bg-gradient-to-br from-purple-500/10 to-indigo-500/10"
+                          : tier.name === "MYTHIC"
+                            ? "ring-1 ring-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-blue-500/10"
+                            : tier.name === "LEGEND"
+                              ? "ring-1 ring-red-500/30 bg-gradient-to-br from-red-500/10 to-orange-500/10"
+                              : ""
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className={`font-bold text-sm ${tier.color}`}>{rank.name}</h4>
+                      <span className="text-xs font-semibold text-info">{rank.wins} wins</span>
+                    </div>
+                    <p className="text-xs text-base-content/70">{rank.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center p-4 bg-info/10 rounded-lg border border-info/30 mt-6">
+          <p className="text-sm text-base-content/70 italic">{data.rankProgression.note}</p>
         </div>
       </div>
 

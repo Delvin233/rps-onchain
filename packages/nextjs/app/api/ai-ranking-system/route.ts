@@ -52,6 +52,120 @@ export async function GET() {
       totalPool: "250 CELO per month",
     },
 
+    rankProgression: {
+      title: "Rank Progression System",
+      description: "Climb through 38 prestigious ranks from Beginner to the legendary RPS-God X:",
+      tiers: [
+        {
+          name: "COSMIC",
+          color: "text-pink-400",
+          icon: "👑",
+          ranks: [{ name: "RPS-GOD X", wins: "690+", description: "The ultimate achievement" }],
+        },
+        {
+          name: "RPS-GOD",
+          color: "text-purple-400",
+          icon: "⭐",
+          ranks: [
+            { name: "RPS-God IX", wins: "660-689", description: "Legendary mastery" },
+            { name: "RPS-God VIII", wins: "630-659", description: "Legendary mastery" },
+            { name: "RPS-God VII", wins: "600-629", description: "Legendary mastery" },
+            { name: "RPS-God VI", wins: "570-599", description: "Legendary mastery" },
+            { name: "RPS-God V", wins: "520-569", description: "Legendary mastery" },
+            { name: "RPS-God IV", wins: "470-519", description: "Legendary mastery" },
+            { name: "RPS-God III", wins: "420-469", description: "Legendary mastery" },
+            { name: "RPS-God II", wins: "370-419", description: "Legendary mastery" },
+            { name: "RPS-God I", wins: "320-369", description: "Legendary mastery" },
+          ],
+        },
+        {
+          name: "MYTHIC",
+          color: "text-indigo-400",
+          icon: "🌈",
+          ranks: [
+            { name: "Mythic V", wins: "300-319", description: "Mythical power" },
+            { name: "Mythic IV", wins: "280-299", description: "Mythical power" },
+            { name: "Mythic III", wins: "260-279", description: "Mythical power" },
+            { name: "Mythic II", wins: "240-259", description: "Mythical power" },
+            { name: "Mythic I", wins: "220-239", description: "Mythical power" },
+          ],
+        },
+        {
+          name: "LEGEND",
+          color: "text-red-400",
+          icon: "🔴",
+          ranks: [
+            { name: "Legend V", wins: "210-219", description: "Legendary status" },
+            { name: "Legend IV", wins: "200-209", description: "Legendary status" },
+            { name: "Legend III", wins: "190-199", description: "Legendary status" },
+            { name: "Legend II", wins: "180-189", description: "Legendary status" },
+            { name: "Legend I", wins: "170-179", description: "Legendary status" },
+          ],
+        },
+        {
+          name: "CHAMPION",
+          color: "text-yellow-400",
+          icon: "🟡",
+          ranks: [
+            { name: "Champion III", wins: "160-169", description: "Elite champion" },
+            { name: "Champion II", wins: "150-159", description: "Elite champion" },
+            { name: "Champion I", wins: "140-149", description: "Elite champion" },
+          ],
+        },
+        {
+          name: "GRANDMASTER",
+          color: "text-purple-300",
+          icon: "🟣",
+          ranks: [
+            { name: "Grandmaster III", wins: "130-139", description: "Grandmaster level" },
+            { name: "Grandmaster II", wins: "120-129", description: "Grandmaster level" },
+            { name: "Grandmaster I", wins: "110-119", description: "Grandmaster level" },
+          ],
+        },
+        {
+          name: "MASTER",
+          color: "text-green-400",
+          icon: "🟢",
+          ranks: [
+            { name: "Master III", wins: "100-109", description: "Master tier" },
+            { name: "Master II", wins: "90-99", description: "Master tier" },
+            { name: "Master I", wins: "80-89", description: "Master tier" },
+          ],
+        },
+        {
+          name: "EXPERT",
+          color: "text-green-300",
+          icon: "🟢",
+          ranks: [
+            { name: "Expert III", wins: "70-79", description: "Expert level" },
+            { name: "Expert II", wins: "60-69", description: "Expert level" },
+            { name: "Expert I", wins: "50-59", description: "Expert level" },
+          ],
+        },
+        {
+          name: "WARRIOR",
+          color: "text-blue-400",
+          icon: "🔵",
+          ranks: [
+            { name: "Warrior III", wins: "40-49", description: "Warrior class" },
+            { name: "Warrior II", wins: "30-39", description: "Warrior class" },
+            { name: "Warrior I", wins: "20-29", description: "Warrior class" },
+          ],
+        },
+        {
+          name: "ENTRY",
+          color: "text-gray-400",
+          icon: "⚪",
+          ranks: [
+            { name: "Fighter", wins: "10-19", description: "Learning the ropes" },
+            { name: "Novice", wins: "5-9", description: "Getting started" },
+            { name: "Beginner", wins: "0-4", description: "Welcome to RPS!" },
+          ],
+        },
+      ],
+      note: "Ranks are based on total AI wins. Climb the ladder and earn your place among the legends!",
+    },
+
     eligibility: {
       title: "Eligibility Requirements",
       requirements: [
