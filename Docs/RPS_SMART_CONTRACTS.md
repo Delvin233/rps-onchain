@@ -14,12 +14,14 @@ These contracts were developed to:
 - Generate on-chain activity for Talent Protocol tracking
 - Serve as proof-of-concept for future RPS game mechanics
 
-## Deployed Contracts (Celo Mainnet)
+## Deployed Contracts (Multi-Chain)
 
 ### 1. RPSQuantumMatch
 
-**Address**: `0x765384d5d2A7Beee601cF976836352b0Da926BbB`  
-**Celoscan**: https://celoscan.io/address/0x765384d5d2A7Beee601cF976836352b0Da926BbB
+**Celo Mainnet**: `0x765384d5d2A7Beee601cF976836352b0Da926BbB`  
+**Base Mainnet**: `0xF321ed5CbD3B01Eb63735D77260340e6Ba14026c`  
+**Celoscan**: https://celoscan.io/address/0x765384d5d2A7Beee601cF976836352b0Da926BbB  
+**BaseScan**: https://basescan.org/address/0xF321ed5CbD3B01Eb63735D77260340e6Ba14026c
 
 #### Features
 
@@ -56,8 +58,10 @@ function generateQuantumEntropy() private view returns (uint256) {
 
 ### 2. RPSTimeBasedMatch
 
-**Address**: `0xbE4f52C5F6985c8A3D73fFA2f76Fc1a43cc09Afb`  
-**Celoscan**: https://celoscan.io/address/0xbE4f52C5F6985c8A3D73fFA2f76Fc1a43cc09Afb
+**Celo Mainnet**: `0xbE4f52C5F6985c8A3D73fFA2f76Fc1a43cc09Afb`  
+**Base Mainnet**: `0x8f43C03C64A5EC4C03301CbcA5277A2D93Ca8ff4`  
+**Celoscan**: https://celoscan.io/address/0xbE4f52C5F6985c8A3D73fFA2f76Fc1a43cc09Afb  
+**BaseScan**: https://basescan.org/address/0x8f43C03C64A5EC4C03301CbcA5277A2D93Ca8ff4
 
 #### Features
 
@@ -83,8 +87,10 @@ function generateQuantumEntropy() private view returns (uint256) {
 
 ### 3. RPSChaosMatch
 
-**Address**: `0x6Ef5a0CeE27f0003fFCE7e127096a720Dc7aD3fB`  
-**Celoscan**: https://celoscan.io/address/0x6Ef5a0CeE27f0003fFCE7e127096a720Dc7aD3fB
+**Celo Mainnet**: `0x6Ef5a0CeE27f0003fFCE7e127096a720Dc7aD3fB`  
+**Base Mainnet**: `0xDf4d5544A2056165A9e8658C68162453ddf0d7c8`  
+**Celoscan**: https://celoscan.io/address/0x6Ef5a0CeE27f0003fFCE7e127096a720Dc7aD3fB  
+**BaseScan**: https://basescan.org/address/0xDf4d5544A2056165A9e8658C68162453ddf0d7c8
 
 #### Features
 
@@ -118,8 +124,10 @@ function generateQuantumEntropy() private view returns (uint256) {
 
 ### 4. RPSSkillBasedMatch
 
-**Address**: `0xf73Edca92605C562397c86eB60093339428b2316`  
-**Celoscan**: https://celoscan.io/address/0xf73Edca92605C562397c86eB60093339428b2316
+**Celo Mainnet**: `0xf73Edca92605C562397c86eB60093339428b2316`  
+**Base Mainnet**: `0x8064B5c5144593cfE17C2dc639453E3079E42dDb`  
+**Celoscan**: https://celoscan.io/address/0xf73Edca92605C562397c86eB60093339428b2316  
+**BaseScan**: https://basescan.org/address/0x8064B5c5144593cfE17C2dc639453E3079E42dDb
 
 #### Features
 
@@ -156,12 +164,14 @@ function generateQuantumEntropy() private view returns (uint256) {
 
 ## Technical Specifications
 
-### Gas Usage
+### Gas Usage (Consistent Across Networks)
 
 - **Quantum Contract**: ~944K gas for deployment
 - **Time Contract**: ~1.37M gas for deployment
 - **Chaos Contract**: ~2.33M gas for deployment
 - **Skill Contract**: ~1.65M gas for deployment
+- **Total per Network**: ~6.3M gas for complete suite
+- **Multi-Chain Total**: ~12.6M gas (Celo + Base)
 
 ### Optimization Features
 
@@ -213,17 +223,29 @@ function generateQuantumEntropy() private view returns (uint256) {
 
 ## Contract Verification
 
-To verify the contracts on Celoscan:
+To verify the contracts on both networks:
+
+### Celo Mainnet
 
 ```bash
 # Navigate to hardhat directory
 cd packages/hardhat
 
-# Verify each contract
+# Verify each contract on Celo
 npx hardhat verify --network celo 0x765384d5d2A7Beee601cF976836352b0Da926BbB
 npx hardhat verify --network celo 0xbE4f52C5F6985c8A3D73fFA2f76Fc1a43cc09Afb
 npx hardhat verify --network celo 0x6Ef5a0CeE27f0003fFCE7e127096a720Dc7aD3fB
 npx hardhat verify --network celo 0xf73Edca92605C562397c86eB60093339428b2316
+```
+
+### Base Mainnet
+
+```bash
+# Verify each contract on Base
+npx hardhat verify --network base 0xF321ed5CbD3B01Eb63735D77260340e6Ba14026c
+npx hardhat verify --network base 0x8f43C03C64A5EC4C03301CbcA5277A2D93Ca8ff4
+npx hardhat verify --network base 0xDf4d5544A2056165A9e8658C68162453ddf0d7c8
+npx hardhat verify --network base 0x8064B5c5144593cfE17C2dc639453E3079E42dDb
 ```
 
 ---
@@ -266,10 +288,20 @@ These concept contracts demonstrate the technical capabilities and innovative th
 
 The contracts serve as a foundation for future development and will inform the integration of advanced features into the main RPS application. They represent a significant step forward in blockchain gaming technology and demonstrate the project's commitment to technical excellence.
 
+### Multi-Chain Benefits
+
+Deploying on both Celo and Base provides several advantages:
+
+- **Increased Visibility**: Double the on-chain activity for Talent Protocol tracking
+- **Network Diversity**: Demonstrates cross-chain compatibility and technical versatility
+- **Cost Optimization**: Celo for low-cost transactions, Base for Ethereum ecosystem access
+- **Risk Mitigation**: Redundancy across multiple networks ensures continued operation
+- **Community Reach**: Access to both Celo and Base ecosystems and user bases
+
 ---
 
 **Deployment Date**: December 12, 2024  
-**Network**: Celo Mainnet  
-**Total Gas Used**: ~6.3M gas  
-**Status**: Live and Functional  
-**Purpose**: Concept validation and Talent Protocol tracking
+**Networks**: Celo Mainnet + Base Mainnet  
+**Total Gas Used**: ~12.6M gas (6.3M per network)  
+**Status**: Live and Functional on Both Networks  
+**Purpose**: Multi-chain concept validation and Talent Protocol tracking
