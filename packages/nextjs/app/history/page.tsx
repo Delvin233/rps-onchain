@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { FaLightbulb } from "react-icons/fa6";
 import { LoginButton } from "~~/components/LoginButton";
-import { SocialLoginDebugger } from "~~/components/SocialLoginDebugger";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
@@ -244,13 +243,6 @@ export default function HistoryPage() {
           <button onClick={dismissHint} className="btn btn-xs btn-ghost flex-shrink-0">
             Got it
           </button>
-        </div>
-      )}
-
-      {/* Social Login Debugger - Show in development or when no matches found */}
-      {(process.env.NODE_ENV === "development" || (matches.length === 0 && aiMatches.length === 0)) && (
-        <div className="mb-6">
-          <SocialLoginDebugger />
         </div>
       )}
 
@@ -635,9 +627,6 @@ export default function HistoryPage() {
           </div>
         </div>
       )}
-
-      {/* Debug tool for social login issues */}
-      <SocialLoginDebugger />
     </div>
   );
 }
