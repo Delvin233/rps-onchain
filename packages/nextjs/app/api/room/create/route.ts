@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       await roomStorage.set(roomId, {
         roomId,
         chainId,
-        creator,
+        creator: creator.toLowerCase(), // Normalize to lowercase
         creatorPlatform: creatorPlatform || null,
         betAmount: betAmount || "0",
         joiner: null,

@@ -36,19 +36,20 @@ export async function POST(req: NextRequest) {
     }
     console.log("Room found:", { roomId, status: room.status, creator: room.creator, joiner: room.joiner });
 
-    // Store move and signature
-    if (room.creator === player) {
+    // Store move and signature (normalize addresses for comparison)
+    const playerLower = player.toLowerCase();
+    if (room.creator === playerLower) {
       console.log("Creator submitting move:", move);
       room.creatorMove = move;
       room.creatorSignature = signature;
       room.creatorMessage = message;
-    } else if (room.joiner === player) {
+    } else if (room.joiner === playerLower) {
       console.log("Joiner submitting move:", move);
       room.joinerMove = move;
       room.joinerSignature = signature;
       room.joinerMessage = message;
     } else {
-      console.log("Player not in room:", { player, creator: room.creator, joiner: room.joiner });
+      console.log("Player not in room:", { player: playerLower, creator: room.creator, joiner: room.joiner });
       return NextResponse.json({ error: "Player not in room" }, { status: 403 });
     }
 

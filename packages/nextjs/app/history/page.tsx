@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
 import { FaLightbulb } from "react-icons/fa6";
 import { LoginButton } from "~~/components/LoginButton";
+import { SocialLoginDebugger } from "~~/components/SocialLoginDebugger";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
@@ -46,7 +47,7 @@ export default function HistoryPage() {
 
   const fetchBlockchainProofs = async () => {
     try {
-      const response = await fetch(`/api/store-blockchain-proof?address=${address}`);
+      const response = await fetch(`/api/store-blockchain-proof?address=${address?.toLowerCase()}`);
       const data = await response.json();
       setBlockchainMatches(data.proofs || {});
     } catch (error) {
@@ -66,7 +67,7 @@ export default function HistoryPage() {
 
   const fetchAIMatches = async () => {
     try {
-      const response = await fetch(`/api/ai-match/history?playerId=${address}&limit=100`);
+      const response = await fetch(`/api/ai-match/history?playerId=${address?.toLowerCase()}&limit=100`);
       if (response.ok) {
         const { matches: aiMatchHistory } = await response.json();
         // Convert date strings back to Date objects
@@ -98,7 +99,7 @@ export default function HistoryPage() {
       const localMatches = getLocalMatches();
 
       // 2. Fetch from Redis + IPFS (via API)
-      const response = await fetch(`/api/history?address=${address}`);
+      const response = await fetch(`/api/history?address=${address?.toLowerCase()}`);
       const { matches: serverMatches } = await response.json();
 
       // 3. Merge all sources and deduplicate
@@ -245,6 +246,14 @@ export default function HistoryPage() {
           </button>
         </div>
       )}
+
+      {/* Social Login Debugger - Show in development or when no matches found */}
+      {(process.env.NODE_ENV === "development" || (matches.length === 0 && aiMatches.length === 0)) && (
+        <div className="mb-6">
+          <SocialLoginDebugger />
+        </div>
+      )}
+
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -626,6 +635,9 @@ export default function HistoryPage() {
           </div>
         </div>
       )}
+
+      {/* Debug tool for social login issues */}
+      <SocialLoginDebugger />
     </div>
   );
 }
