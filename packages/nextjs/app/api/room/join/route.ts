@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Room is full" }, { status: 400 });
     }
 
-    room.joiner = joiner;
+    room.joiner = joiner.toLowerCase(); // Normalize to lowercase
     room.joinerVerified = joinerVerified || false;
     room.joinerPlatform = joinerPlatform || null;
     room.status = "ready";

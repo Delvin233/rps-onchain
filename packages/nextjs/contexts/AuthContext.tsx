@@ -143,7 +143,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Log when social login is detected
       if (appKitConnected && !walletConnected) {
-        console.log("✅ [AuthContext] Social login detected via AppKit:", appKitAddress);
+        console.log("✅ [AuthContext] Social login detected via AppKit:", {
+          appKitAddress,
+          lowercase: appKitAddress?.toLowerCase(),
+          effectiveAddress: effectiveWalletAddress,
+          finalAddress: address,
+        });
+
+        // Additional debugging for match history issues
+        console.log("🔍 [AuthContext] Social login debug - address variations:", {
+          original: appKitAddress,
+          normalized: appKitAddress?.toLowerCase(),
+          checksum: appKitAddress, // Keep for comparison
+          finalUsed: address,
+        });
       }
     }
   }, [
