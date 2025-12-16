@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { Toaster } from "react-hot-toast";
-import { WagmiProvider } from "wagmi";
+import { WagmiProvider, cookieToInitialState } from "wagmi";
 import { Web3Provider } from "~~/components/Web3Provider";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
@@ -64,7 +64,13 @@ export const queryClient = new QueryClient({
   },
 });
 
-export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
+export const ScaffoldEthAppWithProviders = ({
+  children,
+  cookies,
+}: {
+  children: React.ReactNode;
+  cookies?: string | null;
+}) => {
   useEffect(() => {
     // Expose queryClient globally for cache invalidation
     if (typeof window !== "undefined") {
@@ -72,8 +78,11 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
     }
   }, []);
 
+  // Use cookieToInitialState for proper SSR support with AppKit
+  const initialState = cookieToInitialState(wagmiConfig, cookies);
+
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} initialState={initialState}>
       <QueryClientProvider client={queryClient}>
         <Web3Provider>
           <FarcasterProvider>

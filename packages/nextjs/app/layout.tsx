@@ -62,7 +62,12 @@ export const metadata = {
   },
 };
 
-const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
+  // Get cookies for AppKit SSR support
+  const { headers } = await import("next/headers");
+  const headersObj = await headers();
+  const cookies = headersObj.get("cookie");
+
   // Register service worker on client
   if (typeof window !== "undefined") {
     registerServiceWorker();
@@ -276,7 +281,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <ErrorBoundary>
           <CRTEffect />
           <ThemeProvider enableSystem>
-            <ScaffoldEthAppWithProviders>
+            <ScaffoldEthAppWithProviders cookies={cookies}>
               <FarcasterProvider>
                 <AuthProvider>
                   <PreferencesSync />

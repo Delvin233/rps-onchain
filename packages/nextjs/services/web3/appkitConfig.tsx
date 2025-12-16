@@ -1,8 +1,8 @@
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { cookieStorage, createStorage } from "@wagmi/core";
 import { Chain, createClient, fallback, http } from "viem";
 import { hardhat, mainnet } from "viem/chains";
-import { createConfig, createStorage } from "wagmi";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 import scaffoldConfig, { DEFAULT_ALCHEMY_API_KEY, ScaffoldConfig } from "~~/scaffold.config";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
@@ -52,30 +52,16 @@ export const enabledChains = targetNetworks.find((network: Chain) => network.id 
   ? targetNetworks
   : ([...targetNetworks, mainnet] as const);
 
-// Create SSR-safe storage that doesn't access browser APIs during server rendering
-const createSSRSafeStorage = () => {
-  // During SSR, return a no-op storage
-  if (typeof window === "undefined") {
-    return {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-    };
-  }
-
-  // On client, use localStorage
-  return window.localStorage;
-};
-
-// Direct wagmi config like RainbowKit - Farcaster connector FIRST
-export const wagmiConfig = createConfig({
-  chains: enabledChains,
-  connectors: [farcasterMiniApp(), ...getWagmiConnectors()],
-  ssr: true,
-  multiInjectedProviderDiscovery: true,
+// Create WagmiAdapter for AppKit following official docs pattern
+// This replaces our custom wagmi config and integrates with AppKit properly
+export const wagmiAdapter = new WagmiAdapter({
   storage: createStorage({
-    storage: createSSRSafeStorage(),
+    storage: cookieStorage,
   }),
+  ssr: true,
+  projectId: walletConnectProjectId,
+  networks: enabledChains as any,
+  connectors: [farcasterMiniApp(), ...getWagmiConnectors()],
   client: ({ chain }) => {
     let rpcFallbacks = [http()];
     const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
@@ -96,13 +82,8 @@ export const wagmiConfig = createConfig({
   },
 });
 
+// Export the wagmi config from the adapter
+export const wagmiConfig = wagmiAdapter.wagmiConfig;
+
 // Keep this export for compatibility
 export const appkitWagmiConfig = wagmiConfig;
-
-// Create WagmiAdapter for AppKit with our custom config
-// This allows AppKit to work with our Farcaster connector
-// Only show Base and Celo in network selector (mainnet is kept in wagmi for ENS resolution)
-export const wagmiAdapter = new WagmiAdapter({
-  networks: targetNetworks as any, // Only show Base and Celo, not mainnet
-  projectId: walletConnectProjectId,
-});
