@@ -125,11 +125,18 @@ export default function HistoryPage() {
         ).values(),
       );
 
-      // 4. Filter user matches and sort
+      // 4. Filter user matches and sort (case-insensitive address matching)
+      const addressLower = address?.toLowerCase();
       const userMatches = uniqueMatches
-        .filter(
-          match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
-        )
+        .filter(match => {
+          // Case-insensitive address matching for all possible address fields
+          const creatorMatch = match.players?.creator?.toLowerCase() === addressLower;
+          const joinerMatch = match.players?.joiner?.toLowerCase() === addressLower;
+          const playerMatch = match.player?.toLowerCase() === addressLower;
+          const addressMatch = match.address?.toLowerCase() === addressLower;
+
+          return creatorMatch || joinerMatch || playerMatch || addressMatch;
+        })
         .sort((a, b) => {
           const getTime = (match: any) => {
             const ts =
@@ -144,11 +151,17 @@ export default function HistoryPage() {
       setMatches(userMatches);
     } catch (error) {
       console.error("Error fetching matches:", error);
-      // Fallback to localStorage only
+      // Fallback to localStorage only (with case-insensitive matching)
       const localMatches = getLocalMatches();
-      const userMatches = localMatches.filter(
-        match => match.players?.creator === address || match.players?.joiner === address || match.player === address,
-      );
+      const addressLower = address?.toLowerCase();
+      const userMatches = localMatches.filter(match => {
+        const creatorMatch = match.players?.creator?.toLowerCase() === addressLower;
+        const joinerMatch = match.players?.joiner?.toLowerCase() === addressLower;
+        const playerMatch = match.player?.toLowerCase() === addressLower;
+        const addressMatch = match.address?.toLowerCase() === addressLower;
+
+        return creatorMatch || joinerMatch || playerMatch || addressMatch;
+      });
       setMatches(userMatches);
     } finally {
       setIsLoading(false);

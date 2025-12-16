@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     let tursoMatches: any[] = [];
     try {
       const tursoRows = await getMatchHistory(addressLower, 200);
+
       tursoMatches = tursoRows.map((row: any) => ({
         roomId: row.room_id,
         players: {
