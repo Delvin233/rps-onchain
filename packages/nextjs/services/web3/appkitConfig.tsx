@@ -52,18 +52,29 @@ export const enabledChains = targetNetworks.find((network: Chain) => network.id 
   ? targetNetworks
   : ([...targetNetworks, mainnet] as const);
 
+// Create SSR-safe storage that doesn't access browser APIs during server rendering
+const createSSRSafeStorage = () => {
+  // During SSR, return a no-op storage
+  if (typeof window === "undefined") {
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    };
+  }
+
+  // On client, use localStorage
+  return window.localStorage;
+};
+
 // Direct wagmi config like RainbowKit - Farcaster connector FIRST
-// Completely disable storage during SSR to prevent any indexedDB access
 export const wagmiConfig = createConfig({
   chains: enabledChains,
   connectors: [farcasterMiniApp(), ...getWagmiConnectors()],
   ssr: true,
   multiInjectedProviderDiscovery: true,
-  // Only add storage on client-side to prevent SSR issues
-  ...(typeof window !== "undefined" && {
-    storage: createStorage({
-      storage: window.localStorage,
-    }),
+  storage: createStorage({
+    storage: createSSRSafeStorage(),
   }),
   client: ({ chain }) => {
     let rpcFallbacks = [http()];

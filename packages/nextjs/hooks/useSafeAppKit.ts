@@ -1,72 +1,96 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppKit } from "@reown/appkit/react";
 
 /**
- * Safe wrapper around useAppKit that prevents initialization errors
+ * Safe wrapper that provides AppKit functionality without causing initialization errors
  * Returns safe defaults until AppKit is properly initialized
  */
 export const useSafeAppKit = () => {
   const [isAppKitReady, setIsAppKitReady] = useState(false);
 
   useEffect(() => {
-    // Check if AppKit is initialized by looking for the modal element
-    const checkAppKitReady = () => {
-      // AppKit creates a modal element when initialized
-      const appKitModal =
-        document.querySelector("w3m-modal") ||
-        document.querySelector('[data-testid="w3m-modal"]') ||
-        // Check if the AppKit instance exists on window
-        (window as any).__appkit_instance;
+    // Only run on client side
+    if (typeof window === "undefined") return;
 
-      if (appKitModal || (window as any).__appkit_instance) {
-        setIsAppKitReady(true);
+    // Check if AppKit is initialized
+    const checkAppKitReady = () => {
+      try {
+        // Look for AppKit modal or instance
+        const hasAppKit =
+          document.querySelector("w3m-modal") ||
+          document.querySelector('[data-testid="w3m-modal"]') ||
+          (window as any).__appkit_instance;
+
+        if (hasAppKit) {
+          setIsAppKitReady(true);
+        }
+      } catch {
+        // Ignore errors during checking
       }
     };
 
-    // Check immediately
-    checkAppKitReady();
+    // Check periodically until AppKit is ready
+    const interval = setInterval(() => {
+      if (!isAppKitReady) {
+        checkAppKitReady();
+      } else {
+        clearInterval(interval);
+      }
+    }, 100);
 
-    // Also check after a short delay to catch late initialization
-    const timer = setTimeout(checkAppKitReady, 100);
-
-    // Listen for AppKit initialization events
+    // Listen for AppKit ready event
     const handleAppKitReady = () => setIsAppKitReady(true);
     window.addEventListener("appkit-ready", handleAppKitReady);
 
     return () => {
-      clearTimeout(timer);
+      clearInterval(interval);
       window.removeEventListener("appkit-ready", handleAppKitReady);
     };
-  }, []);
+  }, [isAppKitReady]);
 
-  // Always call the hook to follow rules of hooks
-  const appKit = useAppKit();
+  // Safe AppKit methods
+  const open = () => {
+    if (!isAppKitReady) {
+      console.warn("[useSafeAppKit] AppKit not ready yet");
+      return;
+    }
 
-  // Default safe values for when AppKit is not ready
-  const defaultAppKit = {
-    open: () => {
-      if (!isAppKitReady) {
-        console.warn("[useSafeAppKit] AppKit not ready yet, ignoring open() call");
-        return;
+    try {
+      // Try to find and use AppKit's open method
+      const modal = document.querySelector("w3m-modal") as any;
+      if (modal && typeof modal.open === "function") {
+        modal.open();
+      } else {
+        // Fallback: dispatch a custom event that AppKit might listen to
+        window.dispatchEvent(new CustomEvent("appkit-open"));
       }
-      // If ready, try to call the real open function
-      appKit?.open?.();
-    },
-    close: () => {
-      if (!isAppKitReady) {
-        console.warn("[useSafeAppKit] AppKit not ready yet, ignoring close() call");
-        return;
-      }
-      // If ready, try to call the real close function
-      appKit?.close?.();
-    },
+    } catch (error) {
+      console.error("[useSafeAppKit] Error opening AppKit:", error);
+    }
   };
 
-  // Return the safe wrapper with ready state
+  const close = () => {
+    if (!isAppKitReady) {
+      console.warn("[useSafeAppKit] AppKit not ready yet");
+      return;
+    }
+
+    try {
+      const modal = document.querySelector("w3m-modal") as any;
+      if (modal && typeof modal.close === "function") {
+        modal.close();
+      } else {
+        window.dispatchEvent(new CustomEvent("appkit-close"));
+      }
+    } catch (error) {
+      console.error("[useSafeAppKit] Error closing AppKit:", error);
+    }
+  };
+
   return {
-    ...defaultAppKit,
+    open,
+    close,
     isReady: isAppKitReady,
   };
 };

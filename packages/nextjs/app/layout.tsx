@@ -1,3 +1,4 @@
+// Import polyfills first to prevent SSR errors
 import dynamic from "next/dynamic";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -12,6 +13,7 @@ import { ServiceInitializer } from "~~/components/ServiceInitializer";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
+import "~~/lib/polyfills";
 import "~~/styles/globals.css";
 import { registerServiceWorker } from "~~/utils/registerSW";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
