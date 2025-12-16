@@ -1,15 +1,16 @@
 "use client";
 
-import { useAppKitAccount } from "@reown/appkit/react";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useSafeAccount } from "~~/hooks/useSafeAccount";
-import { useSafeAppKit } from "~~/hooks/useSafeAppKit";
 
 interface LoginButtonClientProps {
   size?: "sm" | "lg";
 }
 
 export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
-  const { open } = useSafeAppKit();
+  // Use the official AppKit hook
+  const { open } = useAppKit();
+
   const { address: wagmiAddress, isConnected: wagmiConnected } = useSafeAccount();
   const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
 
@@ -25,9 +26,25 @@ export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
   // Format address for display
   const displayText = isConnected && address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Login";
 
+  const handleClick = () => {
+    console.log("[LoginButtonClient] Login button clicked - using official useAppKit hook");
+    console.log("[LoginButtonClient] Attempting to open AppKit");
+
+    try {
+      if (open) {
+        console.log("[LoginButtonClient] AppKit open function found, calling it");
+        open();
+      } else {
+        console.error("[LoginButtonClient] Could not find AppKit to open");
+      }
+    } catch (error) {
+      console.error("[LoginButtonClient] Error opening AppKit:", error);
+    }
+  };
+
   return (
     <button
-      onClick={() => open()}
+      onClick={handleClick}
       className={`hover:scale-105 transform transition-all duration-200 ${sizeClasses}`}
       style={{
         background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)`,

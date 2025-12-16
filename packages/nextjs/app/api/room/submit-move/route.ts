@@ -110,13 +110,13 @@ export async function POST(req: NextRequest) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            address: room.creator,
+            address: room.creator?.toLowerCase(), // Ensure lowercase
             match: {
               roomId,
-              players: { creator: room.creator, joiner: room.joiner },
+              players: { creator: room.creator?.toLowerCase(), joiner: room.joiner?.toLowerCase() },
               playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
               moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
-              result: { winner, timestamp: new Date().toISOString() },
+              result: { winner: winner?.toLowerCase(), timestamp: new Date().toISOString() },
             },
           }),
         }),
@@ -129,13 +129,13 @@ export async function POST(req: NextRequest) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              address: room.joiner,
+              address: room.joiner?.toLowerCase(), // Ensure lowercase
               match: {
                 roomId,
-                players: { creator: room.creator, joiner: room.joiner },
+                players: { creator: room.creator?.toLowerCase(), joiner: room.joiner?.toLowerCase() },
                 playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
                 moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
-                result: { winner, timestamp: new Date().toISOString() },
+                result: { winner: winner?.toLowerCase(), timestamp: new Date().toISOString() },
               },
             }),
           }),

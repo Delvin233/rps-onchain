@@ -12,7 +12,9 @@ export const useConnectedAddress = () => {
   const { address: wagmiAddress, isConnected: wagmiConnected, isConnecting } = useSafeAccount();
 
   // Prioritize Farcaster address, fall back to wagmi
-  const address = authAddress || wagmiAddress;
+  // Ensure address is always lowercase for consistency
+  const rawAddress = authAddress || wagmiAddress;
+  const address = rawAddress?.toLowerCase() || null;
   const isConnected = isAuthenticated || wagmiConnected;
 
   return {

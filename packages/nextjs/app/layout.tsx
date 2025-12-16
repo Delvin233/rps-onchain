@@ -1,3 +1,4 @@
+// Import polyfills first to prevent SSR errors
 import dynamic from "next/dynamic";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -12,6 +13,7 @@ import { ServiceInitializer } from "~~/components/ServiceInitializer";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
+import "~~/lib/polyfills";
 import "~~/styles/globals.css";
 import { registerServiceWorker } from "~~/utils/registerSW";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
@@ -60,7 +62,12 @@ export const metadata = {
   },
 };
 
-const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
+  // Get cookies for AppKit SSR support
+  const { headers } = await import("next/headers");
+  const headersObj = await headers();
+  const cookies = headersObj.get("cookie");
+
   // Register service worker on client
   if (typeof window !== "undefined") {
     registerServiceWorker();
@@ -198,9 +205,13 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
                     msg.includes('Failed to find Server Action') ||
                     msg.includes('indexedDB is not defined') ||
                     msg.includes('ReferenceError: indexedDB is not defined') ||
+                    msg.includes('ReferenceError: window is not defined') ||
+                    msg.includes('Telemetry is not supported in non-browser environments') ||
                     msg.includes('Please call "createAppKit" before using') ||
                     msg.includes('has not been authorized yet') ||
-                    msg.includes('The source') && msg.includes('has not been authorized')
+                    msg.includes('The source') && msg.includes('has not been authorized') ||
+                    msg.includes('svg') && msg.includes('attribute') && msg.includes('Unexpected end of attribute') ||
+                    msg.includes('KHTeka-Medium.woff2') && msg.includes('preloaded using link preload')
                   ) {
                     return;
                   }
@@ -213,6 +224,8 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
                     const msg = event.reason?.message || event.reason?.toString() || '';
                     if (
                       msg.includes('indexedDB is not defined') ||
+                      msg.includes('ReferenceError: window is not defined') ||
+                      msg.includes('Telemetry is not supported in non-browser environments') ||
                       msg.includes('Failed to find Server Action') ||
                       msg.includes('Please call "createAppKit" before using') ||
                       msg.includes('has not been authorized yet')
@@ -274,7 +287,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <ErrorBoundary>
           <CRTEffect />
           <ThemeProvider enableSystem>
-            <ScaffoldEthAppWithProviders>
+            <ScaffoldEthAppWithProviders cookies={cookies}>
               <FarcasterProvider>
                 <AuthProvider>
                   <PreferencesSync />

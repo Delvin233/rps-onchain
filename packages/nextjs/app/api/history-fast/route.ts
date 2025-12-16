@@ -19,23 +19,23 @@ export async function POST(request: NextRequest) {
     await redis.expire(key, 60 * 60 * 24 * 7);
 
     // Store in database using resilient operations
-    const players = [match.players?.creator, match.players?.joiner].filter(Boolean);
+    const players = [match.players?.creator, match.players?.joiner, match.player, match.opponent].filter(Boolean);
     if (players.length >= 2) {
-      const winner = typeof match.result === "object" ? match.result.winner : null;
+      const winner = typeof match.result === "object" ? match.result.winner : match.result;
       const success = await resilientSaveMatch({
-        roomId: match.roomId,
-        player1: players[0],
-        player2: players[1],
-        player1Move: match.moves?.creatorMove || "unknown",
-        player2Move: match.moves?.joinerMove || "unknown",
-        winner: winner === "tie" || winner === "Tie" ? null : winner,
-        gameMode: "multiplayer",
-        timestampMs: new Date(match.result?.timestamp || Date.now()).getTime(),
+        roomId: match.roomId || `match_${Date.now()}`,
+        player1: players[0]?.toLowerCase(),
+        player2: players[1]?.toLowerCase(),
+        player1Move: match.moves?.creatorMove || match.playerMove || "unknown",
+        player2Move: match.moves?.joinerMove || match.opponentMove || "unknown",
+        winner: winner === "tie" || winner === "Tie" ? null : winner?.toLowerCase(),
+        gameMode: match.opponent === "AI" ? "ai" : "multiplayer",
+        timestampMs: typeof match.result === "object" ? match.result.timestamp : match.timestamp || Date.now(),
         ipfsHash: match.ipfsHash,
       });
 
       if (!success) {
-        console.warn(`[History Fast] Database storage failed gracefully for match ${match.roomId}`);
+        console.warn(`[History Fast] Database storage failed gracefully for match ${match.roomId || "unknown"}`);
         // Still return success since we have Redis cache
       }
     }
