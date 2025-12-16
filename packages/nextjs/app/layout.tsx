@@ -206,6 +206,7 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                     msg.includes('indexedDB is not defined') ||
                     msg.includes('ReferenceError: indexedDB is not defined') ||
                     msg.includes('ReferenceError: window is not defined') ||
+                    msg.includes('Telemetry is not supported in non-browser environments') ||
                     msg.includes('Please call "createAppKit" before using') ||
                     msg.includes('has not been authorized yet') ||
                     msg.includes('The source') && msg.includes('has not been authorized') ||
@@ -224,6 +225,7 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                     if (
                       msg.includes('indexedDB is not defined') ||
                       msg.includes('ReferenceError: window is not defined') ||
+                      msg.includes('Telemetry is not supported in non-browser environments') ||
                       msg.includes('Failed to find Server Action') ||
                       msg.includes('Please call "createAppKit" before using') ||
                       msg.includes('has not been authorized yet')
