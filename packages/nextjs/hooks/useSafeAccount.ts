@@ -17,16 +17,21 @@ export const useSafeAccount = () => {
   // Always call the hook to follow rules of hooks
   const wagmiAccount = useAccount();
 
-  // Default values for SSR
-  const defaultValues = {
-    address: undefined,
-    isConnected: false,
-    isConnecting: false,
-    isDisconnected: true,
-    isReconnecting: false,
-    status: "disconnected" as const,
-  };
+  // If not on client yet, return safe defaults while preserving the structure
+  if (!isClient) {
+    return {
+      ...wagmiAccount,
+      address: undefined,
+      isConnected: false,
+      isConnecting: false,
+      isDisconnected: true,
+      isReconnecting: false,
+      status: "disconnected" as const,
+      chain: undefined,
+      chainId: undefined,
+    };
+  }
 
-  // Return default values during SSR, wagmi values on client
-  return isClient ? wagmiAccount : defaultValues;
+  // On client, return the actual wagmi account
+  return wagmiAccount;
 };

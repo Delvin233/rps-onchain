@@ -5,11 +5,12 @@ import Image from "next/image";
 import { ChevronDown, Copy, Network } from "lucide-react";
 import toast from "react-hot-toast";
 import { MdLocalGasStation } from "react-icons/md";
-import { useAccount, useBalance, useEnsName, useSwitchChain } from "wagmi";
+import { useBalance, useEnsName, useSwitchChain } from "wagmi";
 import { base, celo } from "wagmi/chains";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 
 interface MiniAppAccountProps {
   platform: "farcaster" | "base" | "minipay";
@@ -17,7 +18,7 @@ interface MiniAppAccountProps {
 
 export function MiniAppAccount({ platform }: MiniAppAccountProps) {
   const { address: authAddress, authMethod } = useAuth();
-  const { address: wagmiAddress, chain, isConnecting } = useAccount();
+  const { address: wagmiAddress, chain, isConnecting } = useSafeAccount();
   // Use auth address (which includes Farcaster) or fall back to wagmi address
   const address = authAddress || wagmiAddress;
 

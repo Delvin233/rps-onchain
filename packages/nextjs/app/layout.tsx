@@ -197,7 +197,10 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
                     msg.includes('Minified React error #418') ||
                     msg.includes('Failed to find Server Action') ||
                     msg.includes('indexedDB is not defined') ||
-                    msg.includes('ReferenceError: indexedDB is not defined')
+                    msg.includes('ReferenceError: indexedDB is not defined') ||
+                    msg.includes('Please call "createAppKit" before using') ||
+                    msg.includes('has not been authorized yet') ||
+                    msg.includes('The source') && msg.includes('has not been authorized')
                   ) {
                     return;
                   }
@@ -210,7 +213,9 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
                     const msg = event.reason?.message || event.reason?.toString() || '';
                     if (
                       msg.includes('indexedDB is not defined') ||
-                      msg.includes('Failed to find Server Action')
+                      msg.includes('Failed to find Server Action') ||
+                      msg.includes('Please call "createAppKit" before using') ||
+                      msg.includes('has not been authorized yet')
                     ) {
                       event.preventDefault();
                       console.warn('Filtered unhandled rejection:', msg);
