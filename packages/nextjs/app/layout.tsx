@@ -205,9 +205,12 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                     msg.includes('Failed to find Server Action') ||
                     msg.includes('indexedDB is not defined') ||
                     msg.includes('ReferenceError: indexedDB is not defined') ||
+                    msg.includes('ReferenceError: window is not defined') ||
                     msg.includes('Please call "createAppKit" before using') ||
                     msg.includes('has not been authorized yet') ||
-                    msg.includes('The source') && msg.includes('has not been authorized')
+                    msg.includes('The source') && msg.includes('has not been authorized') ||
+                    msg.includes('svg') && msg.includes('attribute') && msg.includes('Unexpected end of attribute') ||
+                    msg.includes('KHTeka-Medium.woff2') && msg.includes('preloaded using link preload')
                   ) {
                     return;
                   }
@@ -220,6 +223,7 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                     const msg = event.reason?.message || event.reason?.toString() || '';
                     if (
                       msg.includes('indexedDB is not defined') ||
+                      msg.includes('ReferenceError: window is not defined') ||
                       msg.includes('Failed to find Server Action') ||
                       msg.includes('Please call "createAppKit" before using') ||
                       msg.includes('has not been authorized yet')

@@ -9,12 +9,17 @@ import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
 
 const { targetNetworks, walletConnectProjectId } = scaffoldConfig;
 
-// Standard wallet connectors
+// Standard wallet connectors - SSR safe
 const getWagmiConnectors = () => {
+  // During SSR, return empty array to prevent window access
+  if (typeof window === "undefined") {
+    return [];
+  }
+
   const connectors = [];
 
   // Check if we're in an iframe (miniapp context like Base app or Farcaster)
-  const isInIframe = typeof window !== "undefined" && window.self !== window.top;
+  const isInIframe = window.self !== window.top;
 
   // Only add injected connector (MetaMask, etc.) if NOT in an iframe
   // This prevents MetaMask from popping up in Base app or Farcaster miniapp
@@ -61,7 +66,8 @@ export const wagmiAdapter = new WagmiAdapter({
   ssr: true,
   projectId: walletConnectProjectId,
   networks: enabledChains as any,
-  connectors: [farcasterMiniApp(), ...getWagmiConnectors()],
+  // Only add connectors on client side to prevent SSR issues
+  connectors: typeof window !== "undefined" ? [farcasterMiniApp(), ...getWagmiConnectors()] : [],
   client: ({ chain }) => {
     let rpcFallbacks = [http()];
     const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
