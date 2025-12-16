@@ -11,6 +11,7 @@ import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
+import { parseChainId } from "~~/utils/chainUtils";
 import { getDivviReferralTag, submitDivviReferral } from "~~/utils/divviUtils";
 
 export default function MultiplayerPage() {
@@ -92,6 +93,10 @@ export default function MultiplayerPage() {
     setIsCreating(true);
     setShowCreateConfirm(false);
     try {
+      // Ensure chainId is numeric (handles CAIP format like "eip155:8453")
+      const numericChainId = parseChainId(chainId);
+      console.log("Create room - parsed chainId:", { original: chainId, parsed: numericChainId });
+
       const response = await fetch("/api/room/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,7 +104,7 @@ export default function MultiplayerPage() {
           creator: address,
           betAmount: "0",
           isFree: true,
-          chainId,
+          chainId: numericChainId,
           creatorPlatform: getPlatform(),
         }),
       });
@@ -115,7 +120,7 @@ export default function MultiplayerPage() {
           dataSuffix: referralTag ? referralTag : undefined,
         });
 
-        // Submit referral to Divvi
+        // Submit referral to Divvi (chainId will be parsed inside submitDivviReferral)
         if (txHash && referralTag) {
           await submitDivviReferral(txHash, chainId);
         }
@@ -169,7 +174,7 @@ export default function MultiplayerPage() {
         dataSuffix: referralTag ? referralTag : undefined,
       });
 
-      // Submit referral to Divvi
+      // Submit referral to Divvi (chainId will be parsed inside submitDivviReferral)
       if (txHash && referralTag) {
         await submitDivviReferral(txHash, chainId);
       }

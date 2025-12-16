@@ -4,8 +4,8 @@ import { ReactNode, createContext, useContext, useEffect, useMemo, useState } fr
 import { useFarcaster } from "./FarcasterContext";
 import sdk from "@farcaster/miniapp-sdk";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useAccount } from "wagmi";
 import { useConnectionPersistence } from "~~/hooks/useConnectionPersistence";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 
 type AuthMethod = "wallet" | "farcaster" | null;
 
@@ -41,7 +41,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
-  const { address: walletAddress, isConnected: walletConnected } = useAccount();
+  const { address: walletAddress, isConnected: walletConnected } = useSafeAccount();
   const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
 
   // Use connection persistence hook to help with tab switching
@@ -85,10 +85,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Memoize to prevent recalculation on every render
   const hasFarcasterAuth = useMemo(() => !!farcasterUser && !!farcasterAddress, [farcasterUser, farcasterAddress]);
 
-  // Merge wallet states - use AppKit as source of truth for social logins
-  // AppKit detects social login connections, wagmi might lag behind
-  const effectiveWalletConnected = appKitConnected || walletConnected;
-  const effectiveWalletAddress = appKitAddress || walletAddress;
+  // Merge wallet states - prioritize wagmi since social logins are disabled
+  const effectiveWalletConnected = walletConnected || appKitConnected;
+  const effectiveWalletAddress = walletAddress || appKitAddress;
 
   // When in Farcaster context, ignore wallet connections to prevent conflicts
   // This prevents MetaMask from interfering when using Farcaster auth
@@ -130,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener("focus", handleFocus);
   }, [mounted, effectiveWalletConnected, hasFarcasterAuth]);
 
-  // Debug log for social login (only in development)
+  // Debug log (only in development)
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       console.log("[AuthContext] State:", {
@@ -140,11 +139,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
         final: { authMethod, address },
       });
-
-      // Log when social login is detected
-      if (appKitConnected && !walletConnected) {
-        console.log("✅ [AuthContext] Social login detected via AppKit:", appKitAddress);
-      }
     }
   }, [
     walletAddress,

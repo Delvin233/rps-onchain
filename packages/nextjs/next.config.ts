@@ -4,6 +4,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   devIndicators: false,
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["localhost:3000", "rpsonchain.xyz", "www.rpsonchain.xyz"],
+    },
+  },
   typescript: {
     ignoreBuildErrors: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },

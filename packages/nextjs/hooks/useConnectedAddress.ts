@@ -1,7 +1,7 @@
 "use client";
 
-import { useAccount } from "wagmi";
 import { useAuth } from "~~/contexts/AuthContext";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 
 /**
  * Hook that returns the connected address from either wagmi or Farcaster auth
@@ -9,10 +9,12 @@ import { useAuth } from "~~/contexts/AuthContext";
  */
 export const useConnectedAddress = () => {
   const { address: authAddress, authMethod, isAuthenticated } = useAuth();
-  const { address: wagmiAddress, isConnected: wagmiConnected, isConnecting } = useAccount();
+  const { address: wagmiAddress, isConnected: wagmiConnected, isConnecting } = useSafeAccount();
 
   // Prioritize Farcaster address, fall back to wagmi
-  const address = authAddress || wagmiAddress;
+  // Ensure address is always lowercase for consistency
+  const rawAddress = authAddress || wagmiAddress;
+  const address = rawAddress?.toLowerCase() || null;
   const isConnected = isAuthenticated || wagmiConnected;
 
   return {

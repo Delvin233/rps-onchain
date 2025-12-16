@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useAccount } from "wagmi";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 
 /**
  * Hook to help maintain wallet connection state across tab switches
@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
  * when users switch tabs and come back
  */
 export function useConnectionPersistence() {
-  const { isConnected: wagmiConnected } = useAccount();
+  const { isConnected: wagmiConnected } = useSafeAccount();
   const { isConnected: appKitConnected } = useAppKitAccount();
   const lastConnectionState = useRef({ wagmi: false, appKit: false });
   const reconnectAttempts = useRef(0);

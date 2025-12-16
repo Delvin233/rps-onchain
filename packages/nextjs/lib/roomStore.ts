@@ -23,7 +23,7 @@ const rooms = new Map<string, Room>();
 export function createRoom(id: string, creator: string, creatorUsername: string): Room {
   const room: Room = {
     id,
-    creator,
+    creator: creator.toLowerCase(), // Normalize to lowercase
     creatorUsername,
     status: "waiting",
     createdAt: Date.now(),
@@ -37,7 +37,7 @@ export function joinRoom(id: string, joiner: string, joinerUsername: string): Ro
   const room = rooms.get(id);
   if (!room || room.status !== "waiting") return null;
 
-  room.joiner = joiner;
+  room.joiner = joiner.toLowerCase(); // Normalize to lowercase
   room.joinerUsername = joinerUsername;
   room.status = "ready";
   return room;
@@ -60,7 +60,7 @@ export function requestPlayAgain(roomId: string, player: string): Room | null {
   const room = rooms.get(roomId);
   if (!room || room.status !== "finished") return null;
 
-  room.playAgainRequest = player;
+  room.playAgainRequest = player.toLowerCase(); // Normalize to lowercase
   return room;
 }
 
@@ -97,9 +97,10 @@ export function makeMove(roomId: string, player: string, move: "rock" | "paper" 
 
   if (!room.moves) room.moves = {};
 
-  if (player === room.creator) {
+  const playerLower = player.toLowerCase(); // Normalize for comparison
+  if (playerLower === room.creator) {
     room.moves.creator = move;
-  } else if (player === room.joiner) {
+  } else if (playerLower === room.joiner) {
     room.moves.joiner = move;
   } else {
     return null;

@@ -51,7 +51,7 @@ export default function ProfilePage() {
     if (isFarcaster) return "farcaster";
     return "farcaster";
   };
-  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address);
+  const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address || undefined);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK } = useGoodDollarClaim();
   const [entitlement, setEntitlement] = useState<bigint>(0n);

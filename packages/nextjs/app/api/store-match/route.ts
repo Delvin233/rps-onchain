@@ -36,11 +36,11 @@ export async function POST(request: NextRequest) {
     if (players.length >= 2) {
       const success = await resilientSaveMatch({
         roomId: matchData.roomId,
-        player1: players[0],
-        player2: players[1],
+        player1: players[0]?.toLowerCase(), // Ensure lowercase
+        player2: players[1]?.toLowerCase(), // Ensure lowercase
         player1Move: matchData.moves?.creatorMove || matchData.playerMove || "unknown",
         player2Move: matchData.moves?.joinerMove || matchData.opponentMove || "unknown",
-        winner: winner === "tie" || winner === "Tie" ? null : winner,
+        winner: winner === "tie" || winner === "Tie" ? null : winner?.toLowerCase(), // Ensure lowercase
         gameMode: matchData.opponent === "AI" ? "ai" : "multiplayer",
         timestampMs: matchData.timestamp || Date.now(),
         ipfsHash,

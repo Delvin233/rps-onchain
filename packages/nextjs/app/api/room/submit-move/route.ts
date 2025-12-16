@@ -36,19 +36,20 @@ export async function POST(req: NextRequest) {
     }
     console.log("Room found:", { roomId, status: room.status, creator: room.creator, joiner: room.joiner });
 
-    // Store move and signature
-    if (room.creator === player) {
+    // Store move and signature (normalize addresses for comparison)
+    const playerLower = player.toLowerCase();
+    if (room.creator === playerLower) {
       console.log("Creator submitting move:", move);
       room.creatorMove = move;
       room.creatorSignature = signature;
       room.creatorMessage = message;
-    } else if (room.joiner === player) {
+    } else if (room.joiner === playerLower) {
       console.log("Joiner submitting move:", move);
       room.joinerMove = move;
       room.joinerSignature = signature;
       room.joinerMessage = message;
     } else {
-      console.log("Player not in room:", { player, creator: room.creator, joiner: room.joiner });
+      console.log("Player not in room:", { player: playerLower, creator: room.creator, joiner: room.joiner });
       return NextResponse.json({ error: "Player not in room" }, { status: 403 });
     }
 
@@ -110,13 +111,13 @@ export async function POST(req: NextRequest) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            address: room.creator,
+            address: room.creator?.toLowerCase(), // Ensure lowercase
             match: {
               roomId,
-              players: { creator: room.creator, joiner: room.joiner },
+              players: { creator: room.creator?.toLowerCase(), joiner: room.joiner?.toLowerCase() },
               playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
               moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
-              result: { winner, timestamp: new Date().toISOString() },
+              result: { winner: winner?.toLowerCase(), timestamp: new Date().toISOString() },
             },
           }),
         }),
@@ -129,13 +130,13 @@ export async function POST(req: NextRequest) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              address: room.joiner,
+              address: room.joiner?.toLowerCase(), // Ensure lowercase
               match: {
                 roomId,
-                players: { creator: room.creator, joiner: room.joiner },
+                players: { creator: room.creator?.toLowerCase(), joiner: room.joiner?.toLowerCase() },
                 playerNames: { creator: creatorEns?.name, joiner: joinerEns?.name },
                 moves: { creatorMove: room.creatorMove, joinerMove: room.joinerMove },
-                result: { winner, timestamp: new Date().toISOString() },
+                result: { winner: winner?.toLowerCase(), timestamp: new Date().toISOString() },
               },
             }),
           }),

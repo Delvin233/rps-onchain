@@ -21,7 +21,7 @@ export default function MultiplayerGamePage() {
   const { address, isConnected } = useConnectedAddress();
   const chainId = useChainId();
   const { isMiniApp } = usePlatformDetection();
-  const { refetch: refetchStats } = usePlayerStats(address);
+  const { refetch: refetchStats } = usePlayerStats(address || undefined);
 
   const roomId = params.roomId as string;
   const [isFreeMode, setIsFreeMode] = useState(false);
@@ -292,19 +292,43 @@ export default function MultiplayerGamePage() {
           sessionStorage.setItem(`match_saved_${matchKey}`, "true");
 
           // Save to Redis history for BOTH players
+          console.log("[Multiplayer] Saving match to history for addresses:", {
+            player: address,
+            opponent: opponentAddress,
+            roomId: data.roomId,
+          });
+
           await Promise.all([
             fetch("/api/history-fast", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                address,
+                address: address?.toLowerCase(), // Ensure lowercase
                 match: {
-                  opponent: opponentAddress,
-                  player: address,
+                  roomId: data.roomId,
+                  opponent: opponentAddress?.toLowerCase(),
+                  player: address?.toLowerCase(),
+                  players: {
+                    creator: data.creator?.toLowerCase(),
+                    joiner: data.joiner?.toLowerCase(),
+                  },
+                  moves: {
+                    creatorMove: data.creatorMove,
+                    joinerMove: data.joinerMove,
+                  },
                   playerMove: isCreator ? data.creatorMove : data.joinerMove,
                   opponentMove: isCreator ? data.joinerMove : data.creatorMove,
-                  result: myResult,
-                  timestamp: new Date().toISOString(),
+                  result: {
+                    winner:
+                      myResult === "win"
+                        ? address?.toLowerCase()
+                        : myResult === "lose"
+                          ? opponentAddress?.toLowerCase()
+                          : "tie",
+                    timestamp: Date.now(),
+                  },
+                  timestamp: Date.now(),
+                  ipfsHash: data.ipfsHash,
                 },
               }),
             }),
@@ -312,14 +336,32 @@ export default function MultiplayerGamePage() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                address: opponentAddress,
+                address: opponentAddress?.toLowerCase(), // Ensure lowercase
                 match: {
-                  opponent: address,
-                  player: opponentAddress,
+                  roomId: data.roomId,
+                  opponent: address?.toLowerCase(),
+                  player: opponentAddress?.toLowerCase(),
+                  players: {
+                    creator: data.creator?.toLowerCase(),
+                    joiner: data.joiner?.toLowerCase(),
+                  },
+                  moves: {
+                    creatorMove: data.creatorMove,
+                    joinerMove: data.joinerMove,
+                  },
                   playerMove: isCreator ? data.joinerMove : data.creatorMove,
                   opponentMove: isCreator ? data.creatorMove : data.joinerMove,
-                  result: opponentResult,
-                  timestamp: new Date().toISOString(),
+                  result: {
+                    winner:
+                      opponentResult === "win"
+                        ? opponentAddress?.toLowerCase()
+                        : opponentResult === "lose"
+                          ? address?.toLowerCase()
+                          : "tie",
+                    timestamp: Date.now(),
+                  },
+                  timestamp: Date.now(),
+                  ipfsHash: data.ipfsHash,
                 },
               }),
             }),

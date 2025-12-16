@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
 
-    if (room.creator !== creator) {
+    if (room.creator !== creator.toLowerCase()) {
       return NextResponse.json({ error: "Only creator can cancel room" }, { status: 403 });
     }
 

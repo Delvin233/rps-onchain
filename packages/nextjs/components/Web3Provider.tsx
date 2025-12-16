@@ -11,39 +11,40 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-const metadata = {
-  name: "RPS-onChain",
-  description: "Rock Paper Scissors on-chain game with AI single player mode and PVP mode",
-  url: typeof window !== "undefined" ? window.location.origin : "https://www.rpsonchain.xyz",
-  icons: ["https://www.rpsonchain.xyz/rpsOnchainLogo.png"],
-};
-
+// Track if AppKit has been initialized to prevent multiple calls
 let appKitInitialized = false;
 
 export function Web3Provider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    // Initialize AppKit only once on client side
-    if (!appKitInitialized && typeof window !== "undefined") {
-      const rootStyles = getComputedStyle(document.documentElement);
-      const primaryColor = rootStyles.getPropertyValue("--color-primary").trim() || "#10b981";
+    // Only initialize AppKit on the client side and only once
+    if (typeof window !== "undefined" && !appKitInitialized) {
+      appKitInitialized = true;
 
+      // Set up metadata
+      const metadata = {
+        name: "RPS-onChain",
+        description: "Rock Paper Scissors on-chain game with AI single player mode and PVP mode",
+        url: window.location.origin,
+        icons: ["https://www.rpsonchain.xyz/rpsOnchainLogo.png"],
+      };
+
+      // Create the modal - following official AppKit + Wagmi docs pattern
+      // Now safely called only on client side
       createAppKit({
         adapters: [wagmiAdapter],
         projectId,
-        networks: scaffoldConfig.targetNetworks as any, // Only show Base and Celo
+        networks: scaffoldConfig.targetNetworks as any,
         defaultNetwork: scaffoldConfig.targetNetworks[0] as any,
         metadata,
         features: {
-          analytics: true,
-          swaps: true,
-          onramp: true,
-          email: false,
-          socials: [],
+          analytics: true, // Optional - defaults to your Cloud configuration
+          email: false, // Disable email login
+          socials: [], // Disable all social logins
         },
         themeMode: "dark",
         themeVariables: {
-          "--w3m-accent": primaryColor,
-          "--w3m-color-mix": primaryColor,
+          "--w3m-accent": "#10b981",
+          "--w3m-color-mix": "#10b981",
           "--w3m-color-mix-strength": 20,
           "--w3m-border-radius-master": "0.75rem",
           "--w3m-z-index": 1000,
@@ -58,27 +59,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         enableMobileFullScreen: true,
         allowUnsupportedChain: false,
       });
-
-      appKitInitialized = true;
     }
-  }, []);
-
-  // Add visibility change handler to help with tab switching
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        // Tab became visible - trigger a small delay to let AppKit reconnect
-        setTimeout(() => {
-          // Force a re-render of connection state
-          window.dispatchEvent(new Event("focus"));
-        }, 100);
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   return <>{children}</>;

@@ -1,3 +1,5 @@
+import { parseChainId } from "./chainUtils";
+
 const DIVVI_CONSUMER_ADDRESS = "0x4298D42Cf8a15B88Ee7d9CD36aD3686F9B9FD5F6";
 
 export async function getDivviReferralTag(userAddress: string): Promise<`0x${string}` | ""> {
@@ -18,12 +20,16 @@ export async function getDivviReferralTag(userAddress: string): Promise<`0x${str
   }
 }
 
-export async function submitDivviReferral(txHash: string, chainId: number): Promise<void> {
+export async function submitDivviReferral(txHash: string, chainId: string | number): Promise<void> {
   try {
+    // Parse chainId to ensure it's numeric (handles CAIP format like "eip155:8453")
+    const numericChainId = parseChainId(chainId);
+    console.log("Divvi referral - parsed chainId:", { original: chainId, parsed: numericChainId });
+
     const sdk = (await import("@divvi/referral-sdk")) as any;
     const response = await sdk.submitReferral({
       txHash,
-      chainId,
+      chainId: numericChainId,
     });
     console.log("Divvi referral submitted successfully:", response);
   } catch (error) {
