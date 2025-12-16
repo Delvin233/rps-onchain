@@ -58,7 +58,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
         console.log("[Web3Provider] Initializing AppKit...");
 
-        createAppKit({
+        const appKitInstance = createAppKit({
           adapters: [wagmiAdapter],
           projectId,
           networks: scaffoldConfig.targetNetworks as any,
@@ -91,12 +91,25 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         });
 
         appKitInitialized = true;
-        console.log("[Web3Provider] AppKit initialized successfully");
+        console.log("[Web3Provider] AppKit initialized successfully", appKitInstance);
 
-        // Notify other components
+        // Notify other components and expose AppKit globally
         try {
           window.dispatchEvent(new CustomEvent("appkit-ready"));
           (window as any).__appkit_instance = true;
+
+          // Try to expose AppKit instance globally for easier access
+          (window as any).appkitInstance = appKitInstance;
+
+          setTimeout(() => {
+            const appKitModal = document.querySelector("w3m-modal");
+            if (appKitModal) {
+              (window as any).appkit = appKitModal;
+              console.log("[Web3Provider] AppKit modal exposed globally");
+            } else {
+              console.warn("[Web3Provider] Could not find w3m-modal element");
+            }
+          }, 100);
         } catch (error) {
           console.warn("[Web3Provider] Could not dispatch events:", error);
         }
