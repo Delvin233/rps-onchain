@@ -85,10 +85,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Memoize to prevent recalculation on every render
   const hasFarcasterAuth = useMemo(() => !!farcasterUser && !!farcasterAddress, [farcasterUser, farcasterAddress]);
 
-  // Merge wallet states - use AppKit as source of truth for social logins
-  // AppKit detects social login connections, wagmi might lag behind
-  const effectiveWalletConnected = appKitConnected || walletConnected;
-  const effectiveWalletAddress = appKitAddress || walletAddress;
+  // Merge wallet states - prioritize wagmi since social logins are disabled
+  const effectiveWalletConnected = walletConnected || appKitConnected;
+  const effectiveWalletAddress = walletAddress || appKitAddress;
 
   // When in Farcaster context, ignore wallet connections to prevent conflicts
   // This prevents MetaMask from interfering when using Farcaster auth
@@ -130,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener("focus", handleFocus);
   }, [mounted, effectiveWalletConnected, hasFarcasterAuth]);
 
-  // Debug log for social login (only in development)
+  // Debug log (only in development)
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       console.log("[AuthContext] State:", {
@@ -140,24 +139,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
         final: { authMethod, address },
       });
-
-      // Log when social login is detected
-      if (appKitConnected && !walletConnected) {
-        console.log("✅ [AuthContext] Social login detected via AppKit:", {
-          appKitAddress,
-          lowercase: appKitAddress?.toLowerCase(),
-          effectiveAddress: effectiveWalletAddress,
-          finalAddress: address,
-        });
-
-        // Additional debugging for match history issues
-        console.log("🔍 [AuthContext] Social login debug - address variations:", {
-          original: appKitAddress,
-          normalized: appKitAddress?.toLowerCase(),
-          checksum: appKitAddress, // Keep for comparison
-          finalUsed: address,
-        });
-      }
     }
   }, [
     walletAddress,

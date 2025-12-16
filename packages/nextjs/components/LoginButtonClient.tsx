@@ -14,9 +14,9 @@ export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
   const { address: wagmiAddress, isConnected: wagmiConnected } = useSafeAccount();
   const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
 
-  // Use the same logic as AuthContext - AppKit takes priority for social logins
-  const isConnected = appKitConnected || wagmiConnected;
-  const address = appKitAddress || wagmiAddress;
+  // Use wagmi as primary since social logins are disabled
+  const isConnected = wagmiConnected || appKitConnected;
+  const address = wagmiAddress || appKitAddress;
 
   const sizeClasses =
     size === "sm"

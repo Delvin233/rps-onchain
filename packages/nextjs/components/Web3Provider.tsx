@@ -38,6 +38,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         metadata,
         features: {
           analytics: true, // Optional - defaults to your Cloud configuration
+          email: false, // Disable email login
+          socials: [], // Disable all social logins
         },
         themeMode: "dark",
         themeVariables: {
