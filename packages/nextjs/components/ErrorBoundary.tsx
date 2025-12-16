@@ -24,7 +24,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (
       errorMessage.includes("Failed to find Server Action") ||
       errorMessage.includes("indexedDB is not defined") ||
-      errorMessage.includes("ReferenceError: indexedDB is not defined")
+      errorMessage.includes("ReferenceError: indexedDB is not defined") ||
+      errorMessage.includes('Please call "createAppKit" before using') ||
+      errorMessage.includes("has not been authorized yet")
     ) {
       console.warn("Known non-critical error filtered in ErrorBoundary:", errorMessage);
       return { hasError: false };
@@ -39,7 +41,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (
       errorMessage.includes("Failed to find Server Action") ||
       errorMessage.includes("indexedDB is not defined") ||
-      errorMessage.includes("ReferenceError: indexedDB is not defined")
+      errorMessage.includes("ReferenceError: indexedDB is not defined") ||
+      errorMessage.includes('Please call "createAppKit" before using') ||
+      errorMessage.includes("has not been authorized yet")
     ) {
       return;
     }
