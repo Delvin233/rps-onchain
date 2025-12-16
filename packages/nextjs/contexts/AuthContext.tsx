@@ -4,8 +4,8 @@ import { ReactNode, createContext, useContext, useEffect, useMemo, useState } fr
 import { useFarcaster } from "./FarcasterContext";
 import sdk from "@farcaster/miniapp-sdk";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useAccount } from "wagmi";
 import { useConnectionPersistence } from "~~/hooks/useConnectionPersistence";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 
 type AuthMethod = "wallet" | "farcaster" | null;
 
@@ -41,7 +41,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [mounted, setMounted] = useState(false);
-  const { address: walletAddress, isConnected: walletConnected } = useAccount();
+  const { address: walletAddress, isConnected: walletConnected } = useSafeAccount();
   const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
 
   // Use connection persistence hook to help with tab switching

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 import { getMatchRecord } from "~~/lib/pinataStorage";
 
 export const useSyncMatches = () => {
-  const { address } = useAccount();
+  const { address } = useSafeAccount();
 
   useEffect(() => {
     if (!address) return;

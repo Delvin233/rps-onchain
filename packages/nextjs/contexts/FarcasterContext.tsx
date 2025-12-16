@@ -3,7 +3,8 @@
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Context } from "@farcaster/miniapp-core";
 import sdk from "@farcaster/miniapp-sdk";
-import { useAccount, useConnect } from "wagmi";
+import { useConnect } from "wagmi";
+import { useSafeAccount } from "~~/hooks/useSafeAccount";
 
 interface EnrichedUser {
   fid: number;
@@ -29,7 +30,7 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
   const isInitializing = useRef(false);
   const isInitialized = useRef(false);
   const { connect, connectors } = useConnect();
-  const { isConnected } = useAccount();
+  const { isConnected } = useSafeAccount();
 
   const setMiniAppReady = useCallback(async () => {
     // Prevent multiple initializations using ref (survives re-renders)

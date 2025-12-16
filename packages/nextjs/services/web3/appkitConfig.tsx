@@ -2,7 +2,7 @@ import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { Chain, createClient, fallback, http } from "viem";
 import { hardhat, mainnet } from "viem/chains";
-import { createConfig } from "wagmi";
+import { createConfig, createStorage } from "wagmi";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 import scaffoldConfig, { DEFAULT_ALCHEMY_API_KEY, ScaffoldConfig } from "~~/scaffold.config";
 import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
@@ -53,11 +53,18 @@ export const enabledChains = targetNetworks.find((network: Chain) => network.id 
   : ([...targetNetworks, mainnet] as const);
 
 // Direct wagmi config like RainbowKit - Farcaster connector FIRST
+// Completely disable storage during SSR to prevent any indexedDB access
 export const wagmiConfig = createConfig({
   chains: enabledChains,
   connectors: [farcasterMiniApp(), ...getWagmiConnectors()],
   ssr: true,
   multiInjectedProviderDiscovery: true,
+  // Only add storage on client-side to prevent SSR issues
+  ...(typeof window !== "undefined" && {
+    storage: createStorage({
+      storage: window.localStorage,
+    }),
+  }),
   client: ({ chain }) => {
     let rpcFallbacks = [http()];
     const rpcOverrideUrl = (scaffoldConfig.rpcOverrides as ScaffoldConfig["rpcOverrides"])?.[chain.id];
