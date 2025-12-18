@@ -4,11 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Address, parseAbi } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 
-// Contract ABI for the verification functions we need
+// Contract ABI for the verification functions we need (simplified)
 const RPS_CONTRACT_ABI = parseAbi([
   "function isUserVerified(address user) external view returns (bool)",
-  "function getUserVerificationData(address user) external view returns (tuple(bytes32 attestationId, uint256 userIdentifier, uint256 nullifier, string issuingState, string[] name, string idNumber, string nationality, string dateOfBirth, string gender, string expiryDate, uint256 minimumAge, bool[3] ofac, uint256[4] forbiddenCountriesListPacked))",
-  "event UserVerified(address indexed user, tuple(bytes32 attestationId, uint256 userIdentifier, uint256 nullifier, string issuingState, string[] name, string idNumber, string nationality, string dateOfBirth, string gender, string expiryDate, uint256 minimumAge, bool[3] ofac, uint256[4] forbiddenCountriesListPacked) output)",
+  "event UserVerified(address indexed user, bytes32 indexed nullifier)",
 ]);
 
 // Contract address (deployed on Celo Mainnet)
@@ -42,14 +41,8 @@ export const useRPSContract = () => {
           setIsVerified(verified);
 
           if (verified) {
-            // Get verification data if user is verified
-            const data = await publicClient.readContract({
-              address: CONTRACT_ADDRESS,
-              abi: RPS_CONTRACT_ABI,
-              functionName: "getUserVerificationData",
-              args: [address],
-            });
-            setVerificationData(data);
+            // For now, just store basic verification status
+            setVerificationData({ verified: true, source: "blockchain" });
 
             // Sync to Turso for future fast access
             fetch("/api/sync-verification", {
@@ -58,7 +51,7 @@ export const useRPSContract = () => {
               body: JSON.stringify({
                 address,
                 verified,
-                verificationData: data,
+                verificationData: { verified: true, source: "blockchain" },
               }),
             }).catch(err => console.warn("[Sync] Failed to sync to Turso:", err));
           }
