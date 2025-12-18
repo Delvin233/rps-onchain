@@ -70,11 +70,11 @@ export const useSelfProtocol = () => {
       const app = new SelfAppBuilder({
         version: 2,
         appName: "RPS OnChain",
-        scope: "rpsonchain",
+        scope: "self-workshop",
         endpoint: `${window.location.origin}/api/verify`,
         logoBase64: `${window.location.origin}/logo.svg`,
         userId: address,
-        endpointType: "https",
+        endpointType: "staging_https",
         userIdType: "hex",
         disclosures: {
           minimumAge: 18,

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AllIds, DefaultConfigStore, SelfBackendVerifier } from "@selfxyz/core";
 import { initVerificationsTable, turso } from "~~/lib/turso";
 
-const SCOPE = "rpsonchain";
+const SCOPE = "self-workshop";
 const ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/verify`
   : "http://localhost:3000/api/verify";
@@ -10,7 +10,7 @@ const ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
 const selfBackendVerifier = new SelfBackendVerifier(
   SCOPE,
   ENDPOINT,
-  false, // false = mainnet
+  true, // true = testnet (to match mobile app circuit version)
   AllIds,
   new DefaultConfigStore({
     minimumAge: 18,
