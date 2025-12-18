@@ -81,6 +81,22 @@ export async function initVerificationsTable() {
   `);
 }
 
+export async function initUserVerificationsTable() {
+  await turso.execute(`
+    CREATE TABLE IF NOT EXISTS user_verifications (
+      address TEXT PRIMARY KEY,
+      verified INTEGER NOT NULL DEFAULT 0,
+      verification_data TEXT,
+      tx_hash TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await turso.execute(`CREATE INDEX IF NOT EXISTS idx_user_verifications_verified ON user_verifications(verified)`);
+  await turso.execute(
+    `CREATE INDEX IF NOT EXISTS idx_user_verifications_updated ON user_verifications(updated_at DESC)`,
+  );
+}
+
 export async function initUsersTable() {
   await turso.execute(`
     CREATE TABLE IF NOT EXISTS users (
@@ -158,6 +174,7 @@ export async function initAllTables() {
   await initBlockchainProofsTable();
   await initUserPreferencesTable();
   await initVerificationsTable();
+  await initUserVerificationsTable();
   await initUsersTable();
   await initStatsTable();
   await initMatchesTable();

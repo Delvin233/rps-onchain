@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRPSContract } from "./useRPSContract";
 import { useAccount } from "wagmi";
 
 // Preload Self Protocol library
@@ -14,12 +15,9 @@ const preloadSelfProtocol = () => {
 
 export const useSelfProtocol = () => {
   const { address } = useAccount();
-  const [isVerified, setIsVerified] = useState(false);
-  const [userProof, setUserProof] = useState<any>(null);
+  const { isVerified: contractVerified, verificationData, checkVerificationStatus } = useRPSContract();
   const [selfApp, setSelfApp] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
-  const [pollTimeout, setPollTimeout] = useState<NodeJS.Timeout | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -29,26 +27,6 @@ export const useSelfProtocol = () => {
       preloadSelfProtocol();
     }
   }, []);
-
-  useEffect(() => {
-    // Reset state when address changes
-    setIsVerified(false);
-    setUserProof(null);
-
-    // For onchain verification, we'll check the contract state
-    // This will be implemented when we add contract interaction hooks
-    if (address && mounted && typeof window !== "undefined") {
-      // TODO: Check contract state for verification status
-      // For now, we'll rely on the verification flow to update state
-    }
-  }, [address, mounted]);
-
-  useEffect(() => {
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-      if (pollTimeout) clearTimeout(pollTimeout);
-    };
-  }, [pollInterval, pollTimeout]);
 
   const verify = useCallback(async () => {
     if (!address || !mounted || typeof window === "undefined") return { success: false, error: "Not ready" };
@@ -74,22 +52,7 @@ export const useSelfProtocol = () => {
       }).build();
 
       setSelfApp(app);
-
-      // For onchain verification, the contract will handle the verification
-      // We can listen for events or check contract state
-      const interval = setInterval(async () => {
-        // TODO: Check contract state for verification
-        // For now, we'll assume verification happens through the QR code flow
-        console.log("Checking verification status...");
-      }, 3000);
-      setPollInterval(interval);
-
-      const timeout = setTimeout(() => {
-        clearInterval(interval);
-        setIsLoading(false);
-      }, 120000);
-      setPollTimeout(timeout);
-
+      setIsLoading(false);
       return { success: true };
     } catch (error) {
       console.error("Verification error:", error);
@@ -99,17 +62,16 @@ export const useSelfProtocol = () => {
   }, [address, mounted]);
 
   const disconnect = useCallback(() => {
-    setIsVerified(false);
-    setUserProof(null);
     setSelfApp(null);
   }, []);
 
   return {
-    isVerified,
-    userProof,
+    isVerified: contractVerified,
+    userProof: verificationData,
     selfApp,
     isLoading,
     verify,
     disconnect,
+    checkVerificationStatus,
   };
 };
