@@ -44,7 +44,7 @@ export const useRPSContract = () => {
             // For now, just store basic verification status
             setVerificationData({ verified: true, source: "blockchain" });
 
-            // Sync to Turso for future fast access
+            // Sync to Turso for future fast access (non-blocking)
             fetch("/api/sync-verification", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -53,7 +53,15 @@ export const useRPSContract = () => {
                 verified,
                 verificationData: { verified: true, source: "blockchain" },
               }),
-            }).catch(err => console.warn("[Sync] Failed to sync to Turso:", err));
+            })
+              .then(response => {
+                if (response.ok) {
+                  console.log("[Sync] Successfully synced to Turso");
+                } else {
+                  console.warn("[Sync] Turso sync failed with status:", response.status);
+                }
+              })
+              .catch(err => console.warn("[Sync] Failed to sync to Turso:", err));
           }
 
           console.log(`[Verification] Blockchain result: ${verified}`);

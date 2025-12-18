@@ -12,8 +12,9 @@ interface SelfQRCodeProps {
 
 export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
   const { address } = useAccount();
-  const { checkVerificationStatus } = useRPSContract();
+  const { isVerified, checkVerificationStatus, isLoading } = useRPSContract();
   const [selfApp, setSelfApp] = useState<any>(null);
+  const [verificationComplete, setVerificationComplete] = useState(false);
 
   useEffect(() => {
     if (!address) return;
@@ -37,8 +38,17 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
     setSelfApp(app);
   }, [address]);
 
+  // Check if user is already verified when component mounts
+  useEffect(() => {
+    if (isVerified) {
+      setVerificationComplete(true);
+      onSuccess(); // Trigger success callback if already verified
+    }
+  }, [isVerified, onSuccess]);
+
   const handleSuccess = async () => {
     console.log("Self Protocol verification completed, checking contract...");
+    setVerificationComplete(true); // Immediately hide QR code to prevent regeneration
 
     // Wait a moment for the transaction to be mined
     setTimeout(async () => {
@@ -58,7 +68,7 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
             console.error("Contract verification failed after retries");
             // Even if contract check fails, sync to Turso as backup
             try {
-              await fetch("/api/sync-verification", {
+              const syncResponse = await fetch("/api/sync-verification", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -67,11 +77,21 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
                   verificationData: { source: "self_protocol_success" },
                 }),
               });
-              console.log("Synced verification to Turso as fallback");
-              onSuccess(); // Proceed with success since Self Protocol confirmed it
+
+              if (syncResponse.ok) {
+                console.log("Synced verification to Turso as fallback");
+                onSuccess(); // Proceed with success since Self Protocol confirmed it
+              } else {
+                const errorData = await syncResponse.json();
+                console.error("Turso sync failed:", errorData);
+                // Still proceed with success since Self Protocol confirmed it
+                onSuccess();
+              }
             } catch (syncError) {
               console.error("Failed to sync to Turso:", syncError);
-              onError?.({ message: "Verification not confirmed on contract" });
+              // Still proceed with success since Self Protocol confirmed it
+              console.log("Proceeding with success despite sync failure - Self Protocol confirmed verification");
+              onSuccess();
             }
           }
         }, 5000);
@@ -79,6 +99,33 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
     }, 2000);
   };
 
+  // Show loading state while checking verification
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-white text-sm">Checking verification status...</div>
+      </div>
+    );
+  }
+
+  // Show verified state if user is already verified or verification just completed
+  if (isVerified || verificationComplete) {
+    return (
+      <div className="flex flex-col items-center space-y-4 p-8">
+        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div className="text-center">
+          <p className="text-green-400 text-lg font-bold">Identity Verified!</p>
+          <p className="text-gray-300 text-sm">You can now play RPS OnChain</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while selfApp is being created
   if (!selfApp) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -87,6 +134,7 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
     );
   }
 
+  // Show QR code for unverified users
   return (
     <div className="flex flex-col items-center space-y-4">
       <SelfQRcodeWrapper
