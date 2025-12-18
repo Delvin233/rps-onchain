@@ -79,6 +79,7 @@ export const useSelfProtocol = () => {
         disclosures: {
           minimumAge: 18,
           excludedCountries: [],
+          ofac: false, // Must match backend exactly
         },
       }).build();
 

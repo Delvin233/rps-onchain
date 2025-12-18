@@ -28,6 +28,7 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
       disclosures: {
         minimumAge: 18,
         excludedCountries: [],
+        ofac: false, // Must match backend exactly
       },
     }).build();
 

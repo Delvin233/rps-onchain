@@ -22,7 +22,7 @@ export default function HistoryPage() {
   const { syncToIPFS, isSyncing } = useIPFSSync();
   const [displayCount, setDisplayCount] = useState(50);
   const [showHint, setShowHint] = useState(true);
-  const [showAIMatches, setShowAIMatches] = useState(false);
+  const [showAIMatches, setShowAIMatches] = useState(true);
   const [matchTypeFilter, setMatchTypeFilter] = useState<"all" | "multiplayer" | "ai">("all");
 
   useEffect(() => {
@@ -234,7 +234,7 @@ export default function HistoryPage() {
       </h1>
 
       {/* Strategic Hint */}
-      {showHint && matches.length > 0 && (
+      {showHint && (matches.length > 0 || aiMatches.length > 0) && (
         <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-4 flex items-start gap-3">
           <FaLightbulb className="text-primary flex-shrink-0 mt-1" size={20} />
           <div className="flex-1">
@@ -293,7 +293,7 @@ export default function HistoryPage() {
           <span className="loading loading-spinner loading-lg text-primary"></span>
           <p className="text-base-content/60 mt-4">Loading match history...</p>
         </div>
-      ) : matches.length === 0 ? (
+      ) : matches.length === 0 && aiMatches.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-base-content/60 mb-4">No matches found</p>
           <Link href="/play" className="text-primary hover:text-primary/80">
@@ -323,6 +323,12 @@ export default function HistoryPage() {
                   timestamp: new Date(aiMatch.completedAt || aiMatch.startedAt).getTime(),
                 }));
                 allMatchesToShow = [...allMatchesToShow, ...formattedAIMatches];
+
+                // Add legacy AI matches when showAIMatches is enabled
+                if (showAIMatches && matchTypeFilter === "ai") {
+                  const legacyAIMatches = matches.filter(match => match.opponent === "AI");
+                  allMatchesToShow = [...allMatchesToShow, ...legacyAIMatches];
+                }
               }
 
               // Sort by timestamp (newest first)
@@ -576,7 +582,8 @@ export default function HistoryPage() {
               const multiplayerMatches = matches.filter(match => match.opponent !== "AI");
               totalMatches = (showAIMatches ? legacyAIMatches.length : 0) + multiplayerMatches.length;
             } else if (matchTypeFilter === "ai") {
-              totalMatches = aiMatches.length;
+              const legacyAIMatches = matches.filter(match => match.opponent === "AI");
+              totalMatches = aiMatches.length + (showAIMatches ? legacyAIMatches.length : 0);
             }
 
             return (
