@@ -70,7 +70,7 @@ export const useSelfProtocol = () => {
       const app = new SelfAppBuilder({
         version: 2,
         appName: "RPS OnChain",
-        scope: "rps-onchain",
+        scope: "rpsonchain",
         endpoint: `${window.location.origin}/api/verify`,
         logoBase64: `${window.location.origin}/logo.svg`,
         userId: address,

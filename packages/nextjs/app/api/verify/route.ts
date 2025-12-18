@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AllIds, DefaultConfigStore, SelfBackendVerifier } from "@selfxyz/core";
 import { initVerificationsTable, turso } from "~~/lib/turso";
 
-const SCOPE = "rps-onchain";
+const SCOPE = "rpsonchain";
 const ENDPOINT = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/verify`
   : "http://localhost:3000/api/verify";
