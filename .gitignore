@@ -42,6 +42,14 @@ artifacts
 deployments/localhost
 typechain-types
 
+# foundry/forge
+contracts/cache/
+contracts/out/
+contracts/lib/
+contracts/broadcast/
+contracts/docs/
+contracts/.env*
+
 # vscode
 .vscode
 

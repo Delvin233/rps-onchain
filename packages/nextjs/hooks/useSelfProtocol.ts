@@ -35,21 +35,11 @@ export const useSelfProtocol = () => {
     setIsVerified(false);
     setUserProof(null);
 
+    // For onchain verification, we'll check the contract state
+    // This will be implemented when we add contract interaction hooks
     if (address && mounted && typeof window !== "undefined") {
-      fetch(`/api/check-verification?address=${address}`, {
-        cache: "no-store", // Don't use browser cache
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.verified) {
-            setIsVerified(true);
-            setUserProof(data.proof);
-          }
-        })
-        .catch(err => console.error("Error checking verification:", err));
+      // TODO: Check contract state for verification status
+      // For now, we'll rely on the verification flow to update state
     }
   }, [address, mounted]);
 
@@ -71,32 +61,26 @@ export const useSelfProtocol = () => {
         version: 2,
         appName: "RPS OnChain",
         scope: "self-workshop",
-        endpoint: `${window.location.origin}/api/verify`,
+        endpoint: "0x3e5e80bc7de408f9d63963501179a50b251cbda3",
         logoBase64: `${window.location.origin}/logo.svg`,
         userId: address,
-        endpointType: "staging_https",
+        endpointType: "celo",
         userIdType: "hex",
         disclosures: {
           minimumAge: 18,
           excludedCountries: [],
-          ofac: false, // Must match backend exactly
+          ofac: false,
         },
       }).build();
 
       setSelfApp(app);
 
+      // For onchain verification, the contract will handle the verification
+      // We can listen for events or check contract state
       const interval = setInterval(async () => {
-        const res = await fetch(`/api/check-verification?address=${address}`);
-        const data = await res.json();
-
-        if (data.verified) {
-          setIsVerified(true);
-          setUserProof(data.proof);
-          setIsLoading(false);
-          clearInterval(interval);
-          if (pollTimeout) clearTimeout(pollTimeout);
-          window.location.reload();
-        }
+        // TODO: Check contract state for verification
+        // For now, we'll assume verification happens through the QR code flow
+        console.log("Checking verification status...");
       }, 3000);
       setPollInterval(interval);
 
@@ -112,7 +96,7 @@ export const useSelfProtocol = () => {
       setIsLoading(false);
       return { success: false, error };
     }
-  }, [address, mounted, pollTimeout]);
+  }, [address, mounted]);
 
   const disconnect = useCallback(() => {
     setIsVerified(false);

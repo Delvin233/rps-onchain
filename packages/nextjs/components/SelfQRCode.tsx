@@ -20,15 +20,15 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
       version: 2,
       appName: "RPS OnChain",
       scope: "self-workshop",
-      endpoint: `${window.location.origin}/api/verify`,
+      endpoint: "0x3e5e80bc7de408f9d63963501179a50b251cbda3",
       logoBase64: `${window.location.origin}/logo.svg`,
       userId: address,
-      endpointType: "staging_https",
+      endpointType: "celo",
       userIdType: "hex",
       disclosures: {
         minimumAge: 18,
         excludedCountries: [],
-        ofac: false, // Must match backend exactly
+        ofac: false,
       },
     }).build();
 
