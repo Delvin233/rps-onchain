@@ -46,11 +46,44 @@ export default function MultiplayerPage() {
   } = useDisplayName(roomInfo?.creator);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("clear") === "1") {
-      setRoomCode("");
-      window.history.replaceState({}, "", window.location.pathname);
-    }
+    // Add a small delay to ensure the page is fully loaded
+    const timer = setTimeout(() => {
+      try {
+        if (typeof window === "undefined") {
+          console.log("Window is undefined, skipping URL processing");
+          return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const joinRoomId = params.get("join");
+
+        console.log("URL params check:", {
+          fullUrl: window.location.href,
+          search: window.location.search,
+          joinRoomId,
+          joinRoomIdLength: joinRoomId?.length,
+          windowDefined: typeof window !== "undefined",
+        });
+
+        if (params.get("clear") === "1") {
+          console.log("Clearing room code");
+          setRoomCode("");
+          window.history.replaceState({}, "", window.location.pathname);
+        } else if (joinRoomId && joinRoomId.length === 6) {
+          // Auto-fill room code from shared link
+          console.log("Auto-filling room code:", joinRoomId.toUpperCase());
+          setRoomCode(joinRoomId.toUpperCase());
+          // Clean up URL to remove the join parameter
+          window.history.replaceState({}, "", window.location.pathname);
+        } else {
+          console.log("No valid join parameter found or wrong length");
+        }
+      } catch (error) {
+        console.error("Error processing URL parameters:", error);
+      }
+    }, 200); // Increased delay to ensure page is ready
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
