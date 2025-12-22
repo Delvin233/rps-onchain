@@ -14,7 +14,7 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const payload = await quickAuthClient.verifyJwt({
-      domain: new URL(process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz").hostname,
+      domain: new URL(process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz").hostname,
       token: farcasterToken,
     });
     isValidSignature = !!payload;

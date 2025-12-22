@@ -41,7 +41,7 @@ export function ShareButton({
 
   // Generate share content
   const getShareContent = () => {
-    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain-nextjs.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
 
     switch (type) {
       case "room-code":

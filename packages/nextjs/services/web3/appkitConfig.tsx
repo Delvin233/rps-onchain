@@ -45,7 +45,7 @@ const getWagmiConnectors = () => {
   connectors.push(
     coinbaseWallet({
       appName: "RPS-onChain",
-      appLogoUrl: "https://www.rpsonchain.xyz/rpsOnchainLogo.png",
+      appLogoUrl: "https://rpsonchain.xyz/rpsOnchainLogo.png",
     }),
   );
 

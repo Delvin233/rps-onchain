@@ -24,7 +24,7 @@ const OverlayProvider = dynamic(() =>
   import("~~/components/overlays/OverlayManager").then(mod => ({ default: mod.OverlayProvider })),
 );
 
-const appUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
+const appUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
 
 const baseMetadata = getMetadata({
   title: "RPS-onChain",

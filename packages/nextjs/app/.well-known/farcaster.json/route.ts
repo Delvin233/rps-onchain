@@ -11,7 +11,7 @@ export async function GET() {
       version: "1",
       name: "RPS-onChain",
       iconUrl: `${process.env.NEXT_PUBLIC_URL}/rpsOnchainFavicons/android-chrome-512x512.png`,
-      homeUrl: process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz",
+      homeUrl: process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz",
       splashImageUrl: `${process.env.NEXT_PUBLIC_URL}/images/splash.png`,
       splashBackgroundColor: "#0c0a09",
       webhookUrl: `${process.env.NEXT_PUBLIC_URL}/api/farcaster/webhook`,

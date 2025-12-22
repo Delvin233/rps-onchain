@@ -24,8 +24,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       const metadata = {
         name: "RPS-onChain",
         description: "Rock Paper Scissors on-chain game with AI single player mode and PVP mode",
-        url: window.location.origin,
-        icons: ["https://www.rpsonchain.xyz/rpsOnchainLogo.png"],
+        url: "https://rpsonchain.xyz", // Use consistent production URL for wallet authorization
+        icons: ["https://rpsonchain.xyz/rpsOnchainLogo.png"],
       };
 
       // Create the modal - following official AppKit + Wagmi docs pattern
