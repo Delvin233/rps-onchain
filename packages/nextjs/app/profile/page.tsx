@@ -25,6 +25,28 @@ export default function ProfilePage() {
   const { isHumanVerified } = useAuth();
   const { isMiniApp, isBaseApp, isMiniPay, isFarcaster } = usePlatformDetection();
 
+  // Auto-scroll to GoodDollar section if URL parameter is present
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("scroll") === "gooddollar") {
+      // Wait for component to render, then scroll
+      setTimeout(() => {
+        const goodDollarSection = document.querySelector('[data-section="gooddollar"]');
+        if (goodDollarSection) {
+          goodDollarSection.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          // Add a subtle highlight animation
+          goodDollarSection.classList.add("animate-pulse");
+          setTimeout(() => {
+            goodDollarSection.classList.remove("animate-pulse");
+          }, 2000);
+        }
+      }, 500);
+    }
+  }, []);
+
   useEffect(() => {
     if (!address && isMiniPay && typeof window !== "undefined") {
       const shown = sessionStorage.getItem("minipay_reconnect_toast");
@@ -280,7 +302,7 @@ export default function ProfilePage() {
       </div>
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
-      <div className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary">
+      <div data-section="gooddollar" className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary">
         <div className="flex items-center space-x-3 mb-4">
           <span style={{ fontSize: "calc(1.5rem * var(--font-size-override, 1))" }}>💚</span>
           <div>

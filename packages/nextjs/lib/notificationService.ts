@@ -71,11 +71,11 @@ export function generateGoodDollarReminder(userName?: string): NotificationData 
   ];
 
   const messages = [
-    "Your daily GoodDollar is ready to claim! 💰",
-    "Don't miss your daily GoodDollar reward! 🎁",
-    "Claim your free GoodDollar today! ⭐",
-    "Your daily crypto reward is waiting! 💎",
-    "Free GoodDollar available - claim now! 🚀",
+    "Your daily $GoodDollar is ready to claim!",
+    "Don't miss your daily $GoodDollar reward!",
+    "Claim your free $GoodDollar today!",
+    "Your daily crypto reward is waiting!",
+    "Free $GoodDollar available - claim now!",
   ];
 
   const greeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -86,8 +86,8 @@ export function generateGoodDollarReminder(userName?: string): NotificationData 
   return {
     title,
     body: message,
-    targetUrl: "https://www.rpsonchain.xyz/gooddollar",
-    actionUrl: "https://gooddollar.org/claim",
+    targetUrl: "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
+    actionUrl: "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
   };
 }
 
