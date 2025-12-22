@@ -807,6 +807,13 @@ export default function MultiplayerGamePage() {
             <ShareButton
               type="match-result"
               roomId={roomId}
+              matchId={
+                gameData && gameData.creatorMove && gameData.joinerMove
+                  ? `${gameData.creatorMove}_${gameData.joinerMove}`
+                  : selectedMove && opponentMove
+                    ? `${isCreator ? selectedMove : opponentMove}_${isCreator ? opponentMove : selectedMove}`
+                    : undefined
+              }
               data={{
                 winner:
                   result === "win"
@@ -825,6 +832,7 @@ export default function MultiplayerGamePage() {
               size="md"
               onShareComplete={destination => {
                 console.log(`Match result shared via ${destination}`);
+                // Track analytics if needed
               }}
             />
           </div>

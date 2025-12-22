@@ -78,10 +78,13 @@ export function ShareButton({
           ? `Just crushed ${data?.player2Name || "opponent"} with ${data?.player1Move} (${moveAbbr})!`
           : `Good game against ${data?.player2Name || "opponent"}!`;
 
+        const shareUrl = `${baseUrl}/share/match/${roomId}/${matchId}`;
+        console.log(`[ShareButton] Generated match result URL: ${shareUrl}`);
+
         return {
           title: "RPS Match Result",
           text: `${resultText}\nYour turn to challenge me!`,
-          url: `${baseUrl}/share/match/${roomId}/${matchId}`,
+          url: shareUrl,
         };
 
       case "room-history":
