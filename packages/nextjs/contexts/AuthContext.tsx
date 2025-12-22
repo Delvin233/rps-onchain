@@ -153,18 +153,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     address,
   ]);
 
-  // Check verification status
+  // Check verification status from contract
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    // Use the computed address from our priority logic
-    if (address && mounted) {
-      fetch(`/api/check-verification?address=${address}`)
-        .then(res => res.json())
-        .then(data => setIsHumanVerified(data.verified || false))
-        .catch(() => setIsHumanVerified(false));
+    // Import and use the contract hook dynamically to check verification
+    if (address && mounted && typeof window !== "undefined") {
+      // We can't use hooks conditionally, so we'll use a direct contract call
+      import("viem").then(({ createPublicClient, http, parseAbi }) => {
+        const client = createPublicClient({
+          chain: {
+            id: 42220, // Celo Mainnet
+            name: "Celo",
+            nativeCurrency: { name: "CELO", symbol: "CELO", decimals: 18 },
+            rpcUrls: {
+              default: { http: ["https://forno.celo.org"] },
+              public: { http: ["https://forno.celo.org"] },
+            },
+          },
+          transport: http(),
+        });
+
+        const abi = parseAbi(["function isUserVerified(address user) external view returns (bool)"]);
+
+        client
+          .readContract({
+            address: "0x3e5e80bc7de408f9d63963501179a50b251cbda3",
+            abi,
+            functionName: "isUserVerified",
+            args: [address as `0x${string}`],
+          })
+          .then((verified: unknown) => {
+            setIsHumanVerified(verified as boolean);
+          })
+          .catch(() => {
+            setIsHumanVerified(false);
+          });
+      });
     }
   }, [address, mounted]);
 

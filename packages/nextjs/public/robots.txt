@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Block access to admin areas and sensitive files
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /db-admin/
+Disallow: /.env*
+
+# Allow important pages
+Allow: /play
+Allow: /game
+Allow: /leaderboards
+Allow: /history
+Allow: /profile
+Allow: /rewards
+
+# Add your sitemap (will work automatically with your domain)
+Sitemap: /sitemap.xml
+
+# Optional: Crawl delay (in seconds) to be nice to your server
+Crawl-delay: 1

@@ -1,0 +1,12 @@
+{
+  "name": "rps-onchain-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for RPS OnChain Self Protocol integration",
+  "scripts": {
+    "install-deps": "forge install foundry-rs/forge-std --no-commit && forge install selfxyz/self --no-commit",
+    "build": "forge build",
+    "test": "forge test",
+    "deploy:sepolia": "forge script script/DeployRPSProofOfHuman.s.sol --rpc-url celo-sepolia --broadcast --verify",
+    "deploy:mainnet": "forge script script/DeployRPSProofOfHuman.s.sol --rpc-url celo-mainnet --broadcast --verify"
+  }
+}

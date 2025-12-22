@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRPSContract } from "./useRPSContract";
 import { useAccount } from "wagmi";
 
 // Preload Self Protocol library
@@ -14,12 +15,9 @@ const preloadSelfProtocol = () => {
 
 export const useSelfProtocol = () => {
   const { address } = useAccount();
-  const [isVerified, setIsVerified] = useState(false);
-  const [userProof, setUserProof] = useState<any>(null);
+  const { isVerified: contractVerified, verificationData, checkVerificationStatus } = useRPSContract();
   const [selfApp, setSelfApp] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
-  const [pollTimeout, setPollTimeout] = useState<NodeJS.Timeout | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -29,36 +27,6 @@ export const useSelfProtocol = () => {
       preloadSelfProtocol();
     }
   }, []);
-
-  useEffect(() => {
-    // Reset state when address changes
-    setIsVerified(false);
-    setUserProof(null);
-
-    if (address && mounted && typeof window !== "undefined") {
-      fetch(`/api/check-verification?address=${address}`, {
-        cache: "no-store", // Don't use browser cache
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.verified) {
-            setIsVerified(true);
-            setUserProof(data.proof);
-          }
-        })
-        .catch(err => console.error("Error checking verification:", err));
-    }
-  }, [address, mounted]);
-
-  useEffect(() => {
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-      if (pollTimeout) clearTimeout(pollTimeout);
-    };
-  }, [pollInterval, pollTimeout]);
 
   const verify = useCallback(async () => {
     if (!address || !mounted || typeof window === "undefined") return { success: false, error: "Not ready" };
@@ -70,62 +38,40 @@ export const useSelfProtocol = () => {
       const app = new SelfAppBuilder({
         version: 2,
         appName: "RPS OnChain",
-        scope: "rps-onchain",
-        endpoint: `${window.location.origin}/api/verify`,
+        scope: "self-workshop",
+        endpoint: "0x3e5e80bc7de408f9d63963501179a50b251cbda3",
         logoBase64: `${window.location.origin}/logo.svg`,
         userId: address,
-        endpointType: "https",
+        endpointType: "celo",
         userIdType: "hex",
         disclosures: {
           minimumAge: 18,
           excludedCountries: [],
-          ofac: false, // Must match backend exactly
+          ofac: false,
         },
       }).build();
 
       setSelfApp(app);
-
-      const interval = setInterval(async () => {
-        const res = await fetch(`/api/check-verification?address=${address}`);
-        const data = await res.json();
-
-        if (data.verified) {
-          setIsVerified(true);
-          setUserProof(data.proof);
-          setIsLoading(false);
-          clearInterval(interval);
-          if (pollTimeout) clearTimeout(pollTimeout);
-          window.location.reload();
-        }
-      }, 3000);
-      setPollInterval(interval);
-
-      const timeout = setTimeout(() => {
-        clearInterval(interval);
-        setIsLoading(false);
-      }, 120000);
-      setPollTimeout(timeout);
-
+      setIsLoading(false);
       return { success: true };
     } catch (error) {
       console.error("Verification error:", error);
       setIsLoading(false);
       return { success: false, error };
     }
-  }, [address, mounted, pollTimeout]);
+  }, [address, mounted]);
 
   const disconnect = useCallback(() => {
-    setIsVerified(false);
-    setUserProof(null);
     setSelfApp(null);
   }, []);
 
   return {
-    isVerified,
-    userProof,
+    isVerified: contractVerified,
+    userProof: verificationData,
     selfApp,
     isLoading,
     verify,
     disconnect,
+    checkVerificationStatus,
   };
 };
