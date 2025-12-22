@@ -16,6 +16,9 @@ Allow: /history
 Allow: /profile
 Allow: /rewards
 
+# Allow protocol files (for Farcaster, etc.)
+Allow: /.well-known/
+
 # Add your sitemap (will work automatically with your domain)
 Sitemap: /sitemap.xml
 
