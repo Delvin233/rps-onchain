@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redis } from "~~/lib/upstash";
 
-export async function GET(request: NextRequest, { params }: { params: { roomId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
   try {
     const { searchParams } = new URL(request.url);
     const matchId = searchParams.get("matchId");
-    const roomId = params.roomId;
+    const { roomId } = await params;
 
     if (!roomId) {
       return NextResponse.json({ error: "Room ID is required" }, { status: 400 });

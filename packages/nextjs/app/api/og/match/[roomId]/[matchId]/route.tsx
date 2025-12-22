@@ -3,9 +3,9 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export async function GET(request: NextRequest, { params }: { params: { roomId: string; matchId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ roomId: string; matchId: string }> }) {
   try {
-    const { roomId, matchId } = params;
+    const { roomId, matchId } = await params;
 
     // Fetch match data
     const baseUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
