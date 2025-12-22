@@ -41,14 +41,14 @@ export function ShareButton({
 
   // Generate share content
   const getShareContent = () => {
-    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain-nextjs.vercel.app";
 
     switch (type) {
       case "room-code":
         const winStreakText =
           data?.winStreak && data.winStreak > 1
-            ? `🔥 I'm on a ${data.winStreak}-game win streak!\nThink you can end it? `
-            : "💪 Think you can beat me at RPS?\n";
+            ? `I'm on a ${data.winStreak}-game win streak!\nThink you can end it? `
+            : "Think you can beat me at RPS?\n";
 
         return {
           title: "Join my RPS game!",
@@ -58,10 +58,10 @@ export function ShareButton({
 
       case "match-result":
         const isWin = data?.winner === data?.player1Name;
-        const moveEmoji = data?.player1Move === "rock" ? "👊" : data?.player1Move === "paper" ? "✋" : "✌️";
+        const moveAbbr = data?.player1Move === "rock" ? "R" : data?.player1Move === "paper" ? "P" : "S";
         const resultText = isWin
-          ? `🏆 Just crushed ${data?.player2Name || "opponent"} with ${data?.player1Move}! ${moveEmoji}`
-          : `😅 Good game against ${data?.player2Name || "opponent"}!`;
+          ? `Just crushed ${data?.player2Name || "opponent"} with ${data?.player1Move} (${moveAbbr})!`
+          : `Good game against ${data?.player2Name || "opponent"}!`;
 
         return {
           title: "RPS Match Result",
@@ -72,7 +72,7 @@ export function ShareButton({
       case "room-history":
         return {
           title: "Epic RPS Battle History",
-          text: `🔥 Epic ${data?.totalMatches || 0}-match battle!\nCheck out the full history:`,
+          text: `Epic ${data?.totalMatches || 0}-match battle!\nCheck out the full history:`,
           url: `${baseUrl}/share/room/${roomId}`,
         };
 
@@ -118,7 +118,7 @@ export function ShareButton({
     try {
       await navigator.share({
         title,
-        text: `${text}\n👉 ${url}`,
+        text: `${text}\n${url}`,
         url,
       });
       return true;
@@ -153,7 +153,7 @@ export function ShareButton({
 
       // Fallback to copy to clipboard
       if (!success) {
-        const fullText = `${text}\n👉 ${url}`;
+        const fullText = `${text}\n${url}`;
         success = await copyToClipboard(fullText);
         destination = "clipboard";
 

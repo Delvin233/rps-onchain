@@ -3,14 +3,14 @@ export type ShareType = "room-code" | "match-result" | "room-history";
 
 // Generate room code share text
 export function generateRoomCodeShare(roomId: string, data?: { winStreak?: number }): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain-nextjs.vercel.app";
 
   const winStreakText =
     data?.winStreak && data.winStreak > 1
-      ? `🔥 I'm on a ${data.winStreak}-game win streak!\nThink you can end it? `
-      : "💪 Think you can beat me at RPS?\n";
+      ? `I'm on a ${data.winStreak}-game win streak!\nThink you can end it? `
+      : "Think you can beat me at RPS?\n";
 
-  return `${winStreakText}Join room ${roomId} and prove it!\n👉 ${baseUrl}/play/multiplayer?join=${roomId}`;
+  return `${winStreakText}Join room ${roomId} and prove it!\n${baseUrl}/play/multiplayer?join=${roomId}`;
 }
 
 // Generate match result share text
@@ -23,15 +23,15 @@ export function generateMatchResultShare(data: {
   roomId: string;
   matchId?: string;
 }): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain-nextjs.vercel.app";
 
   const isWin = data.winner === data.player1Name;
-  const moveEmoji = data.player1Move === "rock" ? "👊" : data.player1Move === "paper" ? "✋" : "✌️";
+  const moveAbbr = data.player1Move === "rock" ? "R" : data.player1Move === "paper" ? "P" : "S";
   const resultText = isWin
-    ? `🏆 Just crushed ${data.player2Name || "opponent"} with ${data.player1Move}! ${moveEmoji}`
-    : `😅 Good game against ${data.player2Name || "opponent"}!`;
+    ? `Just crushed ${data.player2Name || "opponent"} with ${data.player1Move} (${moveAbbr})!`
+    : `Good game against ${data.player2Name || "opponent"}!`;
 
-  return `${resultText}\nYour turn to challenge me!\n👉 ${baseUrl}/share/match/${data.roomId}/${data.matchId}`;
+  return `${resultText}\nYour turn to challenge me!\n${baseUrl}/share/match/${data.roomId}/${data.matchId}`;
 }
 
 // Generate room history share text
@@ -39,17 +39,17 @@ export function generateRoomHistoryShare(
   roomId: string,
   data?: { totalMatches?: number; player1Name?: string; player2Name?: string },
 ): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain-nextjs.vercel.app";
 
   const matchText = data?.totalMatches ? `${data.totalMatches}-match` : "epic";
   const playersText = data?.player1Name && data?.player2Name ? `\n${data.player1Name} vs ${data.player2Name}` : "";
 
-  return `🔥 Epic ${matchText} battle!${playersText}\nCheck out the full history:\n👉 ${baseUrl}/share/room/${roomId}`;
+  return `Epic ${matchText} battle!${playersText}\nCheck out the full history:\n${baseUrl}/share/room/${roomId}`;
 }
 
 // Generate shareable URL
 export function generateShareUrl(type: ShareType, roomId: string, matchId?: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rps-onchain-nextjs.vercel.app";
 
   switch (type) {
     case "room-code":

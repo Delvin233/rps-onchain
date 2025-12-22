@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useChainId } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
+import { ShareButton } from "~~/components/ShareButton";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -647,7 +648,19 @@ export default function MultiplayerGamePage() {
         <h1 className="text-2xl font-bold mb-6">Waiting for Opponent...</h1>
         <div className="bg-card/50 border border-border rounded-xl p-6 text-center mb-4">
           <p className="text-lg font-mono mb-4">Room Code: {roomId}</p>
-          <p className="text-base-content/60">Share this code with your opponent</p>
+          <p className="text-base-content/60 mb-4">Share this code with your opponent</p>
+          <div className="flex justify-center">
+            <ShareButton
+              type="room-code"
+              roomId={roomId}
+              variant="primary"
+              size="md"
+              onShareComplete={destination => {
+                console.log(`Room shared via ${destination}`);
+                // Track analytics if needed
+              }}
+            />
+          </div>
         </div>
         <button onClick={cancelRoom} className="btn btn-error w-full">
           Cancel Room
@@ -787,6 +800,33 @@ export default function MultiplayerGamePage() {
                 Saving to history...
               </p>
             )}
+          </div>
+
+          {/* Share Result Button */}
+          <div className="mb-4 flex justify-center">
+            <ShareButton
+              type="match-result"
+              roomId={roomId}
+              data={{
+                winner:
+                  result === "win"
+                    ? address
+                    : result === "lose"
+                      ? isCreator
+                        ? joinerAddress
+                        : creatorAddress
+                      : undefined,
+                player1Move: selectedMove || undefined,
+                player2Move: opponentMove || undefined,
+                player1Name: myName,
+                player2Name: opponentName,
+              }}
+              variant="secondary"
+              size="md"
+              onShareComplete={destination => {
+                console.log(`Match result shared via ${destination}`);
+              }}
+            />
           </div>
 
           {isFreeMode && (
