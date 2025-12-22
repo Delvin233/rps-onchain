@@ -41,11 +41,21 @@ const getWagmiConnectors = () => {
     );
   }
 
-  // Coinbase Wallet
+  // Coinbase Wallet - use dynamic URL for logo
+  const getLogoUrl = () => {
+    if (typeof window !== "undefined") {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_URL ||
+        (window.location.hostname.includes("vercel.app") ? "https://rpsonchain.xyz" : window.location.origin);
+      return `${baseUrl}/rpsOnchainLogo.png`;
+    }
+    return "https://rpsonchain.xyz/rpsOnchainLogo.png"; // SSR fallback
+  };
+
   connectors.push(
     coinbaseWallet({
       appName: "RPS-onChain",
-      appLogoUrl: "https://rpsonchain.xyz/rpsOnchainLogo.png",
+      appLogoUrl: getLogoUrl(),
     }),
   );
 

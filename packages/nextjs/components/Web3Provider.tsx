@@ -20,12 +20,27 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined" && !appKitInitialized) {
       appKitInitialized = true;
 
-      // Set up metadata
+      // Set up metadata with smart URL detection
+      // For wallet authorization to work, we need a consistent URL
+      // Priority: NEXT_PUBLIC_URL env var > production domain > current origin (for local dev)
+      const getMetadataUrl = () => {
+        if (process.env.NEXT_PUBLIC_URL) {
+          return process.env.NEXT_PUBLIC_URL;
+        }
+        // Use production URL for Vercel preview deployments to maintain wallet authorization
+        if (window.location.hostname.includes("vercel.app")) {
+          return "https://rpsonchain.xyz";
+        }
+        // For local development, use current origin
+        return window.location.origin;
+      };
+
+      const metadataUrl = getMetadataUrl();
       const metadata = {
         name: "RPS-onChain",
         description: "Rock Paper Scissors on-chain game with AI single player mode and PVP mode",
-        url: "https://rpsonchain.xyz", // Use consistent production URL for wallet authorization
-        icons: ["https://rpsonchain.xyz/rpsOnchainLogo.png"],
+        url: metadataUrl,
+        icons: [`${metadataUrl}/rpsOnchainLogo.png`],
       };
 
       // Create the modal - following official AppKit + Wagmi docs pattern

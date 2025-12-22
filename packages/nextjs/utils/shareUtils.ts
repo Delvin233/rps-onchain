@@ -1,9 +1,24 @@
 // Share utilities
 export type ShareType = "room-code" | "match-result" | "room-history";
 
+// Smart URL detection helper
+function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_URL) {
+    return process.env.NEXT_PUBLIC_URL;
+  }
+  if (typeof window !== "undefined") {
+    // For Vercel previews, use production URL for sharing
+    if (window.location.hostname.includes("vercel.app")) {
+      return "https://rpsonchain.xyz";
+    }
+    return window.location.origin;
+  }
+  return "https://rpsonchain.xyz"; // SSR fallback
+}
+
 // Generate room code share text
 export function generateRoomCodeShare(roomId: string, data?: { winStreak?: number }): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
+  const baseUrl = getBaseUrl();
 
   const winStreakText =
     data?.winStreak && data.winStreak > 1
@@ -23,7 +38,7 @@ export function generateMatchResultShare(data: {
   roomId: string;
   matchId?: string;
 }): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
+  const baseUrl = getBaseUrl();
 
   const isWin = data.winner === data.player1Name;
   const moveAbbr = data.player1Move === "rock" ? "R" : data.player1Move === "paper" ? "P" : "S";
@@ -39,7 +54,7 @@ export function generateRoomHistoryShare(
   roomId: string,
   data?: { totalMatches?: number; player1Name?: string; player2Name?: string },
 ): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
+  const baseUrl = getBaseUrl();
 
   const matchText = data?.totalMatches ? `${data.totalMatches}-match` : "epic";
   const playersText = data?.player1Name && data?.player2Name ? `\n${data.player1Name} vs ${data.player2Name}` : "";
@@ -49,7 +64,7 @@ export function generateRoomHistoryShare(
 
 // Generate shareable URL
 export function generateShareUrl(type: ShareType, roomId: string, matchId?: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
+  const baseUrl = getBaseUrl();
 
   switch (type) {
     case "room-code":

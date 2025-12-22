@@ -41,7 +41,22 @@ export function ShareButton({
 
   // Generate share content
   const getShareContent = () => {
-    const baseUrl = process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz";
+    // Smart URL detection for sharing
+    const getBaseUrl = () => {
+      if (process.env.NEXT_PUBLIC_URL) {
+        return process.env.NEXT_PUBLIC_URL;
+      }
+      if (typeof window !== "undefined") {
+        // For Vercel previews, use production URL for sharing
+        if (window.location.hostname.includes("vercel.app")) {
+          return "https://rpsonchain.xyz";
+        }
+        return window.location.origin;
+      }
+      return "https://rpsonchain.xyz"; // SSR fallback
+    };
+
+    const baseUrl = getBaseUrl();
 
     switch (type) {
       case "room-code":
