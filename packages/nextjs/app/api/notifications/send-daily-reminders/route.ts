@@ -7,7 +7,7 @@ import {
 } from "~~/lib/notificationService";
 import { turso } from "~~/lib/turso";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     // Verify this is called by a cron job or authorized source
     const authHeader = req.headers.get("authorization");
