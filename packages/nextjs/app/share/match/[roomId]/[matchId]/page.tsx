@@ -2,8 +2,12 @@ import MatchShareClient from "./MatchShareClient";
 import { Metadata } from "next";
 
 // Generate metadata for social sharing
-export async function generateMetadata({ params }: { params: { roomId: string; matchId: string } }): Promise<Metadata> {
-  const { roomId, matchId } = params;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ roomId: string; matchId: string }>;
+}): Promise<Metadata> {
+  const { roomId, matchId } = await params;
 
   try {
     // Get base URL for API calls
@@ -83,6 +87,7 @@ export async function generateMetadata({ params }: { params: { roomId: string; m
   }
 }
 
-export default function MatchSharePage({ params }: { params: { roomId: string; matchId: string } }) {
-  return <MatchShareClient roomId={params.roomId} matchId={params.matchId} />;
+export default async function MatchSharePage({ params }: { params: Promise<{ roomId: string; matchId: string }> }) {
+  const { roomId, matchId } = await params;
+  return <MatchShareClient roomId={roomId} matchId={matchId} />;
 }
