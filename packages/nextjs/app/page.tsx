@@ -376,7 +376,7 @@ export default function Home() {
                 )}
                 <p className="text-lg md:text-xl font-semibold">
                   Hello, {displayName}
-                  {hasEns && (
+                  {hasEns && ensType !== "wallet" && (
                     <span
                       className={`text-xs ml-2 ${
                         ensType === "ens"
@@ -394,7 +394,7 @@ export default function Home() {
                           ? "BASENAME"
                           : ensType === "farcaster"
                             ? "FC"
-                            : "BASE"}
+                            : ensType?.toUpperCase()}
                     </span>
                   )}
                 </p>

@@ -54,6 +54,7 @@ export default function MultiplayerGamePage() {
 
   const toastShownRef = useRef(false);
   const leftToastShownRef = useRef(false);
+  const hasProcessedFinishedRef = useRef(false);
 
   const moves: Move[] = ["rock", "paper", "scissors"];
   const { writeContractAsync: publishMatchContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
@@ -134,14 +135,19 @@ export default function MultiplayerGamePage() {
     let interval: NodeJS.Timeout | null = null;
 
     const startPolling = () => {
-      if (interval) return;
+      if (interval || intervalRef.current || gameStatus === "finished") return;
       interval = setInterval(pollGameStatus, 1500);
+      intervalRef.current = interval;
     };
 
     const stopPolling = () => {
       if (interval) {
         clearInterval(interval);
         interval = null;
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
 
@@ -178,6 +184,16 @@ export default function MultiplayerGamePage() {
       toastShownRef.current = false;
     }
   }, [gameStatus, result, rematchRequested, opponentRequestedRematch]);
+
+  // Stop polling when game is finished to prevent unnecessary API calls
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (gameStatus === "finished" && intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [gameStatus]);
 
   const fetchRoomInfo = async () => {
     try {
@@ -259,7 +275,8 @@ export default function MultiplayerGamePage() {
       const data = await response.json();
       setGameStatus(data.status);
 
-      if (data.status === "finished") {
+      if (data.status === "finished" && !hasProcessedFinishedRef.current) {
+        hasProcessedFinishedRef.current = true;
         const isCreator = data.creator === address;
         setCreatorAddress(data.creator);
         setJoinerAddress(data.joiner);
@@ -273,7 +290,7 @@ export default function MultiplayerGamePage() {
         const opponentAddress = isCreator ? data.joiner : data.creator;
         const opponentResult = myResult === "win" ? "lose" : myResult === "lose" ? "win" : "tie";
 
-        // Stats are updated server-side in submit-move API
+        // Stats are updated server-side in submit-move API - refetch to get latest
         refetchStats();
 
         if (data.ipfsHash && !sessionStorage.getItem(`match_saved_${matchKey}`)) {

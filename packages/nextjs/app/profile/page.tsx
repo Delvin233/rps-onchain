@@ -253,7 +253,7 @@ export default function ProfilePage() {
             )}
             <p className="font-semibold" style={{ fontSize: "calc(1.125rem * var(--font-size-override, 1))" }}>
               {displayName}
-              {hasEns && (
+              {hasEns && ensType !== "wallet" && (
                 <span
                   className={`text-xs ml-2 ${
                     ensType === "ens"
@@ -271,7 +271,7 @@ export default function ProfilePage() {
                       ? "BASENAME"
                       : ensType === "farcaster"
                         ? "FC"
-                        : "BASE"}
+                        : ensType?.toUpperCase()}
                 </span>
               )}
             </p>

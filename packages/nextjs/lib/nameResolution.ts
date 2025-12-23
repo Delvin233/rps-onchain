@@ -183,6 +183,7 @@ export async function cacheFarcasterUser(
 
     await redis.setex(`resolvedName:${lowerAddress}`, NAME_CACHE_TTL, JSON.stringify(resolved));
   } catch (error) {
-    console.error("Error caching Farcaster user:", error);
+    // Only log as warning since caching is optional
+    console.warn("Caching unavailable (KV not configured):", error instanceof Error ? error.message : String(error));
   }
 }

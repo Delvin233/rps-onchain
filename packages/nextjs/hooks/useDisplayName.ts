@@ -27,6 +27,7 @@ export const useDisplayName = (address: string | undefined) => {
       const res = await fetch(`${getBaseUrl()}/api/resolve-name?address=${address}`);
       if (!res.ok) return null;
       const data = await res.json();
+      console.log(`[useDisplayName] API Response for ${address}:`, data);
       return data;
     },
     enabled: !!address,
@@ -48,17 +49,41 @@ export const useDisplayName = (address: string | undefined) => {
     pfpUrl = resolvedName.pfpUrl || null;
 
     // Debug logging
-    console.log(`[useDisplayName] Resolved name for ${address}:`, {
+    console.log(`[useDisplayName] Final values for ${address}:`, {
       displayName,
       source: resolvedName.source,
       ensType,
+      hasEns,
       resolvedName,
+    });
+
+    // Additional debugging for UI badge issues
+    console.log(`[useDisplayName] Badge check for ${address}:`, {
+      hasEns,
+      ensType,
+      shouldShowBadge: hasEns && ensType !== "wallet",
+      badgeText:
+        ensType === "ens"
+          ? "ENS"
+          : ensType === "basename"
+            ? "BASENAME"
+            : ensType === "farcaster"
+              ? "FC"
+              : ensType?.toUpperCase(),
     });
   } else {
     // Fallback to old logic if API fails
     displayName = mainnetEns || basename || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
     hasEns = !!(mainnetEns || basename);
     ensType = mainnetEns ? "ens" : basename ? "basename" : null;
+
+    console.log(`[useDisplayName] Fallback values for ${address}:`, {
+      displayName,
+      ensType,
+      hasEns,
+      mainnetEns,
+      basename,
+    });
   }
 
   return { displayName, hasEns, ensType, fullAddress: address, pfpUrl };

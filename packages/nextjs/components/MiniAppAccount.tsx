@@ -251,7 +251,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               >
                 {displayName}
               </span>
-              {ensType && (
+              {ensType && ensType !== "wallet" && (
                 <span
                   className={`text-xs flex-shrink-0 ${
                     ensType === "ens"
@@ -272,7 +272,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                       ? "BASENAME"
                       : ensType === "farcaster"
                         ? "FC"
-                        : "BASE"}
+                        : ensType.toUpperCase()}
                 </span>
               )}
             </p>

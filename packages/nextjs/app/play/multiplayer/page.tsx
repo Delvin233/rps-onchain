@@ -400,7 +400,7 @@ export default function MultiplayerPage() {
                       style={{ fontSize: "calc(0.875rem * var(--font-size-override, 1))" }}
                     >
                       Creator: {creatorName}
-                      {creatorHasEns && (
+                      {creatorHasEns && creatorEnsType !== "wallet" && (
                         <span
                           className={`ml-1 text-xs ${
                             creatorEnsType === "ens"
@@ -418,7 +418,7 @@ export default function MultiplayerPage() {
                               ? "BASENAME"
                               : creatorEnsType === "farcaster"
                                 ? "FC"
-                                : "BASE"}
+                                : creatorEnsType?.toUpperCase()}
                         </span>
                       )}
                     </p>
@@ -509,7 +509,7 @@ export default function MultiplayerPage() {
                   style={{ fontSize: "calc(1rem * var(--font-size-override, 1))" }}
                 >
                   {creatorName}
-                  {creatorHasEns && (
+                  {creatorHasEns && creatorEnsType !== "wallet" && (
                     <span
                       className={`ml-2 text-xs ${
                         creatorEnsType === "ens"
@@ -527,7 +527,7 @@ export default function MultiplayerPage() {
                           ? "BASENAME"
                           : creatorEnsType === "farcaster"
                             ? "FC"
-                            : "BASE"}
+                            : creatorEnsType?.toUpperCase()}
                     </span>
                   )}
                 </p>
