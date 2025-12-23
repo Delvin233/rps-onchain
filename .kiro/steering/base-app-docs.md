@@ -1,8 +1,8 @@
 # Base App Beta
 
-> Frequently asked questions about the Base  Wallet limited beta
+> Frequently asked questions about the Base Wallet limited beta
 
-Welcome to the Base app beta. Coinbase Wallet is now Base, an everything app to create, earn, trade, discover apps, and chat with friends all in one place.Here are answers to some frequently asked questions about the  beta! Thank you for building with us.
+Welcome to the Base app beta. Coinbase Wallet is now Base, an everything app to create, earn, trade, discover apps, and chat with friends all in one place.Here are answers to some frequently asked questions about the beta! Thank you for building with us.
 
 ## What is Base App
 
@@ -24,6 +24,7 @@ Join the waitlist at [base.app](http://www.base.app)
 
     1. [Transfer the basename between wallets](https://docs.base.org/identity/basenames/basenames-faq#10-how-do-i-transfer-my-basename-to-another-address).
     2. [Set the basename as the primary name on your new wallet.](https://docs.base.org/identity/basenames/basenames-faq#9-how-do-i-set-my-basename-as-my-primary-name-for-my-address)
+
   </Accordion>
 
   <Accordion title="Will my basename show up on Farcaster?">
@@ -68,6 +69,7 @@ Yes. The beta is smart wallet only
       You can return to your previous wallet by toggling beta mode off.
       Navigate to the Social tab (first icon), tap your profile pic, and toggle "beta mode" off.
     </Info>
+
   </Accordion>
 </AccordionGroup>
 
@@ -107,11 +109,9 @@ Yes. The beta is smart wallet only
   </Accordion>
 </AccordionGroup>
 
-
 ---
 
 > To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt
-
 
 # Migrate an Existing App
 
@@ -123,8 +123,8 @@ Yes. The beta is smart wallet only
 
 **Prerequisites**
 
-* You have an existing web app
-* You have a Base app account
+- You have an existing web app
+- You have a Base app account
 
 <Steps>
   <Step title="Add the MiniApp SDK">
@@ -141,6 +141,7 @@ Yes. The beta is smart wallet only
       yarn add @farcaster/miniapp-sdk
       ```
     </CodeGroup>
+
   </Step>
 
   <Step title="Trigger App Display">
@@ -176,6 +177,7 @@ Yes. The beta is smart wallet only
         ```
       </Tab>
     </Tabs>
+
   </Step>
 
   <Step title="Host the Manifest">
@@ -203,6 +205,7 @@ Yes. The beta is smart wallet only
         ```
       </Tab>
     </Tabs>
+
   </Step>
 
   <Step title="Update the Manifest">
@@ -248,6 +251,7 @@ Yes. The beta is smart wallet only
       }
     }
     ```
+
   </Step>
 
   <Step title="Create accountAssociation Credentials">
@@ -273,6 +277,7 @@ Yes. The beta is smart wallet only
     <Info>
       Note: Because you are signing with your Base Account, the `signature` field will be significantly longer than if you were to sign directly with your Farcaster custody wallet.
     </Info>
+
   </Step>
 
   <Step title="Add Embed Metadata">
@@ -325,6 +330,7 @@ Yes. The beta is smart wallet only
         ```
       </Tab>
     </Tabs>
+
   </Step>
 
   <Step title="Push to Production">
@@ -339,20 +345,20 @@ Yes. The beta is smart wallet only
     3. Use the "Metadata" to see the metadata added from the manifest and identify any missing fields.
 
     <video autoPlay muted loop playsInline src="https://mintcdn.com/base-a060aa97/hlNNNlUJtlshvXQM/videos/mini-apps/basebuildpreview.mp4?fit=max&auto=format&n=hlNNNlUJtlshvXQM&q=85&s=65a4cb8ce13c9940cba6aee73b8ececb" data-path="videos/mini-apps/basebuildpreview.mp4" />
+
   </Step>
 
   <Step title="Post to Publish">
     To publish your app, create a post in the Base app with your app's URL.
 
     <img src="https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=71a07b27f04a4df65f47fced5b2b76a5" alt="Posting an app to Base app" height="300" className="rounded-lg" data-og-width="1143" data-og-height="1380" data-path="images/minikit/publish-app-base.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?w=280&fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=aa2a25afd0e22fad807642a6753446fc 280w, https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?w=560&fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=187a5bdceb902dbfb0714088301bb58e 560w, https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?w=840&fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=8e731221f349c80283e57ee3fddd5827 840w, https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?w=1100&fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=fa5af302bc79f138a4989c91fb5f4c6b 1100w, https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?w=1650&fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=90bbb4dbaea6ce60b0fc145348888ded 1650w, https://mintcdn.com/base-a060aa97/t8Sjfqig2G4AU7Gh/images/minikit/publish-app-base.png?w=2500&fit=max&auto=format&n=t8Sjfqig2G4AU7Gh&q=85&s=66414a12494828300cad19fef435b18c 2500w" />
+
   </Step>
 </Steps>
-
 
 ---
 
 > To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt
-
 
 # Build Checklist
 
@@ -420,7 +426,6 @@ Follow best practices to improve user engagement and retention.
   <Card title="Build Viral Mini Apps" icon="users" href="/mini-apps/growth/build-viral-mini-apps" />
 </CardGroup>
 
-
 ---
 
 > To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt
@@ -438,6 +443,7 @@ The best apps are **simple, focused, and easy to understand.**
     * Why would someone **use it every day**?
 
     * Why and when would someone **share it with a friend**?
+
   </Step>
 
   <Step title="Audience fit">
@@ -458,6 +464,7 @@ The best apps are **simple, focused, and easy to understand.**
       * Collecting personal info (address, phone number, etc.)
 
       * Requiring upfront deposits or complex setup steps
+
   </Step>
 
   <Step title="Group chat focus">
@@ -479,7 +486,6 @@ When building mini apps for the Base app, follow the [Featured Guidelines](/mini
   <Card title="Notification Guidelines" icon="bell" href="/mini-apps/featured-guidelines/notification-guidelines" />
 </CardGroup>
 
-
 ---
 
 > To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt
@@ -497,6 +503,7 @@ The best apps are **simple, focused, and easy to understand.**
     * Why would someone **use it every day**?
 
     * Why and when would someone **share it with a friend**?
+
   </Step>
 
   <Step title="Audience fit">
@@ -517,6 +524,7 @@ The best apps are **simple, focused, and easy to understand.**
       * Collecting personal info (address, phone number, etc.)
 
       * Requiring upfront deposits or complex setup steps
+
   </Step>
 
   <Step title="Group chat focus">
@@ -538,7 +546,6 @@ When building mini apps for the Base app, follow the [Featured Guidelines](/mini
   <Card title="Notification Guidelines" icon="bell" href="/mini-apps/featured-guidelines/notification-guidelines" />
 </CardGroup>
 
-
 ---
 
 > To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt
@@ -556,6 +563,7 @@ The best apps are **simple, focused, and easy to understand.**
     * Why would someone **use it every day**?
 
     * Why and when would someone **share it with a friend**?
+
   </Step>
 
   <Step title="Audience fit">
@@ -576,6 +584,7 @@ The best apps are **simple, focused, and easy to understand.**
       * Collecting personal info (address, phone number, etc.)
 
       * Requiring upfront deposits or complex setup steps
+
   </Step>
 
   <Step title="Group chat focus">
@@ -597,8 +606,397 @@ When building mini apps for the Base app, follow the [Featured Guidelines](/mini
   <Card title="Notification Guidelines" icon="bell" href="/mini-apps/featured-guidelines/notification-guidelines" />
 </CardGroup>
 
-
 ---
 
 > To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt
 
+# Notifications Update
+
+> Regularly re-engage users by sending in-app notifications through the Base app
+
+<Tip>
+  If you are looking for a no code solution for notification we recommend using neynars notification service. See the [Neynar Notifications Guide](/mini-apps/technical-guides/neynar-notifications) for implementation details.
+</Tip>
+
+## Overview
+
+When a user enables notifications for your Mini App, the Base app generates a unique notification `token` and `url` which is sent to your server via webhook.
+
+This `token` grants your app permission to send in-app notifications to that specific user.
+
+To send a notification, make a `POST` request to the `url` with the user's notification `token` and your content.
+
+You will receive webhook events when users enable or disable notifications for your app. When disabled, the notification token becomes invalid and should no longer be used.
+
+## Client App Behavior
+
+Different client apps handle webhook responses differently:
+
+**Farcaster app**: Activates notification tokens immediately without waiting for a webhook success response.
+
+**Base app**: Waits for a successful webhook response before activating tokens.
+
+<Note>
+  If your webhook processes token saving and sends notifications synchronously before returning a response, tokens may work on Farcaster but fail to activate on Base app.
+</Note>
+
+<Panel>
+    <img src="https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=52a08c64b48c40d8118d2b32ee4ba3c9" alt="notification-image-iphone" data-og-width="1163" width="1163" data-og-height="1033" height="1033" data-path="images/minikit/notifications-sample.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?w=280&fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=ae7423c118e5bfd030cdb408071b4b1e 280w, https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?w=560&fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=3b44caa21f6d2cb86f73656dd692b605 560w, https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?w=840&fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=3e85b240831799970c2d8ae0787caa85 840w, https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?w=1100&fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=482f0c7cb3b1db12148758847866675a 1100w, https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?w=1650&fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=cbc409fe7a7e7f7bc0f66e812c831fa6 1650w, https://mintcdn.com/base-a060aa97/uEmvHrTbmfeJo9n_/images/minikit/notifications-sample.png?w=2500&fit=max&auto=format&n=uEmvHrTbmfeJo9n_&q=85&s=69be36e300385ba91f13d8b9ca15270f 2500w" />
+
+  <Info>
+    Notification tokens are unique to each client app. This means a user can have separate notification preferences for your Mini App across different clients (e.g., Farcaster, the Base app). Removing your Mini App in one client does not affect its status in other clients.
+  </Info>
+</Panel>
+
+## Implementation
+
+<Steps>
+  <Step title="Install @farcaster/miniapp-node">
+    Install the `@farcaster/miniapp-node` package in your project:
+
+    ```bash  theme={null}
+      npm install @farcaster/miniapp-node
+    ```
+
+    Get a free API key from [neynar](https://dev.neynar.com/) and set `NEYNAR_API_KEY` in your environment variables.
+
+  </Step>
+
+  <Step title="Create a webhook server">
+    Create a webhook server to handle webhook events.
+
+    <Info>
+      Use `parseWebhookEvent` with `verifyAppKeyWithNeynar` to verify the client signature and authenticate events signed by the app key.
+
+      The `data` object returned by `parseWebhookEvent` contains three key fields:
+
+      * **`fid`**: The user's FID
+      * **`appFid`**: The client's FID (the Base app is 309857)
+      * **`event`**: The event payload with type and notification details
+
+      Always use both `fid` and `appFid` together to identify a unique user-client combination.
+    </Info>
+
+    ```ts app/api/webhook/route.ts expandable highlight={20-50} theme={null}
+
+    import {
+      parseWebhookEvent,
+      verifyAppKeyWithNeynar,
+    } from "@farcaster/miniapp-node";
+
+    export async function POST(request: NextRequest) {
+      const requestJson = await request.json();
+
+      // Parse and verify the webhook event
+      let data;
+      try {
+        data = await parseWebhookEvent(requestJson, verifyAppKeyWithNeynar);
+        // Events are signed by the app key of a user with a JSON Farcaster Signature.
+      } catch (e: unknown) {
+        // Handle verification errors (invalid data, invalid app key, etc.)
+        // Return appropriate error responses with status codes 400, 401, or 500
+      }
+
+
+      // Extract webhook data
+
+      const fid = data.fid;
+      const appFid = data.appFid; // The FID of the client app that the user added the Mini App to
+      const event = data.event;
+
+    // Handle different event types
+
+    try {
+      switch (event.event) {
+        case "miniapp_added":
+          if (event.notificationDetails) {
+           setUserNotificationDetails(fid, appFid, event.notificationDetails);
+           sendMiniAppNotification(fid, appFid, "Welcome to Base Mini Apps", "Mini app is now added to your client");
+              fid,
+              appFid,
+              title: "Welcome to Base Mini Apps",
+              body: "Mini app is now added to your client",
+            });
+          }
+          break;
+
+        case "miniapp_removed":
+         // Delete notification details
+          await deleteUserNotificationDetails(fid, appFid);
+          break;
+
+        case "notifications_enabled":
+          // Save new notification details and send confirmation
+           setUserNotificationDetails(fid, appFid, event.notificationDetails);
+           sendMiniAppNotification({
+            fid,
+            appFid,
+            title: "Ding ding ding",
+            body: "Notifications are now enabled",
+          });
+          break;
+
+        case "notifications_disabled":
+             // Delete notification details
+          await deleteUserNotificationDetails(fid, appFid);
+          break;
+      }
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+    }
+
+        return response;
+
+    ```
+
+  </Step>
+
+  <Step title="Add the Webhook URL to your manifest">
+    Add the Webhook URL to your manifest file
+
+    ```json app/.well-known/farcaster.json highlight={16} theme={null}
+    {
+      "accountAssociation": {
+        "header": "eyJmaWQiOjU0NDgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2MWQwMEFENzYwNjhGOEQ0NzQwYzM1OEM4QzAzYUFFYjUxMGI1OTBEIn0",
+        "payload": "eyJkb21haW4iOiJleGFtcGxlLmNvbSJ9",
+        "signature": "MHg3NmRkOWVlMjE4OGEyMjliNzExZjUzOTkxYTc1NmEzMGZjNTA3NmE5OTU5OWJmOWFmYjYyMzAyZWQxMWQ2MWFmNTExYzlhYWVjNjQ3OWMzODcyMTI5MzA2YmJhYjdhMTE0MmRhMjA4MmNjNTM5MTJiY2MyMDRhMWFjZTY2NjE5OTFj"
+      },
+      "miniapp": {
+        "version": "1",
+        "name": "Example App",
+        "iconUrl": "https://example.com/icon.png",
+        "homeUrl": "https://example.com",
+        "imageUrl": "https://example.com/image.png",
+        "buttonTitle": "Check this out",
+        "splashImageUrl": "https://example.com/splash.png",
+        "splashBackgroundColor": "#eeccff",
+        "webhookUrl": "https://example.com/api/webhook"
+      }
+    }
+
+    ```
+
+  </Step>
+
+  <Step title="Prompt users to add your Mini App">
+    Use the `addMiniApp()` hook to prompt users to add your Mini App
+
+    <Warning>
+      **Important: Webhook Response Timing**
+      Webhooks must respond within 10 seconds to avoid timeouts from the Base app. If you encounter a "Failed to add mini app" error, your webhook may be taking too long to respond.
+    </Warning>
+
+    ```tsx page.tsx highlight={11, 25-27} theme={null}
+    "use client";
+
+    import { sdk } from "@farcaster/miniapp-sdk";
+    import { useCallback, useState } from "react";
+
+    export default function AddMiniApp() {
+      const [result, setResult] = useState("");
+
+      const handleAddMiniApp = useCallback(async () => {
+        try {
+          const response = await sdk.actions.addMiniApp();
+
+          if (response.notificationDetails) {
+            setResult("Mini App added with notifications enabled!");
+          } else {
+            setResult("Mini App added without notifications");
+          }
+        } catch (error) {
+          setResult(`Error: ${error}`);
+        }
+      }, []);
+
+      return (
+        <div>
+          <button onClick={handleAddMiniApp}>
+            Add Mini App
+          </button>
+          {result && <p>{result}</p>}
+        </div>
+      );
+    }
+    ```
+
+  </Step>
+
+  <Step title="Save the token and URL from the webhook event">
+    The `token` and `url` need to be securely saved to a database so they can be looked up when you want to send a notification to a particular user.
+
+    ```json miniapp_added_payload.json highlight={4-5} theme={null}
+    {
+      "event": "notifications_enabled",
+      "notificationDetails": {
+        "url": "https://api.farcaster.xyz/v1/frame-notifications",
+        "token": "a05059ef2415c67b08ecceb539201cbc6"
+      }
+    }
+    ```
+
+  </Step>
+
+  <Step title="Send notifications">
+    Send notifications by sending a `POST` request to the `url` associated with the user's `token`
+
+    ```ts sendNotification.ts highlight={15-28} theme={null}
+    export async function sendMiniAppNotification({
+      fid,
+      appFid,
+      title,
+      body,
+    }: {
+      fid: number;
+      appFid: number;
+      title: string;
+      body: string;
+    }): Promise<sendMiniAppNotificationResult> {
+      const notificationDetails = await getUserNotificationDetails(fid, appFid);
+      if (!notificationDetails) {
+        return { state: "no_token" };
+      }
+
+      const response = await fetch(notificationDetails.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          notificationId: crypto.randomUUID(),
+          title,
+          body,
+          targetUrl: appUrl,
+          tokens: [notificationDetails.token],
+        } satisfies SendNotificationRequest),
+      });
+
+      const responseJson = await response.json();
+
+      if (response.status === 200) {
+        const responseBody = sendNotificationResponseSchema.safeParse(responseJson);
+        if (responseBody.success === false) {
+          // Malformed response
+          return { state: "error", error: responseBody.error.errors };
+        }
+
+        if (responseBody.data.result.rateLimitedTokens.length) {
+          // Rate limited
+          return { state: "rate_limit" };
+        }
+
+        return { state: "success" };
+      } else {
+        // Error response
+        return { state: "error", error: responseJson };
+      }
+    }
+    ```
+
+  </Step>
+</Steps>
+
+## Schema
+
+### Send Notification Request Schema
+
+<Card>
+  <ParamField path="notificationId" type="string" required>
+    Identifier that is combined with the FID to form an idempotency key. When the user opens the Mini App from the notification this ID will be included in the context object. **Maximum length of 128 characters.**
+  </ParamField>
+
+  <ParamField path="title" type="string" required>
+    Title of the notification. **Max length 32 characters.**
+  </ParamField>
+
+  <ParamField path="body" type="string" required>
+    Body of the notification. **Max length 128 characters.**
+  </ParamField>
+
+  <ParamField path="targetUrl" type="string" required>
+    URL to open when the user clicks the notification. **Max length 1024 characters.**
+    <Note>Must be on the same domain as the Mini App.</Note>
+  </ParamField>
+
+  <ParamField path="tokens" type="string[]" required>
+    Array of notification tokens to send to. **Max 100 tokens.**
+  </ParamField>
+</Card>
+
+### Send Notification Response Schema
+
+<Card>
+  <ParamField path="successfulTokens" type="string[]" required>
+    Tokens for which the notification succeeded.
+  </ParamField>
+
+  <ParamField path="invalidTokens" type="string[]" required>
+    Tokens which are no longer valid and should never be used again. This could happen if the user disabled notifications but for some reason the Mini App server has no record of it.
+  </ParamField>
+
+  <ParamField path="rateLimitedTokens" type="string[]" required>
+    Tokens for which the rate limit was exceeded. The Mini App server can try later.
+  </ParamField>
+</Card>
+
+## Events
+
+Mini App events use the following object structure:
+
+- **`type`**: notification event type
+- **`notificationDetails.url`**: URL that the app should call to send a notification.
+- **`notificationDetails.token`**: A secret token generated by the Base app and shared with the Notification Server. A token is unique for each (Farcaster Client, Mini App, user Fid) tuple.
+
+<Note>If users are not seeing the option to enable notifications when they call `addMiniApp()`, verify that your manifest file contains a valid `webhookUrl`.</Note>
+
+### `miniapp_added`
+
+Sent when the user adds the Mini App to their Farcaster client (whether or not it was triggered by an `addMiniApp()` prompt).
+
+```json miniapp_added_payload.json theme={null}
+{
+  "event": "miniapp_added",
+  "notificationDetails": {
+    "url": "https://api.farcaster.xyz/v1/frame-notifications",
+    "token": "a05059ef2415c67b08ecceb539201cbc6"
+  }
+}
+```
+
+### `miniapp_removed`
+
+Sent when a user removes the Mini App, which means that any notification tokens for that FID and client app (based on signer requester) should be considered invalid:
+
+```json miniapp_removed_payload theme={null}
+{
+  "event": "miniapp_removed"
+}
+```
+
+### `notifications_enabled`
+
+Sent when a user enables notifications (e.g. after disabling them). The payload includes a new `token` and `url`:
+
+```json notifications_enabled_payload theme={null}
+{
+  "event": "notifications_enabled",
+  "notificationDetails": {
+    "url": "https://api.farcaster.xyz/v1/frame-notifications",
+    "token": "a05059ef2415c67b08ecceb539201cbc6"
+  }
+}
+```
+
+### `notifications_disabled`
+
+Sent when a user disables notifications from, e.g., a settings panel in the client app. Any notification tokens for that FID and client app (based on signer requester) should be considered invalid:
+
+```json notifications_disabled_json theme={null}
+{
+  "event": "notifications_disabled"
+}
+```
+
+---
+
+> To find navigation and other pages in this documentation, fetch the llms.txt file at: https://docs.base.org/llms.txt

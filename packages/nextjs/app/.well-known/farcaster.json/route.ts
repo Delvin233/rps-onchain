@@ -14,7 +14,8 @@ export async function GET() {
       homeUrl: process.env.NEXT_PUBLIC_URL || "https://rpsonchain.xyz",
       splashImageUrl: `${process.env.NEXT_PUBLIC_URL}/images/splash.png`,
       splashBackgroundColor: "#0c0a09",
-      webhookUrl: `${process.env.NEXT_PUBLIC_URL}/api/farcaster/webhook`,
+      // Using Neynar's managed webhook for notifications
+      webhookUrl: "https://api.neynar.com/f/app/fcd16a47-60e7-472b-b9bd-617e31f0f7e9/event",
       subtitle: "Free Rock Paper Scissors",
       description:
         "Free-to-play Rock Paper Scissors game with AI and multiplayer modes. Multi-chain support on Celo and Base.",

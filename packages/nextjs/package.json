@@ -30,6 +30,8 @@
     "@goodsdks/citizen-sdk": "^1.2.2",
     "@heroicons/react": "~2.1.5",
     "@libsql/client": "^0.15.15",
+    "@neynar/nodejs-sdk": "^3.112.0",
+    "@neynar/react": "^1.2.22",
     "@reown/appkit": "^1.8.14",
     "@reown/appkit-adapter-wagmi": "^1.8.14",
     "@selfxyz/core": "latest",

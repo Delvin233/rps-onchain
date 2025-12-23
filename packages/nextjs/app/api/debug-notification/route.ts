@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendFarcasterNotification } from "~~/lib/notificationService";
+import { sendFarcasterNotificationToUser } from "~~/lib/notificationService";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -27,13 +27,13 @@ export async function GET(request: NextRequest) {
 
     const prefs = await prefsResponse.json();
 
-    if (!prefs.notificationToken) {
+    if (!prefs.enableDailyReminders) {
       return NextResponse.json(
         {
-          error: "No notification token found",
+          error: "User has not enabled notifications",
           fid: parseInt(fid),
           prefs,
-          suggestion: "User needs to enable notifications in Farcaster app (⋯ → Turn on notifications)",
+          suggestion: "User needs to add the miniapp and enable notifications in Farcaster app",
         },
         { status: 400 },
       );
@@ -50,17 +50,16 @@ export async function GET(request: NextRequest) {
     console.log(`[Debug] Sending test notification to FID ${fid}:`, notification);
     console.log(`[Debug] User preferences:`, prefs);
 
-    // Send the notification
-    const success = await sendFarcasterNotification(parseInt(fid), notification, prefs.notificationToken);
+    // Send the notification using Neynar (no token needed - managed by Neynar)
+    const success = await sendFarcasterNotificationToUser(parseInt(fid), notification);
 
     return NextResponse.json({
       success,
       fid: parseInt(fid),
       notification,
       userPrefs: {
-        hasToken: !!prefs.notificationToken,
-        tokenPreview: prefs.notificationToken?.substring(0, 8) + "...",
         enabledReminders: prefs.enableDailyReminders,
+        neynarManaged: true,
       },
       message: success
         ? "Test notification sent successfully! Check your phone's notification tray."

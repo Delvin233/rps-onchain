@@ -1,61 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendFarcasterNotificationToUser } from "~~/lib/notificationService";
 
-/**
- * Test endpoint to debug Neynar API response
- * GET /api/test-neynar?address=0x...
- */
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const address = searchParams.get("address");
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const fid = searchParams.get("fid");
 
-  if (!address) {
-    return NextResponse.json({ error: "Address required" }, { status: 400 });
-  }
-
-  const apiKey = process.env.NEYNAR_API_KEY;
-
-  if (!apiKey) {
-    return NextResponse.json({ error: "NEYNAR_API_KEY not configured" }, { status: 500 });
+  if (!fid) {
+    return NextResponse.json(
+      {
+        error: "Missing fid parameter",
+        usage: "GET /api/test-neynar?fid=YOUR_FID",
+      },
+      { status: 400 },
+    );
   }
 
   try {
-    const lowerAddress = address.toLowerCase();
-    const url = `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${lowerAddress}`;
-    console.log("[Test Neynar] Fetching:", url);
+    const fidNumber = parseInt(fid);
 
-    const response = await fetch(url, {
-      headers: {
-        accept: "application/json",
-        api_key: apiKey,
-      },
-    });
+    if (isNaN(fidNumber)) {
+      return NextResponse.json({ error: "Invalid FID" }, { status: 400 });
+    }
 
-    console.log("[Test Neynar] Status:", response.status);
+    const notification = {
+      title: "🎉 Neynar Integration Test",
+      body: "Your RPS-onChain app is now using Neynar for notifications!",
+      targetUrl: "https://www.rpsonchain.xyz/profile",
+    };
 
-    const data = await response.json();
-    console.log("[Test Neynar] Response:", JSON.stringify(data, null, 2));
-
-    // Try both lowercase and original address
-    const users = data[lowerAddress] || data[address];
+    const success = await sendFarcasterNotificationToUser(fidNumber, notification);
 
     return NextResponse.json({
-      success: response.ok,
-      status: response.status,
-      data,
-      parsed: {
-        hasData: !!data,
-        hasLowerAddress: !!data[lowerAddress],
-        hasOriginalAddress: !!data[address],
-        addressData: users,
-        username: users?.[0]?.username,
-        allKeys: Object.keys(data),
-      },
+      success,
+      message: success ? "Neynar notification sent successfully!" : "Failed to send notification via Neynar",
+      notification,
+      neynarIntegration: true,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("[Test Neynar] Error:", error);
+    console.error("[Neynar Test] Error:", error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "Failed to send test notification",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     );

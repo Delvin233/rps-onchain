@@ -6,6 +6,7 @@ import { BaseAppReady } from "~~/components/BaseAppReady";
 import { ErrorBoundary } from "~~/components/ErrorBoundary";
 import { HideLoader } from "~~/components/HideLoader";
 import { MatchSyncProvider } from "~~/components/MatchSyncProvider";
+import { NeynarMiniAppProvider } from "~~/components/NeynarMiniAppProvider";
 import { PreferencesSync } from "~~/components/PreferencesSync";
 import { ResponsiveLayout } from "~~/components/ResponsiveLayout";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
@@ -296,16 +297,18 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
           <CRTEffect />
           <ThemeProvider enableSystem>
             <ScaffoldEthAppWithProviders cookies={cookies}>
-              <FarcasterProvider>
-                <AuthProvider>
-                  <PreferencesSync />
-                  <MatchSyncProvider>
-                    <OverlayProvider>
-                      <ResponsiveLayout>{children}</ResponsiveLayout>
-                    </OverlayProvider>
-                  </MatchSyncProvider>
-                </AuthProvider>
-              </FarcasterProvider>
+              <NeynarMiniAppProvider>
+                <FarcasterProvider>
+                  <AuthProvider>
+                    <PreferencesSync />
+                    <MatchSyncProvider>
+                      <OverlayProvider>
+                        <ResponsiveLayout>{children}</ResponsiveLayout>
+                      </OverlayProvider>
+                    </MatchSyncProvider>
+                  </AuthProvider>
+                </FarcasterProvider>
+              </NeynarMiniAppProvider>
             </ScaffoldEthAppWithProviders>
           </ThemeProvider>
         </ErrorBoundary>

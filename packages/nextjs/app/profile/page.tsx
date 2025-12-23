@@ -7,6 +7,7 @@ import { Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
+import { AddMiniAppPrompt } from "~~/components/AddMiniAppPrompt";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { useAuth } from "~~/contexts/AuthContext";
@@ -300,6 +301,22 @@ export default function ProfilePage() {
           </button>
         )}
       </div>
+
+      {/* Add Mini App Prompt - Only show in Farcaster clients */}
+      {(isFarcaster || isBaseApp || isMiniApp) && (
+        <div className="mb-4">
+          <AddMiniAppPrompt
+            onSuccess={() => {
+              toast.success("🎉 Mini App added! You'll now receive notifications.");
+            }}
+            onError={error => {
+              if (!error.includes("RejectedByUser")) {
+                toast.error(`Failed to add Mini App: ${error}`);
+              }
+            }}
+          />
+        </div>
+      )}
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
       <div data-section="gooddollar" className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary">

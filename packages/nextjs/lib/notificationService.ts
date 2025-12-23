@@ -1,5 +1,5 @@
 /**
- * Notification service for Farcaster miniapp push notifications
+ * Notification service for Farcaster miniapp push notifications using Neynar
  */
 
 export interface NotificationData {
@@ -16,63 +16,77 @@ export interface UserNotificationPrefs {
   reminderTime: string; // HH:MM format, e.g., "09:00"
   timezone: string; // e.g., "America/New_York"
   lastClaimDate?: string; // YYYY-MM-DD format
-  notificationToken?: string; // From Farcaster client
+  notificationToken?: string; // From Farcaster client (managed by Neynar)
 }
 
 /**
- * Send notification to Farcaster user
- * Based on Farcaster miniapp SDK documentation
+ * Send notification to Farcaster users using Neynar's API
+ * Based on Neynar notification documentation
  */
 export async function sendFarcasterNotification(
-  fid: number,
+  fids: number[], // Support multiple FIDs for batch sending
   notification: NotificationData,
-  notificationToken?: string,
 ): Promise<boolean> {
   try {
-    console.log(`[Notification] Attempting to send to FID ${fid}:`, notification);
-    console.log(`[Notification] Using token: ${notificationToken?.substring(0, 8)}...`);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[Neynar Notification] Attempting to send to FIDs:`, fids);
+      console.log(`[Neynar Notification] Notification:`, notification);
+    }
 
-    if (!notificationToken) {
-      console.log(`[Notification] No notification token for FID ${fid} - cannot send notification`);
+    if (!process.env.NEYNAR_API_KEY) {
+      console.error(`[Neynar Notification] NEYNAR_API_KEY not found in environment variables`);
       return false;
     }
 
     const requestBody = {
-      notificationId: `daily-reminder-${fid}-${Date.now()}`,
-      title: notification.title,
-      body: notification.body,
-      targetUrl: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
-      tokens: [notificationToken], // Required: array of notification tokens
+      target_fids: fids, // Array of FIDs to send to
+      notification: {
+        title: notification.title,
+        body: notification.body,
+        target_url: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
+      },
     };
 
-    console.log(`[Notification] Request body:`, requestBody);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[Neynar Notification] Request body:`, requestBody);
+    }
 
-    // Use Farcaster's notification API as documented in the SDK
-    const response = await fetch("https://api.farcaster.xyz/v1/frame-notifications", {
+    // Use Neynar's notification API
+    const response = await fetch("https://api.neynar.com/v2/farcaster/frame/notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Note: Token is passed in the body 'tokens' array, not Authorization header
+        api_key: process.env.NEYNAR_API_KEY,
       },
       body: JSON.stringify(requestBody),
     });
 
-    console.log(`[Notification] Response status: ${response.status} ${response.statusText}`);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[Neynar Notification] Response status: ${response.status} ${response.statusText}`);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[Notification] Failed to send to FID ${fid}: ${response.status} - ${errorText}`);
-      console.error(`[Notification] Response headers:`, Object.fromEntries(response.headers.entries()));
+      console.error(`[Neynar Notification] Failed to send: ${response.status} - ${errorText}`);
       return false;
     }
 
     const result = await response.json();
-    console.log(`[Notification] Successfully sent to FID ${fid}:`, result);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[Neynar Notification] Successfully sent:`, result);
+    }
     return true;
   } catch (error) {
-    console.error(`[Notification] Failed to send to FID ${fid}:`, error);
+    console.error(`[Neynar Notification] Failed to send:`, error);
     return false;
   }
+}
+
+/**
+ * Send notification to single user (wrapper for backward compatibility)
+ */
+export async function sendFarcasterNotificationToUser(fid: number, notification: NotificationData): Promise<boolean> {
+  return sendFarcasterNotification([fid], notification);
 }
 
 /**
@@ -110,11 +124,11 @@ export function generateGoodDollarReminder(userName?: string): NotificationData 
 
 /**
  * Check if user should receive daily reminder
- * Simplified version - if user has notification token, they want notifications
+ * With Neynar, we only check if user has enabled reminders and timing
  */
 export function shouldSendDailyReminder(prefs: UserNotificationPrefs): boolean {
-  // If no notification token, user hasn't enabled notifications in Farcaster
-  if (!prefs.notificationToken) return false;
+  // If user hasn't enabled daily reminders, don't send
+  if (!prefs.enableDailyReminders) return false;
 
   const now = new Date();
   const today = now.toISOString().split("T")[0]; // YYYY-MM-DD

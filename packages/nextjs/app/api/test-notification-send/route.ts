@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateGoodDollarReminder, sendFarcasterNotification } from "~~/lib/notificationService";
+import { generateGoodDollarReminder, sendFarcasterNotificationToUser } from "~~/lib/notificationService";
 import { turso } from "~~/lib/turso";
 
 export async function GET(req: NextRequest) {
@@ -24,11 +24,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log(`[Test Notification] Testing notification for FID ${fidNumber}`);
+    console.log(`[Test Notification] Testing notification for FID ${fidNumber} using Neynar`);
 
-    // Get user's notification token from database
+    // Check if user has enabled daily reminders (Neynar manages tokens automatically)
     const result = await turso.execute({
-      sql: "SELECT notification_token FROM notification_preferences WHERE fid = ?",
+      sql: "SELECT enable_daily_reminders FROM notification_preferences WHERE fid = ?",
       args: [fidNumber],
     });
 
@@ -36,34 +36,35 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         error: "User not found in notification preferences",
         fid: fidNumber,
-        hasToken: false,
-        message: "User needs to enable notifications in Farcaster menu first",
+        hasEnabledNotifications: false,
+        message: "User needs to add the miniapp and enable notifications in Farcaster first",
       });
     }
 
-    const notificationToken = result.rows[0].notification_token as string;
+    const enabledReminders = result.rows[0].enable_daily_reminders as number;
 
-    if (!notificationToken) {
+    if (!enabledReminders) {
       return NextResponse.json({
-        error: "No notification token found",
+        error: "User has not enabled daily reminders",
         fid: fidNumber,
-        hasToken: false,
-        message: "User needs to enable notifications in Farcaster menu",
+        hasEnabledNotifications: false,
+        message: "User needs to enable notifications for this miniapp in Farcaster",
       });
     }
 
     // Generate test notification
     const notification = generateGoodDollarReminder("Test User");
 
-    // Send notification
-    const success = await sendFarcasterNotification(fidNumber, notification, notificationToken);
+    // Send notification using Neynar
+    const success = await sendFarcasterNotificationToUser(fidNumber, notification);
 
     return NextResponse.json({
       success,
       fid: fidNumber,
-      hasToken: true,
+      hasEnabledNotifications: true,
       notification,
-      message: success ? "Test notification sent successfully!" : "Failed to send test notification",
+      message: success ? "Test notification sent successfully via Neynar!" : "Failed to send test notification",
+      neynarManaged: true,
     });
   } catch (error) {
     console.error("[Test Notification] Error:", error);

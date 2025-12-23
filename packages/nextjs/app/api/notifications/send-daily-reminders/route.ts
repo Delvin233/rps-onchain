@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   UserNotificationPrefs,
   generateGoodDollarReminder,
-  sendFarcasterNotification,
+  sendFarcasterNotificationToUser,
   shouldSendDailyReminder,
 } from "~~/lib/notificationService";
 import { turso } from "~~/lib/turso";
@@ -19,18 +19,18 @@ export async function GET(req: NextRequest) {
 
     console.log("[Daily Reminders] Starting cron job at", new Date().toISOString());
 
-    // Get all users who have notification tokens (meaning they enabled notifications in Farcaster)
+    // Get all users who have enabled daily reminders (Neynar manages tokens automatically)
     const result = await turso.execute({
       sql: `
         SELECT fid, address, enable_daily_reminders, reminder_time, timezone, 
-               last_claim_date, notification_token
+               last_claim_date
         FROM notification_preferences 
-        WHERE notification_token IS NOT NULL AND notification_token != ''
+        WHERE enable_daily_reminders = 1
       `,
       args: [],
     });
 
-    console.log(`[Daily Reminders] Found ${result.rows.length} users with notification tokens`);
+    console.log(`[Daily Reminders] Found ${result.rows.length} users with daily reminders enabled`);
 
     let sentCount = 0;
     let errorCount = 0;
@@ -40,11 +40,11 @@ export async function GET(req: NextRequest) {
       const prefs: UserNotificationPrefs = {
         fid: row.fid as number,
         address: (row.address as string) || undefined,
-        enableDailyReminders: true, // If they have a token, they want notifications
+        enableDailyReminders: (row.enable_daily_reminders as number) === 1,
         reminderTime: (row.reminder_time as string) || "09:00",
         timezone: (row.timezone as string) || "UTC",
         lastClaimDate: (row.last_claim_date as string) || undefined,
-        notificationToken: (row.notification_token as string) || undefined,
+        // notificationToken no longer needed - Neynar manages this
       };
 
       if (shouldSendDailyReminder(prefs)) {
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 
           const notification = generateGoodDollarReminder(userName);
 
-          const success = await sendFarcasterNotification(prefs.fid, notification, prefs.notificationToken);
+          const success = await sendFarcasterNotificationToUser(prefs.fid, notification);
 
           if (success) {
             sentCount++;

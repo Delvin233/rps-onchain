@@ -9,9 +9,8 @@ When your app is opened it can access information about the session from
 `sdk.context`. This object provides basic information about the user, the
 client, and where your app was opened from:
 
-
 ```ts
-export type MiniAppPlatformType = 'web' | 'mobile';
+export type MiniAppPlatformType = "web" | "mobile";
 
 export type MiniAppContext = {
   user: {
@@ -62,18 +61,18 @@ export type MiniAppCast = {
 };
 
 export type CastEmbedLocationContext = {
-  type: 'cast_embed';
+  type: "cast_embed";
   embed: string;
   cast: MiniAppCast;
 };
 
 export type CastShareLocationContext = {
-  type: 'cast_share';
+  type: "cast_share";
   cast: MiniAppCast;
 };
 
 export type NotificationLocationContext = {
-  type: 'notification';
+  type: "notification";
   notification: {
     notificationId: string;
     title: string;
@@ -82,11 +81,11 @@ export type NotificationLocationContext = {
 };
 
 export type LauncherLocationContext = {
-  type: 'launcher';
+  type: "launcher";
 };
 
 export type ChannelLocationContext = {
-  type: 'channel';
+  type: "channel";
   channel: {
     /**
      * Channel key identifier
@@ -106,7 +105,7 @@ export type ChannelLocationContext = {
 };
 
 export type OpenMiniAppLocationContext = {
-  type: 'open_miniapp';
+  type: "open_miniapp";
   referrerDomain: string;
 };
 
@@ -210,6 +209,7 @@ Indicates that the Mini App was launched from another Mini App using the `openMi
 ```
 
 The `referrerDomain` contains the domain of the Mini App that opened the current app. This can be used for:
+
 - Tracking referrals and attribution
 - Customizing the experience based on the referring app
 - Building app-to-app workflows
@@ -408,13 +408,13 @@ You can use the `features` object to conditionally enable functionality based on
 // Check if camera/microphone is available before using it
 if (context.features?.cameraAndMicrophoneAccess) {
   // Camera and microphone access is available and granted
-  const stream = await navigator.mediaDevices.getUserMedia({ 
-    video: true, 
-    audio: true 
-  })
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true,
+  });
 } else {
   // Feature not supported or permissions not granted
-  console.log('Camera/microphone not available')
+  console.log("Camera/microphone not available");
 }
 ```
 
@@ -423,28 +423,29 @@ if (context.features?.cameraAndMicrophoneAccess) {
 Example usage with `getCapabilities()`:
 
 ```ts
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Get list of supported capabilities
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
 // Check if specific haptic methods are supported
-if (capabilities.includes('haptics.impactOccurred')) {
+if (capabilities.includes("haptics.impactOccurred")) {
   // Impact haptic feedback is available
-  await sdk.haptics.impactOccurred('medium')
+  await sdk.haptics.impactOccurred("medium");
 }
 ```
 
 ---
+
 title: Quick Auth
 description: Easily authenticate Farcaster users in your mini app
+
 ---
 
 # Quick Auth
 
 Quick Auth is a lightweight service built on top of Sign In with Farcaster that makes
 it easy to get an authenticated session for a Farcaster user.
-
 
 ## Examples
 
@@ -460,7 +461,7 @@ token if one is not already present and add it as Bearer token in the
 `Authorization` header:
 
 ```tsx twoslash
-const BACKEND_ORIGIN = 'https://hono-backend.miniapps.farcaster.xyz';
+const BACKEND_ORIGIN = "https://hono-backend.miniapps.farcaster.xyz";
 
 // ---cut---
 import React, { useState, useEffect } from "react";
@@ -474,26 +475,21 @@ export function App() {
       const res = await sdk.quickAuth.fetch(`${BACKEND_ORIGIN}/me`);
       if (res.ok) {
         setUser(await res.json());
-        sdk.actions.ready()
+        sdk.actions.ready();
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   // The splash screen will be shown, don't worry about rendering yet.
   if (!user) {
     return null;
   }
 
-  return (
-    <div>
-      hello, {user.fid}
-    </div>
-  )
+  return <div>hello, {user.fid}</div>;
 }
 ```
 
 The token must be [validated on your server](#validate-a-session-token).
-
 
 ### Use a session token directly
 
@@ -503,7 +499,7 @@ session token. If there is already a session token in memory that hasn't
 expired it will be immediately returned, otherwise a fresh one will be
 acquired.
 
-```html 
+```html
 <div id="user" />
 
 <script type="module">
@@ -511,13 +507,16 @@ acquired.
   import { sdk } from "https://esm.sh/@farcaster/miniapp-sdk";
 
   const { token } = await sdk.quickAuth.getToken();
-  const user = await ky.get("http://localhost:8787" + "/me", {headers: {Authorization: 'Bearer ' + token }}).json();
+  const user = await ky
+    .get("http://localhost:8787" + "/me", {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .json();
   document.getElementById("user").textContent = JSON.stringify(user);
 </script>
 ```
 
 The token must be [validated on your server](#validate-a-session-token).
-
 
 ### Validate a session token
 
@@ -528,91 +527,90 @@ npm install @farcaster/quick-auth
 ```
 
 Then you can use `verifyJwt` to check the JWT and get back the token payload
-which has the FID of the user as the `sub` property. 
+which has the FID of the user as the `sub` property.
 
-You can then look up additional information about the user. 
+You can then look up additional information about the user.
 
-```ts 
-import { Errors, createClient } from '@farcaster/quick-auth'
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { createMiddleware } from 'hono/factory'
-import { HTTPException } from 'hono/http-exception'
+```ts
+import { Errors, createClient } from "@farcaster/quick-auth";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 
-const client = createClient()
-const app = new Hono<{ Bindings: Cloudflare.Env }>()
+const client = createClient();
+const app = new Hono<{ Bindings: Cloudflare.Env }>();
 
 // Resolve information about the authenticated Farcaster user. In practice
 // you might get this information from your database, Neynar, or Snapchain.
 async function resolveUser(fid: number) {
   const primaryAddress = await (async () => {
     const res = await fetch(
-      `https://api.farcaster.xyz/fc/primary-address?fid=${fid}&protocol=ethereum`,
-    )
+      `https://api.farcaster.xyz/fc/primary-address?fid=${fid}&protocol=ethereum`
+    );
     if (res.ok) {
       const { result } = await res.json<{
         result: {
           address: {
-            fid: number
-            protocol: 'ethereum' | 'solana'
-            address: string
-          }
-        }
-      }>()
+            fid: number;
+            protocol: "ethereum" | "solana";
+            address: string;
+          };
+        };
+      }>();
 
-      return result.address.address
+      return result.address.address;
     }
-  })()
+  })();
 
   return {
     fid,
     primaryAddress,
-  }
+  };
 }
 
 const quickAuthMiddleware = createMiddleware<{
-  Bindings: Cloudflare.Env
+  Bindings: Cloudflare.Env;
   Variables: {
     user: {
-      fid: number
-      primaryAddress?: string
-    }
-  }
+      fid: number;
+      primaryAddress?: string;
+    };
+  };
 }>(async (c, next) => {
-  const authorization = c.req.header('Authorization')
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new HTTPException(401, { message: 'Missing token' })
+  const authorization = c.req.header("Authorization");
+  if (!authorization || !authorization.startsWith("Bearer ")) {
+    throw new HTTPException(401, { message: "Missing token" });
   }
 
   try {
     const payload = await client.verifyJwt({
-      token: authorization.split(' ')[1] as string,
+      token: authorization.split(" ")[1] as string,
       domain: c.env.HOSTNAME,
-    })
+    });
 
-    const user = await resolveUser(payload.sub)
-    c.set('user', user)
+    const user = await resolveUser(payload.sub);
+    c.set("user", user);
   } catch (e) {
     if (e instanceof Errors.InvalidTokenError) {
-      console.info('Invalid token:', e.message)
-      throw new HTTPException(401, { message: 'Invalid token' })
+      console.info("Invalid token:", e.message);
+      throw new HTTPException(401, { message: "Invalid token" });
     }
 
-    throw e
+    throw e;
   }
 
-  await next()
-})
+  await next();
+});
 
-app.use(cors())
+app.use(cors());
 
-app.get('/me', quickAuthMiddleware, (c) => {
-  return c.json(c.get('user'))
-})
+app.get("/me", quickAuthMiddleware, (c) => {
+  return c.json(c.get("user"));
+});
 
-export default app
+export default app;
 ```
-
 
 ## Optimizing performance
 
@@ -627,7 +625,7 @@ Server:
 Or if you're using React:
 
 ```ts
-import { preconnect } from 'react-dom';
+import { preconnect } from "react-dom";
 
 function AppRoot() {
   preconnect("https://auth.farcaster.xyz");
@@ -650,30 +648,30 @@ receive a signed JWT that can be used as a session token to authenticate their
 server.
 
 The Auth Server offers exceptional performance in two ways:
+
 - the service is deployed on the edge so nonce generation and verification
   happens close to your users no matter where they are located
 - the issued tokens are asymmetrically signed so they can be verified locally
   on your server
 
-
 ## Functions
 
 | Name                                       | Description                         |
-|--------------------------------------------|-------------------------------------|
-| [getToken](/docs/sdk/quick-auth/get-token) | Gets a signed Quick Auth token      | 
+| ------------------------------------------ | ----------------------------------- |
+| [getToken](/docs/sdk/quick-auth/get-token) | Gets a signed Quick Auth token      |
 | [fetch](/docs/sdk/quick-auth/fetch)        | Make an authenticated fetch request |
-
 
 ## Properties
 
-| Name                                | Description                             |
-|-------------------------------------|-----------------------------------------|
-| [token](/docs/sdk/quick-auth/token) | Returns an active token if present      | 
-
+| Name                                | Description                        |
+| ----------------------------------- | ---------------------------------- |
+| [token](/docs/sdk/quick-auth/token) | Returns an active token if present |
 
 ---
+
 title: quickAuth.getToken
 description: Get Quick Auth session token
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -681,20 +679,18 @@ import { Caption } from '../../../../components/Caption.tsx';
 # quickAuth.getToken
 
 Request a signed JWT from a [Farcaster Quick Auth
-Server](https://github.com/farcasterxyz/protocol/discussions/231). 
-
+Server](https://github.com/farcasterxyz/protocol/discussions/231).
 
 ## Usage
 
 ```ts twoslash
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-const { token } = await sdk.quickAuth.getToken()
+const { token } = await sdk.quickAuth.getToken();
 ```
 
 See the [session token example](/docs/sdk/quick-auth#use-a-session-token-directly).
-
 
 ## Parameters
 
@@ -710,18 +706,18 @@ Acquire a new token even if one is already in memory and not expired.
 
 Use a custom Quick Auth Server. Defaults to `https://auth.farcaster.xyz`.
 
-
 ## Return Value
 
 A [JWT](https://datatracker.ietf.org/doc/html/rfc7519) issued by the Quick Auth
 Server based on the Sign In with Farcaster credential signed by the user.
 
-```ts 
-{ token: string; }
+```ts
+{
+  token: string;
+}
 ```
 
 You must [validate the token on your server](/docs/sdk/quick-auth#validate-a-session-token).
-
 
 ### JWT Payload
 
@@ -739,8 +735,7 @@ You must [validate the token on your server](/docs/sdk/quick-auth#validate-a-ses
 
 - **Type:** `number`
 
-The FID of the signed in user. 
-
+The FID of the signed in user.
 
 #### iss
 
@@ -767,8 +762,10 @@ The JWT expiration time.
 The JWT issued at time.
 
 ---
+
 title: quickAuth.fetch
 description: Make an authenticated fetch request with a Quick Auth session token
+
 ---
 
 # quickAuth.fetch
@@ -784,33 +781,32 @@ requests but using it is not a requirement. Use
 it to requests using the library and format of your choosing.
 :::
 
-
 ## Usage
 
 ```ts twoslash
 const url = "https://example.com";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.quickAuth.fetch(url)
+await sdk.quickAuth.fetch(url);
 ```
 
 See the [make authenticated requests example](/docs/sdk/quick-auth#make-authenticated-requests).
 
-
 ## Parameters
 
 See [Fetch parameters](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#parameters).
-
 
 ## Return Value
 
 See [Fetch return value](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#return_value).
 
 ---
+
 title: addMiniApp
 description: Prompts the user to add the app
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -829,9 +825,9 @@ Prompts the user to add the app.
 ## Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.addMiniApp()
+await sdk.actions.addMiniApp();
 ```
 
 The `addMiniApp()` action requires your app's domain to exactly match the domain in your manifest file. This means:
@@ -844,25 +840,25 @@ The `addMiniApp()` action requires your app's domain to exactly match the domain
 
 `void`
 
-
 ## Errors
 
 ### `RejectedByUser`
 
 Thrown if a user rejects the request to add the Mini App.
 
-
 ### `InvalidDomainManifestJson`
 
 Thrown when an app does not have a valid `farcaster.json` or when the domain doesn't match. Common causes:
 
 - Using a tunnel domain (ngrok, localtunnel) instead of your production domain
-- The app's current domain doesn't match the domain in the manifest  
+- The app's current domain doesn't match the domain in the manifest
 - The manifest file is missing or malformed
 
 ---
+
 title: close
 description: Closes the app
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -880,19 +876,20 @@ Closes the mini app.
 ## Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.close()
+await sdk.actions.close();
 ```
 
 ## Return Value
 
 `void`
 
-
 ---
+
 title: composeCast
 description: Open the cast composer with a suggested cast
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -914,17 +911,19 @@ the cast before posting it.
 /**
  * Cryptographically secure nonce generated on the server and associated with
  * the user's session.
- */ 
+ */
 const text = "I just learned how to compose a cast";
-const embeds = ["https://miniapps.farcaster.xyz/docs/sdk/actions/compose-cast"] as [string];
+const embeds = [
+  "https://miniapps.farcaster.xyz/docs/sdk/actions/compose-cast",
+] as [string];
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.composeCast({ 
+await sdk.actions.composeCast({
   text,
   embeds,
-})
+});
 ```
 
 ## Parameters
@@ -934,9 +933,8 @@ await sdk.actions.composeCast({
 - **Type:** `string`
 
 Suggested text for the body of the cast.
-  
-Mentions can be included using the human-writeable form (e.g. @farcaster).
 
+Mentions can be included using the human-writeable form (e.g. @farcaster).
 
 ### embeds (optional)
 
@@ -944,13 +942,11 @@ Mentions can be included using the human-writeable form (e.g. @farcaster).
 
 Suggested embeds. Max two.
 
-
 ### parent (optional)
 
 - **Type:** `{ type: 'cast'; hash: string }`
 
 Suggested parent of the cast.
-
 
 ### close (optional)
 
@@ -959,13 +955,11 @@ Suggested parent of the cast.
 Whether the app should be closed when this action is called. If true the app
 will be closed and the action will resolve with no result.
 
-
 ### channelKey (optional)
 
 - **Type:** `string`
 
 Whether the cast should be posted to a channel.
-
 
 ## Return Value
 
@@ -977,23 +971,25 @@ The cast posted by the user, or `undefined` if set to close.
 import { sdk } from "@farcaster/miniapp-sdk";
 
 // ---cut---
-const result = await sdk.actions.composeCast({ 
-//    ^?  
+const result = await sdk.actions.composeCast({
+  //    ^?
   text: "I just learned how to compose a cast",
   embeds: ["https://miniapps.farcaster.xyz/docs/sdk/actions/compose-cast"],
-  channelKey: "farcaster" // optional channel
-})
+  channelKey: "farcaster", // optional channel
+});
 
 // result.cast can be null if user cancels
 if (result?.cast) {
-  console.log(result.cast.hash)
-  console.log(result.cast.channelKey) // includes channel if posted to one
+  console.log(result.cast.hash);
+  console.log(result.cast.channelKey); // includes channel if posted to one
 }
 ```
 
 ---
+
 title: ready
 description: Hides the Splash Screen.
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -1013,9 +1009,9 @@ Hides the Splash Screen. Read the [guide on loading your app](/docs/guides/loadi
 ## Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.ready()
+await sdk.actions.ready();
 ```
 
 ## Parameters
@@ -1032,10 +1028,11 @@ that conflict with native gestures like swipe to dismiss.
 
 `void`
 
-
 ---
+
 title: openUrl
 description: Opens an external URL
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -1057,16 +1054,16 @@ are using.
 ## Usage
 
 ```ts twoslash
-const url = 'https://farcaster.xyz';
+const url = "https://farcaster.xyz";
 
 //---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Pass URL as a string
-await sdk.actions.openUrl(url)
+await sdk.actions.openUrl(url);
 
 // Or pass URL as an object
-await sdk.actions.openUrl({ url: 'https://farcaster.xyz' })
+await sdk.actions.openUrl({ url: "https://farcaster.xyz" });
 ```
 
 ## Return Value
@@ -1074,8 +1071,10 @@ await sdk.actions.openUrl({ url: 'https://farcaster.xyz' })
 `void`
 
 ---
+
 title: openMiniApp
 description: Opens another Mini App
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -1090,29 +1089,29 @@ When you open another Mini App using this method, your current Mini App will clo
 
 ```ts twoslash
 const options = {
-  url: 'https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4'
+  url: "https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4",
 };
 
 //---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Open a Mini App using an embed URL
 await sdk.actions.openMiniApp({
-  url: 'https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4'
-})
+  url: "https://www.bountycaster.xyz/bounty/0x983ad3e340fbfef785e0705ff87c0e63c22bebc4",
+});
 
 // Open a Mini App using a launch URL
 await sdk.actions.openMiniApp({
-  url: 'https://farcaster.xyz/miniapps/WoLihpyQDh7w/farville'
-})
+  url: "https://farcaster.xyz/miniapps/WoLihpyQDh7w/farville",
+});
 ```
 
 ## Options
 
 ```ts
 type OpenMiniAppOptions = {
-  url: string
-}
+  url: string;
+};
 ```
 
 - `url`: The URL of the Mini App to open. This can be either:
@@ -1128,15 +1127,15 @@ type OpenMiniAppOptions = {
 Always await the `openMiniApp` call and handle potential errors:
 
 ```ts
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 try {
   await sdk.actions.openMiniApp({
-    url: 'https://example.com/miniapp'
-  })
+    url: "https://example.com/miniapp",
+  });
   // Navigation successful - your app will close
 } catch (error) {
-  console.error('Failed to open Mini App:', error)
+  console.error("Failed to open Mini App:", error);
   // Handle the error - your app remains open
 }
 ```
@@ -1147,8 +1146,8 @@ When a Mini App is opened using `openMiniApp`, the target app receives a special
 
 ```ts
 // In the target Mini App:
-if (sdk.context.location?.type === 'open_miniapp') {
-  console.log('Referred by:', sdk.context.location.referrerDomain)
+if (sdk.context.location?.type === "open_miniapp") {
+  console.log("Referred by:", sdk.context.location.referrerDomain);
   // e.g., "Referred by: yourminiapp.com"
 }
 ```
@@ -1161,29 +1160,32 @@ Create a central hub that showcases multiple Mini Apps:
 
 ```ts
 const miniApps = [
-  { name: 'Farville', url: 'https://farcaster.xyz/miniapps/WoLihpyQDh7w/farville' },
-  { name: 'Bountycaster', url: 'https://www.bountycaster.xyz' },
-  { name: 'Yoink', url: 'https://yoink.party/framesV2/' }
-]
+  {
+    name: "Farville",
+    url: "https://farcaster.xyz/miniapps/WoLihpyQDh7w/farville",
+  },
+  { name: "Bountycaster", url: "https://www.bountycaster.xyz" },
+  { name: "Yoink", url: "https://yoink.party/framesV2/" },
+];
 
 function MiniAppHub() {
   const handleOpenApp = async (url: string) => {
     try {
-      await sdk.actions.openMiniApp({ url })
+      await sdk.actions.openMiniApp({ url });
     } catch (error) {
-      console.error('Failed to open app:', error)
+      console.error("Failed to open app:", error);
     }
-  }
+  };
 
   return (
     <div>
-      {miniApps.map(app => (
+      {miniApps.map((app) => (
         <button key={app.name} onClick={() => handleOpenApp(app.url)}>
           Open {app.name}
         </button>
       ))}
     </div>
-  )
+  );
 }
 ```
 
@@ -1193,16 +1195,16 @@ Implement referral tracking between Mini Apps:
 
 ```ts
 // In the source Mini App
-const referralUrl = 'https://partner-app.com/campaign?ref=myapp'
-await sdk.actions.openMiniApp({ url: referralUrl })
+const referralUrl = "https://partner-app.com/campaign?ref=myapp";
+await sdk.actions.openMiniApp({ url: referralUrl });
 
 // In the target Mini App
-if (sdk.context.location?.type === 'open_miniapp') {
+if (sdk.context.location?.type === "open_miniapp") {
   // Track the referral
-  analytics.track('referral_received', {
+  analytics.track("referral_received", {
     referrer: sdk.context.location.referrerDomain,
-    campaign: new URL(window.location.href).searchParams.get('ref')
-  })
+    campaign: new URL(window.location.href).searchParams.get("ref"),
+  });
 }
 ```
 
@@ -1212,9 +1214,12 @@ if (sdk.context.location?.type === 'open_miniapp') {
 - The action works the same way on both web and mobile platforms
 - The target app must be a valid Mini App with a proper manifest
 - Always handle errors as navigation may fail for various reasons
+
 ---
+
 title: signIn
 description: Sign in the user with Farcaster.
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -1222,7 +1227,7 @@ import { Caption } from '../../../../components/Caption.tsx';
 # signIn
 
 Request a [Sign in with Farcaster
-(SIWF)](https://docs.farcaster.xyz/developers/siwf/) credential from the user. 
+(SIWF)](https://docs.farcaster.xyz/developers/siwf/) credential from the user.
 
 See the guide on [authenticating users](/docs/guides/auth).
 
@@ -1238,16 +1243,16 @@ See the guide on [authenticating users](/docs/guides/auth).
 /**
  * Cryptographically secure nonce generated on the server and associated with
  * the user's session.
- */ 
-const nonce = 'securenonce';
+ */
+const nonce = "securenonce";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.signIn({ 
+await sdk.actions.signIn({
   nonce,
-  acceptAuthAddress: true
-})
+  acceptAuthAddress: true,
+});
 ```
 
 ## Parameters
@@ -1268,7 +1273,6 @@ Address](https://github.com/farcasterxyz/protocol/discussions/225) signed
 message is acceptable. Defaults to `true` for the best user experience.
 Set to `false` if your verification method does not support auth addresses.
 
-
 ## Return Value
 
 The SIWF message and signature.
@@ -1277,7 +1281,7 @@ The SIWF message and signature.
 type SignInResult = {
   signature: string;
   message: string;
-}
+};
 ```
 
 :::note
@@ -1293,10 +1297,10 @@ Thrown if a user rejects the sign-in request.
 
 ```ts
 try {
-  const result = await sdk.actions.signIn({ nonce, acceptAuthAddress: true })
+  const result = await sdk.actions.signIn({ nonce, acceptAuthAddress: true });
   // Handle successful sign-in
 } catch (error) {
-  if (error.name === 'RejectedByUser') {
+  if (error.name === "RejectedByUser") {
     // Handle user rejection
   }
 }
@@ -1304,17 +1308,18 @@ try {
 
 [If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
 
-
 ---
+
 title: viewProfile
 description: Displays a user's Farcaster profile.
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
 
 # viewProfile
 
-Displays a user's Farcaster profile. 
+Displays a user's Farcaster profile.
 
 ![viewing a profile from an app](/view_profile_preview.png)
 
@@ -1328,11 +1333,11 @@ Displays a user's Farcaster profile.
 const fid = 6841;
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.viewProfile({ 
-  fid
-})
+await sdk.actions.viewProfile({
+  fid,
+});
 ```
 
 ## Parameters
@@ -1347,11 +1352,11 @@ Farcaster ID of the user whose profile to view.
 
 `void`
 
-
-
 ---
+
 title: viewCast
 description: Open a specific cast in the Farcaster client
+
 ---
 
 import { Caption } from '../../../../components/Caption.tsx';
@@ -1367,11 +1372,11 @@ the full cast with its replies and reactions.
 const castHash = "0x1234567890abcdef";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.viewCast({ 
+await sdk.actions.viewCast({
   hash: castHash,
-})
+});
 ```
 
 ## Parameters
@@ -1398,19 +1403,22 @@ import { sdk } from "@farcaster/miniapp-sdk";
 
 // ---cut---
 // View a specific cast
-await sdk.actions.viewCast({ 
-  hash: "0x1234567890abcdef"
-})
+await sdk.actions.viewCast({
+  hash: "0x1234567890abcdef",
+});
 
 // View a cast and close the mini app
-await sdk.actions.viewCast({ 
+await sdk.actions.viewCast({
   hash: "0x1234567890abcdef",
-  close: true
-})
+  close: true,
+});
 ```
+
 ---
+
 title: swapToken
 description: Open the swap form with pre-filled tokens
+
 ---
 
 # swapToken
@@ -1421,18 +1429,19 @@ the swap before executing the transaction.
 ## Usage
 
 ```ts twoslash
-const sellToken = "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const sellToken =
+  "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const buyToken = "eip155:10/native";
 const sellAmount = "1000000";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.swapToken({ 
+await sdk.actions.swapToken({
   sellToken,
   buyToken,
   sellAmount,
-})
+});
 ```
 
 ## Parameters
@@ -1445,7 +1454,6 @@ CAIP-19 asset ID
 
 For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 
-
 ### buyToken (optional)
 
 - **Type:** `string`
@@ -1454,7 +1462,6 @@ CAIP-19 asset ID
 
 For example, OP ETH: eip155:10/native
 
-
 ### sellAmount (optional)
 
 - **Type:** `string`
@@ -1462,7 +1469,6 @@ For example, OP ETH: eip155:10/native
 Sell token amount, as numeric string
 
 For example, 1 USDC: 1000000
-
 
 ## Return Value
 
@@ -1501,8 +1507,10 @@ export type SwapTokenResult =
 ```
 
 ---
+
 title: sendToken
 description: Open the send form with pre-filled tokens
+
 ---
 
 # sendToken
@@ -1518,13 +1526,13 @@ const amount = "1000000";
 const recipientFid = 3;
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.sendToken({ 
+await sdk.actions.sendToken({
   token,
   amount,
   recipientFid,
-})
+});
 ```
 
 ## Parameters
@@ -1537,7 +1545,6 @@ CAIP-19 asset ID
 
 For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 
-
 ### amount (optional)
 
 - **Type:** `string`
@@ -1545,7 +1552,6 @@ For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA0
 Send token amount, as numeric string
 
 For example, 1 USDC: 1000000
-
 
 ### recipientAddress (optional)
 
@@ -1555,7 +1561,6 @@ Address to send the token to
 
 For example, 0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
-
 ### recipientFid (optional)
 
 - **Type:** `number`
@@ -1564,7 +1569,6 @@ FID to send the token to
 
 For example, dwr: 3
 
-
 ## Return Value
 
 ```ts twoslash
@@ -1572,37 +1576,39 @@ type SendTokenDetails = {
   /**
    * Tx identifier.
    */
-  transaction: `0x${string}`
-}
+  transaction: `0x${string}`;
+};
 
 type SendTokenErrorDetails = {
   /**
    * Error code.
    */
-  error: string
+  error: string;
   /**
    * Error message.
    */
-  message?: string
-}
+  message?: string;
+};
 
-export type SendTokenErrorReason = 'rejected_by_user' | 'send_failed'
+export type SendTokenErrorReason = "rejected_by_user" | "send_failed";
 
 export type SendTokenResult =
   | {
-      success: true
-      send: SendTokenDetails
+      success: true;
+      send: SendTokenDetails;
     }
   | {
-      success: false
-      reason: SendTokenErrorReason
-      error?: SendTokenErrorDetails
-    }
+      success: false;
+      reason: SendTokenErrorReason;
+      error?: SendTokenErrorDetails;
+    };
 ```
 
 ---
+
 title: viewToken
 description: Displays a token
+
 ---
 
 # viewToken
@@ -1615,11 +1621,11 @@ Displays a token
 const token = "eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 // ---cut---
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-await sdk.actions.viewToken({ 
-  token
-})
+await sdk.actions.viewToken({
+  token,
+});
 ```
 
 ## Parameters
@@ -1632,16 +1638,15 @@ CAIP-19 asset ID
 
 For example, Base USDC: eip155:8453/erc20:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 
-
 ## Return Value
 
 `void`
 
-
-
 ---
+
 title: requestCameraAndMicrophoneAccess
 description: Request permission to access the device's camera and microphone
+
 ---
 
 # requestCameraAndMicrophoneAccess
@@ -1654,11 +1659,11 @@ This is an experimental feature that stores camera and microphone permission set
 
 ## Platform Support
 
-| Platform | Supported | Notes |
-|----------|-----------|-------|
-| iOS      | ✅         | Full support with domain-level permissions |
-| Android  | ✅         | Supported (see note below) |
-| Web      | ❌         | Not currently supported |
+| Platform | Supported | Notes                                      |
+| -------- | --------- | ------------------------------------------ |
+| iOS      | ✅        | Full support with domain-level permissions |
+| Android  | ✅        | Supported (see note below)                 |
+| Web      | ❌        | Not currently supported                    |
 
 :::note
 On Android, camera and microphone permissions work slightly differently than iOS. Once permissions are granted to the host app, mini apps may have access without additional prompts. This is standard behavior for Android WebView permissions.
@@ -1671,14 +1676,14 @@ Camera and microphone access is not supported in web mini apps. The action will 
 ## Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 try {
-  await sdk.actions.requestCameraAndMicrophoneAccess()
-  console.log('Camera and microphone access granted')
+  await sdk.actions.requestCameraAndMicrophoneAccess();
+  console.log("Camera and microphone access granted");
   // You can now use camera and microphone in your mini app
 } catch (error) {
-  console.log('Camera and microphone access denied')
+  console.log("Camera and microphone access denied");
   // Handle the denial gracefully
 }
 ```
@@ -1686,6 +1691,7 @@ try {
 ## Return Value
 
 Returns a `Promise<void>` that:
+
 - **Resolves** when the user grants permission
 - **Rejects** when the user denies permission or dismisses the dialog
 
@@ -1694,10 +1700,10 @@ Returns a `Promise<void>` that:
 Before using this action, check if it's supported:
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Check if the feature is available
-const context = await sdk.context
+const context = await sdk.context;
 if (context.features?.cameraAndMicrophoneAccess) {
   // Feature is supported and permissions have been granted
   // You can use camera/microphone features
@@ -1719,37 +1725,40 @@ if (context.features?.cameraAndMicrophoneAccess) {
 ## Example: Video Recording
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 async function startVideoRecording() {
   try {
     // Request permissions first
-    await sdk.actions.requestCameraAndMicrophoneAccess()
-    
+    await sdk.actions.requestCameraAndMicrophoneAccess();
+
     // Now you can access getUserMedia
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
-    })
-    
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
     // Use the stream for video recording
-    const videoElement = document.querySelector('video')
+    const videoElement = document.querySelector("video");
     if (videoElement) {
-      videoElement.srcObject = stream
+      videoElement.srcObject = stream;
     }
   } catch (error) {
-    if (error instanceof Error && error.name === 'NotAllowedError') {
+    if (error instanceof Error && error.name === "NotAllowedError") {
       // Permissions were denied
-      alert('Camera and microphone access is required for video recording')
+      alert("Camera and microphone access is required for video recording");
     } else {
-      console.error('Failed to start recording:', error)
+      console.error("Failed to start recording:", error);
     }
   }
 }
 ```
+
 ---
+
 title: haptics
 description: Trigger haptic feedback for enhanced user experience
+
 ---
 
 import { Caption } from '../../../components/Caption.tsx';
@@ -1761,16 +1770,16 @@ Provides haptic feedback to enhance user interactions through physical sensation
 ## Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Trigger impact feedback
-await sdk.haptics.impactOccurred('medium')
+await sdk.haptics.impactOccurred("medium");
 
 // Trigger notification feedback
-await sdk.haptics.notificationOccurred('success')
+await sdk.haptics.notificationOccurred("success");
 
 // Trigger selection feedback
-await sdk.haptics.selectionChanged()
+await sdk.haptics.selectionChanged();
 ```
 
 ## Methods
@@ -1796,13 +1805,13 @@ The intensity and style of the impact feedback.
 #### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Trigger when user taps a button
-await sdk.haptics.impactOccurred('light')
+await sdk.haptics.impactOccurred("light");
 
 // Trigger for more significant actions
-await sdk.haptics.impactOccurred('heavy')
+await sdk.haptics.impactOccurred("heavy");
 ```
 
 ### notificationOccurred
@@ -1824,16 +1833,16 @@ The type of notification feedback.
 #### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // After successful action
-await sdk.haptics.notificationOccurred('success')
+await sdk.haptics.notificationOccurred("success");
 
 // When showing a warning
-await sdk.haptics.notificationOccurred('warning')
+await sdk.haptics.notificationOccurred("warning");
 
 // On error
-await sdk.haptics.notificationOccurred('error')
+await sdk.haptics.notificationOccurred("error");
 ```
 
 ### selectionChanged
@@ -1843,13 +1852,13 @@ Triggers selection feedback, perfect for UI element selections.
 #### Example
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // When user selects an item from a list
-await sdk.haptics.selectionChanged()
+await sdk.haptics.selectionChanged();
 
 // When toggling a switch
-await sdk.haptics.selectionChanged()
+await sdk.haptics.selectionChanged();
 ```
 
 ## Return Value
@@ -1861,21 +1870,21 @@ All haptic methods return `Promise<void>`.
 Haptic feedback availability depends on the client device and platform. You can check if haptics are supported using the `getCapabilities()` method:
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
 // Check if specific haptic methods are supported
-if (capabilities.includes('haptics.impactOccurred')) {
-  await sdk.haptics.impactOccurred('medium')
+if (capabilities.includes("haptics.impactOccurred")) {
+  await sdk.haptics.impactOccurred("medium");
 }
 
-if (capabilities.includes('haptics.notificationOccurred')) {
-  await sdk.haptics.notificationOccurred('success')
+if (capabilities.includes("haptics.notificationOccurred")) {
+  await sdk.haptics.notificationOccurred("success");
 }
 
-if (capabilities.includes('haptics.selectionChanged')) {
-  await sdk.haptics.selectionChanged()
+if (capabilities.includes("haptics.selectionChanged")) {
+  await sdk.haptics.selectionChanged();
 }
 ```
 
@@ -1886,9 +1895,12 @@ if (capabilities.includes('haptics.selectionChanged')) {
 3. **Provide visual feedback too**: Not all devices support haptics
 4. **Check availability**: Always verify haptic support before using
 5. **Consider context**: Some users may have haptics disabled in their device settings
+
 ---
+
 title: Back Navigation
 description: Support back navigation in your mini app
+
 ---
 
 # Back Navigation
@@ -1912,7 +1924,7 @@ Otherwise, you can set a custom back handler and show the back control:
 ```ts
 sdk.back.onback = () => {
   // trigger back in your app
-}
+};
 
 await sdk.back.show();
 ```
@@ -1921,11 +1933,11 @@ await sdk.back.show();
 
 The back control will vary depending on the user's device and platform but will
 generally follow:
+
 - a clickable button in the header on web
 - a horizontal swipe left gesture on iOS
 - the Android native back control on Android which could be a swipe left
   gesture combined with a virtual or physical button depending on the device
-
 
 ## Web Navigation integration
 
@@ -1934,6 +1946,7 @@ The SDK can automatically integrate with web navigation APIs.
 ### `enableWebNavigation()`
 
 Enables automatic integration with the browser's navigation system. This will:
+
 - Use the modern Navigation API when available; the back button will automatically
   be shown and hidden based on the value of `canGoBack`.
 - Fall back to the History API in browsers where Navigation is [not
@@ -1952,14 +1965,15 @@ Disables web navigation integration.
 await sdk.back.disableWebNavigation();
 ```
 
-
 ## Properties
 
 ### `enabled`
+
 - **Type**: `boolean`
 - **Description**: Whether back navigation is currently enabled
 
 ### `onback`
+
 - **Type**: `() => unknown`
 - **Description**: Function to call when a back event is triggered. You don't need to
   set this when using `enableWebNavigation`.
@@ -1967,6 +1981,7 @@ await sdk.back.disableWebNavigation();
 ## Methods
 
 ### `show()`
+
 Makes the back button visible.
 
 ```ts
@@ -1974,6 +1989,7 @@ await sdk.back.show();
 ```
 
 ### `hide()`
+
 Hides the back button.
 
 ```ts
@@ -1990,27 +2006,26 @@ If you are using `enableWebNavigation` this event will automatically be
 listened to and trigger the browser to navigate. Otherwise you should listen
 for this event and respond to it as appropriate for your application.
 
-
 ## Availability
 
 You can check whether the Farcaster client rendering your app supports a back control:
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
-const capabilities = await sdk.getCapabilities()
+const capabilities = await sdk.getCapabilities();
 
-if (capabilities.includes('back')) {
+if (capabilities.includes("back")) {
   await sdk.back.enableWebNavigation();
 } else {
   // show a back button within your app
 }
 ```
 
-## Example: Web Navigation 
+## Example: Web Navigation
 
 ```ts
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 function App() {
   useEffect(() => {
@@ -2018,17 +2033,13 @@ function App() {
     sdk.back.enableWebNavigation();
   }, []);
 
-  return (
-    <div>
-      {/* Your app content */}
-    </div>
-  );
+  return <div>{/* Your app content */}</div>;
 }
 ```
 
 ## Example: Manual
 
-```ts
+````ts
 function NavigationExample() {
   const [currentPage, setCurrentPage] = useState('home');
 
@@ -2126,11 +2137,13 @@ const supportsHaptics = {
 if (supportsHaptics.impact) {
   await sdk.haptics.impactOccurred('medium')
 }
-```
+````
 
 ---
+
 title: isInMiniApp
 description: Detect if your app is running in a Mini App environment
+
 ---
 
 # isInMiniApp
@@ -2140,10 +2153,10 @@ Determines if the current environment is a Mini App context by analyzing both en
 ## Usage
 
 ```ts twoslash
-import { sdk } from '@farcaster/miniapp-sdk'
+import { sdk } from "@farcaster/miniapp-sdk";
 
 // Check if running in a Mini App
-const isMiniApp = await sdk.isInMiniApp()
+const isMiniApp = await sdk.isInMiniApp();
 
 if (isMiniApp) {
   // Mini App-specific code
@@ -2172,6 +2185,7 @@ Returns a promise that resolves to `true` if running in a Mini App context, or `
 The function uses a multi-step approach to detect Mini App environments:
 
 1. **Fast Short-Circuit:** Returns `false` immediately in certain scenarios:
+
    - During server-side rendering
    - When neither in an iframe nor in ReactNative WebView
 
@@ -2185,9 +2199,12 @@ This approach ensures accurate detection while optimizing performance.
 Need to branch during **server-side rendering**?
 See the **Hybrid & SSR-friendly detection** subsection in the [Publishing guide](/docs/guides/publishing#hybrid-detection).
 :::
+
 ---
+
 title: Client Events
 description: Receive events when users change their settings for your app
+
 ---
 
 # Client Events
@@ -2195,8 +2212,7 @@ description: Receive events when users change their settings for your app
 When a user interacts with your app events will be sent from the Farcaster
 client to your application client.
 
-
-Farcaster clients emit events directly to your app client while it is open that can 
+Farcaster clients emit events directly to your app client while it is open that can
 be used to update your UI in response to user actions.
 
 To listen to events, you have to use `sdk.on` to register callbacks ([see full
@@ -2224,10 +2240,11 @@ The user enabled notifications after previously having them disabled.
 
 The user disabled notifications.
 
-
 ---
+
 title: Client Compatibility
 description: Track compatibility across Farcaster clients
+
 ---
 
 # Compatibility
@@ -2242,3 +2259,344 @@ Below is a list of the main incompatibilities Base App is actively working on fi
 
 - `sdk.actions.addMiniApp` (ETA early October, more info soon!)
 - `sdk.experimental.signManifest` (ETA early October, more info soon!)
+
+---
+
+title: Sending Notifications
+description: Send notifications to your users
+
+---
+
+import { Caption } from '../../../components/Caption.tsx';
+
+# Sending Notifications
+
+:::tip
+Reference:
+[Notifications Spec](/docs/specification#notifications)
+:::
+
+Mini Apps can send notifications to users who have added the Mini App to
+their Farcaster client and enabled notifications.
+
+![in-app notifications in Warpcast](/in-app-notifications-preview.png)
+
+<Caption>
+  An in-app notification is sent to a user and launches them into the app
+</Caption>
+
+## Overview
+
+At a high-level notifications work like so:
+
+- when a user enables notifications for your app, their Farcaster client (i.e. Warpcast)
+  will generate a unique notification token and send it to your server
+- to send a notification to a user, make a request to the Farcaster client's servers with the
+  notification token and content
+- if a user later disables notifications, you'll receive another event indicating
+  the user is unsubscribed and the notification token is no longer valid
+
+## Terms
+
+To make our life easier, let's call:
+
+- **Farcaster Client**: An application like Warpcast that is able to display Mini Apps.
+- **Notification Server**: Your server (see bellow).
+- **(Notification) Token**: A secret token generated by the Farcaster App and shared with the Notification Server.
+  A token is unique for each (Farcaster Client, Mini App, user Fid) tupple.
+
+A notification token is basically a permission that a Farcaster client gives your app (on behalf of a user)
+to send them notifications.
+
+## Steps
+
+::::steps
+
+### Listen for events
+
+You'll need a notification server to receive webhook events and a database to store
+notification tokens for users:
+
+- **Managed** - If you'd rather stay focused on your app, use
+  [Neynar](https://neynar.com) to manage notification tokens on your behalf. Includes ways to target notifications and send without writing code: <br />
+  [Setup a managed notifications server with
+  Neynar](https://docs.neynar.com/docs/send-notifications-to-mini-app-users).
+- **Roll your own** - If you want to host your own server to receive webhooks:<br />
+  [Follow the Receiving Webhooks guide](#receiving-webhooks).
+
+[If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
+
+### Add your webhook URL in `farcaster.json`
+
+If you haven't already, follow the [Publishing your app](/docs/guides/publishing) guide to host a
+`farcaster.json` on your app's domain.
+
+Define the `webhookUrl` property in your app's configuration in `farcaster.json`:
+
+```json
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjU0NDgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2MWQwMEFENzYwNjhGOEQ0NzQwYzM1OEM4QzAzYUFFYjUxMGI1OTBEIn0",
+    "payload": "eyJkb21haW4iOiJleGFtcGxlLmNvbSJ9",
+    "signature": "MHg3NmRkOWVlMjE4OGEyMjliNzExZjUzOTkxYTc1NmEzMGZjNTA3NmE5OTU5OWJmOWFmYjYyMzAyZWQxMWQ2MWFmNTExYzlhYWVjNjQ3OWMzODcyMTI5MzA2YmJhYjdhMTE0MmRhMjA4MmNjNTM5MTJiY2MyMDRhMWFjZTY2NjE5OTFj"
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Example App",
+    "iconUrl": "https://example.com/icon.png",
+    "homeUrl": "https://example.com",
+    "imageUrl": "https://example.com/image.png",
+    "buttonTitle": "Check this out",
+    "splashImageUrl": "https://example.com/splash.png",
+    "splashBackgroundColor": "#eeccff",
+    "webhookUrl": "https://example.com/api/webhook" // [!code focus]
+  }
+}
+```
+
+:::note
+For a real example, this is Yoink's manifest:
+[https://yoink.party/.well-known/farcaster.json](https://yoink.party/.well-known/farcaster.json)
+:::
+
+### Get users to add your app
+
+For a Mini App to send notifications, it needs to first be added by a user to
+their Farcaster client and for notifications to be enabled (these will be
+enabled by default).
+
+Use the [addMiniApp](/docs/sdk/actions/add-miniapp) action while a user is using your app to prompt
+them to add it:
+
+### Caution
+
+The `addMiniApp()` action only works when your app is deployed to its production domain (matching your manifest). It will not work with tunnel domains during development.
+
+### Save the notification tokens
+
+When notifications are enabled, the Farcaster client generates a unique
+notification token for the user. This token is sent to `webhookUrl` defined in your `farcaster.json`
+along with a `url` that the app should call to send a notification.
+
+The `token` and `url` need to be securely saved to database so they can be
+looked up when you want to send a notification to a particular user.
+
+### Send a notification
+
+![notifications schematic](/notification_schematic.png)
+
+Once you have a notification token for a user, you can send them a notification
+by sending a `POST` request the `url` associated with that token.
+
+:::tip
+If your are sending the same notification to multiple users, you batch up to a
+100 sends in a single request by providing multiple `tokens`. You can safely
+use the same `notificationId` for all batches.
+:::
+
+The body of that request must match the following JSON schema:
+
+import SendNotificationRequestSchema from '../../../snippets/sendNotificationRequestSchema.mdx'
+
+<SendNotificationRequestSchema />
+
+The server should response with an HTTP 200 OK and the following JSON body:
+
+import SendNotificationResponseSchema from '../../../snippets/sendNotificationResponseSchema.mdx'
+
+<SendNotificationResponseSchema />
+
+<br />
+
+When a user clicks the notification, the Farcaster client will:
+
+- Open your Mini App at `targetUrl`
+- Set the `context.location` to a `MiniAppLocationNotificationContext`
+
+```ts
+export type MiniAppLocationNotificationContext = {
+  type: "notification";
+  notification: {
+    notificationId: string;
+    title: string;
+    body: string;
+  };
+};
+```
+
+[Example code to send a
+notification](https://github.com/farcasterxyz/frames-v2-demo/blob/7905a24b7cd254a77a7e1a541288379b444bc23e/src/app/api/send-notification/route.ts#L25-L65)
+
+#### Avoid duplicate notifications
+
+To avoid duplicate notifications, specify a stable `notificationId` for each
+notification you send. This identifier is joined with the FID (e.g. `(fid,
+notificationId)` to create a unique key that is used to deduplicate requests
+to send a notification over a 24 hour period.
+
+For example, if you want to send a daily notification to users you could use
+`daily-reminder-05-06-2024` as your `notificationId`. Now you can safely retry
+requests to send the daily reminder notifications within a 24 hour period.
+
+#### Rate Limits
+
+Host servers may impose rate limits per `token`. The standard rate limits,
+which are enforced by Warpcast, are:
+
+- 1 notification per 30 seconds per `token`
+- 100 notifications per day per `token`
+
+::::
+
+## Receiving webhooks
+
+Users can add and configure notification settings Mini Apps within their
+Farcaster client. When this happens Farcaster clients will send events your
+server that include data relevant to the event.
+
+This allows your app to:
+
+- keep track of what users have added or removed your app
+- securely receive tokens that can be used to send notifications to your users
+
+:::note
+If you'd rather stay focused on your app, [Neynar](https://neynar.com) offers a
+[managed service to handle
+webhooks](https://docs.neynar.com/docs/send-notifications-to-frame-users#step-1-add-events-webhook-url-to-frame-manifest)
+on behalf of your application.
+:::
+
+### Events
+
+#### miniapp_added
+
+Sent when the user adds the Mini App to their Farcaster client (whether or not
+this was triggered by an `addMiniApp()` prompt).
+
+The optional `notificationDetails` object provides the `token` and `url` if the
+client equates adding to enabling notifications (Warpcast does this).
+
+##### Payload
+
+```json
+{
+  "event": "miniapp_added",
+  "notificationDetails": {
+    "url": "https://api.farcaster.xyz/v1/frame-notifications",
+    "token": "a05059ef2415c67b08ecceb539201cbc6"
+  }
+}
+```
+
+#### miniapp_removed
+
+Sent when a user removes a mini app, which means that any notification tokens for
+that fid and client app (based on signer requester) should be considered
+invalid:
+
+##### Payload
+
+```json
+{
+  "event": "miniapp_removed"
+}
+```
+
+#### notifications_disabled
+
+Sent when a user disables notifications from e.g. a settings panel in the
+client app. Any notification tokens for that fid and client app (based on
+signer requester) should be considered invalid:
+
+##### Payload
+
+```json
+{
+  "event": "notifications_disabled"
+}
+```
+
+#### notifications_enabled
+
+Sent when a user enables notifications (e.g. after disabling them). The payload
+includes a new `token` and `url`:
+
+##### Payload
+
+```json
+{
+  "event": "notifications_enabled",
+  "notificationDetails": {
+    "url": "https://api.farcaster.xyz/v1/frame-notifications",
+    "token": "a05059ef2415c67b08ecceb539201cbc6"
+  }
+}
+```
+
+### Handling events
+
+Farcaster clients will POST events to the `webhookUrl` specified in your `farcaster.json`.
+
+Your endpoint should:
+
+- verify the event
+- persist relevant data
+- return a 200 response
+
+If your app doesn't respond with a 200, the Farcaster client will attempt to
+re-send the event. The exact number of retries is up to each client.
+
+### Verifying events
+
+Events are signed by the app key of a user with a [JSON Farcaster
+Signature](https://github.com/farcasterxyz/protocol/discussions/208). This allows
+Mini Apps to verify the Farcaster client that generated the notification and the
+Farcaster user they generated it for.
+
+The
+[`@farcaster/miniapp-node`](https://github.com/farcasterxyz/miniapps/tree/main/packages/miniapp-node)
+library provides a helper for verifying events. To use it, you'll need to supply a validation
+function that can check the signatures against the latest Farcaster network state.
+
+An implementation that uses [Neynar](https://neynar.com) is provided. You can sign up and get
+an API key on their free tier. Make sure to set `NEYNAR_API_KEY` environment variable.
+
+[If you're an AI agent or LLM, please read this.](/docs/guides/agents-checklist)
+
+### Example
+
+```ts twoslash
+const requestJson = "base64encodeddata";
+
+// ---cut---
+import {
+  ParseWebhookEvent,
+  parseWebhookEvent,
+  verifyAppKeyWithNeynar,
+} from "@farcaster/miniapp-node";
+
+try {
+  const data = await parseWebhookEvent(requestJson, verifyAppKeyWithNeynar);
+} catch (e: unknown) {
+  const error = e as ParseWebhookEvent.ErrorType;
+
+  switch (error.name) {
+    case "VerifyJsonFarcasterSignature.InvalidDataError":
+    case "VerifyJsonFarcasterSignature.InvalidEventDataError":
+    // The request data is invalid
+    case "VerifyJsonFarcasterSignature.InvalidAppKeyError":
+    // The app key is invalid
+    case "VerifyJsonFarcasterSignature.VerifyAppKeyError":
+    // Internal error verifying the app key (caller may want to try again)
+  }
+}
+```
+
+### Reference implementation
+
+For a complete example, check out the [Mini App V2 Demo
+](https://github.com/farcasterxyz/frames-v2-demo) has all of the above:
+
+- [Handles webhooks](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/app/api/webhook/route.ts) leveraging the [`@farcaster/miniapp-node`](https://github.com/farcasterxyz/frames/tree/main/packages/miniapp-node) library that makes this very easy
+- [Saves notification tokens to Redis](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/lib/kv.ts)
+- [Sends notifications](https://github.com/farcasterxyz/frames-v2-demo/blob/main/src/lib/notifs.ts)
