@@ -25,7 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               color: "white",
             }}
           >
-            <div style={{ fontSize: 60, fontWeight: "bold" }}>Match Not Found</div>
+            <div style={{ display: "flex", fontSize: 60, fontWeight: "bold" }}>Match Not Found</div>
           </div>
         ),
         {
@@ -159,8 +159,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 alignItems: "center",
               }}
             >
-              <div style={{ marginBottom: "20px" }}>{getMoveIcon(matchData.moves.creatorMove)}</div>
-              <div style={{ fontSize: 32, color: "#888" }}>{creatorName}</div>
+              <div style={{ display: "flex", marginBottom: "20px" }}>{getMoveIcon(matchData.moves.creatorMove)}</div>
+              <div style={{ display: "flex", fontSize: 32, color: "#888" }}>{creatorName}</div>
             </div>
 
             {/* VS */}
@@ -183,8 +183,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 alignItems: "center",
               }}
             >
-              <div style={{ marginBottom: "20px" }}>{getMoveIcon(matchData.moves.joinerMove)}</div>
-              <div style={{ fontSize: 32, color: "#888" }}>{joinerName}</div>
+              <div style={{ display: "flex", marginBottom: "20px" }}>{getMoveIcon(matchData.moves.joinerMove)}</div>
+              <div style={{ display: "flex", fontSize: 32, color: "#888" }}>{joinerName}</div>
             </div>
           </div>
 
@@ -198,7 +198,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               marginBottom: "20px",
             }}
           >
-            {winner === "tie" ? "🤝" : "🏆"} {winnerName}
+            <span style={{ display: "flex" }}>{winner === "tie" ? "🤝" : "🏆"}</span>
+            <span style={{ display: "flex", marginLeft: "10px" }}>{winnerName}</span>
           </div>
 
           {/* Footer */}
@@ -233,7 +234,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             color: "white",
           }}
         >
-          <div style={{ fontSize: 60, fontWeight: "bold" }}>Error Loading Match</div>
+          <div style={{ display: "flex", fontSize: 60, fontWeight: "bold" }}>Error Loading Match</div>
         </div>
       ),
       {
