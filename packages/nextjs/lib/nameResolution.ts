@@ -59,7 +59,20 @@ async function resolveFromSources(address: string): Promise<ResolvedName> {
   const lowerAddress = address.toLowerCase();
   console.log(`[Name Resolution] Starting resolution for address: ${address}`);
 
-  // 1. Check for Farcaster name (highest priority)
+  // 1. Check for ENS name (highest priority - official blockchain identity)
+  console.log(`[Name Resolution] Checking ENS for: ${address}`);
+  const ensName = await resolveENSName(address);
+  if (ensName) {
+    console.log(`[Name Resolution] Found ENS name: ${ensName}`);
+    return {
+      address,
+      displayName: ensName,
+      source: "ens",
+      ensName,
+    };
+  }
+
+  // 2. Check for Farcaster name (second priority)
   console.log(`[Name Resolution] Checking Farcaster for: ${address}`);
   const farcasterName = await resolveFarcasterName(lowerAddress);
   if (farcasterName) {
@@ -73,20 +86,7 @@ async function resolveFromSources(address: string): Promise<ResolvedName> {
     };
   }
 
-  // 2. Check for ENS name
-  console.log(`[Name Resolution] Checking ENS for: ${address}`);
-  const ensName = await resolveENSName(address);
-  if (ensName) {
-    console.log(`[Name Resolution] Found ENS name: ${ensName}`);
-    return {
-      address,
-      displayName: ensName,
-      source: "ens",
-      ensName,
-    };
-  }
-
-  // 3. Check for Basename
+  // 3. Check for Basename (third priority)
   console.log(`[Name Resolution] Checking Basename for: ${address}`);
   const basename = await resolveBasename(address);
   if (basename) {
