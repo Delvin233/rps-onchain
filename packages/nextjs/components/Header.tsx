@@ -156,7 +156,7 @@ const UsernameDisplay = memo(() => {
           )}
           <span className="text-sm text-base-content hidden sm:block">
             Welcome <span className="font-bold">{displayName}</span>
-            {ensType === "mainnet" && <span className="text-success text-xs ml-1">ENS</span>}
+            {ensType === "ens" && <span className="text-success text-xs ml-1">ENS</span>}
             {ensType === "farcaster" && <span className="text-purple-500 text-xs ml-1">FC</span>}
             {ensType === "basename" && <span className="text-primary text-xs ml-1">BASENAME</span>}
           </span>

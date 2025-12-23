@@ -254,7 +254,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
               {ensType && (
                 <span
                   className={`text-xs flex-shrink-0 ${
-                    ensType === "mainnet"
+                    ensType === "ens"
                       ? "text-success"
                       : ensType === "basename"
                         ? "text-primary"
@@ -266,7 +266,7 @@ export function MiniAppAccount({ platform }: MiniAppAccountProps) {
                     fontSize: "calc(0.65rem * var(--font-size-multiplier, 1) * var(--font-size-override, 1))",
                   }}
                 >
-                  {ensType === "mainnet"
+                  {ensType === "ens"
                     ? "ENS"
                     : ensType === "basename"
                       ? "BASENAME"

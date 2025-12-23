@@ -12,6 +12,14 @@ export async function GET(request: NextRequest) {
 
     const resolved = await resolvePlayerName(address);
 
+    console.log(`[Resolve Name API] Address: ${address}, Result:`, {
+      displayName: resolved.displayName,
+      source: resolved.source,
+      farcasterUsername: resolved.farcasterUsername,
+      ensName: resolved.ensName,
+      basename: resolved.basename,
+    });
+
     return NextResponse.json({
       address: resolved.address,
       displayName: resolved.displayName,

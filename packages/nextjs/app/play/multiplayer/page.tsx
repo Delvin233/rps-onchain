@@ -403,7 +403,7 @@ export default function MultiplayerPage() {
                       {creatorHasEns && (
                         <span
                           className={`ml-1 text-xs ${
-                            creatorEnsType === "mainnet"
+                            creatorEnsType === "ens"
                               ? "text-success"
                               : creatorEnsType === "basename"
                                 ? "text-primary"
@@ -412,7 +412,7 @@ export default function MultiplayerPage() {
                                   : "text-info"
                           }`}
                         >
-                          {creatorEnsType === "mainnet"
+                          {creatorEnsType === "ens"
                             ? "ENS"
                             : creatorEnsType === "basename"
                               ? "BASENAME"
@@ -512,7 +512,7 @@ export default function MultiplayerPage() {
                   {creatorHasEns && (
                     <span
                       className={`ml-2 text-xs ${
-                        creatorEnsType === "mainnet"
+                        creatorEnsType === "ens"
                           ? "text-success"
                           : creatorEnsType === "basename"
                             ? "text-primary"
@@ -521,7 +521,7 @@ export default function MultiplayerPage() {
                               : "text-info"
                       }`}
                     >
-                      {creatorEnsType === "mainnet"
+                      {creatorEnsType === "ens"
                         ? "ENS"
                         : creatorEnsType === "basename"
                           ? "BASENAME"

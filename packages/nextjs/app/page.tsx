@@ -379,7 +379,7 @@ export default function Home() {
                   {hasEns && (
                     <span
                       className={`text-xs ml-2 ${
-                        ensType === "mainnet"
+                        ensType === "ens"
                           ? "text-success"
                           : ensType === "basename"
                             ? "text-primary"
@@ -388,7 +388,7 @@ export default function Home() {
                               : "text-info"
                       }`}
                     >
-                      {ensType === "mainnet"
+                      {ensType === "ens"
                         ? "ENS"
                         : ensType === "basename"
                           ? "BASENAME"
