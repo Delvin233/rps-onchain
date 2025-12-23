@@ -30,31 +30,39 @@ export async function sendFarcasterNotification(
 ): Promise<boolean> {
   try {
     console.log(`[Notification] Attempting to send to FID ${fid}:`, notification);
+    console.log(`[Notification] Using token: ${notificationToken?.substring(0, 8)}...`);
 
     if (!notificationToken) {
       console.log(`[Notification] No notification token for FID ${fid} - cannot send notification`);
       return false;
     }
 
+    const requestBody = {
+      notificationId: `daily-reminder-${fid}-${Date.now()}`,
+      title: notification.title,
+      body: notification.body,
+      targetUrl: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
+      tokens: [notificationToken], // Required: array of notification tokens
+    };
+
+    console.log(`[Notification] Request body:`, requestBody);
+
     // Use Farcaster's notification API as documented in the SDK
-    // The URL and token come from context.client.notificationDetails
     const response = await fetch("https://api.farcaster.xyz/v1/frame-notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${notificationToken}`,
+        // Note: Token is passed in the body 'tokens' array, not Authorization header
       },
-      body: JSON.stringify({
-        notificationId: `daily-reminder-${fid}-${Date.now()}`,
-        title: notification.title,
-        body: notification.body,
-        targetUrl: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
-      }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log(`[Notification] Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[Notification] Failed to send to FID ${fid}: ${response.status} - ${errorText}`);
+      console.error(`[Notification] Response headers:`, Object.fromEntries(response.headers.entries()));
       return false;
     }
 
