@@ -9,7 +9,6 @@ import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
-import { NotificationPreferences } from "~~/components/NotificationPreferences";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -301,9 +300,6 @@ export default function ProfilePage() {
           </button>
         )}
       </div>
-
-      {/* Notification Preferences - Only show in Farcaster miniapp */}
-      {isFarcaster && <NotificationPreferences />}
 
       {/* GoodDollar UBI Claim - HIGHLIGHTED */}
       <div data-section="gooddollar" className="bg-card/50 rounded-xl p-6 mb-4 border-2 border-primary">
