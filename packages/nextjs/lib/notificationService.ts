@@ -28,29 +28,38 @@ export async function sendFarcasterNotification(
   notificationToken?: string,
 ): Promise<boolean> {
   try {
-    // This would use Farcaster's notification API
-    // For now, we'll log it and return success
-    console.log(`[Notification] Sending to FID ${fid}:`, notification);
+    console.log(`[Notification] Attempting to send to FID ${fid}:`, notification);
 
-    // In a real implementation, you'd call Farcaster's notification endpoint
-    // const response = await fetch('https://api.farcaster.xyz/v1/notifications', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${notificationToken}`
-    //   },
-    //   body: JSON.stringify({
-    //     fid,
-    //     title: notification.title,
-    //     body: notification.body,
-    //     targetUrl: notification.targetUrl,
-    //     actionUrl: notification.actionUrl
-    //   })
-    // });
+    if (!notificationToken) {
+      console.log(`[Notification] No notification token for FID ${fid} - cannot send notification`);
+      return false;
+    }
 
-    // Suppress unused parameter warning for now
-    void notificationToken;
+    // Use Farcaster's notification API
+    // Based on the miniapp SDK documentation, notifications are sent via the client's notification details
+    const response = await fetch("https://api.farcaster.xyz/v1/frame-notifications", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${notificationToken}`,
+      },
+      body: JSON.stringify({
+        notificationId: `daily-reminder-${Date.now()}`,
+        title: notification.title,
+        body: notification.body,
+        targetUrl: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
+        tokens: [notificationToken], // Array of notification tokens
+      }),
+    });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Notification] Failed to send to FID ${fid}: ${response.status} - ${errorText}`);
+      return false;
+    }
+
+    const result = await response.json();
+    console.log(`[Notification] Successfully sent to FID ${fid}:`, result);
     return true;
   } catch (error) {
     console.error(`[Notification] Failed to send to FID ${fid}:`, error);

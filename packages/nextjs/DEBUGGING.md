@@ -55,6 +55,30 @@ This endpoint will:
 - Verify CRON_SECRET configuration
 - Show detailed response from cron jobs
 
+### Test Notification Preferences
+
+```
+GET /api/check-notification-prefs?fid=YOUR_FID
+```
+
+This endpoint will:
+
+- Check if user has notification preferences set up
+- Show whether notifications should be sent
+- Provide recommendations for fixing notification issues
+
+### Debug Notifications
+
+```
+GET /api/test-notifications-debug?fid=YOUR_FID
+```
+
+This endpoint will:
+
+- Show all users with notification preferences
+- Display detailed timing and eligibility information
+- Show what notifications would be generated
+
 ## Common Issues
 
 ### 1. Wrong Name Source Priority
@@ -131,6 +155,33 @@ This endpoint will:
 - The code has been updated with 10-second timeouts
 - Match history is now separated from room cleanup
 - Matches persist for 30 days even after rooms expire
+
+### 6. Notifications Not Being Received
+
+**Symptoms:**
+
+- Cron job runs successfully but no Farcaster notifications received
+- User has enabled notifications but doesn't get daily reminders
+
+**Debugging:**
+
+1. Check if user has notification preferences: `/api/check-notification-prefs?fid=YOUR_FID`
+2. Verify notification token is present in database
+3. Check if user is within the time window (±1 hour of reminder time)
+4. Verify user hasn't already claimed today
+
+**Common Causes:**
+
+- **No notification token**: User needs to grant notification permissions in Farcaster client
+- **Wrong time window**: Notifications only sent within 1 hour of reminder time
+- **Already claimed**: No notification sent if user already claimed today
+- **Disabled reminders**: User has `enable_daily_reminders = 0`
+
+**Solution:**
+
+- User must enable notifications in the Farcaster miniapp
+- Notification token is automatically stored when user grants permissions
+- Check timing - cron runs at 9 AM UTC, sends to users with reminder time ±1 hour
 
 ## Vercel Cron Configuration
 
