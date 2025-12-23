@@ -4,6 +4,7 @@ import { useBasename } from "./useBasename";
 import { useQuery } from "@tanstack/react-query";
 import { useEnsName } from "wagmi";
 import { mainnet } from "wagmi/chains";
+import { getBaseUrl } from "~~/utils/shareUtils";
 
 export const useDisplayName = (address: string | undefined) => {
   const { data: mainnetEns } = useEnsName({ address, chainId: mainnet.id });
@@ -23,7 +24,7 @@ export const useDisplayName = (address: string | undefined) => {
     queryKey: ["resolve-name", address, platform],
     queryFn: async () => {
       if (!address) return null;
-      const res = await fetch(`/api/resolve-name?address=${address}`);
+      const res = await fetch(`${getBaseUrl()}/api/resolve-name?address=${address}`);
       if (!res.ok) return null;
       const data = await res.json();
       return data;
@@ -45,6 +46,14 @@ export const useDisplayName = (address: string | undefined) => {
     hasEns = resolvedName.source !== "wallet";
     ensType = resolvedName.source;
     pfpUrl = resolvedName.pfpUrl || null;
+
+    // Debug logging
+    console.log(`[useDisplayName] Resolved name for ${address}:`, {
+      displayName,
+      source: resolvedName.source,
+      ensType,
+      resolvedName,
+    });
   } else {
     // Fallback to old logic if API fails
     displayName = mainnetEns || basename || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
