@@ -216,7 +216,7 @@ export default function PlayModePage() {
                 className="text-base-content/60"
                 style={{ fontSize: "calc(clamp(0.75rem, 2.5vw, 0.875rem) * var(--font-size-override, 1))" }}
               >
-                Blockchain-verified matches
+                Published matches
               </p>
             </div>
           </div>

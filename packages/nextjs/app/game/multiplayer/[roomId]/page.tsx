@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { FaRegHandPaper, FaRegHandRock, FaRegHandScissors } from "react-icons/fa";
 import { useChainId } from "wagmi";
 import { LoginButton } from "~~/components/LoginButton";
 import { ShareButton } from "~~/components/ShareButton";
@@ -56,6 +57,19 @@ export default function MultiplayerGamePage() {
 
   const moves: Move[] = ["rock", "paper", "scissors"];
   const { writeContractAsync: publishMatchContract } = useScaffoldWriteContract({ contractName: "RPSOnline" });
+
+  const getMoveIcon = (move: Move) => {
+    switch (move) {
+      case "rock":
+        return <FaRegHandRock className="w-8 h-8" />;
+      case "paper":
+        return <FaRegHandPaper className="w-8 h-8" />;
+      case "scissors":
+        return <FaRegHandScissors className="w-8 h-8" />;
+      default:
+        return null;
+    }
+  };
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -707,15 +721,10 @@ export default function MultiplayerGamePage() {
               key={move}
               onClick={() => submitMove(move)}
               disabled={isSubmitting}
-              className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 disabled:opacity-50 flex items-center justify-center"
               style={{ padding: "clamp(1rem, 3vh, 2rem)" }}
             >
-              <p
-                className="font-semibold capitalize"
-                style={{ fontSize: "calc(clamp(1rem, 3vw, 1.5rem) * var(--font-size-override, 1))" }}
-              >
-                {move}
-              </p>
+              {getMoveIcon(move)}
             </button>
           ))}
         </div>
@@ -733,9 +742,7 @@ export default function MultiplayerGamePage() {
         )}
         <h1 className="text-2xl font-bold mb-6">Waiting for Reveal...</h1>
         <div className="bg-card/50 border border-border rounded-xl p-6 text-center">
-          <p className="text-lg mb-4">
-            Your move: <span className="font-bold uppercase">{selectedMove}</span>
-          </p>
+          <p className="text-lg mb-4 flex items-center justify-center gap-2">Your move: {getMoveIcon(selectedMove!)}</p>
           <p className="text-base-content/60">Waiting for opponent move...</p>
         </div>
       </div>
@@ -761,7 +768,7 @@ export default function MultiplayerGamePage() {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
               <p className="text-xs text-base-content/60 mb-1">{myName}</p>
-              <p className="text-2xl font-bold capitalize">{selectedMove}</p>
+              <div className="flex items-center justify-center">{getMoveIcon(selectedMove!)}</div>
             </div>
             <div className="text-center">
               <p className="text-xs text-base-content/60 mb-1 flex items-center justify-center gap-1">
@@ -776,7 +783,7 @@ export default function MultiplayerGamePage() {
                   </span>
                 )}
               </p>
-              <p className="text-2xl font-bold capitalize">{opponentMove}</p>
+              <div className="flex items-center justify-center">{getMoveIcon(opponentMove!)}</div>
             </div>
           </div>
 

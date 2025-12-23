@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Play } from "lucide-react";
+import { FaRegHandPaper, FaRegHandRock, FaRegHandScissors } from "react-icons/fa";
 import { BestOfThreeExplanationModal } from "~~/components/BestOfThreeExplanationModal";
 import { LoginButton } from "~~/components/LoginButton";
 import { MatchScoreboard } from "~~/components/MatchScoreboard";
@@ -195,6 +196,19 @@ export default function SinglePlayerPage() {
 
   const moves: Move[] = ["rock", "paper", "scissors"];
 
+  const getMoveIcon = (move: Move) => {
+    switch (move) {
+      case "rock":
+        return <FaRegHandRock className="w-8 h-8" />;
+      case "paper":
+        return <FaRegHandPaper className="w-8 h-8" />;
+      case "scissors":
+        return <FaRegHandScissors className="w-8 h-8" />;
+      default:
+        return null;
+    }
+  };
+
   const playRound = async (move: Move) => {
     if (!currentMatch) return;
 
@@ -353,9 +367,9 @@ export default function SinglePlayerPage() {
               <button
                 key={move}
                 onClick={() => playRound(move)}
-                className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 py-3 px-6"
+                className="w-full bg-card/50 border border-border rounded-xl hover:border-primary/50 transition-all duration-200 py-4 px-6 flex items-center justify-center"
               >
-                <p className="font-semibold capitalize text-lg">{move}</p>
+                {getMoveIcon(move)}
               </button>
             ))}
           </div>
@@ -368,11 +382,11 @@ export default function SinglePlayerPage() {
             <div className="grid grid-cols-2 gap-4 mb-2">
               <div className="text-center">
                 <p className="text-xs text-base-content/60 mb-1">You</p>
-                <p className="text-xl font-bold capitalize">{playerMove}</p>
+                <div className="flex items-center justify-center">{getMoveIcon(playerMove!)}</div>
               </div>
               <div className="text-center">
                 <p className="text-xs text-base-content/60 mb-1">AI</p>
-                <p className="text-xl font-bold capitalize">{aiMove}</p>
+                <div className="flex items-center justify-center">{getMoveIcon(aiMove!)}</div>
               </div>
             </div>
 

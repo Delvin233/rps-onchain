@@ -1,6 +1,7 @@
 "use client";
 
 import { Bot, Calendar, Clock, Trophy, User, X } from "lucide-react";
+import { FaRegHandPaper, FaRegHandRock, FaRegHandScissors } from "react-icons/fa";
 import { AIMatch, Round } from "~~/types/aiMatch";
 
 interface DetailedMatchViewProps {
@@ -29,33 +30,17 @@ export function DetailedMatchView({ match, onClose, isVisible }: DetailedMatchVi
     return date.toLocaleString();
   };
 
-  const getMoveEmoji = (move: string): string => {
+  const getMoveIcon = (move: string) => {
+    const iconProps = { size: 32, className: "mx-auto" };
     switch (move.toLowerCase()) {
       case "rock":
-        return "🪨";
+        return <FaRegHandRock {...iconProps} />;
       case "paper":
-        return "📄";
+        return <FaRegHandPaper {...iconProps} />;
       case "scissors":
-        return "✂️";
+        return <FaRegHandScissors {...iconProps} />;
       default:
-        return "❓";
-    }
-  };
-
-  const getMoveDisplayText = (move: string): string => {
-    switch (move.toLowerCase()) {
-      case "rock":
-        return "ROCK";
-      case "paper":
-        return "PAPER";
-      case "scissors":
-        return "SCISSORS";
-      case "unknown":
-        return "UNKNOWN";
-      case "invalid":
-        return "INVALID";
-      default:
-        return move.toUpperCase();
+        return <span className="text-2xl">❓</span>;
     }
   };
 
@@ -221,11 +206,8 @@ export function DetailedMatchView({ match, onClose, isVisible }: DetailedMatchVi
                   <div className="grid grid-cols-3 items-center gap-4">
                     {/* Player Move */}
                     <div className="text-center">
-                      <div className="text-2xl mb-1">{getMoveEmoji(round.playerMove)}</div>
+                      <div className="mb-1">{getMoveIcon(round.playerMove)}</div>
                       <div className="text-sm font-medium text-primary">You</div>
-                      <div className="text-xs text-base-content/60 font-bold">
-                        {getMoveDisplayText(round.playerMove)}
-                      </div>
                     </div>
 
                     {/* VS */}
@@ -235,9 +217,8 @@ export function DetailedMatchView({ match, onClose, isVisible }: DetailedMatchVi
 
                     {/* AI Move */}
                     <div className="text-center">
-                      <div className="text-2xl mb-1">{getMoveEmoji(round.aiMove)}</div>
+                      <div className="mb-1">{getMoveIcon(round.aiMove)}</div>
                       <div className="text-sm font-medium text-secondary">AI</div>
-                      <div className="text-xs text-base-content/60 font-bold">{getMoveDisplayText(round.aiMove)}</div>
                     </div>
                   </div>
 

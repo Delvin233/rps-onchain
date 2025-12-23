@@ -19,25 +19,38 @@ export const useDisplayName = (address: string | undefined) => {
           : "web"
       : "web";
 
-  const { data: farcasterData } = useQuery({
+  const { data: resolvedName } = useQuery({
     queryKey: ["resolve-name", address, platform],
     queryFn: async () => {
-      if (!address) return { name: null, pfp: null };
+      if (!address) return null;
       const res = await fetch(`/api/resolve-name?address=${address}`);
+      if (!res.ok) return null;
       const data = await res.json();
-      return { name: data.name || null, pfp: data.pfp || null };
+      return data;
     },
     enabled: !!address,
-    staleTime: 1 * 60 * 1000, // 1 minute (reduced from 5)
-    gcTime: 2 * 60 * 1000, // 2 minutes (reduced from 10)
+    staleTime: 1 * 60 * 1000, // 1 minute
+    gcTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  // Priority: mainnet ENS > basename > farcaster > wallet
-  const displayName =
-    mainnetEns || basename || farcasterData?.name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
-  const hasEns = !!(mainnetEns || basename || farcasterData?.name);
-  const ensType = mainnetEns ? "mainnet" : basename ? "basename" : farcasterData?.name ? "farcaster" : null;
-  const pfpUrl = basename ? null : farcasterData?.pfp; // Only show Farcaster pfp if no basename
+  // Use the comprehensive name resolution system with proper priority:
+  // Farcaster > ENS > Basename > wallet address
+  let displayName = "";
+  let hasEns = false;
+  let ensType: string | null = null;
+  let pfpUrl: string | null = null;
+
+  if (resolvedName) {
+    displayName = resolvedName.displayName;
+    hasEns = resolvedName.source !== "wallet";
+    ensType = resolvedName.source;
+    pfpUrl = resolvedName.pfpUrl || null;
+  } else {
+    // Fallback to old logic if API fails
+    displayName = mainnetEns || basename || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
+    hasEns = !!(mainnetEns || basename);
+    ensType = mainnetEns ? "ens" : basename ? "basename" : null;
+  }
 
   return { displayName, hasEns, ensType, fullAddress: address, pfpUrl };
 };

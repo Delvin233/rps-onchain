@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolvePlayerNames } from "~~/lib/nameResolution";
 import { redis } from "~~/lib/upstash";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
@@ -51,8 +52,18 @@ async function getMatchData(roomId: string, matchId: string) {
               if (matchId.includes(simpleMatchId) || generatedMatchId === matchId || simpleMatchId === matchId) {
                 console.log(`[Share API] Match found!`);
 
-                // Get player names from display names or use addresses
-                const playerNames = await getPlayerNames(match.players?.creator, match.players?.joiner);
+                // Resolve player names using the comprehensive name resolution system
+                const addresses = [match.players?.creator, match.players?.joiner].filter(Boolean) as string[];
+                const resolvedNames = await resolvePlayerNames(addresses);
+
+                const playerNames = {
+                  creator: match.players?.creator
+                    ? resolvedNames[match.players.creator.toLowerCase()]?.displayName
+                    : undefined,
+                  joiner: match.players?.joiner
+                    ? resolvedNames[match.players.joiner.toLowerCase()]?.displayName
+                    : undefined,
+                };
 
                 return NextResponse.json({
                   roomId,
@@ -121,8 +132,14 @@ async function getRoomData(roomId: string) {
       }
     }
 
-    // Get player names
-    const playerNames = await getPlayerNames(roomData.creator, roomData.joiner);
+    // Resolve player names using the comprehensive name resolution system
+    const addresses = [roomData.creator, roomData.joiner].filter(Boolean) as string[];
+    const resolvedNames = await resolvePlayerNames(addresses);
+
+    const playerNames = {
+      creator: roomData.creator ? resolvedNames[roomData.creator.toLowerCase()]?.displayName : undefined,
+      joiner: roomData.joiner ? resolvedNames[roomData.joiner.toLowerCase()]?.displayName : undefined,
+    };
 
     return NextResponse.json({
       roomId,
@@ -142,29 +159,4 @@ async function getRoomData(roomId: string) {
     console.error("Error getting room data:", error);
     return NextResponse.json({ error: "Failed to retrieve room data" }, { status: 500 });
   }
-}
-
-async function getPlayerNames(creatorAddress?: string, joinerAddress?: string) {
-  const playerNames: { creator?: string; joiner?: string } = {};
-
-  try {
-    // Try to get display names from Redis cache
-    if (creatorAddress) {
-      const creatorName = await redis.get(`displayName:${creatorAddress.toLowerCase()}`);
-      if (creatorName && typeof creatorName === "string") {
-        playerNames.creator = creatorName;
-      }
-    }
-
-    if (joinerAddress) {
-      const joinerName = await redis.get(`displayName:${joinerAddress.toLowerCase()}`);
-      if (joinerName && typeof joinerName === "string") {
-        playerNames.joiner = joinerName;
-      }
-    }
-  } catch (error) {
-    console.error("Error getting player names:", error);
-  }
-
-  return playerNames;
 }

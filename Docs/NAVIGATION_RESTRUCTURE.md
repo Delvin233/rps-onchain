@@ -8,6 +8,7 @@
 **After**: Card option in `/play` page
 
 #### New Play Page Layout:
+
 ```
 ┌─────────────────────────────────────────────────┐
 │  Choose Game Mode                               │
@@ -31,12 +32,14 @@
 ```
 
 **Card Details**:
+
 - **Icon**: Shield (success color)
 - **Title**: "On-Chain Verified"
-- **Description**: "Blockchain-verified matches"
+- **Description**: "Published matches"
 - **Action**: Navigates to `/on-chain-matches`
 
 **Reasoning**:
+
 - Keeps play-related options together
 - Reduces nav clutter
 - Makes it clear this is a play mode option
@@ -46,16 +49,19 @@
 **Navigation Changes**:
 
 #### Mobile (BottomNavigation):
+
 - **Before**: "On-Chain"
 - **After**: "Ranks"
 - **Icon**: Shield (kept same)
 
 #### Desktop (DesktopLayout):
+
 - **Before**: "On-Chain"
 - **After**: "Leaderboards"
 - **Icon**: Shield (kept same)
 
 #### Header:
+
 - **Before**: "On-Chain"
 - **After**: "Leaderboards"
 
@@ -66,6 +72,7 @@
 **Current State**: Placeholder with "Coming Soon" message
 
 **Placeholder Content**:
+
 - Shield icon
 - "Coming Soon!" heading
 - Description: "Leaderboards will showcase top players, win streaks, and competitive rankings."
@@ -73,18 +80,22 @@
 ## Files Modified
 
 1. `packages/nextjs/app/play/page.tsx`
+
    - Added On-Chain Verified card
    - Imported Shield icon
 
 2. `packages/nextjs/components/BottomNavigation.tsx`
+
    - Changed path: `/on-chain-matches` → `/leaderboards`
    - Changed label: "On-Chain" → "Ranks"
 
 3. `packages/nextjs/components/DesktopLayout.tsx`
+
    - Changed path: `/on-chain-matches` → `/leaderboards`
    - Changed label: "On-Chain" → "Leaderboards"
 
 4. `packages/nextjs/components/Header.tsx`
+
    - Changed href: `/on-chain-matches` → `/leaderboards`
    - Changed label: "On-Chain" → "Leaderboards"
 
@@ -94,6 +105,7 @@
 ## Current Navigation Structure
 
 ### Mobile Bottom Nav:
+
 ```
 ┌──────┬──────┬───────┬───────┬─────────┐
 │ Home │ Play │ Intel │ Ranks │ Profile │
@@ -101,6 +113,7 @@
 ```
 
 ### Desktop Top Nav:
+
 ```
 ┌──────┬──────┬────────────────┬──────────────┬─────────┐
 │ Home │ Play │ Opponent Intel │ Leaderboards │ Profile │
@@ -110,12 +123,14 @@
 ## User Flow
 
 ### Accessing On-Chain Verified Matches:
+
 1. User clicks "Play" in nav
 2. Sees three options: Single Player, Multiplayer, On-Chain Verified
 3. Clicks "On-Chain Verified" card
 4. Navigates to `/on-chain-matches` page
 
 ### Accessing Leaderboards:
+
 1. User clicks "Ranks" (mobile) or "Leaderboards" (desktop) in nav
 2. Navigates to `/leaderboards` page
 3. Sees "Coming Soon" placeholder
@@ -123,22 +138,27 @@
 ## Next Steps
 
 ### For Leaderboards Page:
+
 You mentioned you'll show what to place in the leaderboards section. When ready, we can implement:
 
 1. **Top Players**
+
    - Ranked by wins, win rate, or total games
    - Display names, avatars, stats
 
 2. **Win Streaks**
+
    - Current longest streaks
    - All-time records
 
 3. **Categories**
+
    - Overall rankings
    - Weekly/Monthly rankings
    - AI vs Multiplayer separate boards
 
 4. **User Position**
+
    - Highlight current user's rank
    - Show nearby players
 

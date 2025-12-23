@@ -3,11 +3,27 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, ChevronDown, ChevronUp, ExternalLink, RefreshCw, Shield, Upload } from "lucide-react";
+import { FaRegHandPaper, FaRegHandRock, FaRegHandScissors } from "react-icons/fa";
 import { FaLightbulb } from "react-icons/fa6";
 import { LoginButton } from "~~/components/LoginButton";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useIPFSSync } from "~~/hooks/useIPFSSync";
 import { MatchRecord, getLocalMatches } from "~~/lib/pinataStorage";
+
+// Helper function to convert move string to React Icon
+const getMoveIcon = (move: string) => {
+  const normalizedMove = move?.toLowerCase();
+  switch (normalizedMove) {
+    case "rock":
+      return <FaRegHandRock className="w-8 h-8" />;
+    case "paper":
+      return <FaRegHandPaper className="w-8 h-8" />;
+    case "scissors":
+      return <FaRegHandScissors className="w-8 h-8" />;
+    default:
+      return <span className="text-base-content/60">?</span>;
+  }
+};
 
 export default function HistoryPage() {
   const { address, isConnected, isConnecting } = useConnectedAddress();
@@ -383,11 +399,14 @@ export default function HistoryPage() {
                           {match.rounds.map((round: any, rIndex: number) => (
                             <div key={rIndex} className="bg-base-100 p-2 rounded text-sm">
                               <div className="flex justify-between items-center">
-                                <span>
-                                  Round {round.roundNumber}:{" "}
-                                  <span className="font-bold uppercase">{round.playerMove}</span> vs{" "}
-                                  <span className="font-bold uppercase">{round.aiMove}</span>
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span>Round {round.roundNumber}:</span>
+                                  <div className="flex items-center gap-1">
+                                    {getMoveIcon(round.playerMove)}
+                                    <span className="text-base-content/60">vs</span>
+                                    {getMoveIcon(round.aiMove)}
+                                  </div>
+                                </div>
                                 <span
                                   className={`text-xs font-semibold ${
                                     round.result.winner === "player"
@@ -425,16 +444,17 @@ export default function HistoryPage() {
                         </div>
                       </div>
                       <div className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
-                        <span>
+                        <div className="flex items-center gap-2">
                           {match.playerMove && match.opponentMove ? (
-                            <>
-                              <span className="font-bold uppercase">{match.playerMove}</span> vs{" "}
-                              <span className="font-bold uppercase">{match.opponentMove}</span>
-                            </>
+                            <div className="flex items-center gap-1">
+                              {getMoveIcon(match.playerMove)}
+                              <span className="text-base-content/60">vs</span>
+                              {getMoveIcon(match.opponentMove)}
+                            </div>
                           ) : (
                             <span className="text-base-content/60">Move data unavailable</span>
                           )}
-                        </span>
+                        </div>
                         <span
                           className={`font-semibold ${match.result === "win" ? "text-success" : match.result === "tie" ? "text-warning" : "text-error"}`}
                         >
@@ -518,10 +538,11 @@ export default function HistoryPage() {
                           const result = isTie ? "tie" : game.winner === address ? "win" : "lose";
                           return (
                             <div key={gIndex} className="bg-base-200 p-3 rounded-lg flex justify-between items-center">
-                              <span>
-                                <span className="font-bold uppercase">{myMove}</span> vs{" "}
-                                <span className="font-bold uppercase">{oppMove}</span>
-                              </span>
+                              <div className="flex items-center gap-1">
+                                {getMoveIcon(myMove)}
+                                <span className="text-base-content/60">vs</span>
+                                {getMoveIcon(oppMove)}
+                              </div>
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`font-semibold ${result === "win" ? "text-success" : result === "tie" ? "text-warning" : "text-error"}`}
@@ -709,10 +730,11 @@ function OnChainMatchModal({
               return (
                 <div key={idx} className="bg-base-200 p-3 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span>
-                      <span className="font-bold uppercase">{m.player1Move}</span> vs{" "}
-                      <span className="font-bold uppercase">{m.player2Move}</span>
-                    </span>
+                    <div className="flex items-center gap-1">
+                      {getMoveIcon(m.player1Move)}
+                      <span className="text-base-content/60">vs</span>
+                      {getMoveIcon(m.player2Move)}
+                    </div>
                     <span className="font-semibold text-success">{winnerName}</span>
                   </div>
                   <p className="text-base-content/60 opacity-80 mt-1">

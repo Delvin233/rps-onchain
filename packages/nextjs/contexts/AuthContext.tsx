@@ -6,6 +6,7 @@ import sdk from "@farcaster/miniapp-sdk";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useConnectionPersistence } from "~~/hooks/useConnectionPersistence";
 import { useSafeAccount } from "~~/hooks/useSafeAccount";
+import { cacheFarcasterUser } from "~~/lib/nameResolution";
 
 type AuthMethod = "wallet" | "farcaster" | null;
 
@@ -66,6 +67,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         : null,
     [enrichedUser],
   );
+
+  // Cache Farcaster user data for name resolution when available
+  useEffect(() => {
+    if (farcasterUser && farcasterAddress) {
+      cacheFarcasterUser(farcasterAddress, {
+        fid: farcasterUser.fid,
+        username: farcasterUser.username,
+        displayName: farcasterUser.displayName,
+      }).catch(error => {
+        console.error("Failed to cache Farcaster user:", error);
+      });
+    }
+  }, [farcasterUser, farcasterAddress]);
 
   // Verification state
   const [isHumanVerified, setIsHumanVerified] = useState(false);

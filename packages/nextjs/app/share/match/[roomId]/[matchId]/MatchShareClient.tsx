@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaRegHandPaper, FaRegHandRock, FaRegHandScissors } from "react-icons/fa";
 import { LoginButton } from "~~/components/LoginButton";
 import { usePlatformDetection } from "~~/hooks/usePlatformDetection";
 
@@ -69,16 +70,17 @@ export default function MatchShareClient({ roomId, matchId }: MatchShareClientPr
     fetchMatchData();
   }, [fetchMatchData]);
 
-  const getMoveEmoji = (move: string) => {
+  const getMoveIcon = (move: string) => {
+    const iconProps = { size: 48, className: "mx-auto" };
     switch (move.toLowerCase()) {
       case "rock":
-        return "🪨";
+        return <FaRegHandRock {...iconProps} />;
       case "paper":
-        return "📄";
+        return <FaRegHandPaper {...iconProps} />;
       case "scissors":
-        return "✂️";
+        return <FaRegHandScissors {...iconProps} />;
       default:
-        return "❓";
+        return <span className="text-4xl">❓</span>;
     }
   };
 
@@ -147,13 +149,13 @@ export default function MatchShareClient({ roomId, matchId }: MatchShareClientPr
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="text-center">
             <p className="text-xs text-base-content/60 mb-1">{creatorName}</p>
-            <div className="text-4xl mb-2">{getMoveEmoji(matchData.moves.creatorMove)}</div>
+            <div className="mb-2">{getMoveIcon(matchData.moves.creatorMove)}</div>
             <p className="text-sm font-medium capitalize">{matchData.moves.creatorMove}</p>
           </div>
 
           <div className="text-center">
             <p className="text-xs text-base-content/60 mb-1">{joinerName}</p>
-            <div className="text-4xl mb-2">{getMoveEmoji(matchData.moves.joinerMove)}</div>
+            <div className="mb-2">{getMoveIcon(matchData.moves.joinerMove)}</div>
             <p className="text-sm font-medium capitalize">{matchData.moves.joinerMove}</p>
           </div>
         </div>
