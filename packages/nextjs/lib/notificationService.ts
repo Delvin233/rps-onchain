@@ -1,6 +1,7 @@
 /**
  * Notification service for Farcaster miniapp push notifications using Neynar
  */
+import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 
 export interface NotificationData {
   title: string;
@@ -19,9 +20,25 @@ export interface UserNotificationPrefs {
   notificationToken?: string; // From Farcaster client (managed by Neynar)
 }
 
+// Initialize Neynar client
+let neynarClient: NeynarAPIClient;
+
+function getNeynarClient(): NeynarAPIClient {
+  if (!neynarClient) {
+    if (!process.env.NEYNAR_API_KEY) {
+      throw new Error("NEYNAR_API_KEY not found in environment variables");
+    }
+    // Initialize with configuration object
+    neynarClient = new NeynarAPIClient({
+      apiKey: process.env.NEYNAR_API_KEY,
+    });
+  }
+  return neynarClient;
+}
+
 /**
- * Send notification to Farcaster users using Neynar's API
- * Based on Neynar notification documentation
+ * Send notification to Farcaster users using Neynar SDK
+ * Based on Base App documentation approach
  */
 export async function sendFarcasterNotification(
   fids: number[], // Support multiple FIDs for batch sending
@@ -29,55 +46,34 @@ export async function sendFarcasterNotification(
 ): Promise<boolean> {
   try {
     if (process.env.NODE_ENV === "development") {
-      console.log(`[Neynar Notification] Attempting to send to FIDs:`, fids);
-      console.log(`[Neynar Notification] Notification:`, notification);
+      console.log(`[Neynar SDK] Attempting to send to FIDs:`, fids);
+      console.log(`[Neynar SDK] Notification:`, notification);
     }
 
     if (!process.env.NEYNAR_API_KEY) {
-      console.error(`[Neynar Notification] NEYNAR_API_KEY not found in environment variables`);
+      console.error(`[Neynar SDK] NEYNAR_API_KEY not found in environment variables`);
       return false;
     }
 
-    const requestBody = {
-      target_fids: fids, // Array of FIDs to send to
+    // Use Neynar SDK approach (as recommended by Base App docs)
+    const client = getNeynarClient();
+    const response = await client.publishFrameNotifications({
+      targetFids: fids, // Array of FIDs to send to (empty array = all users with notifications enabled)
+      filters: {}, // No filters for now, but could add exclude_fids, following_fid, etc.
       notification: {
         title: notification.title,
         body: notification.body,
         target_url: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
       },
-    };
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[Neynar Notification] Request body:`, requestBody);
-    }
-
-    // Use Neynar's notification API
-    const response = await fetch("https://api.neynar.com/v2/farcaster/frame/notifications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        api_key: process.env.NEYNAR_API_KEY,
-      },
-      body: JSON.stringify(requestBody),
     });
 
     if (process.env.NODE_ENV === "development") {
-      console.log(`[Neynar Notification] Response status: ${response.status} ${response.statusText}`);
+      console.log(`[Neynar SDK] Successfully sent:`, response);
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Neynar Notification] Failed to send: ${response.status} - ${errorText}`);
-      return false;
-    }
-
-    const result = await response.json();
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[Neynar Notification] Successfully sent:`, result);
-    }
     return true;
   } catch (error) {
-    console.error(`[Neynar Notification] Failed to send:`, error);
+    console.error(`[Neynar SDK] Failed to send:`, error);
     return false;
   }
 }
