@@ -37,6 +37,11 @@ const createRedisFallback = (): Redis => {
       exec: async () => [],
     }),
     evalsha: async () => null,
+    // Redis sorted set methods for analytics
+    zincrby: async () => 0,
+    zrange: async () => [],
+    zcard: async () => 0,
+    zrem: async () => 0,
   } as unknown as Redis;
 };
 
