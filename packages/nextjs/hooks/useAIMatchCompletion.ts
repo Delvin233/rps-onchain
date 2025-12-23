@@ -85,10 +85,14 @@ export function useAIMatchCompletion() {
 
         return result.data;
       } else {
-        console.error("[Leaderboard] Update failed:", result.error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("[Leaderboard] Update failed:", result.error);
+        }
       }
     } catch (error) {
-      console.error("[Leaderboard] Failed to update leaderboard:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[Leaderboard] Failed to update leaderboard:", error);
+      }
     } finally {
       setIsUpdating(false);
     }

@@ -28,7 +28,9 @@ export const useGoodDollarClaim = () => {
         env: "production",
       });
     } catch (error) {
-      console.error("Error initializing ClaimSDK:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error initializing ClaimSDK:", error);
+      }
       return null;
     }
   }, [address, publicClient, walletClient]);
@@ -42,7 +44,9 @@ export const useGoodDollarClaim = () => {
       if (error?.toString().includes("fuse-rpc")) {
         return { amount: 0n };
       }
-      console.error("Error checking entitlement:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error checking entitlement:", error);
+      }
       return { amount: 0n };
     }
   };
@@ -56,7 +60,9 @@ export const useGoodDollarClaim = () => {
       if (error?.toString().includes("fuse-rpc")) {
         return null;
       }
-      console.error("Error getting next claim time:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error getting next claim time:", error);
+      }
       return null;
     }
   };

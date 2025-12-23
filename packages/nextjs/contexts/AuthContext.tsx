@@ -76,7 +76,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         username: farcasterUser.username,
         displayName: farcasterUser.displayName,
       }).catch(error => {
-        console.error("Failed to cache Farcaster user:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Failed to cache Farcaster user:", error);
+        }
       });
     }
   }, [farcasterUser, farcasterAddress]);
@@ -232,7 +234,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Only clear cache if address actually changed (case-insensitive) and both are defined
         // This prevents clearing on initial undefined -> address transition or case-only changes
         if (normalizedPrevious && normalizedPrevious !== normalizedAddress && normalizedPrevious !== "undefined") {
-          console.log(`[AuthContext] Address changed from ${previousAddress} to ${address}, clearing caches`);
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[AuthContext] Address changed from ${previousAddress} to ${address}, clearing caches`);
+          }
 
           // Clear React Query cache for the old address
           if ((window as any).__queryClient) {

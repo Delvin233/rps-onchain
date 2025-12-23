@@ -55,7 +55,9 @@ export const useSelfProtocol = () => {
       setIsLoading(false);
       return { success: true };
     } catch (error) {
-      console.error("Verification error:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Verification error:", error);
+      }
       setIsLoading(false);
       return { success: false, error };
     }

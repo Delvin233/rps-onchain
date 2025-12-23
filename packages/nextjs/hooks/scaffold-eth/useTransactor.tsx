@@ -43,7 +43,9 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
   const result: TransactionFunc = async (tx, options) => {
     if (!walletClient) {
       notification.error("Cannot access account");
-      console.error("⚡️ ~ file: useTransactor.tsx ~ error");
+      if (process.env.NODE_ENV === "development") {
+        console.error("⚡️ ~ file: useTransactor.tsx ~ error");
+      }
       return;
     }
 
@@ -99,7 +101,9 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
       if (notificationId) {
         notification.remove(notificationId);
       }
-      console.error("⚡️ ~ file: useTransactor.ts ~ error", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("⚡️ ~ file: useTransactor.ts ~ error", error);
+      }
 
       // Check if user rejected the transaction
       const isUserRejection =

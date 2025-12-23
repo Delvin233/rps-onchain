@@ -19,7 +19,9 @@ export const useIPFSSync = () => {
       const data = await response.json();
       return data.success;
     } catch (error) {
-      console.error("IPFS sync failed:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("IPFS sync failed:", error);
+      }
       return false;
     } finally {
       setIsSyncing(false);

@@ -11,7 +11,9 @@ export const useCopyToClipboard = () => {
         setIsCopiedToClipboard(false);
       }, 800);
     } catch (err) {
-      console.error("Failed to copy text:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Failed to copy text:", err);
+      }
     }
   };
 

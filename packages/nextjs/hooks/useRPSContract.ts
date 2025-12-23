@@ -31,7 +31,9 @@ export const useRPSContract = () => {
       // Try blockchain first (source of truth)
       if (publicClient) {
         try {
-          console.log(`[Verification] Checking blockchain for ${address}...`);
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[Verification] Checking blockchain for ${address}...`);
+          }
           const verified = (await publicClient.readContract({
             address: CONTRACT_ADDRESS,
             abi: RPS_CONTRACT_ABI,
@@ -61,10 +63,16 @@ export const useRPSContract = () => {
                     console.log("[Sync] Successfully synced to Turso");
                   }
                 } else {
-                  console.warn("[Sync] Turso sync failed with status:", response.status);
+                  if (process.env.NODE_ENV === "development") {
+                    console.warn("[Sync] Turso sync failed with status:", response.status);
+                  }
                 }
               })
-              .catch(err => console.warn("[Sync] Failed to sync to Turso:", err));
+              .catch(err => {
+                if (process.env.NODE_ENV === "development") {
+                  console.warn("[Sync] Failed to sync to Turso:", err);
+                }
+              });
           }
 
           if (process.env.NODE_ENV === "development") {
@@ -72,7 +80,9 @@ export const useRPSContract = () => {
           }
           return verified;
         } catch (blockchainError) {
-          console.warn(`[Verification] Blockchain failed, trying Turso fallback:`, blockchainError);
+          if (process.env.NODE_ENV === "development") {
+            console.warn(`[Verification] Blockchain failed, trying Turso fallback:`, blockchainError);
+          }
 
           // Fallback to Turso if blockchain fails (RPC issues, rate limits, etc.)
           try {
@@ -95,7 +105,9 @@ export const useRPSContract = () => {
               return false;
             }
           } catch (tursoError) {
-            console.error(`[Verification] Both blockchain and Turso failed:`, tursoError);
+            if (process.env.NODE_ENV === "development") {
+              console.error(`[Verification] Both blockchain and Turso failed:`, tursoError);
+            }
             setIsVerified(false);
             setVerificationData(null);
             return false;
@@ -117,7 +129,9 @@ export const useRPSContract = () => {
         return tursoResult.verified || false;
       }
     } catch (error) {
-      console.error("Error checking verification status:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error checking verification status:", error);
+      }
       setIsVerified(false);
       setVerificationData(null);
       return false;

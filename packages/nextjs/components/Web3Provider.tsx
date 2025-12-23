@@ -21,7 +21,9 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       // Check if AppKit is already initialized by checking for existing modal
       const existingModal = document.querySelector("w3m-modal") || document.querySelector('[data-testid="w3m-modal"]');
       if (existingModal) {
-        console.warn("[Web3Provider] AppKit modal already exists, skipping initialization");
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[Web3Provider] AppKit modal already exists, skipping initialization");
+        }
         return;
       }
 

@@ -20,7 +20,9 @@ export const useSafeAppKit = () => {
     }
 
     if (!isClient) {
-      console.warn("[useSafeAppKit] Not on client side");
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[useSafeAppKit] Not on client side");
+      }
       return;
     }
 
@@ -79,7 +81,9 @@ export const useSafeAppKit = () => {
         (appKitElements[0] as HTMLElement).click?.();
       }
     } catch (error) {
-      console.error("[useSafeAppKit] Error opening AppKit:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[useSafeAppKit] Error opening AppKit:", error);
+      }
     }
   };
 
@@ -92,7 +96,9 @@ export const useSafeAppKit = () => {
         modal.close();
       }
     } catch (error) {
-      console.error("[useSafeAppKit] Error closing AppKit:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[useSafeAppKit] Error closing AppKit:", error);
+      }
     }
   };
 

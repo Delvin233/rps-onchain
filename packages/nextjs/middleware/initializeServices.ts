@@ -28,12 +28,16 @@ export async function ensureServicesInitialized(
     }
 
     // Start initialization
-    console.log("[Middleware] Initializing services on first request...");
+    if (process.env.NODE_ENV === "development") {
+      console.log("[Middleware] Initializing services on first request...");
+    }
     initializationPromise = initializeServices();
 
     try {
       await initializationPromise;
-      console.log("[Middleware] Services initialized successfully");
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Middleware] Services initialized successfully");
+      }
     } catch (error) {
       console.error("[Middleware] Service initialization failed:", error);
       // Continue with request even if initialization fails

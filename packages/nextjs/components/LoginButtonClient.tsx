@@ -27,18 +27,26 @@ export const LoginButtonClient = ({ size = "lg" }: LoginButtonClientProps) => {
   const displayText = isConnected && address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Login";
 
   const handleClick = () => {
-    console.log("[LoginButtonClient] Login button clicked - using official useAppKit hook");
-    console.log("[LoginButtonClient] Attempting to open AppKit");
+    if (process.env.NODE_ENV === "development") {
+      console.log("[LoginButtonClient] Login button clicked - using official useAppKit hook");
+      console.log("[LoginButtonClient] Attempting to open AppKit");
+    }
 
     try {
       if (open) {
-        console.log("[LoginButtonClient] AppKit open function found, calling it");
+        if (process.env.NODE_ENV === "development") {
+          console.log("[LoginButtonClient] AppKit open function found, calling it");
+        }
         open();
       } else {
-        console.error("[LoginButtonClient] Could not find AppKit to open");
+        if (process.env.NODE_ENV === "development") {
+          console.error("[LoginButtonClient] Could not find AppKit to open");
+        }
       }
     } catch (error) {
-      console.error("[LoginButtonClient] Error opening AppKit:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[LoginButtonClient] Error opening AppKit:", error);
+      }
     }
   };
 

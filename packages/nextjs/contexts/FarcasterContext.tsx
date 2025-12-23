@@ -72,7 +72,9 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
               throw new Error("Failed to fetch user data");
             }
           } catch (error) {
-            console.error("Failed to fetch user data:", error);
+            if (process.env.NODE_ENV === "development") {
+              console.error("Failed to fetch user data:", error);
+            }
             // Fallback to basic SDK data
             setEnrichedUser({
               fid: ctx.user.fid,
@@ -89,7 +91,9 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
       await sdk.actions.ready();
       isInitialized.current = true;
     } catch (err) {
-      console.error("[Farcaster] SDK initialization error:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[Farcaster] SDK initialization error:", err);
+      }
     } finally {
       isInitializing.current = false;
       setIsMiniAppReady(true);
@@ -121,7 +125,9 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
       const result = await sdk.actions.addMiniApp();
       return result || null;
     } catch (error) {
-      console.error("[error] adding mini app", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[error] adding mini app", error);
+      }
       return null;
     }
   }, []);

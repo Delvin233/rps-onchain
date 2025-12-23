@@ -67,7 +67,9 @@ export const useUserPreferences = () => {
           }
         }
       } catch (error) {
-        console.error("Failed to load preferences:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Failed to load preferences:", error);
+        }
       }
     };
 
@@ -96,7 +98,9 @@ export const useUserPreferences = () => {
         }),
       });
     } catch (error) {
-      console.error("Failed to save preferences:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Failed to save preferences:", error);
+      }
     }
   };
 

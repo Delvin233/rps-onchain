@@ -22,7 +22,10 @@ export function middleware(request: NextRequest) {
   if (suspiciousPaths.some(path => pathname.startsWith(path))) {
     const clientIP =
       request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "unknown";
-    console.log(`🚫 Blocked suspicious request: ${request.method} ${pathname} from ${clientIP}`);
+    // Only log in development mode
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🚫 Blocked suspicious request: ${request.method} ${pathname} from ${clientIP}`);
+    }
     return new NextResponse("Not Found", { status: 404 });
   }
 
@@ -30,7 +33,10 @@ export function middleware(request: NextRequest) {
   if (pathname.includes("..") || pathname.includes("%")) {
     const clientIP =
       request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "unknown";
-    console.log(`⚠️  Unusual request: ${request.method} ${pathname} from ${clientIP}`);
+    // Only log in development mode
+    if (process.env.NODE_ENV === "development") {
+      console.log(`⚠️  Unusual request: ${request.method} ${pathname} from ${clientIP}`);
+    }
   }
 
   return NextResponse.next();

@@ -24,7 +24,9 @@ export const useSyncMatches = () => {
           localStorage.setItem("rps_matches", JSON.stringify(userData.matches));
         }
       } catch (error) {
-        console.error("Error syncing matches:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Error syncing matches:", error);
+        }
       }
     };
 

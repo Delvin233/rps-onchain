@@ -99,9 +99,11 @@ export const useScaffoldEventHistory = <
   // Runtime warning for non-local chains
   useEffect(() => {
     if (selectedNetwork.id !== hardhat.id) {
-      console.log(
-        "⚠️ useScaffoldEventHistory is not optimized for production use. It can overload RPC endpoints (especially on L2s)",
-      );
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          "⚠️ useScaffoldEventHistory is not optimized for production use. It can overload RPC endpoints (especially on L2s)",
+        );
+      }
     }
   }, [selectedNetwork.id]);
 
