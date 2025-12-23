@@ -21,6 +21,7 @@ export interface UserNotificationPrefs {
 
 /**
  * Send notification to Farcaster user
+ * Based on Farcaster miniapp SDK documentation
  */
 export async function sendFarcasterNotification(
   fid: number,
@@ -35,8 +36,8 @@ export async function sendFarcasterNotification(
       return false;
     }
 
-    // Use Farcaster's notification API
-    // Based on the miniapp SDK documentation, notifications are sent via the client's notification details
+    // Use Farcaster's notification API as documented in the SDK
+    // The URL and token come from context.client.notificationDetails
     const response = await fetch("https://api.farcaster.xyz/v1/frame-notifications", {
       method: "POST",
       headers: {
@@ -44,11 +45,10 @@ export async function sendFarcasterNotification(
         Authorization: `Bearer ${notificationToken}`,
       },
       body: JSON.stringify({
-        notificationId: `daily-reminder-${Date.now()}`,
+        notificationId: `daily-reminder-${fid}-${Date.now()}`,
         title: notification.title,
         body: notification.body,
         targetUrl: notification.targetUrl || "https://www.rpsonchain.xyz/profile?scroll=gooddollar",
-        tokens: [notificationToken], // Array of notification tokens
       }),
     });
 
@@ -102,9 +102,11 @@ export function generateGoodDollarReminder(userName?: string): NotificationData 
 
 /**
  * Check if user should receive daily reminder
+ * Simplified version - if user has notification token, they want notifications
  */
 export function shouldSendDailyReminder(prefs: UserNotificationPrefs): boolean {
-  if (!prefs.enableDailyReminders) return false;
+  // If no notification token, user hasn't enabled notifications in Farcaster
+  if (!prefs.notificationToken) return false;
 
   const now = new Date();
   const today = now.toISOString().split("T")[0]; // YYYY-MM-DD
@@ -112,17 +114,12 @@ export function shouldSendDailyReminder(prefs: UserNotificationPrefs): boolean {
   // Don't send if already claimed today
   if (prefs.lastClaimDate === today) return false;
 
-  // Check if it's the right time (within 1 hour window)
-  const [targetHour, targetMinute] = prefs.reminderTime.split(":").map(Number);
+  // Check if it's the right time (within 1 hour window of 9 AM UTC)
+  // Since cron runs at 9 AM UTC, we send to everyone who hasn't claimed today
   const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
 
-  // Send if we're within 1 hour of target time
-  const targetTime = targetHour * 60 + targetMinute;
-  const currentTime = currentHour * 60 + currentMinute;
-  const timeDiff = Math.abs(currentTime - targetTime);
-
-  return timeDiff <= 60; // Within 1 hour
+  // Send notifications between 8 AM and 10 AM UTC (±1 hour from 9 AM)
+  return currentHour >= 8 && currentHour <= 10;
 }
 
 /**

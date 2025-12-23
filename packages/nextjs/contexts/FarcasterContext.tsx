@@ -17,6 +17,7 @@ interface FarcasterContextType {
   isMiniAppReady: boolean;
   context: Context.MiniAppContext | null;
   enrichedUser: EnrichedUser | null;
+  sdk: typeof sdk;
   setMiniAppReady: () => void;
   addMiniApp: () => Promise<any>;
 }
@@ -133,6 +134,7 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         addMiniApp: handleAddMiniApp,
         context,
         enrichedUser,
+        sdk,
       }}
     >
       {children}

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UserNotificationPrefs, shouldSendDailyReminder } from "~~/lib/notificationService";
 import { turso } from "~~/lib/turso";
 
 export async function GET(req: NextRequest) {
@@ -7,14 +8,16 @@ export async function GET(req: NextRequest) {
     const fid = searchParams.get("fid");
 
     if (!fid) {
-      return NextResponse.json({ error: "FID parameter required" }, { status: 400 });
+      return NextResponse.json({ error: "Missing fid parameter" }, { status: 400 });
     }
 
-    // Check if user has notification preferences
+    console.log(`[Check Notification Prefs] Checking preferences for FID ${fid}`);
+
+    // Get user's notification preferences from database
     const result = await turso.execute({
       sql: `
         SELECT fid, address, enable_daily_reminders, reminder_time, timezone, 
-               last_claim_date, notification_token, created_at, updated_at
+               last_claim_date, notification_token
         FROM notification_preferences 
         WHERE fid = ?
       `,
@@ -23,72 +26,70 @@ export async function GET(req: NextRequest) {
 
     if (result.rows.length === 0) {
       return NextResponse.json({
+        fid: parseInt(fid),
         found: false,
-        message: "No notification preferences found for this FID",
-        suggestion: "User needs to enable notifications in the app first",
+        hasNotificationToken: false,
+        shouldReceiveNotifications: false,
+        message: "User not found in notification preferences. User needs to enable notifications in Farcaster menu.",
+        instructions: [
+          "1. Open the app in Farcaster",
+          "2. Tap the three dots (⋯) in the top right corner",
+          "3. Select 'Turn on notifications'",
+          "4. The app will automatically store the notification token",
+        ],
       });
     }
 
     const row = result.rows[0];
-    const prefs = {
+    const prefs: UserNotificationPrefs = {
       fid: row.fid as number,
-      address: (row.address as string) || null,
+      address: (row.address as string) || undefined,
       enableDailyReminders: Boolean(row.enable_daily_reminders),
-      reminderTime: row.reminder_time as string,
-      timezone: row.timezone as string,
-      lastClaimDate: (row.last_claim_date as string) || null,
-      hasNotificationToken: !!(row.notification_token as string),
-      notificationTokenLength: (row.notification_token as string)?.length || 0,
-      createdAt: row.created_at as string,
-      updatedAt: row.updated_at as string,
+      reminderTime: (row.reminder_time as string) || "09:00",
+      timezone: (row.timezone as string) || "UTC",
+      lastClaimDate: (row.last_claim_date as string) || undefined,
+      notificationToken: (row.notification_token as string) || undefined,
     };
 
-    // Check current time and whether notification should be sent
+    const hasNotificationToken = Boolean(prefs.notificationToken);
+    const shouldReceive = shouldSendDailyReminder(prefs);
+
+    // Get current time info for debugging
     const now = new Date();
     const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const [targetHour, targetMinute] = prefs.reminderTime.split(":").map(Number);
-    const targetTime = targetHour * 60 + targetMinute;
-    const currentTime = currentHour * 60 + currentMinute;
-    const timeDiff = Math.abs(currentTime - targetTime);
-    const todayDate = now.toISOString().split("T")[0];
-
-    const analysis = {
-      enabledReminders: prefs.enableDailyReminders,
-      hasToken: prefs.hasNotificationToken,
-      alreadyClaimedToday: prefs.lastClaimDate === todayDate,
-      withinTimeWindow: timeDiff <= 60,
-      currentTime: `${currentHour.toString().padStart(2, "0")}:${currentMinute.toString().padStart(2, "0")} UTC`,
-      targetTime: prefs.reminderTime,
-      timeDiffMinutes: timeDiff,
-      shouldReceiveNotification:
-        prefs.enableDailyReminders && prefs.hasNotificationToken && prefs.lastClaimDate !== todayDate && timeDiff <= 60,
-    };
+    const today = now.toISOString().split("T")[0];
 
     return NextResponse.json({
+      fid: parseInt(fid),
       found: true,
       preferences: prefs,
-      analysis,
-      recommendations: {
-        enableReminders: !prefs.enableDailyReminders ? "Enable daily reminders in app settings" : "✓ Enabled",
-        notificationToken: !prefs.hasNotificationToken
-          ? "Grant notification permissions in Farcaster client"
-          : "✓ Token present",
-        claimStatus:
-          prefs.lastClaimDate === todayDate
-            ? "Already claimed today - no notification needed"
-            : "✓ Can receive notification",
-        timeWindow: timeDiff > 60 ? `Wait until ${prefs.reminderTime} UTC (±1 hour window)` : "✓ Within time window",
+      hasNotificationToken,
+      shouldReceiveNotifications: shouldReceive,
+      debugInfo: {
+        currentTime: now.toISOString(),
+        currentHour,
+        today,
+        alreadyClaimedToday: prefs.lastClaimDate === today,
+        inTimeWindow: currentHour >= 8 && currentHour <= 10,
+        reminderTime: prefs.reminderTime,
+        timezone: prefs.timezone,
       },
+      message: hasNotificationToken
+        ? shouldReceive
+          ? "✅ User will receive notifications"
+          : "⏭ User has token but won't receive notification (wrong time or already claimed)"
+        : "❌ User needs to enable notifications in Farcaster menu",
+      instructions: hasNotificationToken
+        ? []
+        : [
+            "1. Open the app in Farcaster",
+            "2. Tap the three dots (⋯) in the top right corner",
+            "3. Select 'Turn on notifications'",
+            "4. The app will automatically store the notification token",
+          ],
     });
   } catch (error) {
     console.error("[Check Notification Prefs] Error:", error);
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-      },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to check notification preferences" }, { status: 500 });
   }
 }
