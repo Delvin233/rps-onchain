@@ -45,7 +45,9 @@ export default function MatchShareClient({ roomId, matchId }: MatchShareClientPr
   const fetchMatchData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/share/${roomId}?matchId=${matchId}`);
+      const response = await fetch(`/api/share/${roomId}?matchId=${matchId}`, {
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -60,7 +62,17 @@ export default function MatchShareClient({ roomId, matchId }: MatchShareClientPr
       setMatchData(data);
     } catch (err) {
       console.error("Error fetching match data:", err);
-      setError("Failed to load match data");
+
+      // Handle timeout errors specifically
+      if (err instanceof Error) {
+        if (err.name === "AbortError" || err.name === "TimeoutError") {
+          setError("Request timed out. Please try again.");
+        } else {
+          setError("Failed to load match data");
+        }
+      } else {
+        setError("Failed to load match data");
+      }
     } finally {
       setLoading(false);
     }

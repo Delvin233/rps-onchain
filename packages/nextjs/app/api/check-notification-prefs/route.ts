@@ -11,7 +11,20 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Missing fid parameter" }, { status: 400 });
     }
 
-    console.log(`[Check Notification Prefs] Checking preferences for FID ${fid}`);
+    // Validate FID is a valid number
+    const fidNumber = parseInt(fid);
+    if (isNaN(fidNumber) || !isFinite(fidNumber) || fidNumber <= 0) {
+      return NextResponse.json(
+        {
+          error: "Invalid fid parameter",
+          message: "FID must be a positive integer",
+          example: "Use: /api/check-notification-prefs?fid=12345",
+        },
+        { status: 400 },
+      );
+    }
+
+    console.log(`[Check Notification Prefs] Checking preferences for FID ${fidNumber}`);
 
     // Get user's notification preferences from database
     const result = await turso.execute({
@@ -21,12 +34,12 @@ export async function GET(req: NextRequest) {
         FROM notification_preferences 
         WHERE fid = ?
       `,
-      args: [parseInt(fid)],
+      args: [fidNumber],
     });
 
     if (result.rows.length === 0) {
       return NextResponse.json({
-        fid: parseInt(fid),
+        fid: fidNumber,
         found: false,
         hasNotificationToken: false,
         shouldReceiveNotifications: false,
@@ -60,7 +73,7 @@ export async function GET(req: NextRequest) {
     const today = now.toISOString().split("T")[0];
 
     return NextResponse.json({
-      fid: parseInt(fid),
+      fid: fidNumber,
       found: true,
       preferences: prefs,
       hasNotificationToken,
