@@ -2,18 +2,18 @@
 export type ShareType = "room-code" | "match-result" | "room-history";
 
 // Smart URL detection helper
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_URL) {
     return process.env.NEXT_PUBLIC_URL;
   }
   if (typeof window !== "undefined") {
     // For Vercel previews, use production URL for sharing
     if (window.location.hostname.includes("vercel.app")) {
-      return "https://rpsonchain.xyz";
+      return "https://www.rpsonchain.xyz";
     }
     return window.location.origin;
   }
-  return "https://rpsonchain.xyz"; // SSR fallback
+  return "https://www.rpsonchain.xyz"; // SSR fallback
 }
 
 // Generate room code share text

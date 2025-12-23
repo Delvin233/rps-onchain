@@ -65,6 +65,12 @@ async function getMatchData(roomId: string, matchId: string) {
                     : undefined,
                 };
 
+                console.log(`[Share API] Resolved names:`, {
+                  addresses,
+                  resolvedNames,
+                  playerNames,
+                });
+
                 return NextResponse.json({
                   roomId,
                   matchId,

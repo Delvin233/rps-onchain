@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SelfAppBuilder, SelfQRcodeWrapper } from "@selfxyz/qrcode";
 import { useAccount } from "wagmi";
 import { useRPSContract } from "~~/hooks/useRPSContract";
+import { getBaseUrl } from "~~/utils/shareUtils";
 
 interface SelfQRCodeProps {
   onSuccess: () => void;
@@ -68,7 +69,7 @@ export const SelfQRCode = ({ onSuccess, onError }: SelfQRCodeProps) => {
             console.error("Contract verification failed after retries");
             // Even if contract check fails, sync to Turso as backup
             try {
-              const syncResponse = await fetch("/api/sync-verification", {
+              const syncResponse = await fetch(`${getBaseUrl()}/api/sync-verification`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

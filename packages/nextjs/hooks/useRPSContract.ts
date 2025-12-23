@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Address, parseAbi } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
+import { getBaseUrl } from "~~/utils/shareUtils";
 
 // Contract ABI for the verification functions we need (simplified)
 const RPS_CONTRACT_ABI = parseAbi([
@@ -45,7 +46,7 @@ export const useRPSContract = () => {
             setVerificationData({ verified: true, source: "blockchain" });
 
             // Sync to Turso for future fast access (non-blocking)
-            fetch("/api/sync-verification", {
+            fetch(`${getBaseUrl()}/api/sync-verification`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -71,7 +72,7 @@ export const useRPSContract = () => {
 
           // Fallback to Turso if blockchain fails (RPC issues, rate limits, etc.)
           try {
-            const response = await fetch(`/api/sync-verification?address=${address}`);
+            const response = await fetch(`${getBaseUrl()}/api/sync-verification?address=${address}`);
             const tursoResult = await response.json();
 
             if (tursoResult.verified) {
@@ -95,7 +96,7 @@ export const useRPSContract = () => {
       } else {
         // No publicClient available, use Turso only
         console.log(`[Verification] No RPC client, using Turso only for ${address}...`);
-        const response = await fetch(`/api/sync-verification?address=${address}`);
+        const response = await fetch(`${getBaseUrl()}/api/sync-verification?address=${address}`);
         const tursoResult = await response.json();
 
         setIsVerified(tursoResult.verified || false);

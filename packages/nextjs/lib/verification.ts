@@ -3,6 +3,7 @@
  */
 import { createPublicClient, http, parseAbi } from "viem";
 import { celo } from "viem/chains";
+import { getBaseUrl } from "~~/utils/shareUtils";
 
 const CONTRACT_ADDRESS = "0x3e5e80bc7de408f9d63963501179a50b251cbda3";
 const CONTRACT_ABI = parseAbi(["function isUserVerified(address user) external view returns (bool)"]);
@@ -41,7 +42,7 @@ export async function checkVerificationStatus(address: string): Promise<{
       // If verified on blockchain, sync to Turso for future fast access
       if (verified) {
         try {
-          await fetch("/api/sync-verification", {
+          await fetch(`${getBaseUrl()}/api/sync-verification`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -61,7 +62,7 @@ export async function checkVerificationStatus(address: string): Promise<{
 
       // Fallback to Turso if blockchain fails (RPC issues, rate limits, etc.)
       try {
-        const response = await fetch(`/api/sync-verification?address=${address}`);
+        const response = await fetch(`${getBaseUrl()}/api/sync-verification?address=${address}`);
         const tursoResult = await response.json();
 
         console.log(`[Verification] Turso fallback result: ${tursoResult.verified}`);
@@ -101,7 +102,7 @@ export async function syncVerificationToTurso(
   txHash?: string,
 ): Promise<boolean> {
   try {
-    const response = await fetch("/api/sync-verification", {
+    const response = await fetch(`${getBaseUrl()}/api/sync-verification`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
