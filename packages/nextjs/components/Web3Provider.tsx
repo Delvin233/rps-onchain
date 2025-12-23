@@ -18,6 +18,13 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Only initialize AppKit on the client side and only once
     if (typeof window !== "undefined" && !appKitInitialized) {
+      // Check if AppKit is already initialized by checking for existing modal
+      const existingModal = document.querySelector("w3m-modal") || document.querySelector('[data-testid="w3m-modal"]');
+      if (existingModal) {
+        console.warn("[Web3Provider] AppKit modal already exists, skipping initialization");
+        return;
+      }
+
       appKitInitialized = true;
 
       // Set up metadata with smart URL detection

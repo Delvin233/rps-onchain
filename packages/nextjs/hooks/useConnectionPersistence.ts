@@ -32,7 +32,9 @@ export function useConnectionPersistence() {
         const isCurrentlyConnected = wagmiConnected || appKitConnected;
 
         if (wasConnected && !isCurrentlyConnected && reconnectAttempts.current < maxReconnectAttempts) {
-          console.log("[ConnectionPersistence] Attempting to restore connection...");
+          if (process.env.NODE_ENV === "development") {
+            console.log("[ConnectionPersistence] Attempting to restore connection...");
+          }
           reconnectAttempts.current++;
 
           // Try to trigger reconnection by dispatching events

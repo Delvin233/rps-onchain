@@ -211,7 +211,12 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                     msg.includes('has not been authorized yet') ||
                     msg.includes('The source') && msg.includes('has not been authorized') ||
                     msg.includes('svg') && msg.includes('attribute') && msg.includes('Unexpected end of attribute') ||
-                    msg.includes('KHTeka-Medium.woff2') && msg.includes('preloaded using link preload')
+                    msg.includes('KHTeka-Medium.woff2') && msg.includes('preloaded using link preload') ||
+                    msg.includes('WalletConnect Core') && msg.includes('already initialized') ||
+                    msg.includes('AppKit') && msg.includes('already initialized') ||
+                    msg.includes('rpsonchain.xyz') && msg.includes('has not been authorized') ||
+                    msg.includes('Authorization failed') && msg.includes('rpsonchain.xyz') ||
+                    msg.includes('useDisplayName') // Suppress useDisplayName logs in production
                   ) {
                     return;
                   }
@@ -228,7 +233,10 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                       msg.includes('Telemetry is not supported in non-browser environments') ||
                       msg.includes('Failed to find Server Action') ||
                       msg.includes('Please call "createAppKit" before using') ||
-                      msg.includes('has not been authorized yet')
+                      msg.includes('has not been authorized yet') ||
+                      msg.includes('WalletConnect Core') && msg.includes('already initialized') ||
+                      msg.includes('AppKit') && msg.includes('already initialized') ||
+                      msg.includes('Authorization failed') && msg.includes('rpsonchain.xyz')
                     ) {
                       event.preventDefault();
                       console.warn('Filtered unhandled rejection:', msg);

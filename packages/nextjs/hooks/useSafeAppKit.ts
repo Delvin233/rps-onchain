@@ -15,7 +15,9 @@ export const useSafeAppKit = () => {
   }, []);
 
   const open = () => {
-    console.log("[useSafeAppKit] Open called");
+    if (process.env.NODE_ENV === "development") {
+      console.log("[useSafeAppKit] Open called");
+    }
 
     if (!isClient) {
       console.warn("[useSafeAppKit] Not on client side");
@@ -35,7 +37,9 @@ export const useSafeAppKit = () => {
       for (const selector of selectors) {
         const element = document.querySelector(selector) as HTMLElement;
         if (element && typeof element.click === "function") {
-          console.log(`[useSafeAppKit] Found element with selector: ${selector}`);
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[useSafeAppKit] Found element with selector: ${selector}`);
+          }
           element.click();
           return;
         }
@@ -44,26 +48,34 @@ export const useSafeAppKit = () => {
       // Method 2: Try to open modal directly
       const modal = document.querySelector("w3m-modal") as any;
       if (modal && typeof modal.open === "function") {
-        console.log("[useSafeAppKit] Opening modal directly");
+        if (process.env.NODE_ENV === "development") {
+          console.log("[useSafeAppKit] Opening modal directly");
+        }
         modal.open();
         return;
       }
 
       // Method 3: Try global AppKit instance
       if ((window as any).appkit && typeof (window as any).appkit.open === "function") {
-        console.log("[useSafeAppKit] Using global appkit instance");
+        if (process.env.NODE_ENV === "development") {
+          console.log("[useSafeAppKit] Using global appkit instance");
+        }
         (window as any).appkit.open();
         return;
       }
 
       // Method 4: Dispatch event for AppKit to listen to
-      console.log("[useSafeAppKit] Dispatching appkit-open event");
+      if (process.env.NODE_ENV === "development") {
+        console.log("[useSafeAppKit] Dispatching appkit-open event");
+      }
       window.dispatchEvent(new CustomEvent("appkit-open"));
 
       // Method 5: Try to trigger AppKit through any available means
       const appKitElements = document.querySelectorAll('[class*="appkit"], [class*="w3m"]');
       if (appKitElements.length > 0) {
-        console.log(`[useSafeAppKit] Found ${appKitElements.length} potential AppKit elements`);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[useSafeAppKit] Found ${appKitElements.length} potential AppKit elements`);
+        }
         (appKitElements[0] as HTMLElement).click?.();
       }
     } catch (error) {

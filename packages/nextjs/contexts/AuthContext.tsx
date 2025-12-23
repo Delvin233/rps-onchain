@@ -143,16 +143,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener("focus", handleFocus);
   }, [mounted, effectiveWalletConnected, hasFarcasterAuth]);
 
-  // Debug log (only in development)
+  // Debug log (only in development and throttled)
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-      console.log("[AuthContext] State:", {
-        wagmi: { address: walletAddress, connected: walletConnected },
-        appKit: { address: appKitAddress, connected: appKitConnected },
-        effective: { address: effectiveWalletAddress, connected: effectiveWalletConnected },
-        farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
-        final: { authMethod, address },
-      });
+      // Throttle logging to prevent spam
+      const timeoutId = setTimeout(() => {
+        console.log("[AuthContext] State:", {
+          wagmi: { address: walletAddress, connected: walletConnected },
+          appKit: { address: appKitAddress, connected: appKitConnected },
+          effective: { address: effectiveWalletAddress, connected: effectiveWalletConnected },
+          farcaster: { address: farcasterAddress, auth: hasFarcasterAuth },
+          final: { authMethod, address },
+        });
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [
     walletAddress,

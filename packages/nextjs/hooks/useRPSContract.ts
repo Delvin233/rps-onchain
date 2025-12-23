@@ -57,7 +57,9 @@ export const useRPSContract = () => {
             })
               .then(response => {
                 if (response.ok) {
-                  console.log("[Sync] Successfully synced to Turso");
+                  if (process.env.NODE_ENV === "development") {
+                    console.log("[Sync] Successfully synced to Turso");
+                  }
                 } else {
                   console.warn("[Sync] Turso sync failed with status:", response.status);
                 }
@@ -65,7 +67,9 @@ export const useRPSContract = () => {
               .catch(err => console.warn("[Sync] Failed to sync to Turso:", err));
           }
 
-          console.log(`[Verification] Blockchain result: ${verified}`);
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[Verification] Blockchain result: ${verified}`);
+          }
           return verified;
         } catch (blockchainError) {
           console.warn(`[Verification] Blockchain failed, trying Turso fallback:`, blockchainError);
@@ -78,12 +82,16 @@ export const useRPSContract = () => {
             if (tursoResult.verified) {
               setIsVerified(true);
               setVerificationData(tursoResult.verificationData);
-              console.log(`[Verification] Turso fallback result: verified`);
+              if (process.env.NODE_ENV === "development") {
+                console.log(`[Verification] Turso fallback result: verified`);
+              }
               return true;
             } else {
               setIsVerified(false);
               setVerificationData(null);
-              console.log(`[Verification] Turso fallback result: not verified`);
+              if (process.env.NODE_ENV === "development") {
+                console.log(`[Verification] Turso fallback result: not verified`);
+              }
               return false;
             }
           } catch (tursoError) {
@@ -95,13 +103,17 @@ export const useRPSContract = () => {
         }
       } else {
         // No publicClient available, use Turso only
-        console.log(`[Verification] No RPC client, using Turso only for ${address}...`);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[Verification] No RPC client, using Turso only for ${address}...`);
+        }
         const response = await fetch(`${getBaseUrl()}/api/sync-verification?address=${address}`);
         const tursoResult = await response.json();
 
         setIsVerified(tursoResult.verified || false);
         setVerificationData(tursoResult.verificationData || null);
-        console.log(`[Verification] Turso-only result: ${tursoResult.verified}`);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[Verification] Turso-only result: ${tursoResult.verified}`);
+        }
         return tursoResult.verified || false;
       }
     } catch (error) {
@@ -126,7 +138,9 @@ export const useRPSContract = () => {
         user: address,
       },
       onLogs: logs => {
-        console.log("UserVerified event detected:", logs);
+        if (process.env.NODE_ENV === "development") {
+          console.log("UserVerified event detected:", logs);
+        }
         // Refresh verification status when event is detected
         checkVerificationStatus();
       },

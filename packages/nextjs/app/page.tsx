@@ -41,11 +41,19 @@ export default function Home() {
   const isMiniPay = typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
   const isMiniApp = (isMiniAppReady && !!context) || isBaseApp || isMiniPay;
 
+  // Use mounted state to prevent hydration mismatches
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Don't show loading state - it causes flashing on navigation
   // The FarcasterProvider handles initialization in the background
   const isLoading = false;
 
   const getPlatform = (): "farcaster" | "base" | "minipay" => {
+    if (!mounted) return "farcaster"; // Default during SSR
     if (isBaseApp) return "base";
     if (isMiniPay) return "minipay";
     if (isMiniAppReady && context) return "farcaster";
@@ -56,7 +64,7 @@ export default function Home() {
 
   // Auto-connect for all miniapps (Base, MiniPay, and Farcaster)
   useEffect(() => {
-    if (address) return;
+    if (!mounted || address) return;
 
     // Auto-connect for Farcaster miniapp
     if (isMiniAppReady && context && authMethod === "farcaster") {
@@ -80,11 +88,11 @@ export default function Home() {
           console.error("[HomePage] Auto-connect failed:", error);
         });
     }
-  }, [isBaseApp, isMiniPay, isMiniAppReady, context, address, connect, authMethod]);
+  }, [mounted, isBaseApp, isMiniPay, isMiniAppReady, context, address, connect, authMethod]);
 
   // Enforce network restrictions for miniapps
   useEffect(() => {
-    if (!address) return;
+    if (!mounted || !address) return;
 
     // Base app: Force Base network
     if (isBaseApp && chainId !== 8453) {
@@ -102,7 +110,7 @@ export default function Home() {
         console.error("Failed to switch to Celo:", error);
       }
     }
-  }, [isBaseApp, isMiniPay, address, chainId, switchChain]);
+  }, [mounted, isBaseApp, isMiniPay, address, chainId, switchChain]);
 
   useEffect(() => {
     if (address) {
@@ -169,8 +177,18 @@ export default function Home() {
   ];
 
   return (
-    <div className="w-full bg-base-200">
-      {isLoading ? (
+    <div className="w-full bg-base-200" suppressHydrationWarning>
+      {!mounted ? (
+        // Show minimal loading state during SSR/hydration
+        <div className="pt-8 lg:py-8">
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="text-5xl lg:text-6xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
+              RPS-onChain
+            </h1>
+            <p className="text-base lg:text-lg text-base-content/60">Free-to-play Rock Paper Scissors on-chain.</p>
+          </div>
+        </div>
+      ) : isLoading ? (
         <div className="pt-8 lg:py-8">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-5xl lg:text-6xl font-bold mb-3 animate-glow" style={{ color: "var(--color-primary)" }}>
