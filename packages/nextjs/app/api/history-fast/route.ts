@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
     const addressLower = address.toLowerCase();
     const key = `history:${addressLower}`;
 
-    // Store in Redis (cache)
+    // Store in Redis (cache) - longer TTL for match history (30 days)
     await redis.lpush(key, JSON.stringify(match));
     await redis.ltrim(key, 0, 99);
-    await redis.expire(key, 60 * 60 * 24 * 7);
+    await redis.expire(key, 60 * 60 * 24 * 30); // 30 days instead of 7
 
     // Store in database using resilient operations
     const players = [match.players?.creator, match.players?.joiner, match.player, match.opponent].filter(Boolean);

@@ -10,15 +10,24 @@ export async function generateMetadata({
   const { roomId, matchId } = await params;
 
   try {
+    console.log(`[Share Metadata] Generating metadata for roomId=${roomId}, matchId=${matchId}`);
+
     // Get base URL for API calls
     const baseUrl = process.env.NEXT_PUBLIC_URL || "https://www.rpsonchain.xyz";
+    const apiUrl = `${baseUrl}/api/share/${roomId}?matchId=${matchId}`;
+
+    console.log(`[Share Metadata] Fetching from: ${apiUrl}`);
 
     // Fetch match data for metadata
-    const response = await fetch(`${baseUrl}/api/share/${roomId}?matchId=${matchId}`, {
+    const response = await fetch(apiUrl, {
       next: { revalidate: 3600 }, // Cache for 1 hour
+      signal: AbortSignal.timeout(10000), // 10 second timeout
     });
 
+    console.log(`[Share Metadata] Fetch response: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
+      console.warn(`[Share Metadata] API response not ok: ${response.status}`);
       return {
         title: "RPS Match - RPS-onChain",
         description: "Rock Paper Scissors match result",
@@ -26,6 +35,7 @@ export async function generateMetadata({
     }
 
     const matchData = await response.json();
+    console.log(`[Share Metadata] Match data received for roomId=${roomId}`);
 
     const creatorName =
       matchData.playerNames?.creator ||
@@ -45,6 +55,8 @@ export async function generateMetadata({
     const description = `${matchData.moves.creatorMove} vs ${matchData.moves.joinerMove} - ${
       winner === "tie" ? "Epic tie game" : `${winnerName} wins`
     }! Challenge them to a rematch.`;
+
+    console.log(`[Share Metadata] Generated title: ${title}`);
 
     return {
       title,
@@ -80,6 +92,16 @@ export async function generateMetadata({
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
+
+    // Provide more specific error information
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        console.error(`[Share Metadata] Request timed out for roomId=${roomId}, matchId=${matchId}`);
+      } else if (error.message.includes("ETIMEDOUT")) {
+        console.error(`[Share Metadata] Network timeout for roomId=${roomId}, matchId=${matchId}`);
+      }
+    }
+
     return {
       title: "RPS Match - RPS-onChain",
       description: "Rock Paper Scissors match result",

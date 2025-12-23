@@ -27,7 +27,7 @@ interface Room {
   playerNames?: { creator?: string | null; joiner?: string | null };
 }
 
-const ROOM_TTL = 60 * 60; // 1 hour in seconds
+const ROOM_TTL = 60 * 60 * 2; // 2 hours in seconds (increased from 1 hour for better sharing)
 
 class RedisManager {
   private static instance: RedisManager;
