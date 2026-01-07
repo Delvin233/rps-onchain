@@ -2209,6 +2209,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@goodsdks/engagement-sdk@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@goodsdks/engagement-sdk@npm:1.0.3"
+  dependencies:
+    tsup: ^8.3.5
+  peerDependencies:
+    react: "*"
+    viem: "*"
+    wagmi: "*"
+  checksum: 48e19c086ad79337aa8d922ab39689f4f121836404fa825f5abb7f3528de62fc71bf025b1f20f83afc790a0be831584442c0c5af11d458d5b898516fc41bd5fc
+  languageName: node
+  linkType: hard
+
 "@heroicons/react@npm:~2.1.5":
   version: 2.1.5
   resolution: "@heroicons/react@npm:2.1.5"
@@ -5664,6 +5677,7 @@ __metadata:
     "@farcaster/miniapp-wagmi-connector": ^1.1.0
     "@farcaster/quick-auth": ^0.0.8
     "@goodsdks/citizen-sdk": ^1.2.2
+    "@goodsdks/engagement-sdk": ^1.0.3
     "@heroicons/react": ~2.1.5
     "@libsql/client": ^0.15.15
     "@next/bundle-analyzer": ^16.0.3
@@ -23340,7 +23354,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsup@npm:^8.4.0":
+"tsup@npm:^8.3.5, tsup@npm:^8.4.0":
   version: 8.5.1
   resolution: "tsup@npm:8.5.1"
   dependencies:
