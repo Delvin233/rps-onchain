@@ -67,8 +67,13 @@ export const EngagementRewards = ({
             <p className="text-xs text-base-content/60">Earn bonus G$ for consistent participation</p>
           </div>
         </div>
-        <button onClick={() => setShowRewards(!showRewards)} className="btn btn-sm btn-ghost">
-          {showRewards ? "−" : "+"}
+        <button
+          onClick={() => setShowRewards(!showRewards)}
+          className="btn btn-sm btn-outline btn-primary hover:btn-primary transition-all duration-200 min-w-[70px]"
+          title={showRewards ? "Hide details" : "Show details"}
+        >
+          <span className="text-xl font-medium mr-1">{showRewards ? "−" : "+"}</span>
+          <span className="text-xs">{showRewards ? "Less" : "More"}</span>
         </button>
       </div>
 
