@@ -11,6 +11,7 @@ import { injected } from "wagmi/connectors";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
 import { RankBadge } from "~~/components/RankBadge";
+import ReferralBanner from "~~/components/ReferralBanner";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useFarcaster } from "~~/contexts/FarcasterContext";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -178,6 +179,9 @@ export default function Home() {
 
   return (
     <div className="w-full bg-base-200" suppressHydrationWarning>
+      {/* Referral Banner - shows when user comes from invite link */}
+      <ReferralBanner />
+
       {!mounted ? (
         // Show minimal loading state during SSR/hydration
         <div className="pt-8 lg:py-8">

@@ -8,9 +8,10 @@ import toast from "react-hot-toast";
 import { IoColorPalette } from "react-icons/io5";
 import { MdLightbulbOutline } from "react-icons/md";
 import { AddMiniAppPrompt } from "~~/components/AddMiniAppPrompt";
-import { EngagementRewards } from "~~/components/EngagementRewards";
+import { ViralGrowth } from "~~/components/EngagementRewards";
 import { LoginButton } from "~~/components/LoginButton";
 import { MiniAppAccount } from "~~/components/MiniAppAccount";
+import ReferralBanner from "~~/components/ReferralBanner";
 import { useAuth } from "~~/contexts/AuthContext";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 import { useDisplayName } from "~~/hooks/useDisplayName";
@@ -77,25 +78,13 @@ export default function ProfilePage() {
   };
   const { displayName, hasEns, ensType, pfpUrl } = useDisplayName(address || undefined);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const {
-    checkEntitlement,
-    getNextClaimTime,
-    claim,
-    isLoading,
-    isReady,
-    identitySDK,
-    getEngagementStats,
-    calculateEngagementRewards,
-    shareReward,
-    engagementStats,
-    claimEngagementRewards,
-  } = useGoodDollarClaim();
+  const { checkEntitlement, getNextClaimTime, claim, isLoading, isReady, identitySDK, claimEngagementRewards } =
+    useGoodDollarClaim();
   const [entitlement, setEntitlement] = useState<bigint>(0n);
   const [nextClaimTime, setNextClaimTime] = useState<Date | null>(null);
   const [timeUntilClaim, setTimeUntilClaim] = useState("");
   const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
   const [justClaimed, setJustClaimed] = useState(false);
-  const [engagementRewards, setEngagementRewards] = useState<any[]>([]);
 
   useEffect(() => {
     if (isReady && address && identitySDK) {
@@ -103,12 +92,6 @@ export default function ProfilePage() {
       getNextClaimTime().then(setNextClaimTime);
       identitySDK.getWhitelistedRoot(address).then(({ isWhitelisted }) => {
         setIsWhitelisted(isWhitelisted);
-      });
-      // Load engagement stats and rewards
-      getEngagementStats().then(stats => {
-        if (stats) {
-          calculateEngagementRewards().then(setEngagementRewards);
-        }
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,18 +132,14 @@ export default function ProfilePage() {
 
       // Show success message with engagement rewards info
       let successMessage = "UBI claimed successfully!";
-      if (result.engagementRewards && result.engagementRewards.length > 0) {
-        const bonusAmount = result.engagementRewards.reduce((sum: bigint, reward: any) => sum + reward.amount, 0n);
-        successMessage += ` +${(Number(bonusAmount) / 1e18).toFixed(1)} G$ bonus!`;
+      if (result.engagementResult) {
+        successMessage += " +Engagement bonus earned!";
       }
       toast.success(successMessage);
 
       // Immediately update UI to show claimed state
       setEntitlement(0n);
       setJustClaimed(true);
-
-      // Refresh engagement rewards
-      calculateEngagementRewards().then(setEngagementRewards);
 
       // Refresh the claim status with retry logic
       const refreshClaimStatus = async (retries = 3) => {
@@ -228,6 +207,9 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-base-200 pt-4 lg:pt-0 pb-16 lg:pb-0">
+      {/* Referral Banner - shows when user comes from invite link */}
+      <ReferralBanner />
+
       <h1
         className="font-bold mb-6"
         style={{
@@ -423,16 +405,8 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Engagement Rewards Section */}
-      {isReady && engagementStats && (
-        <EngagementRewards
-          stats={engagementStats}
-          rewards={engagementRewards}
-          onShare={shareReward}
-          onClaimEngagement={claimEngagementRewards}
-          isLoading={isLoading}
-        />
-      )}
+      {/* Viral Growth Section */}
+      {isReady && <ViralGrowth onClaimEngagement={claimEngagementRewards} isLoading={isLoading} />}
 
       {/* Theme Settings Link */}
       <button

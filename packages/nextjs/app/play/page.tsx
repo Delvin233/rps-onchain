@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Shield, User, Users } from "lucide-react";
 import { IoInformationCircle } from "react-icons/io5";
 import { LoginButton } from "~~/components/LoginButton";
+import ReferralBanner from "~~/components/ReferralBanner";
 import { useConnectedAddress } from "~~/hooks/useConnectedAddress";
 
 export default function PlayModePage() {
@@ -50,6 +51,9 @@ export default function PlayModePage() {
 
   return (
     <div className="min-h-screen bg-base-200 px-4 py-4">
+      {/* Referral Banner - shows when user comes from invite link */}
+      <ReferralBanner />
+
       <div className="mb-[3vh]">
         <button onClick={() => router.push("/")} className="btn btn-sm btn-outline mb-2">
           ← Back to Home
