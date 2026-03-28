@@ -172,6 +172,40 @@ export const COLOR_THEMES: Record<string, ColorTheme> = {
     error: "#dc2626",
     warning: "#fb923c",
   },
+
+  // Theme 10: Aurora Drift
+  auroraDrift: {
+    name: "Aurora Drift",
+    primary: "#2dd4bf",
+    secondary: "#c084fc",
+    accent: "#f472b6",
+    background: "#0c1224",
+    backgroundAlt: "#141c33",
+    card: "#1a2540",
+    border: "#2d3f66",
+    text: "#e0f2fe",
+    textMuted: "#7dd3fc",
+    success: "#34d399",
+    error: "#f43f5e",
+    warning: "#fbbf24",
+  },
+
+  // Theme 11: Rose Quartz
+  roseQuartz: {
+    name: "Rose Quartz",
+    primary: "#e879f9",
+    secondary: "#fb923c",
+    accent: "#f472b6",
+    background: "#1a0f16",
+    backgroundAlt: "#2d1822",
+    card: "#2d1822",
+    border: "#4d2840",
+    text: "#fce7f3",
+    textMuted: "#f9a8d4",
+    success: "#4ade80",
+    error: "#ef4444",
+    warning: "#fbbf24",
+  },
 };
 
 // 🎨 DEFAULT THEME

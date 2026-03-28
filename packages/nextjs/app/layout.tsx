@@ -99,6 +99,8 @@ const ScaffoldEthApp = async ({ children }: { children: React.ReactNode }) => {
                     fireIce: { primary: '#ef4444', secondary: '#06b6d4', bg: '#1a0a0a', bgAlt: '#2d1414', card: '#2d1414', text: '#fef2f2' },
                     monochromePro: { primary: '#6b7280', secondary: '#9ca3af', bg: '#0a0a0a', bgAlt: '#1a1a1a', card: '#1a1a1a', text: '#f5f5f5' },
                     retroArcade: { primary: '#fbbf24', secondary: '#f59e0b', bg: '#1a0f00', bgAlt: '#2d1a00', card: '#2d1a00', text: '#fef3c7' },
+                    auroraDrift: { primary: '#2dd4bf', secondary: '#c084fc', bg: '#0c1224', bgAlt: '#141c33', card: '#1a2540', text: '#e0f2fe' },
+                    roseQuartz: { primary: '#e879f9', secondary: '#fb923c', bg: '#1a0f16', bgAlt: '#2d1822', card: '#2d1822', text: '#fce7f3' },
                   };
                   
                   const fonts = {
