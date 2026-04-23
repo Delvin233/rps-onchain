@@ -60,6 +60,7 @@ export const metadata = {
         },
       },
     }),
+   "talentapp:project_verification" content="8c4c28f9e8c99469777af3ae9b4472208954e972f97ed65fd3b4bf1ac203c8b872606a38b221191fbf8437428e327659ce9c585151c11fbfaa6f38d7d7277fb3"
   },
 };
 
