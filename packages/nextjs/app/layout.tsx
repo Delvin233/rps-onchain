@@ -16,7 +16,7 @@ import { AuthProvider } from "~~/contexts/AuthContext";
 import { FarcasterProvider } from "~~/contexts/FarcasterContext";
 import "~~/lib/polyfills";
 import "~~/styles/globals.css";
-import { registerServiceWorker } from "~~/utils/registerSW";
+// import { registerServiceWorker } from "~~/utils/registerSW";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 const CRTEffect = dynamic(() => import("~~/components/CRTEffect").then(mod => ({ default: mod.CRTEffect })));
